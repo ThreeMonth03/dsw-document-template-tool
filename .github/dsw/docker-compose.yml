@@ -1,0 +1,67 @@
+name: dsw-template-ci
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-17.5}
+    environment:
+      POSTGRES_DB: engine-wizard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d engine-wizard"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  minio:
+    image: minio/minio:${MINIO_VERSION:-RELEASE.2025-05-24T17-08-30Z}
+    command: server /data --console-address ":9001"
+    ports:
+      - ${DSW_CI_MINIO_PORT:-9000}:9000
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minioPassword
+      MINIO_VOLUMES: /data
+
+  minio-init:
+    image: minio/mc:${MINIO_MC_VERSION:-latest}
+    depends_on:
+      - minio
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until mc alias set local http://minio:9000 minio minioPassword; do
+          sleep 1
+        done
+        mc mb --ignore-existing local/engine-wizard
+
+  server:
+    image: datastewardshipwizard/wizard-server:${DSW_VERSION:-4.30}
+    platform: linux/amd64
+    ports:
+      - 127.0.0.1:${DSW_CI_API_PORT:-3000}:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./config/application.yml:/app/config/application.yml:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  docworker:
+    image: datastewardshipwizard/document-worker:${DSW_VERSION:-4.30}
+    platform: linux/amd64
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      server:
+        condition: service_started
+    volumes:
+      - ./config/application.yml:/app/config/application.yml:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway

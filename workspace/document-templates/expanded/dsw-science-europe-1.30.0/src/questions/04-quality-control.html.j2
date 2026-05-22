@@ -1,0 +1,120 @@
+<div id="q-how-data" class="question">
+    {# __tr_block_0000:start #}<h3>4. What data quality control measures will be used?</h3>{# __tr_block_0000:end #}
+
+    <div class="answer">
+        {%- set measuredPath = [uuids.creatingCUuid, uuids.measuredQUuid]|reply_path -%}
+        {%- set measuredAUuid = repliesMap[measuredPath]|reply_str_value -%}
+        {%- if measuredAUuid == uuids.measuredYesAUuid -%}
+            {# Measured datasets #}
+            {%- set measuredDataPath = [measuredPath, uuids.measuredYesAUuid, uuids.measuredDataQUuid]|reply_path -%}
+            {%- set measuredDataItems = repliesMap[measuredDataPath]|reply_items -%}
+            {%- if measuredDataItems|length > 0 -%}
+            <ul>
+                {%- for datasetItem in measuredDataItems -%}
+                {%- set pathPrefix = [measuredDataPath, datasetItem]|reply_path -%}
+                {# __tr_block_0001:start #}<li>
+                    {%- set measuredDataNamePath = [pathPrefix, uuids.measuredDataNameQUuid]|reply_path -%}
+                    {%- set measuredDataName = repliesMap[measuredDataNamePath]|reply_str_value -%}
+                    <strong>{{ measuredDataName if measuredDataName else "(no name given)" }}</strong>
+                    {# Quality #}
+                    {%- set measuredDataQualityPath = [pathPrefix, uuids.measuredDataQualityQUuid]|reply_path -%}
+                    {%- set measuredDataQualityAUuid = repliesMap[measuredDataQualityPath]|reply_str_value -%}
+                    {%- if measuredDataQualityAUuid == uuids.measuredDataQualityNoAUuid -%}
+                    <p>For this dataset we will not be using quality process for this dataset.</p>
+                    {%- elif measuredDataQualityAUuid == uuids.measuredDataQualityYesAUuid -%}
+                    {# Named quality processes #}
+                    {%- set mdqPrefix = [measuredDataQualityPath, uuids.measuredDataQualityYesAUuid]|reply_path -%}
+                    {%- set calibratingAUuid = repliesMap[[mdqPrefix, uuids.mdQualityCalibratingQUuid]|reply_path]|reply_str_value -%}
+                    {%- set repetitionAUuid = repliesMap[[mdqPrefix, uuids.mdQualityRepetitionQUuid]|reply_path]|reply_str_value -%}
+                    {%- set standardizedAUuid = repliesMap[[mdqPrefix, uuids.mdQualityStandardizedQUuid]|reply_path]|reply_str_value -%}
+                    {%- set validationAUuid = repliesMap[[mdqPrefix, uuids.mdQualityValidationQUuid]|reply_path]|reply_str_value -%}
+                    {%- set peerReviewAUuid = repliesMap[[mdqPrefix, uuids.mdQualityPeerReviewQUuid]|reply_path]|reply_str_value -%}
+                    {%- set vocabulariesAUuid = repliesMap[[mdqPrefix, uuids.mdQualityVocabulariesQUuid]|reply_path]|reply_str_value -%}
+                    {%- set consistencyAUuid = repliesMap[[mdqPrefix, uuids.mdQualityConsistencyQUuid]|reply_path]|reply_str_value -%}
+                    {%- set calibrating = calibratingAUuid == uuids.mdQualityCalibratingYesAUuid -%}
+                    {%- set repetition = repetitionAUuid == uuids.mdQualityRepetitionYesAUuid -%}
+                    {%- set standardized = standardizedAUuid == uuids.mdQualityStandardizedYesAUuid -%}
+                    {%- set validation = validationAUuid == uuids.mdQualityValidationYesAUuid -%}
+                    {%- set peerReview = peerReviewAUuid == uuids.mdQualityPeerReviewYesAUuid -%}
+                    {%- set vocabularies = vocabulariesAUuid == uuids.mdQualityVocabulariesYesAUuid -%}
+                    {%- set consistency = consistencyAUuid == uuids.mdQualityConsistencyYesAUuid -%}
+                    {%- set qualityProcesses = [consistency, calibrating, repetition, standardized, validation, peerReview, vocabularies] -%}
+                    {%- set qualityCount = qualityProcesses|select("true")|list|length -%}
+                    {%- if qualityCount == 1 -%}
+                        <p>
+                        We will be using
+                        {% if calibrating -%}
+                            calibrating measurements
+                        {%- endif -%}
+                        {%- if repetition -%}
+                            repeat samples/measurements
+                        {%- endif -%}
+                        {%- if standardized -%}
+                            standardized data capture/recording
+                        {%- endif -%}
+                        {%- if validation -%}
+                            <em>Data Entry</em> validation
+                        {%- endif -%}
+                        {%- if peerReview -%}
+                            data peer review
+                        {%- endif -%}
+                        {%- if vocabularies -%}
+                            controlled vocabularies
+                        {%- endif %}
+                        {%- if consistency -%}
+                            measuring samples for which the outcome is known in order to monitor consistency
+                        {%- endif %}
+                        as part of the quality process.
+                        </p>
+                    {%- elif qualityCount > 1 -%}
+                        <p>
+                        We will be using the following quality processes for this dataset:
+                        <ul>
+                        {%- if calibrating -%}
+                            <li>calibrating measurements</li>
+                        {%- endif -%}
+                        {%- if repetition -%}
+                            <li>repeat samples/measurements</li>
+                        {%- endif -%}
+                        {%- if standardized -%}
+                            <li>standardized data capture/recording</li>
+                        {%- endif -%}
+                        {%- if validation -%}
+                            <li><em>Data Entry</em> validation</li>
+                        {%- endif -%}
+                        {%- if peerReview -%}
+                            <li>data peer review</li>
+                        {%- endif -%}
+                        {%- if vocabularies -%}
+                            <li>controlled vocabularies</li>
+                        {%- endif -%}
+                        {%- if consistency -%}
+                            <li>measuring samples with known outcome (to monitor consistency)</li>
+                        {%- endif %}
+                        </ul>
+                        </p>
+                    {%- else -%}
+                        <p>We will be using quality processes.<p>
+                    {%- endif -%}
+                    {# Other quality processes #}
+                    {%- set mdQualityOtherPath = [mdqPrefix, uuids.mdQualityOtherQUuid]|reply_path -%}
+                    {%- set mdQualityOtherAUuid = repliesMap[mdQualityOtherPath]|reply_str_value -%}
+                    {%- if mdQualityOtherAUuid == uuids.mdQualityOtherYesAUuid -%}
+                        {%- set mdQualityOtherYesPath = [mdQualityOtherPath, uuids.mdQualityOtherYesAUuid,uuids.mdQualityOtherWhatQUuid]|reply_path -%}
+                        {%- set mdQualityOther = repliesMap[mdQualityOtherYesPath]|reply_str_value -%}
+                        {%- if mdQualityOther -%}
+                        <p>{{ "Additional" if qualityCount > 0 else "Our" }} quality processes are: {{ mdQualityOther|dot }}</p>
+                        {%- endif -%}
+                    {%- endif -%}
+                    {%- endif -%}{# __tr_block_0001:end #}
+                </li>
+                {%- endfor -%}
+            </ul>
+            {%- endif -%}
+        {%- else -%}
+            {# __tr_block_0002:start #}<p>There will be no instrument dataset in this project.</p>{# __tr_block_0002:end #}
+        {%- endif -%}
+
+
+    </div>
+</div>

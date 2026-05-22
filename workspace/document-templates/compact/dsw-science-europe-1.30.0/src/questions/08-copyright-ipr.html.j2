@@ -1,0 +1,246 @@
+<div id="q-ethical-issues" class="question">
+  <h3>8. How will other legal issues, such as intellectual property rights and ownership, be managed? What legislation is applicable?
+</h3>
+
+  <div class="answer">
+    {# Open philosophy #}
+    {%- set asOpenAsPossiblePath = [uuids.accessCUuid, uuids.asOpenAsPossibleQUuid]|reply_path -%}
+    {%- set asOpenAsPossibleAUuid = repliesMap[asOpenAsPossiblePath]|reply_str_value -%}
+    {%- if asOpenAsPossibleAUuid == uuids.asOpenAsPossibleYesAUuid -%}
+      <p>We will be working with the philosophy <em>as open as possible</em> for our data.</p>
+    {%- endif -%}
+
+    {# Can open data #}
+    {%- set openImmediatelyPath = [uuids.accessCUuid, uuids.openImmediatelyQUuid]|reply_path -%}
+    {%- set openImmediatelyAUuid = repliesMap[openImmediatelyPath]|reply_str_value -%}
+    {%- if openImmediatelyAUuid == uuids.openImmediatelyYesAUuid -%}
+      <p>All of our data can become completely open over time.</p>
+    {%- elif openImmediatelyAUuid == uuids.openImmediatelyNoAUuid -%}
+      {%- set pathPrefix = [openImmediatelyPath, uuids.openImmediatelyNoAUuid]|reply_path -%}
+      {%- set notOpenLegalReasonsPath = [pathPrefix, uuids.notOpenLegalReasonsQUuid]|reply_path -%}
+      {%- set notOpenLegalReasonsAUuid = repliesMap[notOpenLegalReasonsPath]|reply_str_value -%}
+      {%- set notOpenBusinessReasonsPath = [pathPrefix, uuids.notOpenBusinessReasonsQUuid]|reply_path -%}
+      {%- set notOpenBusinessReasonsAUuid = repliesMap[notOpenBusinessReasonsPath]|reply_str_value -%}
+      {%- set notOpenOtherReasonsPath = [pathPrefix, uuids.notOpenOtherReasonsQUuid]|reply_path -%}
+      {%- set notOpenOtherReasonsAUuid = repliesMap[notOpenOtherReasonsPath]|reply_str_value -%}
+      {%- set notOpenBusinessReasonsOtherPath = [notOpenBusinessReasonsPath, uuids.notOpenBusinessReasonsOtherAUuid, uuids.notOpenBusinessReasonsOtherQUuid]|reply_path -%}
+      {%- set notOpenBusinessReasonsOther = repliesMap[notOpenBusinessReasonsOtherPath]|reply_str_value -%}
+      {%- set notOpenOtherReasonsOtherPath = [notOpenOtherReasonsPath, uuids.notOpenOtherReasonsOtherAUuid, uuids.notOpenOtherReasonsOtherQUuid]|reply_path -%}
+      {%- set notOpenOtherReasonsOther = repliesMap[notOpenOtherReasonsOtherPath]|reply_str_value -%}
+
+      {%- set legalReasons = notOpenLegalReasonsAUuid == uuids.notOpenLegalReasonsYesAUuid -%}
+      {%- set businessReasonsPatents = notOpenBusinessReasonsAUuid == uuids.notOpenBusinessReasonsPatentsAUuid -%}
+      {%- set businessReasonsOther = notOpenBusinessReasonsAUuid == uuids.notOpenBusinessReasonsOtherAUuid -%}
+      {%- set otherReasonsPapers = notOpenOtherReasonsAUuid == uuids.notOpenOtherReasonsPapersAUuid -%}
+      {%- set otherReasonsOther = notOpenOtherReasonsAUuid == uuids.notOpenOtherReasonsOtherAUuid -%}
+      {%- set reasons = [legalReasons, businessReasonsPatents, businessReasonsOther, otherReasonsPapers, otherReasonsOther] -%}
+      {%- set nReasons = reasons|select("true")|list|length -%}
+
+      {%- if nReasons > 0 -%}
+        <p>
+        The data cannot become completely open because 
+        {%- if nReasons == 1 -%}
+          {%- if legalReasons %}
+            of legal reasons.
+          {%- elif businessReasonsPatents %}
+            of patent-related business reasons.
+          {%- elif businessReasonsOther %}
+            of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}
+          {%- elif otherReasonsPapers %}
+            we want to publish a paper first.
+          {%- elif otherReasonsOther %}
+            we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}
+          {%- endif -%}
+        {%- else %}
+          of:
+          <ul>
+            {%- if legalReasons %}
+              <li>legal reasons</li>
+            {%- endif -%}
+            {%- if businessReasonsPatents %}
+              <li>patent-related business reasons</li>
+            {%- elif businessReasonsOther %}
+              <li>non-patent business reasons{{ ": " ~ notOpenBusinessReasonsOther if notOpenBusinessReasonsOther else "" }}</li>
+            {%- endif -%}
+            {%- if otherReasonsPapers %}
+              <li>we want to publish a paper first</li>
+            {%- elif otherReasonsOther -%}
+              <li>we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther if notOpenOtherReasonsOther else "" }}</li>
+            {%- endif -%}
+          </ul>
+        {%- endif -%}
+      {%- else -%}
+        <p>The data cannot become completely open.</p>
+      {%- endif -%}
+
+      {# Authentication and authorization of users #}
+
+      {%- if notOpenLegalReasonsAUuid  == uuids.notOpenLegalReasonsYesAUuid -%}
+        {%- set legalReasonsAuthenticatedQUuid = [notOpenLegalReasonsPath, uuids.notOpenLegalReasonsYesAUuid, uuids.legalReasonsAuthenticatedQUuid, uuids.legalReasonsAuthenticatedYesAUuid, uuids.legalReasonsAuthorizeQUuid ]|reply_path -%}
+        {%- set legalReasonsAuthenticatedAUuid = repliesMap[legalReasonsAuthenticatedQUuid]|reply_str_value -%}
+        
+        {%- if legalReasonsAuthenticatedAUuid -%}
+          <h4>Authentication and Authorization of Users</h4>
+          {%- if legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeMemberAUuid -%}
+            <p>One of the project members will authorize potential users of the data.</p>
+          {%- elif legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeNewCommitteeAUuid -%}
+            <p>We will set up a data access committee for authorization of potential users of the data.</p>
+          {%- elif legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeOldCommitteeAUuid -%}
+            {%- set legalReasonsAuthenticatedCommitteeQUuid = [legalReasonsAuthenticatedQUuid, uuids.legalReasonsAuthorizeOldCommitteeAUuid, uuids.legalReasonsAuthorizeOldCommitteeQUuid]|reply_path -%}
+            {%- set legalReasonsAuthenticatedCommitteeReply = repliesMap[legalReasonsAuthenticatedCommitteeQUuid]|reply_str_value -%}
+            
+            {%- if legalReasonsAuthenticatedCommitteeReply -%}
+              <p>We will make use of an existing data committee - {{legalReasonsAuthenticatedCommitteeReply|dot}}</p>
+            {%- else -%}
+              <p>We will make use of an existing data committee.</p>
+            {%- endif -%}
+
+          {%- elif legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeOtherAUuid -%}
+            {%- set legalReasonsAuthenticatedOtherQUuid = [legalReasonsAuthenticatedQUuid, uuids.legalReasonsAuthorizeOtherAUuid, uuids.legalReasonsAuthorizeOtherQUuid]|reply_path  -%}
+            {%- set legalReasonsAuthenticatedOtherReply = repliesMap[legalReasonsAuthenticatedOtherQUuid]|reply_str_value -%}
+
+            {%- if legalReasonsAuthenticatedOtherReply  -%}
+              <p>We will have following arrangements: {{legalReasonsAuthenticatedOtherReply|dot}}</p>
+            {%- else -%}
+              <p>We will have not decided yet.</p>
+            {%- endif -%}
+          {%- endif -%}
+ 
+        {%- endif -%}
+
+      {%- endif -%}
+
+      {%- set notOpenLimitedEmbargoPath = [openImmediatelyPath, uuids.openImmediatelyNoAUuid, uuids.notOpenLimitedEmbargoQUuid]|reply_path -%}
+      {%- set notOpenLimitedEmbargoAUuid = repliesMap[notOpenLimitedEmbargoPath]|reply_str_value -%}
+      {%- if notOpenLimitedEmbargoAUuid == uuids.notOpenLimitedEmbargoIndefinitelyAUuid -%}
+        <p>Limited embargo cannot be used because some restricted data will be embargoed indefinitely.</p>
+      {%- elif notOpenLimitedEmbargoAUuid == uuids.notOpenLimitedEmbargoReleasedSoonAUuid -%}
+        <p>Data will be released only as soon as restrictions are falling away.</p>
+      {%- elif notOpenLimitedEmbargoAUuid == uuids.notOpenLimitedEmbargoYesAUuid -%}
+        <p>Data that is not legally restrained will be released after a fixed time period, unconditionally.</p>
+      {%- endif -%}
+    {%- endif -%}
+
+    {# Embargo #}
+    {%- set embargoPath = [uuids.accessCUuid, uuids.limitedEmbargoQUuid]|reply_path -%}
+    {%- set embargoAUuid = repliesMap[embargoPath]|reply_str_value -%}
+    {%- if embargoAUuid == uuids.limitedEmbargoOpenAUuid -%}
+      <p>Limited embargo will not be used as all data will be opened.</p>
+    {%- elif embargoAUuid == uuids.limitedEmbargoIndefinitelyAUuid -%}
+      <p>Limited embargo cannot be used because some restricted data will be embargoed indefinitely.</p>
+    {%- elif embargoAUuid == uuids.limitedEmbargoReleasedSoonAUuid -%}
+      <p>Data will be released only as soon as restrictions are falling away.</p>
+    {%- elif embargoAUuid == uuids.limitedEmbargoYesAUuid -%}
+      {%- set embargoPeriodPath = [embargoPath, embargoAUuid, uuids.limitedEmbargoPeriodQUuid]|reply_path -%}
+      {%- set embargoPeriod = repliesMap[embargoPeriodPath]|reply_str_value -%}
+      {%- if embargoPeriod -%}
+        <p>Data that is not legally restrained will be released after a fixed time period ({{ embargoPeriod }}), unconditionally.</p>
+      {%- else -%}
+        <p>Data that is not legally restrained will be released after a fixed time period, unconditionally.</p>
+      {%- endif -%}
+    {%- endif -%}
+    
+    {# Ownership #}
+    {%- set ownershipPath = [uuids.creatingCUuid, uuids.ownershipQUuid]|reply_path -%}
+    {%- set ownershipAUuid = repliesMap[ownershipPath]|reply_str_value -%}
+    {%- if ownershipAUuid == uuids.ownershipNoOwnerAUuid -%}
+      <p>Our data is legally not copyrightable, there is no legal owner.</p>
+    {%- elif ownershipAUuid == uuids.ownershipPIAUuid -%}
+      <p>All data will be owned by the Principal Investigator.</p>
+    {%- elif ownershipAUuid == uuids.ownershipInstituteAUuid -%}
+      <p>All data will be owned by the institute.</p>
+    {%- elif ownershipAUuid == uuids.ownershipConsortiumAUuid -%}
+      <p>We have a consortium agreement that arranges Intellectual Property.</p>
+    {%- elif ownershipAUuid == uuids.ownershipOtherAUuid -%}
+      {%- set ownershipOtherPath = [ownershipPath, uuids.ownershipOtherAUuid, uuids.ownershipOtherQUuid]|reply_path -%}
+      {%- set ownershipOther = repliesMap[ownershipOtherPath]|reply_str_value -%}
+      {%- if ownershipOther -%}
+        <p>We have made the following arrangements regarding the data ownership: {{ ownershipOther|dot }}</p>
+      {%- endif -%}
+    {%- endif -%}
+
+    {# (Non)reference data - license #}
+    {%- set preexistingPath = [uuids.reusingCUuid, uuids.preexistingQUuid]|reply_path -%}
+    {%- set preexistingAUuid = repliesMap[preexistingPath]|reply_str_value -%}
+    {%- if preexistingAUuid == uuids.preexistingYesAUuid -%}
+      {%- set refDataPath = [preexistingPath, uuids.preexistingYesAUuid, uuids.refDataQUuid]|reply_path -%}
+      {%- set refDataItems = repliesMap[refDataPath]|reply_items -%}
+      {%- set nrefDataPath = [preexistingPath, uuids.preexistingYesAUuid, uuids.nrefDataQUuid]|reply_path -%}
+      {%- set nrefDataItems = repliesMap[nrefDataPath]|reply_items -%}
+      {%- set answeredRefData = [] -%}
+      {%- for i in refDataItems -%}
+        {%- set isUsed = repliesMap[[refDataPath, i, uuids.refDataUseQUuid]|reply_path]|reply_str_value == uuids.refDataUseYesAUuid -%}
+        {%- set isAnswered = repliesMap[[refDataPath, i, uuids.refDataUseQUuid, uuids.refDataUseYesAUuid, uuids.refDataConditionsQUuid]|reply_path] -%}
+        {%- if isUsed and isAnswered -%}
+          {%- do answeredRefData.append(i) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set answeredNRefData = [] -%}
+      {%- for i in nrefDataItems -%}
+        {%- set isUsed = repliesMap[[nrefDataPath, i, uuids.nrefDataUseQUuid]|reply_path]|reply_str_value == uuids.nrefDataUseYesAUuid -%}
+        {%- set isAnswered = repliesMap[[nrefDataPath, i, uuids.nrefDataUseQUuid, uuids.nrefDataUseYesAUuid, uuids.nrefDataConditionsQUuid]|reply_path] -%}
+        {%- if isUsed and isAnswered -%}
+          {%- do answeredNRefData.append(i) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if (answeredRefData|length + answeredNRefData|length) > 0 -%}
+        <p>For the reference and non-reference data sets that we reuse, conditions are as follows:
+        <ul>
+          {%- for i in answeredRefData -%}
+            {%- set refDataPrefix = [refDataPath, i]|reply_path -%}
+            {%- set refDataUsedPrefix = [refDataPrefix, uuids.refDataUseQUuid, uuids.refDataUseYesAUuid]|reply_path -%}
+            {%- set refDataNamePath = [refDataPrefix, uuids.refDataNameQUuid]|reply_path -%}
+            {%- set refDataNameReply = repliesMap[refDataNamePath]|reply_str_value -%}
+            {%- set refDataConditionsPath = [refDataUsedPrefix, uuids.refDataConditionsQUuid]|reply_path -%}
+            {%- set refDataConditionsAUuid = repliesMap[refDataConditionsPath]|reply_str_value -%}
+            {%- if refDataConditionsAUuid -%}
+              <li>
+                {%- if refDataNameReply -%}
+                  <div>{{ refDataNameReply }}</div>
+                {%- else -%}
+                  <div>(no name given)</div>
+                {%- endif -%}
+                
+                {% if refDataConditionsAUuid == uuids.refDataConditionsCC0AUuid -%}
+                  It is freely available for any use (public domain or CC0).
+                {%- elif refDataConditionsAUuid == uuids.refDataConditionsCCBYAUuid -%}
+                  It is freely available with obligation to quote the source (e.g. CC-BY).
+                {%- elif refDataConditionsAUuid == uuids.refDataConditionsOtherAUuid -%}
+                  {%- set refDataConditionsOtherPath = [refDataConditionsPath, uuids.refDataConditionsOtherAUuid, uuids.refDataConditionsOtherQUuid]|reply_path -%}
+                  {%- set refDataConditionsOther = repliesMap[refDataConditionsOtherPath]|reply_str_value -%}
+                  It is available under specific restrictions, which we will follow in our project{{ ": " ~ refDataConditionsOther|dot if refDataConditionsOther else "." }}
+                {%- endif -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+          {%- for i in answeredNRefData -%}
+            {%- set nrefDataPrefix = [nrefDataPath, i]|reply_path -%}
+            {%- set nrefDataUsedPrefix = [nrefDataPrefix, uuids.nrefDataUseQUuid, uuids.nrefDataUseYesAUuid]|reply_path -%}
+            {%- set nrefDataNamePath = [nrefDataPrefix, uuids.nrefDataNameQUuid]|reply_path -%}
+            {%- set nrefDataNameReply = repliesMap[nrefDataNamePath]|reply_str_value -%}
+            {%- set nrefDataConditionsPath = [nrefDataUsedPrefix, uuids.nrefDataConditionsQUuid]|reply_path -%}
+            {%- set nrefDataConditionsAUuid = repliesMap[nrefDataConditionsPath]|reply_str_value -%}
+            {%- if nrefDataConditionsAUuid -%}
+              <li>
+                {%- if nrefDataNameReply -%}
+                  <div>{{ nrefDataNameReply }}</div>
+                {%- else -%}
+                  <div>(no name given)</div>
+                {%- endif -%}
+                {% if nrefDataConditionsAUuid == uuids.nrefDataConditionsCC0AUuid -%}
+                  It is freely available for any use (public domain or CC0).
+                {%- elif nrefDataConditionsAUuid == uuids.nrefDataConditionsCCBYAUuid -%}
+                  It is freely available with obligation to quote the source (e.g. CC-BY).
+                {%- elif nrefDataConditionsAUuid == uuids.nrefDataConditionsOtherAUuid -%}
+                  {%- set nrefDataConditionsOtherPath = [nrefDataConditionsPath, uuids.nrefDataConditionsOtherAUuid, uuids.refDataConditionsOtherQUuid]|reply_path -%}
+                  {%- set nrefDataConditionsOther = repliesMap[nrefDataConditionsOtherPath]|reply_str_value -%}
+                  It is available under specific restrictions, which we will follow in our project{{ ": " ~ nrefDataConditionsOther|dot if nrefDataConditionsOther else "." }}
+                {%- endif -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>

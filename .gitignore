@@ -1,0 +1,10 @@
+.venv/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+outputs/
+dist/
+build/
+.github/dsw/config/application.yml
+.github/dsw/config/jwtRS256.key

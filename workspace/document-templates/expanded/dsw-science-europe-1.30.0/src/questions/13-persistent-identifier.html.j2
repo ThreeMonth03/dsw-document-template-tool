@@ -1,0 +1,144 @@
+<div id="q-persistent-identifier" class="question">
+    {# __tr_block_0000:start #}<h3>13. How will the application of a unique and persistent identifier (such as a Digital Object Identifier (DOI)) to each data set be ensured?</h3>{# __tr_block_0000:end #}
+
+    <div class="answer">
+    {# identifiers #}
+    {# __tr_block_0001:start #}<h4>Ensuring PIDs for published data</h4>{# __tr_block_0001:end #}
+    {%- set producedDataPath = [uuids.preservingCUuid, uuids.producedDataQUuid]|reply_path -%}
+    {%- set producedDataItems = repliesMap[producedDataPath]|reply_items -%}
+    {%- if producedDataItems|length > 0 -%}
+        <ul>
+        {%- for i in producedDataItems -%}
+            {%- set pathPrefix = [producedDataPath, i]|reply_path -%}
+            {%- set producedDataName = repliesMap[[pathPrefix, uuids.producedDataNameQUuid]|reply_path]|reply_str_value -%}
+            {# If will be published #}
+            {%- set isPublishedDataPath = [pathPrefix, uuids.isPublishedDataQUuid]|reply_path -%}
+            {%- set isPublishedDataAUuid = repliesMap[isPublishedDataPath]|reply_str_value -%}
+            {% if isPublishedDataAUuid == uuids.isPublishedDataYesAUuid %}
+            {# __tr_block_0002:start #}<li>
+                <strong>{{ producedDataName if producedDataName else "(no name given)" }}</strong>
+                {# Where the data will be distributed #}
+                {%- set publishedDistrosPath = [isPublishedDataPath, uuids.isPublishedDataYesAUuid, uuids.publishedDistrosQUuid]|reply_path -%}
+                {%- set publishedDistrosItems = repliesMap[publishedDistrosPath]|reply_items -%}
+                    {%- if publishedDistrosItems|length > 0  -%}
+                    <p>This data will be distributed in following {{ "repositories" if publishedDistrosItems|length > 1 else "repository" }}:</p>
+                    <ul>
+                        {%- for j in publishedDistrosItems -%}
+                            {%- set publishedDistrosItem = [publishedDistrosPath, j]|reply_path -%}
+                            {%- set publishedDataIdentifierQUuid = [publishedDistrosItem, uuids.publishedDataIdentifierQUuid]|reply_path -%}
+                            {%- set publishedDataIdentifierAUuid = repliesMap[publishedDataIdentifierQUuid]|reply_str_value -%}
+
+                            {%- set repositoryKindQUuid = [publishedDistrosItem, uuids.publishedDataRepositoryKindQUuid]|reply_path -%}
+                            {%- set repositoryKindAUuid = repliesMap[repositoryKindQUuid]|reply_str_value -%}
+                            <li>
+                            {%- if repositoryKindAUuid == uuids.publishedDataRepositoryDomainSpecificAUuid -%}
+                                <strong>Domain-specific repository</strong>
+                            {%- elif repositoryKindAUuid == uuids.publishedDataRepositoryGeneralPurposeAUuid -%}
+                                <strong>General-purpose repository</strong>
+                            {%- elif repositoryKindAUuid == uuids.publishedDataRepositoryNationalAUuid -%}
+                               <strong>National repository</strong>
+                            {%- elif repositoryKindAUuid == uuids.publishedDataRepositoryInstitutionalAUuid -%}
+                                <strong>Institutional repository</strong>
+                            {%- elif repositoryKindAUuid == uuids.publishedDataRepositorySpecialAUuid -%}
+                                <strong>Special-purpose repository</strong>
+                            {%- endif -%}
+
+                            {# Will this data be assigned persistent identifier? #}
+                            {%- if publishedDataIdentifierAUuid == uuids.publishedDataIdentifierYesAUuid -%}
+                            <p>Within this repository, unique and persistent identifiers will be applied as follows:</p>
+                            <ul>
+                                {# Who assigns #}
+                                {%- set publishedDataIdentifierAssignsQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierAssignsQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierAssignsAUuid = repliesMap[publishedDataIdentifierAssignsQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsProjectDataStewardAUuid -%}
+                                    <p>A project data steward or principle investigator will assign the persistent identifier.</p>
+
+                                {%- elif publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsInstitDataStewardAUui -%}
+                                    <p>An institutional data steward will assign the persistent identifier.</p>
+
+                                {%- elif publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsRepositoryAUuid -%}
+                                    <p>The repository will assign the persistent identifier.</p>
+                                {%- endif -%}
+
+                                {# Resolvable #}
+                                {%- set publishedDataIdentifierResolvableQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierResolvableQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierResolvableAUuid = repliesMap[publishedDataIdentifierResolvableQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierResolvableAUuid == uuids.publishedDataIdentifierResolvableYesAUuid -%}
+                                    <p>The repository will make sure the persistent identifier can be resolved to a digital object.</p>
+
+                                {%- elif publishedDataIdentifierResolvableAUuid == uuids.publishedDataIdentifierResolvableNoAUuid -%}
+                                    <p>The repository will not make sure the persistent identifier can be resolved to a digital object.</p>
+                                {%- endif -%}
+
+                                {# Specification #}
+                                {%- set publishedDataIdentifierSpecifyQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierSpecifyQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierSpecifyReply = repliesMap[publishedDataIdentifierSpecifyQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierSpecifyReply -%}
+                                    <p>The assigned persistent identifier is specified as follows: {{publishedDataIdentifierSpecifyReply|dot}}</p>
+                                {%- endif -%}
+                            </ul>
+                            {%- endif -%}
+                            </li>
+                        {%- endfor -%}
+                        <p>Within this repository, unique and persistent identifiers will not be applied.</p>
+                    </ul>
+                    {%- endif -%}{# __tr_block_0002:end #}
+            {%- endif -%}
+            </li>
+        {%- endfor -%}
+        </ul>
+    {%- endif -%}
+
+    {# Explain how the data might be re-used in other contexts. #}
+    {# __tr_block_0003:start #}<h4>Possible re-use of created data in other contexts</h4>{# __tr_block_0003:end #}{# __tr_block_0004:start #}
+    Explanation of how the collected or created data might be re-used in other contexts:
+
+    {# __tr_block_0004:end #}{%- set dataMeasuredQUuid = [uuids.creatingCUuid, uuids.measuredQUuid]|reply_path  -%}
+    {%- set dataMeasuredAUuid = repliesMap[dataMeasuredQUuid]|reply_str_value -%}
+
+    {%- if dataMeasuredAUuid == uuids.measuredYesAUuid  -%}
+
+        {%- set dataMeasuredPath = [dataMeasuredQUuid, uuids.measuredYesAUuid, uuids.measuredDataQUuid]|reply_path -%}
+        {%- set dataMeasuredItems = repliesMap[dataMeasuredPath]|reply_items -%}
+        <ul>
+        {%- for k in dataMeasuredItems -%}
+            {%- set measuredDataItem = [dataMeasuredPath, k]|reply_path -%}
+            {%- set measuredDataNameQUuid = [measuredDataItem, uuids.measuredDataNameQUuid]|reply_path -%}
+            {%- set measuredDataNameReply = repliesMap[measuredDataNameQUuid]|reply_str_value -%}
+            {# __tr_block_0005:start #}<li>
+            <strong>{{ measuredDataNameReply if measuredDataNameReply else "(no name given)" }}</strong>
+            {%- set measuredDataReuseQUuid = [measuredDataItem, uuids.measuredDataReuseQUuid]|reply_path -%}
+            {%- set measuredDataReuseAUuid = repliesMap[measuredDataReuseQUuid]|reply_str_value -%}
+
+            {%- if measuredDataReuseAUuid == uuids.measuredDataReuseUsAUuid -%}
+                <p>Only we will be interested in re-using this data.</p>
+
+            {%- elif measuredDataReuseAUuid == uuids.measuredDataReuseSameFieldAUuid  -%}
+                <p>Other researchers in this field will be interested in re-using this data.</p>
+            {%- elif measuredDataReuseAUuid == uuids.measuredDataReuseOtherFieldAUuid -%}
+                {%- set measuredDataReuseOtherFieldHowQUuid = [measuredDataReuseQUuid, uuids.measuredDataReuseOtherFieldAUuid, uuids.measuredDataReuseOtherFieldHowQUuid]|reply_path -%}
+                {%- set measuredDataReuseOtherFieldHowReply = repliesMap[measuredDataReuseOtherFieldHowQUuid]|reply_str_value -%}
+
+                <p>Researchers working in other fields will be interested in re-using this data
+                
+                {%- if measuredDataReuseOtherFieldHowReply -%}
+                
+                 {{" "}}because: {{measuredDataReuseOtherFieldHowReply|dot}}</p>
+                {%- else -%}
+                .
+                {%- endif -%}
+
+            {%- endif -%}{# __tr_block_0005:end #}
+            </li>
+        {%- endfor -%}
+        </ul>
+
+    {%- endif -%}
+
+
+
+    </div>
+</div>

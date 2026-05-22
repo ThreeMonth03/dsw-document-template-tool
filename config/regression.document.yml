@@ -1,0 +1,38 @@
+api:
+  url: ${DSW_API_URL}
+  token: ${DSW_API_KEY}
+
+subjects:
+  baseline:
+    kind: released_id
+    value: ${DSW_BASELINE_TEMPLATE_ID}
+  candidate:
+    kind: released_id
+    value: ${DSW_CANDIDATE_TEMPLATE_ID}
+
+regression:
+  mode: document
+  format_uuid: a9293d08-59a4-4e6b-ae62-7a6a570b031c
+  output_dir: ../outputs/document
+  timeout_seconds: 240
+  poll_seconds: 1.0
+  cleanup_projects: false
+
+fixtures:
+  - name: empty-project
+    project:
+      name: science-europe empty project
+      knowledge_model_package_id: ../workspace/knowledge-models/final_translated.km
+      question_tag_uuids: []
+      visibility: PrivateProjectVisibility
+      sharing: RestrictedProjectSharing
+    events_file: ../fixtures/empty-project.events.json
+
+# If you prefer to pin an already-existing project snapshot instead of creating
+# a temporary fixture project from `events_file`, replace the fixture above
+# with:
+#
+# fixtures:
+#   - name: released-snapshot
+#     project_uuid: ${DSW_PROJECT_UUID}
+#     project_event_uuid: ${DSW_PROJECT_EVENT_UUID}

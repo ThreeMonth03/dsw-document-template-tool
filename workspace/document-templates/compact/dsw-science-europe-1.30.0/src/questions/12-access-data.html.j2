@@ -1,0 +1,55 @@
+<div id="q-dm-responsible" class="question">
+  <h3>12. What methods or software tools are needed to access and use data?</h3>
+
+  <div class="answer">
+    {# Produced datasets #}
+    {%- set producedDataPath = [uuids.preservingCUuid, uuids.producedDataQUuid]|reply_path -%}
+    {%- set producedDataItems = repliesMap[producedDataPath]|reply_items -%}
+    {%- if producedDataItems|length > 0 -%}
+        <ul>
+        {%- for i in producedDataItems -%}
+            {%- set pathPrefix = [producedDataPath, i]|reply_path -%}
+            {%- set producedDataName = repliesMap[[pathPrefix, uuids.producedDataNameQUuid]|reply_path]|reply_str_value -%}
+            <li>
+            {# If will be published #}
+            {%- set isPublishedDataPath = [pathPrefix, uuids.isPublishedDataQUuid]|reply_path -%}
+            {%- set isPublishedDataAUuid = repliesMap[isPublishedDataPath]|reply_str_value -%}
+            {% if isPublishedDataAUuid == uuids.isPublishedDataYesAUuid %}
+                {# If SW is required #}
+                {%- set isPublishedDataSwUuid = [isPublishedDataPath, uuids.isPublishedDataYesAUuid, uuids.publishedSpecSwUseQUuid]|reply_path  -%}
+                {%- set isPublishedDataSwAUuid = repliesMap[isPublishedDataSwUuid]|reply_str_value  -%}
+                <strong>{{ producedDataName if producedDataName else "(no name given)" }}</strong>
+                {%- if isPublishedDataSwAUuid == uuids.publishedSpecSwUseYesAUuid -%}
+                    {%- set isPublishedSWPath = [isPublishedDataSwUuid, uuids.publishedSpecSwUseYesAUuid, uuids.publishedSpecSwUseWhatQUuid ]|reply_path  -%}
+                    {%- set isPublishedSwItems = repliesMap[isPublishedSWPath]|reply_items -%}
+                    {%- if isPublishedSwItems|length > 0 -%}
+                            <br>In order to use this dataset following software will be needed:
+                            <ul>
+                            {%- for swItem in isPublishedSwItems -%}
+                                {%- set swNameUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatNameQUuid]|reply_path -%}
+                                {%- set swNameReply = repliesMap[swNameUuid]|reply_str_value -%}
+                                {%- set swPIDUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatPIDQUuid]|reply_path -%}
+                                {%- set swPIDReply = repliesMap[swPIDUuid]|reply_str_value -%}
+                                <p><strong>{{ swNameReply if swNameReply else "(no name given)" }}</strong>
+                                {%- if swPIDReply -%}
+                                , available at {{swPIDReply|dot}}</p>
+                                {%- else -%}
+                                .
+                                {%- endif -%}
+                            {%- endfor -%}
+                            </ul>
+                    {%- else -%}
+                        <p>There are no tools needed to access or use this data.</p>
+                    {%- endif -%}
+                {%- else -%}
+                    <p>There are no tools needed to access or use this data.</p>
+                {%- endif -%}
+            {%- else -%}
+                <p>There are no published data to access or use.</p>
+            {%- endif -%}
+        {%- endfor -%}
+    {%- else -%}
+        <p>There are no published data to access or use.</p>
+    {%- endif -%}
+  </div>
+</div>

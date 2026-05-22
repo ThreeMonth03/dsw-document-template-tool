@@ -1,0 +1,115 @@
+<header>
+  <p class="dmp"></p>
+  <h1>
+    {{ dc.project.name }}
+  </h1>
+  <div class="dmp-info">
+    <dl>
+      {%- set contributorsPath = [uuids.adminDetailsCUuid, uuids.contributorsQUuid]|join(".") -%}
+      {%- set contributorsItems = repliesMap[contributorsPath]|reply_items -%}
+      {%- if contributorsItems|length > 0 -%}
+        {%- set contacts = [] -%}
+        {%- set creators = [] -%}
+        {%- for i in contributorsItems -%}
+          {%- set pathPrefix = [contributorsPath, i]|join(".") ~ "." -%}
+          {%- set contributorRoles = repliesMap[pathPrefix ~ uuids.contributorRoleQUuid]|reply_items -%}
+          {%- if uuids.contributorRoleContactPersonAUuid in contributorRoles -%}
+            {% do contacts.append(pathPrefix)  %}
+          {%- endif -%}
+          {%- if uuids.contributorRoleCreatorOfDMPAUuid in contributorRoles -%}
+            {% do creators.append(pathPrefix)  %}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- set nContacts = contacts|length -%}
+        {# __tr_block_0000:start #}<dt>Contact {{ "people" if (nContacts > 1) else "person" }}</dt>{# __tr_block_0000:end #}
+        {# __tr_block_0001:start #}<dd>
+          {%- if nContacts > 0 -%}
+            <ul>
+              {%- for pathPrefix in contacts -%}
+                <li>
+                  {%- set contributorName = repliesMap[pathPrefix ~ uuids.contributorNameQUuid]|reply_str_value -%}
+                  {%- set contributorEmail = repliesMap[pathPrefix ~ uuids.contributorEmailQUuid]|reply_str_value -%}
+                  {%- set contributorOrcid = repliesMap[pathPrefix ~ uuids.contributorOrcidQUuid] -%}
+                  {%- set contributorAffiliationReply = repliesMap[pathPrefix ~ uuids.contributorAffiliationQUuid] -%}
+
+                  {%- if contributorName -%}
+                    <span class="contact-name">{{ contributorName }}</span>
+                  {%- else -%}
+                    <span class="contact-name missing">(name not given)</span>
+                  {%- endif -%}
+                  {%- if contributorEmail and contributorOrcid %}
+                    <br>{{ macros.formatEmail(contributorEmail) }}, {{ macros.formatOrcid(contributorOrcid) }}
+                  {%- elif contributorEmail %}
+                    <br>{{ macros.formatEmail(contributorEmail) }}
+                  {%- elif contributorOrcid %}
+                    <br>{{ macros.formatOrcid(contributorOrcid) }}
+                  {%- endif -%}
+                  {%- if contributorAffiliationReply %}
+                    <br>{{ macros.integrationROR(contributorAffiliationReply) }}
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <span class="empty-value">There is no contact person specified yet</span>
+          {%- endif -%}{# __tr_block_0001:end #}
+        </dd>
+      {%- endif -%}
+
+      {# __tr_block_0002:start #}<dt>Based on</dt>{# __tr_block_0002:end #}
+      <dd>{{ dc.pkg.name }}, {{ dc.pkg.version }} (<span class="package-id"><span class="organization-id">{{ dc.pkg.organization_id }}</span>:<span class="km-id">{{ dc.pkg.km_id }}</span>:<span class="version">{{ dc.pkg.version }}</span></span>)</dd>
+
+      {%- if ctx.phaseUuid -%}
+      {# __tr_block_0003:start #}<dt>Project phase</dt>{# __tr_block_0003:end #}
+      <dd>{{ km.entities.phases[ctx.phaseUuid].title }}</dd>
+      {%- endif -%}
+
+      {%- set nCreators = creators|length -%}
+      {# __tr_block_0004:start #}<dt>Created by</dt>{# __tr_block_0004:end #}
+        {# __tr_block_0005:start #}<dd>
+          {%- if nCreators > 0 -%}
+            <ul>
+                {%- for pathPrefix in creators -%}
+                  <li>
+                    {%- set creatorName = repliesMap[pathPrefix ~ uuids.contributorNameQUuid]|reply_str_value -%}
+                    {%- set creatorEmail = repliesMap[pathPrefix ~ uuids.contributorEmailQUuid]|reply_str_value -%}
+                    {%- set creatorOrcid = repliesMap[pathPrefix ~ uuids.contributorOrcidQUuid] -%}
+                    {%- set creatorAffiliationReply = repliesMap[pathPrefix ~ uuids.contributorAffiliationQUuid] -%}
+
+                    {%- if creatorName -%}
+                      <span class="contact-name">{{ creatorName }}</span>
+                    {%- else -%}
+                      <span class="contact-name missing">(name not given)</span>
+                    {%- endif -%}
+                    {%- if creatorEmail and creatorOrcid -%}
+                      <br>{{ macros.formatEmail(creatorEmail) }}, {{ macros.formatOrcid(creatorOrcid) }}
+                    {%- elif creatorEmail -%}
+                      <br>{{ macros.formatEmail(creatorEmail) }}
+                    {%- elif creatorOrcid -%}
+                      <br>{{ macros.formatOrcid(creatorOrcid) }}
+                    {%- endif -%}
+                    {%- if creatorAffiliationReply -%}
+                      <br>{{ macros.integrationROR(creatorAffiliationReply) }}
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- else -%}
+              <span class="empty-value">There is no creator specified yet</span>
+          {%- endif -%}{# __tr_block_0005:end #}
+        </dd>
+      
+
+      {% for version in dc.project.versions if version.uuid == ctx.project.versionUuid %}
+      {# __tr_block_0006:start #}<dt>Version</dt>{# __tr_block_0006:end #}
+      <dd>{{version.name}} ({{ version.created_at|datetime_format("%d %b %Y") }})</dd>
+      {% endfor %}
+
+      {# __tr_block_0007:start #}<dt>Generated on</dt>{# __tr_block_0007:end #}
+      <dd>{{ dc.document.created_at|datetime_format("%d %b %Y") }}</dd>
+    </dl>
+    {# __tr_block_0008:start #}<p class="note">
+      Data Management Plan created in {{ dc.config.service_name }} &laquo;<a href="{{ dc.config.service_url }}" target="_blank">{{ dc.config.service_domain_name }}</a>&raquo;
+    </p>{# __tr_block_0008:end #}
+  </div>
+</header>

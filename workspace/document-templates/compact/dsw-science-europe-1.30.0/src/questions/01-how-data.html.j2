@@ -1,0 +1,593 @@
+<div id="q-how-data" class="question">
+  <h3>1. How will new data be collected or produced and/or how will existing data be re-used?</h3>
+
+  <div class="answer">
+
+  
+  {%- set measuredPath = [uuids.creatingCUuid, uuids.measuredQUuid]|reply_path -%}
+  {%- set measuredAUuid = repliesMap[measuredPath]|reply_str_value -%}
+  {%- if measuredAUuid == uuids.measuredYesAUuid -%}
+    {# Measured datasets #}
+    {%- set measuredDataPath = [measuredPath, uuids.measuredYesAUuid, uuids.measuredDataQUuid]|reply_path -%}
+    {%- set measuredDataItems = repliesMap[measuredDataPath]|reply_items -%}
+    {%- if measuredDataItems|length > 0 -%}
+      <h4>Instrument datasets</h4>
+      <ul>
+        {%- for datasetItem in measuredDataItems -%}
+          {%- set pathPrefix = [measuredDataPath, datasetItem]|reply_path -%}
+          <li>
+            {%- set measuredDataNamePath = [pathPrefix, uuids.measuredDataNameQUuid]|reply_path -%}
+            {%- set measuredDataName = repliesMap[measuredDataNamePath]|reply_str_value -%}
+            <strong>{{ measuredDataName if measuredDataName else "(no name given)" }}</strong>
+            {# Instruments #}
+            {%- set measuredDataInstrPath = [pathPrefix, uuids.measuredDataInstrQUuid]|reply_path -%}
+            {%- set measuredDataInstrItems = repliesMap[measuredDataInstrPath]|reply_items -%}
+            {%- if measuredDataInstrItems|length > 0 -%}
+              <p>For this dataset, we are using the following instruments:
+              <ul>
+                {%- for instrItem in measuredDataInstrItems -%}
+                  {%- set instrPathPrefix = [measuredDataInstrPath, instrItem]|reply_path -%}
+                  <li>
+                    {%- set measuredDataInstrNamePath = [instrPathPrefix, uuids.measuredDataInstrNameQUuid]|reply_path -%}
+                    {%- set measuredDataInstrName = repliesMap[measuredDataInstrNamePath]|reply_str_value -%}
+                    {%- set measuredDataInstrDescPath = [instrPathPrefix, uuids.measuredDataInstrDescQUuid]|reply_path -%}
+                    {%- set measuredDataInstrDesc = repliesMap[measuredDataInstrDescPath]|reply_str_value -%}
+                    <strong>{{ measuredDataInstrName }}</strong>
+                    {% if measuredDataInstrName and measuredDataInstrDesc -%}<span class="separator">&ndash;</span>{%- endif %}
+                    {{ measuredDataInstrDesc }}
+                  </li>
+                {%- endfor -%}
+              </ul>
+              </p>
+            {%- else -%}
+              <p>No instruments for this dataset have been specified.</p>
+            {%- endif -%}
+            {# Quality #}
+            {%- set measuredDataQualityPath = [pathPrefix, uuids.measuredDataQualityQUuid]|reply_path -%}
+            {%- set measuredDataQualityAUuid = repliesMap[measuredDataQualityPath]|reply_str_value -%}
+            {%- if measuredDataQualityAUuid == uuids.measuredDataQualityNoAUuid -%}
+              <p>We will not be using quality process for this dataset.</p>
+            {%- elif measuredDataQualityAUuid == uuids.measuredDataQualityYesAUuid -%}
+              {# Named quality processes #}
+              {%- set mdqPrefix = [measuredDataQualityPath, uuids.measuredDataQualityYesAUuid]|reply_path -%}
+              {%- set calibratingAUuid = repliesMap[[mdqPrefix, uuids.mdQualityCalibratingQUuid]|reply_path]|reply_str_value -%}
+              {%- set repetitionAUuid = repliesMap[[mdqPrefix, uuids.mdQualityRepetitionQUuid]|reply_path]|reply_str_value -%}
+              {%- set standardizedAUuid = repliesMap[[mdqPrefix, uuids.mdQualityStandardizedQUuid]|reply_path]|reply_str_value -%}
+              {%- set validationAUuid = repliesMap[[mdqPrefix, uuids.mdQualityValidationQUuid]|reply_path]|reply_str_value -%}
+              {%- set peerReviewAUuid = repliesMap[[mdqPrefix, uuids.mdQualityPeerReviewQUuid]|reply_path]|reply_str_value -%}
+              {%- set vocabulariesAUuid = repliesMap[[mdqPrefix, uuids.mdQualityVocabulariesQUuid]|reply_path]|reply_str_value -%}
+              {%- set consistencyAUuid = repliesMap[[mdqPrefix, uuids.mdQualityConsistencyQUuid]|reply_path]|reply_str_value -%}
+              {%- set calibrating = calibratingAUuid == uuids.mdQualityCalibratingYesAUuid -%}
+              {%- set repetition = repetitionAUuid == uuids.mdQualityRepetitionYesAUuid -%}
+              {%- set standardized = standardizedAUuid == uuids.mdQualityStandardizedYesAUuid -%}
+              {%- set validation = validationAUuid == uuids.mdQualityValidationYesAUuid -%}
+              {%- set peerReview = peerReviewAUuid == uuids.mdQualityPeerReviewYesAUuid -%}
+              {%- set vocabularies = vocabulariesAUuid == uuids.mdQualityVocabulariesYesAUuid -%}
+              {%- set consistency = consistencyAUuid == uuids.mdQualityConsistencyYesAUuid -%}
+              {%- set qualityProcesses = [consistency, calibrating, repetition, standardized, validation, peerReview, vocabularies] -%}
+              {%- set qualityCount = qualityProcesses|select("true")|list|length -%}
+              {%- if qualityCount == 1 -%}
+                <p>
+                  We will be using
+                  {% if calibrating -%}
+                    calibrating measurements
+                  {%- endif -%}
+                  {%- if repetition -%}
+                    repeat samples/measurements
+                  {%- endif -%}
+                  {%- if standardized -%}
+                    standardized data capture/recording
+                  {%- endif -%}
+                  {%- if validation -%}
+                    <em>Data Entry</em> validation
+                  {%- endif -%}
+                  {%- if peerReview -%}
+                    data peer review
+                  {%- endif -%}
+                  {%- if vocabularies -%}
+                    controlled vocabularies
+                  {%- endif %}
+                  {%- if consistency -%}
+                    measuring samples for which the outcome is known in order to monitor consistency
+                  {%- endif %}
+                  as part of the quality process.
+                </p>
+              {%- elif qualityCount > 1 -%}
+                <p>
+                We will be using the following quality processes:
+                <ul>
+                  {%- if calibrating -%}
+                    <li>calibrating measurements</li>
+                  {%- endif -%}
+                  {%- if repetition -%}
+                    <li>repeat samples/measurements</li>
+                  {%- endif -%}
+                  {%- if standardized -%}
+                    <li>standardized data capture/recording</li>
+                  {%- endif -%}
+                  {%- if validation -%}
+                    <li><em>Data Entry</em> validation</li>
+                  {%- endif -%}
+                  {%- if peerReview -%}
+                    <li>data peer review</li>
+                  {%- endif -%}
+                  {%- if vocabularies -%}
+                    <li>controlled vocabularies</li>
+                  {%- endif -%}
+                  {%- if consistency -%}
+                    <li>measuring samples with known outcome (to monitor consistency)</li>
+                  {%- endif %}
+                </ul>
+                </p>
+              {%- else -%}
+                <p>We will be using quality processes.<p>
+              {%- endif -%}
+              {# Other quality processes #}
+              {%- set mdQualityOtherPath = [mdqPrefix, uuids.mdQualityOtherQUuid]|reply_path -%}
+              {%- set mdQualityOtherAUuid = repliesMap[mdQualityOtherPath]|reply_str_value -%}
+              {%- if mdQualityOtherAUuid == uuids.mdQualityOtherYesAUuid -%}
+                {%- set mdQualityOtherYesPath = [mdQualityOtherPath, uuids.mdQualityOtherYesAUuid, uuids.mdQualityOtherWhatQUuid]|reply_path -%}
+                {%- set mdQualityOther = repliesMap[mdQualityOtherYesPath]|reply_str_value -%}
+                {%- if mdQualityOther -%}
+                  <p>{{ "Additional" if qualityCount > 0 else "Our" }} quality processes are: {{ mdQualityOther|dot }}</p>
+                {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  {%- else -%}
+    <p>There will be no instrument dataset in this project.</p>
+  {%- endif -%}
+
+ {# Existing datasets #}
+  {%- set preexistingPath = [uuids.reusingCUuid, uuids.preexistingQUuid]|reply_path -%}
+  {%- set preexistingAUuid = repliesMap[preexistingPath]|reply_str_value -%}
+  {%- if preexistingAUuid == uuids.preexistingYesAUuid -%}
+    {%- set refDataPath = [preexistingPath, uuids.preexistingYesAUuid, uuids.refDataQUuid]|reply_path -%}
+    {%- set refDataItems = repliesMap[refDataPath]|reply_items -%}
+    {%- set nrefDataPath = [preexistingPath, uuids.preexistingYesAUuid, uuids.nrefDataQUuid]|reply_path -%}
+    {%- set nrefDataItems = repliesMap[nrefDataPath]|reply_items -%}
+
+    {%- if (refDataItems|length > 0) or (nrefDataItems|length > 0) -%}
+      <div>
+      <h4>Re-used datasets</h4>
+      <ul>
+      {# Reference Data #}
+        {%- for refDataItem in refDataItems -%}
+          <li>
+          {%- set refDataPrefix = [refDataPath, refDataItem]|reply_path -%}
+          {%- set refDataUse = [refDataPrefix, uuids.refDataUseQUuid]|reply_path -%}
+          {%- set refDataUseReply = repliesMap[refDataUse]|reply_str_value -%}
+          {%- set refDataUsedPrefix = [refDataUse, uuids.refDataUseYesAUuid]|reply_path -%}
+          {%- set refDataNameReply = repliesMap[[refDataPrefix, uuids.refDataNameQUuid]|reply_path]|reply_str_value -%}
+
+          {%- set refDataWhere = repliesMap[[refDataPrefix, uuids.refDataWhereQUuid]|reply_path]|reply_str_value -%}
+
+          {%- if refDataNameReply -%}
+            <strong>{{ refDataNameReply }}</strong>
+          {%- else -%}
+            <strong>(no name given)</strong>
+          {%- endif -%}
+          
+          {# Reference data set will be used #}
+          {%- if refDataUseReply == uuids.refDataUseYesAUuid  %}
+
+            {# identification #}
+            <p>We will re-use this standard reference data
+            {%- if refDataWhere -%}
+              {{" "}}available via:{{" "}}
+              {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
+                <a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.
+              {%- else -%}
+                {{ refDataWhere }}
+             {%- endif -%}
+            {%- endif -%}
+    
+            {# usage #}
+            {%- set refDataUsageQ = [ refDataUsedPrefix, uuids.refDataUsageQUuid]|reply_path -%}
+            {%- set refDataUsageReply = repliesMap[refDataUsageQ]|reply_str_value  -%}
+            {%- if refDataUsageReply -%}
+                {{+" "}}in order to "{{ refDataUsageReply}}"
+            {%- endif -%}
+            .</p>
+    
+            {# version #}
+            {%- set refDataVersionedPath = [refDataUsedPrefix, uuids.refDataVersionedQUuid]|reply_path -%}
+            {%- set refDataVersionedAUuid = repliesMap[refDataVersionedPath]|reply_str_value -%}
+            {%- if refDataVersionedAUuid == uuids.refDataVersionedYesAUuid -%}
+              {%- set refDataVersionedWhichPath = [refDataVersionedPath, uuids.refDataVersionedYesAUuid, uuids.refDataVersionedWhichQUuid]|reply_path -%}
+              {%- set refDataVersionedWhich = repliesMap[refDataVersionedWhichPath]|reply_str_value -%}
+              {%- set refDataVersionedChangePath = [refDataVersionedPath, uuids.refDataVersionedYesAUuid, uuids.refDataVersionedChangeQUuid]|reply_path -%}
+              {%- set refDataVersionedChangeAUuid = repliesMap[refDataVersionedChangePath]|reply_str_value -%}
+              {%- if refDataVersionedWhich or refDataVersionedChangeAUuid  %}
+                <p>
+                {% if refDataVersionedWhich -%}
+                  We will use version "{{ refDataVersionedWhich }}" of this dataset.
+                {%- endif -%}
+                {%- if refDataVersionedChangeAUuid == uuids.refDataVersionedChangeStayAUuid %}
+                  If a new version becomes available during the project, we will stay with the old version.
+                {%- elif refDataVersionedChangeAUuid == uuids.refDataVersionedChangeNewAUuid %}
+                  If a new version becomes available during the project, new analyses will be done with the new version.
+                {%- elif refDataVersionedChangeAUuid == uuids.refDataVersionedChangeAllAUuid %}
+                  If a new version becomes available during the project, all analyses will be redone with the new version.
+                {%- endif -%}
+                </p>
+              {%- endif -%}
+            {%- endif -%}
+
+            {# availability of the standard reference data for future results reproduction #}
+            {%- set refDataReproduce = [refDataUsedPrefix, uuids.refDataReproduceQUuid]|reply_path -%}
+            {%- set refDataReproduceReply = repliesMap[refDataReproduce]|reply_str_value -%}
+            <p>
+            {%- if refDataReproduceReply == uuids.refDataReproduceProviderAUuid -%}
+              This standard reference data will be available for long-term by the provider.
+            {%- elif refDataReproduceReply == uuids.refDataReproduceCopyAUuid  -%}
+              We will keep the copy of this standard reference data and make it available with our results. 
+            {%- elif refDataReproduceReply == uuids.refDataReproduceBothAUuid -%}
+              This standard reference data will be available for long-term by the provider as well as we will keep the copy of this dataset and make it available with our results.
+            {%- endif -%}
+            </p>
+
+            {# licence #}
+            {%- set refDataConditions = [refDataUsedPrefix, uuids.refDataConditionsQUuid]|reply_path -%}
+            {%- set refDataConditionsReply = repliesMap[refDataConditions]|reply_str_value -%}
+            {%- set refDataConditionsOther = [refDataConditions, uuids.refDataConditionsOtherQUuid]|reply_path -%}
+            {%- set refDataConditionsOtherReply = repliesMap[refDataConditionsOther]|reply_str_value -%}
+            {%- if refDataConditionsReply %}
+             <p>This standard reference data are{{+" "}}
+              {%- if refDataConditionsReply == uuids.refDataConditionsCC0AUuid -%}
+                freely available for any use.
+              {%- elif refDataConditionsReply == uuids.refDataConditionsCCBYAUuid -%}
+                freely available with obligation to quote the source.
+              {%- elif refDataConditionsReply == uuids.refDataConditionsOtherAUuid -%}
+                available with {{" "}}
+                  {%- if refDataConditionsOtherRepl -%}
+                    following restrictions: "{{refDataConditionsOtherRepl}}".
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+              {%- endif -%}
+             </p>
+            {%- endif -%}
+
+            {# format #}
+            {%- set refDataFormat = [refDataUsedPrefix, uuids.refDataFormatQUuid]|reply_path -%}
+            {%- set refDataFormatReply = repliesMap[refDataFormat]|reply_str_value -%}
+            <p>
+            {%- if refDataFormatReply == uuids.refDataFormatConvertAUuid -%}
+              The standard reference data are in the format that has to be transformed before using.
+            {%- elif refDataFormatReply == uuids.refDataFormatUseAUuid -%}
+              The standard reference data are in the format that does not have to be transformed and we can use it directly.
+            {% endif %}
+            </p>
+
+          {# Reference data set that will NOT be used #}
+          {%- elif refDataUseReply == uuids.refDataUseNoAUuid -%}
+            {%- set refDataUsedNoPrefix = [refDataUse, uuids.refDataUseNoAUuid, uuids.refDataUseNoWhyQUuid]|reply_path -%}
+            {%- set refDataUseNoReply = repliesMap[refDataUsedNoPrefix]|reply_str_value -%}
+            {%- set refDataUseNoOtherReason = [refDataUsedNoPrefix, uuids.refDataUseNoReasonAUuid ,uuids.refDataUseNoReasonQUuid]|reply_path -%}
+            {%- set refDataUseNoOtherReasonReply = repliesMap[refDataUseNoOtherReason]|reply_str_value %}
+          
+            {# identification #}
+            <p> We considered reusing this standard reference data
+            {%- if refDataWhere -%}
+            {{" "}}available via:{{" "}}
+              {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
+                <a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.
+              {%- else -%}
+                {{ refDataWhere}}
+              {%- endif -%}
+            {%- endif -%}
+
+            {# no usage reason #}
+            {%- if refDataUseNoReply -%}
+              , but decided not to re-use it
+              {%- if refDataUseNoReply == uuids.refDataUseNoDataAUuid -%}
+                {{" "}}because it misses data we need
+              {%- elif refDataUseNoReply == uuids.refDataUseNoAspectAUuid -%}
+                {{" "}}because it misses required aspects
+              {%- elif refDataUseNoReply == uuids.refDataUseNoQualityAUuid -%}
+                {{" "}}because it is not sufficient quality
+              {%- elif refDataUseNoReply == uuids.refDataUseNoCondAUuid -%}
+                {{" "}}because its conditions of use do not allow us to use it
+              {%- elif refDataUseNoReply == uuids.refDataUseNoReasonAUuid and refDataUseNoOtherReasonReply -%}
+                {{" "}}because: "{{refDataUseNoOtherReasonReply}}"
+              {%- endif -%}
+              .
+            {%- else -%}
+            . </p>
+            {%- endif -%}
+
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+      </ul>
+
+      {# Non-reference Data #}
+      <ul>
+      {%- for nrefDataItem in nrefDataItems -%}
+      <li>
+        {%- set nrefDataPrefix = [nrefDataPath, nrefDataItem]|reply_path  -%}
+        {%- set nrefDataUse = [nrefDataPrefix, uuids.nrefDataUseQUuid]|reply_path -%}
+        {%- set nrefDataUseReply = repliesMap[nrefDataUse]|reply_str_value -%}
+        {%- set nrefDataUsedPrefix = [nrefDataUse, uuids.nrefDataUseYesAUuid]|reply_path -%}
+        {%- set nrefDataNameReply = repliesMap[[nrefDataPrefix, uuids.nrefDataNameQUuid]|reply_path]|reply_str_value-%}
+        {%- set nrefDataWhere = repliesMap[[nrefDataPrefix, uuids.nrefDataWhereQUuid]|reply_path]|reply_str_value -%}
+
+        {%- if nrefDataNameReply -%}
+          <strong>{{ nrefDataNameReply }}</strong>
+        {%- else -%}
+          <strong>(no name given)</strong>
+        {%- endif -%}
+        
+        {# Non-reference data set will be used #}
+        {%- if nrefDataUseReply == uuids.nrefDataUseYesAUuid %}
+
+          {# identification #}
+          <p>We will re-use this non-referece data 
+          {%- if nrefDataWhere -%}
+         {{" "}} available via:{{" "}}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              <a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+    
+          {# usage #}
+          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
+          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
+          {%- if nrefDataUsageReply -%}
+            {{+" "}}in order to "{{ nrefDataUsageReply}}"
+          {%- endif -%}
+          .</p>
+
+          {# Which part of the non-reference data we will use #}
+          {%- set nrefDataComplete = [nrefDataUsedPrefix, uuids.nrefDataCompleteQUuid]|reply_path  -%}
+          {%- set nrefDataCompleteReply = repliesMap[nrefDataComplete]|reply_str_value -%}
+          {%- if nrefDataCompleteReply -%}
+            <p>We will use{{+" "}}
+            {%- if nrefDataCompleteReply == uuids.nrefDataCompleteUseAUuid -%}
+              the complete data set. 
+            {%- elif nrefDataCompleteReply == uuids.nrefDataCompleteDocumentAUuid -%}
+              only subset of data and we will select it by filtering and/or selection (which will be documented).
+            {%- elif nrefDataCompleteReply == uuids.nrefDataCompleteSubsetAUuid -%}
+              only selected subset of data, which will be available together with our results.
+            {%- endif -%}
+            </p>
+          {%- endif -%}
+
+          {# Format #}
+          {%- set nrefDataFormat = [nrefDataUsedPrefix, uuids.nrefDataFormatQUuid]|reply_path -%}
+          {%- set nrefDataFormatReply = repliesMap[nrefDataFormat]|reply_str_value -%}
+          {%- if nrefDataFormatReply == uuids.nrefDataFormatConvertAUuid %}
+            <p>The format of this data needs to be transformed before our using.</p>
+          {%- endif -%}
+
+          {# Versioning - will change in the future? #}
+          {%- set nrefDataFixed = [nrefDataUsedPrefix, uuids.nrefDataFixedQUuid]|reply_path -%}
+          {%- set nrefDataFixedReply = repliesMap[nrefDataFixed]|reply_str_value -%}
+          {%- if nrefDataFixedReply %}
+            <p>This data{{+" "}}
+            {%- if nrefDataFixedReply == uuids.nrefDataFixedFixedAUuid -%}
+              are fixed, therefore will not influence reproducibility of our results.
+            {%- elif nrefDataFixedReply == uuids.nrefDataFixedChangeAUuid -%}
+              may change in the future, which might influence reproducibility of our results.
+            {%- endif -%}
+            </p>
+          {%- endif -%}
+
+          {# Licence #}
+          {%- set nrefDataConditions = [nrefDataUsedPrefix, uuids.nrefDataConditionsQUuid]|reply_path -%}
+          {%- set nrefDataConditionsReply = repliesMap[nrefDataConditions]|reply_str_value -%}
+          {%- if nrefDataConditionsReply %}
+            <p>This data are{{+" "}}
+            {%- if nrefDataConditionsReply == uuids.nrefDataConditionsCC0AUuid -%}
+              freely available for any use.
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsCCBYAUuid -%}
+              freely available with obligation to quote the source.
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsOtherAUuid  -%}
+              {%- set nrefDataConditionsOther = [nrefDataConditions, uuids.nrefDataConditionsOtherAUuid, uuids.nrefDataConditionsOtherQUuid]|reply_path -%}
+              {%- set nrefDataConditionsOtherReply = repliesMap[nrefDataConditionsOther]|reply_str_value -%}
+              {%- if nrefDataConditionsOtherReply -%}
+                available with{{" "}}
+                  {%- if nrefDataConditionsOtherReply -%}
+                   following restrictions: "{{nrefDataConditionsOtherReply}}".
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+            </p>
+          {%- endif -%}
+
+          {# Personal Data #}
+          {%- set nrefDataPersonal = [nrefDataUsedPrefix, uuids.nrefDataPersonalQUuid]|reply_path -%}
+          {%- set nrefDataPersonalReply = repliesMap[nrefDataPersonal]|reply_str_value -%}
+          {%- if nrefDataPersonalReply == uuids.nrefDataPersonalYesAUuid %}
+          <p>
+            This data include personal data
+            {%- set nrefDataPersonalLegalBasis = [nrefDataPersonal, uuids.nrefDataPersonalYesAUuid, uuids.nrefDataPersonalLegalBasisQUuid]|reply_path -%}
+            {%- set nrefDataPersonalLegalBasisReply = repliesMap[nrefDataPersonalLegalBasis]|reply_str_value -%}
+            {%- if nrefDataPersonalLegalBasisReply -%}
+              , legaly based on{{+" "}}
+              {%- if nrefDataPersonalLegalBasisReply == uuids.nrefDataPersonalLegalBasisPubInterestAUuid -%}
+                public interest for processing the data under GDPR.
+              {%- elif nrefDataPersonalLegalBasisReply == uuids.nrefDataPersonalLegalBasisConsentAUuid -%}
+                consent given by the research subject for processing the data under GDPR
+                {%- set nrefDataPersonalLegalBasisReuse = [nrefDataPersonalLegalBasis, uuids.nrefDataPersonalLegalBasisConsentAUuid, uuids.nrefDataPersonalLegalBasisConsentReuseQUuid]|reply_path -%}
+                {%- set nrefDataPersonalLegalBasisReuseReply = repliesMap[nrefDataPersonalLegalBasisReuse]|reply_str_value -%}
+                {%- if nrefDataPersonalLegalBasisReuseReply -%}
+                  , which{{+" "}}
+                  {%- if nrefDataPersonalLegalBasisReuseReply == uuids.nrefDataPersonalLegalBasisConsentReuseYesAUuid -%}
+                    covers also our reuse.
+                  {%- elif nrefDataPersonalLegalBasisReuseReply == uuids.nrefDataPersonalLegalBasisConsentReuseNoAUuid -%}
+                    does not cover our reuse; therefore, new consent will be needed.
+                  {%- endif -%}
+                {%- else -%}
+                .
+                {%- endif -%}
+              {%- elif nrefDataPersonalLegalBasisReply == uuids.nrefDataPersonalLebalBasisOtherAUuid -%}
+                {%- set nrefDataPersonalLegalBasisOther = [nrefDataPersonalLegalBasis, uuids.nrefDataPersonalLebalBasisOtherAUuid, uuids.nrefDataPersonalLegalBasisOtherQUuid]|reply_path -%}
+                {%- set nrefDataPersonalLegalBasisOtherReply = repliesMap[nrefDataPersonalLegalBasisOther]|reply_str_value -%}
+                {%- if nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherLegalAUuid -%}
+                  a legal requirement (meaning a legal obligation to do this data processing).
+                {%- elif nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherVitalAUuid -%}
+                  a vital interest (meaning it needs to be done to protect the vital interests of the data subject).
+                {%- elif nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherLegitAUuid -%}
+                  a legitimate interest (meaning data subjects all expect us to do this data processing because of who we are).
+                {%- elif nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherContractAUuid -%}
+                  a requirement to fulfill our contract with the data subjects.
+                {%- endif -%}
+              {%- endif -%} 
+            {%- endif -%}
+          </p>
+          {%- endif -%}
+
+          {# Ethical Approval for Reuse #}
+          {%- set nrefDataEthicalApproval = [nrefDataUsedPrefix, uuids.nrefDataEthicalApprovalQUuid]|reply_path -%}
+          {%- set nrefDataEthicalApprovalReply = repliesMap[nrefDataEthicalApproval]|reply_str_value -%}
+          {%- if nrefDataEthicalApprovalReply == uuids.nrefDataEthicalApprovalCoversAUuid -%}
+            <p>The existing ethical approval under research ethics laws of this non-reference data covers our reuse.</p>
+          {%- elif nrefDataEthicalApprovalReply == uuids.nrefDataEthicalApprovalExtensionAUuid -%}
+            <p>An extension of existing ethical approval under research ethics laws of this non-reference data will be needed.</p>
+          {%- elif nrefDataEthicalApprovalReply == uuids.nrefDataEthicalApprovalNewAUuid -%}
+            <p>New ethical approval under research ethics laws of this non-reference data will be needed to cover our usage of the data.</p>
+          {%- endif -%}
+
+        {# Non-reference data set that will NOT be used #}
+        {%- elif nrefDataUseReply == uuids.nrefDataUseNoAUuid -%}
+          {%- set nrefDataUsedNoPrefix = [nrefDataUse, uuids.nrefDataUseNoAUuid, uuids.nrefDataUseNoWhyQUuid]|reply_path -%}
+          {%- set nrefDataUseNoReply = repliesMap[nrefDataUsedNoPrefix]|reply_str_value -%}
+          {%- set nrefDataUseNoOtherReason = [nrefDataUsedNoPrefix, uuids.nrefDataUseNoReasonAUuid ,uuids.nrefDataUseNoReasonQUuid]|reply_path -%}
+          {# {%- set nrefDataUseNoOtherReasonReply = repliesMap[nrefDataUseNoOtherReason]|reply_str_value %} #}
+          
+          {# identification #}
+          <p>We considered reusing this non-reference data 
+          {%- if nrefDataWhere -%}
+          {{+" "}}available via:{{" "}}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              <a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+
+          {# no usage reason #}
+          {%- if nrefDataUseNoReply -%}
+            , but decided not to reuse it
+            {%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}
+              {{" "}}because it misses data we need
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}
+              {{" "}}becauseit misses required aspects
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}
+              {{" "}}becauseit is not sufficient quality
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}
+              {{" "}}because its conditions of use do not allow us to use it
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid and nrefDataUseNoOtherReasonReply -%}
+              {{" "}}because: "{{nrefDataUseNoOtherReasonReply}}"
+            {%- endif -%}
+            .
+          {%- else -%}
+          .</p>
+          {%- endif -%}
+
+        {%- endif -%}
+
+      </p>
+      </li>
+      {%- endfor -%}
+      </ul>
+      </div>
+    {%- else -%}
+      <p>There are no re-used datasets.</p>
+    {%- endif -%}
+
+    {# Constrains - Data Harmonization #}
+    {%- set dataHarmo = [preexistingPath, uuids.preexistingYesAUuid, uuids.dataHarmoQUuid]|reply_path -%}
+    {%- set dataHarmoReply = repliesMap [dataHarmo]|reply_str_value -%}
+    {%- if dataHarmoReply == uuids.dataHarmoYesAUuid -%}
+      <p>We need to harmonize different sources of existing data before reusing them
+      {%- set dataHarmonAvailable = [dataHarmo, uuids.dataHarmoYesAUuid, uuids.dataHarmoOthersQUuid]|reply_path  -%}
+      {%- set dataHarmonAvailableReply = repliesMap[dataHarmonAvailable]|reply_str_value -%}
+      {%- if dataHarmonAvailableReply == uuids.dataHarmoOthersYesAUuid -%}
+        {{+" "}}and we will make this harmonization results available to others
+      {%- elif dataHarmonAvailableReply == uuids.dataHarmoOthersNoAUuid -%}
+        {{+" "}}but we won't make this harmonization results available to others
+      {%- endif -%}
+      .</p>
+    {%- endif -%}
+
+    {# Constrains - (Re)made data computer readable #}
+    {%- set dataCompRead = [preexistingPath, uuids.preexistingYesAUuid, uuids.dataCompReadQUuid]|reply_path -%}
+    {%- set dataCompReadReply = repliesMap[dataCompRead]|reply_str_value -%}
+    {%- if dataCompReadReply == uuids.dataCompReadYesAUuid -%}
+      <p>We will need to (re-)made the data into computer readable form before their using
+
+      {%- set dataCompReadItself = [dataCompRead, uuids.dataCompReadYesAUuid, uuids.dataCompReadItselfQUuid]|reply_path -%}
+      {%- set dataCompReadItselfReply = repliesMap[dataCompReadItself]|reply_str_value -%}
+      {%- set dataCompReadOthers = [dataCompRead, uuids.dataCompReadYesAUuid, uuids.dataCompReadOthersQUuid]|reply_path  -%}
+      {%- set dataCompReadOthersReply = repliesMap[dataCompReadOthers]|reply_str_value -%}
+
+      {%- if dataCompReadItselfReply -%}
+        {%- if dataCompReadItselfReply == uuids.dataCompReadItselfYesAUuid -%}
+          {{+" "}}and we will make this computer readable form available to others through a standard repository
+        {%- elif dataCompReadItselfReply == uuids.dataCompReadItselfYesOtherAUuid -%} 
+          {{+" "}}and we will make this computer readable form available to others
+        {%- elif dataCompReadItselfReply == uuids.dataCompReadItselfNoAUuid -%}
+          {{+" "}}but we won't make this computer readable form available to others
+        {%- endif -%}
+      {%- endif -%}
+      .
+
+      {%- if dataCompReadOthersReply -%}
+        {%- if dataCompReadOthersReply == uuids.dataCompReadOthersYesAUuid %}
+            We will provide machine readable, standardized metadata to others
+            {%- set dataCompReadWhichMetadataStandardPath = [dataCompReadOthers, uuids.dataCompReadOthersYesAUuid, uuids.dataCompReadOthersYesStandardsQUuid]|reply_path -%}
+            {%- set dataCompReadMetadataStandardItems =  repliesMap[dataCompReadWhichMetadataStandardPath]|reply_items -%}
+            {%- if dataCompReadMetadataStandardItems|length  > 0 -%}
+              {{+" "}}and we will use following Metadata Standards:{{+" "}}
+                {%- for dataCompReadMetadataStandardItem in dataCompReadMetadataStandardItems -%}
+                  {%- set dataCompReadMetadataStandardPrefix = [dataCompReadWhichMetadataStandardPath, dataCompReadMetadataStandardItem]|reply_path -%}
+                  {%- set dataCompReadMetadataStandard = [dataCompReadMetadataStandardPrefix, uuids.dataCompReadOthersYesStandardQUuid]|reply_path -%}
+                  {%- set dataCompReadMetadataStandardReply = repliesMap[dataCompReadMetadataStandard] -%}
+                  {{ macros.integrationFairSharing(dataCompReadMetadataStandardReply) }}{{ ", " if not loop.last else "." }}
+                {%- endfor -%}
+            {%- else -%}
+            .
+            {%- endif -%}
+
+        {%- endif -%}
+          
+      {%- endif -%}
+      </p>
+    {%- endif -%}
+    
+
+  {%- endif -%}
+
+  {# Provenance (lab notebooks)#}
+  {%- set metadataPath = [uuids.creatingCUuid, uuids.metadataQUuid]|reply_path -%}
+    {%- set metadataAUuid = repliesMap[metadataPath]|reply_str_value -%}
+    {%- if metadataAUuid == uuids.metadataExploreAUuid -%}
+      {%- set provenancePath = [metadataPath, uuids.metadataExploreAUuid, uuids.provenanceQUuid]|reply_path -%}
+      {%- set provenanceAUuid = repliesMap[provenancePath]|reply_str_value -%}
+      {%- if provenanceAUuid %}
+      <h4>Provenance</h4>
+      {%- if provenanceAUuid == uuids.provenanceLabNotebooksAUuid -%}
+        <p>We will use lab notebooks to make sure that there is good provenance of the data analysis.</p>
+      {%- elif provenanceAUuid == uuids.provenanceELabNotebookAUuid -%}
+        <p>We will use an electronic lab notebook to make sure that there is good provenance of the data analysis.</p>
+      {%- elif provenanceAUuid == uuids.provenanceSystemAUuid -%}
+        <p>Our computing workflow system keeps provenance information about the data analysis.</p>
+      {%- elif provenanceAUuid == uuids.provenanceOtherAUuid -%}
+        {%- set provenanceOtherPath = [provenancePath, uuids.provenanceOtherAUuid, uuids.provenanceOtherQUuid]|reply_path -%}
+        {%- set provenanceOther = repliesMap[provenanceOtherPath]|reply_str_value -%}
+        <p>We will use other solution than (electronic) lab notebooks to make sure that there is good provenance of the data analysis{{ ": " ~ provenanceOther|dot if provenanceOther else "." }}
+      {%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>

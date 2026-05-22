@@ -1,0 +1,37 @@
+api:
+  url: ${DSW_API_URL}
+  email: ${DSW_EMAIL}
+  password: ${DSW_PASSWORD}
+
+tdk:
+  executable: ../.venv/bin/dsw-tdk
+
+subjects:
+  baseline:
+    kind: local_dir
+    value: ../workspace/document-templates/compact/dsw-science-europe-1.30.0
+    stage_id: ci:science-europe-compact:1.30.0
+  candidate:
+    kind: local_dir
+    value: ../workspace/document-templates/expanded/dsw-science-europe-1.30.0
+    stage_id: ci:science-europe-expanded:1.30.0
+
+regression:
+  mode: preview
+  format_uuid: a9293d08-59a4-4e6b-ae62-7a6a570b031c
+  output_dir: ../outputs/preview
+  timeout_seconds: 240
+  poll_seconds: 1.0
+  cleanup_projects: true
+  ignore_patterns:
+    - "Generated at: .*"
+
+fixtures:
+  - name: empty-project
+    project:
+      name: science-europe empty project
+      knowledge_model_package_id: ../workspace/knowledge-models/final_translated.km
+      question_tag_uuids: []
+      visibility: PrivateProjectVisibility
+      sharing: RestrictedProjectSharing
+    events_file: ../fixtures/empty-project.events.json

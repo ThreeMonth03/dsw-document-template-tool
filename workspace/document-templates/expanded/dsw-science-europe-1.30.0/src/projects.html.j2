@@ -1,0 +1,67 @@
+{%- set projectsPath = [uuids.adminDetailsCUuid, uuids.projectsQUuid]|reply_path -%}
+{%- set projectsItems = repliesMap[projectsPath]|reply_items -%}
+<div id="dmp-projects">
+  {# __tr_block_0000:start #}<h2>Projects</h2>{# __tr_block_0000:end #}
+
+  {# __tr_block_0001:start #}<p>We will be working on the following projects and for those are the data and work described in this DMP.</p>{# __tr_block_0001:end #}
+
+  {% for projectsItem in projectsItems %}
+    <div class="project">
+    {%- set projectNamePath = [projectsPath, projectsItem, uuids.projectNameQUuid]|reply_path -%}
+    {%- set projectName = repliesMap[projectNamePath]|reply_str_value -%}
+    {%- if projectName -%}
+      <h3>{{ projectName }}</h3>
+    {%- else -%}
+      {# __tr_block_0002:start #}<h3 class="empty-value">(project name not given)</h3>{# __tr_block_0002:end #}
+    {%- endif -%}
+
+    {%- set projectNumberPath = [projectsPath, projectsItem, uuids.projectNumberQUuid]|reply_path -%}
+    {%- set projectNumber = repliesMap[projectNumberPath]|reply_str_value -%}
+    {%- set projectStartPath = [projectsPath, projectsItem, uuids.projectStartQUuid]|reply_path -%}
+    {%- set projectStart = repliesMap[projectStartPath]|reply_str_value -%}
+    {%- set projectEndPath = [projectsPath, projectsItem, uuids.projectEndQUuid]|reply_path -%}
+    {%- set projectEnd = repliesMap[projectEndPath]|reply_str_value -%}
+    {%- set fundersPath = [projectsPath, projectsItem, uuids.fundersQUuid]|reply_path -%}
+    {%- set fundersItems = repliesMap[fundersPath]|reply_items -%}
+      <dl>
+        {# __tr_block_0003:start #}<dt>Project Number</dt>{# __tr_block_0003:end #}
+        {# __tr_block_0004:start #}<dd>{{ projectNumber if projectNumber else "N/A" }}</dd>{# __tr_block_0004:end #}
+        {# __tr_block_0005:start #}<dt>Start date</dt>{# __tr_block_0005:end #}
+        {# __tr_block_0006:start #}<dd>{{ projectStart if projectStart else "N/A" }}</dd>{# __tr_block_0006:end #}
+        {# __tr_block_0007:start #}<dt>End date</dt>{# __tr_block_0007:end #}
+        {# __tr_block_0008:start #}<dd>{{ projectEnd if projectEnd else "N/A" }}</dd>{# __tr_block_0008:end #}
+        {# __tr_block_0009:start #}<dt>Funding</dt>{# __tr_block_0009:end #}
+        {# __tr_block_0010:start #}<dd>
+          {%- if fundersItems|length > 0 %}
+            <ul>
+            {%- for fundersItem in fundersItems %}
+              {%- set funderNamePath = [fundersPath, fundersItem, uuids.funderNameQUuid]|reply_path -%}
+              {%- set funderNameReply = repliesMap[funderNamePath] -%}
+              {%- set grantNumberPath = [fundersPath, fundersItem, uuids.grantNumberQUuid]|reply_path -%}
+              {%- set grantNumber = repliesMap[grantNumberPath]|reply_str_value -%}
+              {%- set funderStatusPath = [fundersPath, fundersItem, uuids.funderStatusQUuid]|reply_path -%}
+              {%- set funderStatus = repliesMap[funderStatusPath]|reply_str_value %}
+              <li>{{ macros.integrationCrossref(funderNameReply) }}: {{ grantNumber if grantNumber else "grant number not yet given" }} {% if funderStatus == uuids.funderStatusPlannedAUuid %}(planned){% elif funderStatus == uuids.funderStatusAppliedAUuid %}(applied){% elif funderStatus == uuids.funderStatusGrantedAUuid %}(granted){% elif funderStatus == uuids.funderStatusRejectedAUuid %}(rejected){% endif %}</li>
+            {%- endfor %}
+            </ul>
+          {%- else -%}
+            Did not apply for any funding yet.
+          {%- endif -%}{# __tr_block_0010:end #}
+        </dd>
+      </dl>
+
+    {%- set projectAbstractPath = [projectsPath, projectsItem, uuids.projectAbstractQUuid]|reply_path -%}
+    {%- set projectAbstract = repliesMap[projectAbstractPath]|reply_str_value -%}
+    {%- if projectAbstract %}
+      <section class="abstract">
+        {%- set paragraphs = projectAbstract.split('\n') -%}
+        {% for paragraph in paragraphs %}
+        <p>{{ paragraph }}</p>
+        {% endfor %}
+      </section>
+    {%- endif -%}
+    </div>
+  {% else %}
+    <div style="font-style:italic;">{# __tr_block_0011:start #}There are no projects described for this DMP.{# __tr_block_0011:end #}</div>
+  {% endfor %}
+</div>

@@ -1,0 +1,90 @@
+name: headless-render-regression
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  offline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: make install-dev
+
+      - name: Refresh expanded translation workspace
+        run: make transform
+
+      - name: Check expanded workspace is committed
+        run: |
+          git diff --exit-code -- workspace/document-templates/expanded
+          test -z "$(git status --short -- workspace/document-templates/expanded)"
+
+      - name: Refresh translator-facing translation tree
+        run: make export-translation-tree
+
+      - name: Check translation tree is committed
+        run: |
+          git diff --exit-code -- workspace/document-templates/translation
+          test -z "$(git status --short -- workspace/document-templates/translation)"
+
+      - name: Verify checked-in template workspaces
+        run: make verify-workspace
+
+      - name: Check formatting
+        run: make format-check
+
+      - name: Run lint
+        run: make lint
+
+      - name: Run tests
+        run: make test
+
+  render-regression:
+    runs-on: ubuntu-latest
+    needs: offline-checks
+    timeout-minutes: 45
+    env:
+      DSW_API_URL: http://localhost:3000/wizard-api
+      DSW_EMAIL: albert.einstein@example.com
+      DSW_PASSWORD: password
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: make install-dev
+
+      - name: Start local DSW stack
+        run: make start-ci-dsw
+
+      - name: Run preview regression
+        run: make render-regression-ci
+
+      - name: Collect DSW logs
+        if: always()
+        run: make ci-dsw-logs
+
+      - name: Upload regression artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-artifacts
+          path: outputs/
+
+      - name: Stop local DSW stack
+        if: always()
+        run: make stop-ci-dsw

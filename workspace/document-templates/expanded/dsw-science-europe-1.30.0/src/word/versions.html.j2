@@ -1,0 +1,24 @@
+{# __tr_block_0000:start #}<h2>History of changes</h2>{# __tr_block_0000:end #}
+
+{% if dc.project.versions|length > 0 %}
+<table>
+  <thead>
+    <tr>
+      {# __tr_block_0001:start #}<th>Version</th>{# __tr_block_0001:end #}
+      {# __tr_block_0002:start #}<th>Publication date</th>{# __tr_block_0002:end #}
+      {# __tr_block_0003:start #}<th>Changes</th>{# __tr_block_0003:end #}
+    </tr>
+  </thead>
+  <tbody>
+  {% for version in dc.project.versions|reverse %}
+    <tr>
+      <td>{{ version.name }}</td>
+      <td>{{ version.created_at|datetime_format("%d %b %Y") }}</td>
+      <td>{{ version.description }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{# __tr_block_0004:start #}<p><em>There are no named versions.</em></p>{# __tr_block_0004:end #}
+{% endif %}

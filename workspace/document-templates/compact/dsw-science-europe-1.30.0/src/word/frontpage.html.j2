@@ -1,0 +1,26 @@
+<h1>
+<strong>Science Europe</strong>
+<br/>
+<strong>Data Management Plan</strong>
+<br/>
+<br/>
+{% if dc.project.version %}
+{% for version in dc.project.versions if version.uuid == dc.project.version.uuid %}
+{{version.name}}
+<br/>
+{% endfor %}
+{% endif %}
+<br/>
+{{ dc.doc.created_at|datetime_format("%d %B %Y") }}
+<br/>
+<br/>
+<br/>
+<img
+  src="{{dc.config.logo_url}}"
+  alt="Logo"
+  height="50"
+/>
+<br/>
+<br/>
+Created in <a href="{{ dc.config.service_url }}" target="_blank">{{ dc.config.service_name }}</a>
+</h1>

@@ -1,0 +1,230 @@
+<div id="q-ethical-issues" class="question">
+  {# __tr_block_0000:start #}<h3>9. What ethical issues and codes of conduct are there, and how will they be taken into account?</h3>{# __tr_block_0000:end #}
+
+  <div class="answer">
+
+    {# Research Projects - ethical approval #}
+    {%- set projectsPath = [uuids.adminDetailsCUuid, uuids.projectsQUuid]|reply_path -%}
+    {%- set projectsItems = repliesMap[projectsPath]|reply_items -%}
+    {%- set projects = [] -%}
+    {%- for projectItem in projectsItems -%}
+      {%- set projectPrefix = [projectsPath, projectItem]|reply_path -%}
+      {%- set projectName = repliesMap[[projectPrefix, uuids.projectNameQUuid]|reply_path]|reply_str_value -%}
+      {%- set projectAcronym = repliesMap[[projectPrefix, uuids.projectAcronymQUuid]|reply_path]|reply_str_value -%}
+      {%- set projEthicalApprovalPath = [projectPrefix, uuids.projEthicalApprovalQUuid]|reply_path -%}
+      {%- set projEthicalApprovalAUuid = repliesMap[projEthicalApprovalPath]|reply_str_value -%}
+      {%- if projectName and projEthicalApprovalAUuid == uuids.projEthicalApprovalYesAUuid -%}
+        {%- set projEthicalApprovalAuthPath = [projEthicalApprovalPath, projEthicalApprovalAUuid, uuids.projEthicalApprovalAuthQUuid]|reply_path -%}
+        {%- set projEthicalApprovalAuthItems = repliesMap[projEthicalApprovalAuthPath]|reply_items -%}
+        {%- set projAuth = [] -%}
+        {%- for projAuthItem in projEthicalApprovalAuthItems -%}
+          {%- set projAuthStatusPath = [projEthicalApprovalAuthPath, projAuthItem, uuids.projEthicalApprovalAuthStatusQUuid]|reply_path -%}
+          {%- set projAuthStatusAUuid = repliesMap[projAuthStatusPath]|reply_str_value -%}
+          {%- set projAuthCasePath = [projEthicalApprovalAuthPath, projAuthItem, uuids.projEthicalApprovalAuthCaseQUuid]|reply_path -%}
+          {%- set projAuthCase = repliesMap[projAuthCasePath]|reply_str_value -%}
+
+          {%- if projAuthCase and projAuthStatusAUuid == uuids.projEthicalApprovalAuthStatusPlannedAUuid -%}{# __tr_block_0001:start #}
+            {%- do projAuth.append({
+              'status': 'planned',
+              'case': projAuthCase,
+            }) -%}
+          {# __tr_block_0001:end #}{%- elif projAuthCase and projAuthStatusAUuid == uuids.projEthicalApprovalAuthStatusAppliedAUuid -%}{# __tr_block_0002:start #}
+            {%- do projAuth.append({
+              'status': 'applied',
+              'case': projAuthCase,
+            }) -%}
+          {# __tr_block_0002:end #}{%- elif projAuthCase and projAuthStatusAUuid == uuids.projEthicalApprovalAuthStatusGrantedAUuid -%}{# __tr_block_0003:start #}
+            {%- do projAuth.append({
+              'status': 'granted',
+              'case': projAuthCase,
+            }) -%}
+          {# __tr_block_0003:end #}{%- elif projAuthCase and projAuthStatusAUuid == uuids.projEthicalApprovalAuthStatusRejectAUuid -%}{# __tr_block_0004:start #}
+            {%- do projAuth.append({
+              'status': 'rejected',
+              'case': projAuthCase,
+            }) -%}
+          {# __tr_block_0004:end #}{%- endif -%}
+
+          {%- do projects.append({
+            'name': projectName,
+            'acronym': projectAcronym,
+            'authorities': projAuth,
+          }) -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if projects|length > 0 -%}
+      {# __tr_block_0005:start #}<h4>Ethical approvals</h4>{# __tr_block_0005:end #}
+      {# __tr_block_0006:start #}<p>The following project{% if projects|length > 1 %}s{% endif %} require ethical approval:</p>{# __tr_block_0006:end #}
+      <ul>
+      {%- for project in projects -%}
+        {# __tr_block_0007:start #}<li>
+          <strong>{{ project.name }}</strong> {% if project.acronym %}({{ project.acronym }}) {% endif %}
+          {% if project.authorities|length > 0 %}
+          <ul>
+            {% for authority in project.authorities %}
+              <li>case number: <em>{{ authority.case }}</em>, status: <em>{{ authority.status }}</em></li>
+            {% endfor %}
+          </ul>
+          {% endif %}{# __tr_block_0007:end #}
+        </li>
+      {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {# Produced datasets #}
+    {%- set producedDataPath = [uuids.preservingCUuid, uuids.producedDataQUuid]|reply_path -%}
+    {%- set producedDataItems = repliesMap[producedDataPath]|reply_items -%}
+    {%- if producedDataItems|length > 0 -%}
+      {# __tr_block_0008:start #}<h4>Data we produce</h4>{# __tr_block_0008:end #}
+      {# __tr_block_0009:start #}<p>For the data we produce, the ethical aspects are as follows:
+      <ul>
+      {%- for i in producedDataItems -%}
+        {%- set pathPrefix = [producedDataPath, i]|reply_path -%}
+        {%- set producedDataName = repliesMap[[pathPrefix, uuids.producedDataNameQUuid]|reply_path]|reply_str_value -%}
+        {%- set containPersonal = repliesMap[[pathPrefix, uuids.containPersonalQUuid]|reply_path]|reply_str_value -%}
+        {%- set containSensitive = repliesMap[[pathPrefix, uuids.containSensitiveQUuid]|reply_path]|reply_str_value -%}
+        <li>
+          <strong>{{ producedDataName if producedDataName else "(no name given)" }}</strong>
+          {%- if containPersonal or containSensitive -%}
+            <ul>
+            {%- if containPersonal == uuids.containPersonalNoAUuid -%}
+              <li>It does not contain personal data.</li>
+            {%- elif containPersonal == uuids.containPersonalYesAUuid -%}
+              <li>It contains personal data.</li>
+            {%- endif -%}
+            {%- if containSensitive == uuids.containSensitiveNoAUuid -%}
+              <li>It does not contain sensitive data.</li>
+            {%- elif containSensitive == uuids.containSensitiveYesAUuid -%}
+              <li>It contains sensitive data.</li>
+            {%- endif -%}
+            </ul>
+          {%- else -%}
+          <span> - <em>no information on personal nor sensitive data.</em></span>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}{# __tr_block_0009:end #}
+      </ul>
+      </p>
+    {%- endif -%}
+
+    {# Collected data - personal/GDPR and ethical legislation #}
+    {%- set collectPersonalPath = [uuids.creatingCUuid, uuids.collectPersonalQUuid]|reply_path -%}
+    {%- set collectPersonalAUuid = repliesMap[collectPersonalPath]|reply_str_value -%}
+    {%- set ethLegPath = [uuids.creatingCUuid, uuids.ethLegQUuid]|reply_path -%}
+    {%- set ethLegAUuid = repliesMap[ethLegPath]|reply_str_value -%}
+    {%- if collectPersonalAUuid or ethLegAUuid -%}
+      {# __tr_block_0010:start #}<h4>Data we collect</h4>{# __tr_block_0010:end #}
+
+      {%- if collectPersonalAUuid == uuids.collectPersonalNoAUuid %}
+        {# __tr_block_0011:start #}<p>We will not collect any data related to individuals, i.e. "personal data".</p>{# __tr_block_0011:end #}
+      {%- elif collectPersonalAUuid == uuids.collectPersonalYesAUuid %}
+        {%- set sentences = [] -%}{# __tr_block_0012:start #}
+        {%- do sentences.append('We will collect data related to individuals, i.e. "personal data".') -%}
+        {# __tr_block_0012:end #}{%- set cpersGdprPath = [collectPersonalPath, collectPersonalAUuid, uuids.cpersGdprQUuid]|reply_path -%}
+        {%- set cpersGdprAUuid = repliesMap[cpersGdprPath]|reply_str_value -%}
+        {%- if cpersGdprAUuid == uuids.cpersGdprExploreAUuid -%}{# __tr_block_0013:start #}
+          {%- do sentences.append('We explored General Data Protection Regulation (GDPR) considerations and relevant materials.') -%}
+
+          {# __tr_block_0013:end #}{# Legal Base #}
+          {%- set legalBasePath = [cpersGdprPath, cpersGdprAUuid, uuids.cpersGdprLegalBasisQUuid]|reply_path -%}
+          {%- set legalBaseAUuid = repliesMap[legalBasePath]|reply_str_value -%}
+          {%- if legalBaseAUuid == uuids.cpersGdprLegalBasisPublicAUuid -%}{# __tr_block_0014:start #}
+            {%- do sentences.append('We collect personal data for the benefit of society, and this is more important than the privacy of the subjects (i.e. public interest).') -%}
+          {# __tr_block_0014:end #}{%- elif legalBaseAUuid == uuids.cpersGdprLegalBasisAskAUuid -%}{# __tr_block_0015:start #}
+            {%- do sentences.append('We ask the data subjects for their consent.') -%}
+
+            {# __tr_block_0015:end #}{%- set cpersConsentPath = [legalBasePath, legalBaseAUuid, uuids.cpersConsentQUuid]|reply_path -%}
+            {%- set cpersConsentAUuid = repliesMap[cpersConsentPath]|reply_str_value -%}
+            {%- if cpersConsentAUuid == uuids.cpersConsentUseAUuid -%}{# __tr_block_0016:start #}
+              {%- do sentences.append('We collect consent for our specific use of the data.') -%}
+            {# __tr_block_0016:end #}{%- elif cpersConsentAUuid == uuids.cpersConsentReuseAUuid -%}{# __tr_block_0017:start #}
+              {%- do sentences.append('We collect consent for our use as well as for reuse of the data.') -%}
+            {# __tr_block_0017:end #}{%- elif cpersConsentAUuid == uuids.cpersConsentUseAnonAUuid -%}{# __tr_block_0018:start #}
+              {%- do sentences.append('We will collect consent for our use of the data and for anonymization; We will anonymize the data afterwards for reuse.') -%}
+            {# __tr_block_0018:end #}{%- elif cpersConsentAUuid == uuids.cpersConsentAnonAUuid -%}{# __tr_block_0019:start #}
+              {%- do sentences.append('We ask for consent for anonymization; We will anonymize first and all further processing is on the anonymous data.') -%}
+            {# __tr_block_0019:end #}{%- endif -%}
+
+            {%- set cpersExplainInformedPath = [legalBasePath, legalBaseAUuid, uuids.cpersExplainInformedQUuid]|reply_path -%}
+            {%- set cpersExplainInformed = repliesMap[cpersExplainInformedPath]|reply_str_value -%}
+            {%- if cpersExplainInformed -%}{# __tr_block_0020:start #}
+              {%- do sentences.append('The data subjects will be informed as follows:') -%}
+              {# __tr_block_0020:end #}{%- do sentences.append(cpersExplainInformed|dot) -%}
+            {%- endif -%}
+
+            {%- set cpersReusersPath = [legalBasePath, legalBaseAUuid, uuids.cpersReusersQUuid]|reply_path -%}
+            {%- set cpersReusersAUuid = repliesMap[cpersReusersPath]|reply_str_value -%}
+            {%- if cpersReusersAUuid == uuids.cpersReusersNoAUuid -%}{# __tr_block_0021:start #}
+              {%- do sentences.append('The consent form will not be available for re-users.') -%}
+            {# __tr_block_0021:end #}{%- elif cpersReusersAUuid == uuids.cpersReusersYesAUuid -%}{# __tr_block_0022:start #}
+              {%- do sentences.append('The consent form will be available for re-users.') -%}
+            {# __tr_block_0022:end #}{%- endif -%}
+
+            {%- set cpersDescribeProcedurePath = [legalBasePath, legalBaseAUuid, uuids.cpersDescribeProcedureQUuid]|reply_path -%}
+            {%- set cpersDescribeProcedure = repliesMap[cpersDescribeProcedurePath]|reply_str_value -%}
+            {%- if cpersDescribeProcedure -%}{# __tr_block_0023:start #}
+              {%- do sentences.append('The procedure for obtaining consent from data subjects is set as follows:') -%}
+              {# __tr_block_0023:end #}{%- do sentences.append(cpersDescribeProcedure|dot) -%}
+            {%- endif -%}
+
+          {%- elif legalBaseAUuid == uuids.cpersGdprLegalBasisOtherAUuid -%}{# __tr_block_0024:start #}
+            {%- do sentences.append('We use a different legal base for collection of personal data rather than public interest or consent-based: ') -%}
+
+            {# __tr_block_0024:end #}{%- set cpersGdprLegalBasisOtherWhichPath = [legalBasePath, legalBaseAUuid, uuids.cpersGdprLegalBasisOtherWhichQUuid]|reply_path -%}
+            {%- set cpersGdprLegalBasisOtherWhichAUuid = repliesMap[cpersGdprLegalBasisOtherWhichPath]|reply_str_value -%}
+            {%- if cpersGdprLegalBasisOtherWhichAUuid == uuids.cpersGdprLegalBasisOtherWhichContractAUuid -%}{# __tr_block_0025:start #}
+              {%- do sentences.append('to fulfil a contract.') -%}
+            {# __tr_block_0025:end #}{%- elif cpersGdprLegalBasisOtherWhichAUuid == uuids.cpersGdprLegalBasisOtherWhichLegitAUuid -%}{# __tr_block_0026:start #}
+              {%- do sentences.append('legitimate interest.') -%}
+            {# __tr_block_0026:end #}{%- elif cpersGdprLegalBasisOtherWhichAUuid == uuids.cpersGdprLegalBasisOtherWhichVitalAUuid -%}{# __tr_block_0027:start #}
+              {%- do sentences.append('vital interest.') -%}
+            {# __tr_block_0027:end #}{%- elif cpersGdprLegalBasisOtherWhichAUuid == uuids.cpersGdprLegalBasisOtherWhichLegalAUuid -%}{# __tr_block_0028:start #}
+              {%- do sentences.append('legal requirement.') -%}
+            {# __tr_block_0028:end #}{%- endif -%}
+
+          {%- endif -%}
+
+          {# purpose  #}
+          {%- set cpersGdprPurposePath = [cpersGdprPath, cpersGdprAUuid, uuids.cpersGdprPurposeQUuid]|reply_path -%}
+          {%- set cpersGdprPurpose = repliesMap[cpersGdprPurposePath]|reply_str_value -%}
+          {%- if cpersGdprPurpose -%}{# __tr_block_0029:start #}
+            {%- do sentences.append('The purpose of processing the personal data can be described as follows:') -%}
+            {# __tr_block_0029:end #}{%- do sentences.append(cpersGdprPurpose|dot) -%}
+          {%- endif -%}
+
+          {# DPIA #}
+          {%- set needDpiaPath = [cpersGdprPath, cpersGdprAUuid, uuids.cpersGdprNeedDpiaQUuid]|reply_path -%}
+          {%- set needDpiaAUuid = repliesMap[needDpiaPath]|reply_str_value -%}
+          {%- if needDpiaAUuid == uuids.cpersGdprNeedDpiaYesAUuid %}{# __tr_block_0030:start #}
+            {%- do sentences.append('We need to conduct a data protection impact assessment (DPIA).') -%}
+          {# __tr_block_0030:end #}{%- endif -%}
+        {%- endif -%}
+
+        <p>{{ sentences|join(' ') }}</p>
+      {%- endif -%}
+
+      {% if ethLegAUuid == uuids.ethLegNoAUuid %}
+      {# __tr_block_0031:start #}<p>The data collection is not subject to ethical legislation.</p>{# __tr_block_0031:end #}
+      {% elif ethLegAUuid == uuids.ethLegYesAUuid %}
+        {%- set ethLegReviewPath = [ethLegPath, ethLegAUuid, uuids.ethLegReviewQUuid]|reply_path -%}
+        {%- set ethLegReviewAUuid = repliesMap[ethLegReviewPath]|reply_str_value -%}
+        {%- set ethLegHumanPath = [ethLegPath, ethLegAUuid, uuids.ethLegHumanQUuid]|reply_path -%}
+        {%- set ethLegHumanAUuid = repliesMap[ethLegHumanPath]|reply_str_value -%}
+        {# __tr_block_0032:start #}<p>
+          The data collection is subject to ethical legislation.
+          {% if ethLegReviewAUuid == uuids.ethLegReviewNoAUuid %}
+          It is not covered by ethical review.
+          {% elif ethLegReviewAUuid == uuids.ethLegReviewYesAUuid %}
+          It is covered by ethical review.
+          {% endif %}
+          {% if ethLegHumanAUuid == uuids.ethLegHumanNoAUuid %}
+          It does not involve human subjects.
+          {% elif ethLegHumanAUuid == uuids.ethLegHumanYesAUuid %}
+          It involves human subjects.
+          {% endif %}{# __tr_block_0032:end #}
+        </p>
+      {% endif %}
+    {%- endif -%}
+  </div>
+</div>
