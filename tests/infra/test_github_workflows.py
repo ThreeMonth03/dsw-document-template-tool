@@ -21,7 +21,8 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     workflow = load_workflow_yaml(workflow_path)
     workflow_text = workflow_path.read_text(encoding="utf-8")
 
-    assert workflow["on"]["pull_request"]["branches"] == ["main"]
+    assert workflow["on"]["push"]["branches"] == ["**"]
+    assert workflow["on"]["pull_request"]["branches"] == ["**"]
     assert "make install-dev" in workflow_text
     assert "make transform" in workflow_text
     assert "make export-translation-tree" in workflow_text
