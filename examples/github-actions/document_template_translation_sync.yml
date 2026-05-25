@@ -72,8 +72,16 @@ jobs:
         working-directory: template-repo
         run: |
           set -euo pipefail
-          git diff --exit-code -- "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR"
-          test -z "$(git status --short -- "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR")"
+          # `outline.md` is a generated progress view. Let CI refresh it without
+          # requiring translators to commit checkbox churn before opening a PR.
+          git diff --exit-code -- \
+            "$EXPANDED_TEMPLATE_DIR" \
+            "$TRANSLATION_TREE_DIR/.translation-tree" \
+            "$TRANSLATION_TREE_DIR/tree"
+          test -z "$(git status --short -- \
+            "$EXPANDED_TEMPLATE_DIR" \
+            "$TRANSLATION_TREE_DIR/.translation-tree" \
+            "$TRANSLATION_TREE_DIR/tree")"
 
       - name: Sync translations into output template
         run: |

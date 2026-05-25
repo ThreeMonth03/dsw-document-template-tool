@@ -101,9 +101,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "src/render_project.py" in workflow_text
     assert "make ci-dsw-logs" in workflow_text
     assert "make stop-ci-dsw" in workflow_text
-    assert (
-        'git diff --exit-code -- "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR"' in workflow_text
-    )
+    assert '"$TRANSLATION_TREE_DIR/.translation-tree"' in workflow_text
+    assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
+    assert "outline.md" in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
     assert "do not use `git diff` on the zip" in workflow_text
 
