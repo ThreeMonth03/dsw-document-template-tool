@@ -14,12 +14,6 @@
 Data we produce
 ```
 
-### Source (en)
-
-~~~jinja
-Data we produce
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

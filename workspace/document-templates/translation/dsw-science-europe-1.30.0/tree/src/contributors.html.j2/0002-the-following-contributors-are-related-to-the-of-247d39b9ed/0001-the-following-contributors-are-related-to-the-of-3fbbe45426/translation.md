@@ -14,12 +14,6 @@
 The following contributors are related to the {globals.projects} of this DMP:
 ```
 
-### Source (en)
-
-~~~jinja
-The following contributors are related to the {{globals.projects}} of this DMP:
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

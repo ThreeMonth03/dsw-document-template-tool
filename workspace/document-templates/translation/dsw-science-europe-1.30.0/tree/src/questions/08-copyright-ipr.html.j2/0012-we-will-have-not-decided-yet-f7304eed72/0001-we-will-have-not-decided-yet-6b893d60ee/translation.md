@@ -14,12 +14,6 @@
 We will have not decided yet.
 ```
 
-### Source (en)
-
-~~~jinja
-We will have not decided yet.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

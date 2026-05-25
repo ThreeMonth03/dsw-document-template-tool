@@ -14,12 +14,6 @@
 Legal basis for collecting and processing personal data
 ```
 
-### Source (en)
-
-~~~jinja
-Legal basis for collecting and processing personal data
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

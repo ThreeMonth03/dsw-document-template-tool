@@ -14,12 +14,6 @@
 responsible for generating and disseminating copies of the resource in either electronic or print form.
 ```
 
-### Source (en)
-
-~~~jinja
-{{ contributorsResponsibility(contributorsItems, uuids.contributorRoleDistributorAUuid, "responsible for generating and disseminating copies of the resource in either electronic or print form.") }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 vital interest.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('vital interest.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

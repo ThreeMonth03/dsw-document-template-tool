@@ -14,12 +14,6 @@
 Following resources will be dedicated to data management and ensuring that data will be FAIR:
 ```
 
-### Source (en)
-
-~~~jinja
-Following resources will be dedicated to data management and ensuring that data will be FAIR:
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

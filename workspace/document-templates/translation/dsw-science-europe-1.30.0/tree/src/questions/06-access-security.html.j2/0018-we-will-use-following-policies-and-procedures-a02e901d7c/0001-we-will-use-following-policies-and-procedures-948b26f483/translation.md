@@ -14,12 +14,6 @@
 We will use following policies and procedures:
 ```
 
-### Source (en)
-
-~~~jinja
-We will use following policies and procedures:
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

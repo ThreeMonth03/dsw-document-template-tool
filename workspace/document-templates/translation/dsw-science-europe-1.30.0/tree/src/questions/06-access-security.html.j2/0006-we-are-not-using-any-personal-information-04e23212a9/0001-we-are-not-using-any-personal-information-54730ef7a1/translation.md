@@ -14,12 +14,6 @@
 We are not using any personal information.
 ```
 
-### Source (en)
-
-~~~jinja
-We are not using any personal information.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

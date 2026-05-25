@@ -14,12 +14,6 @@
 We collect personal data for the benefit of society, and this is more important than the privacy of the subjects (i.e. public interest).
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We collect personal data for the benefit of society, and this is more important than the privacy of the subjects (i.e. public interest).') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

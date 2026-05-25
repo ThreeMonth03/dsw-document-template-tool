@@ -14,12 +14,6 @@
 We will include keywords and relevant ontology references to optimize the possibility for discovery and potential reuse.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do metadataSentences.append("We will include keywords and relevant ontology references to optimize the possibility for discovery and potential reuse.") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

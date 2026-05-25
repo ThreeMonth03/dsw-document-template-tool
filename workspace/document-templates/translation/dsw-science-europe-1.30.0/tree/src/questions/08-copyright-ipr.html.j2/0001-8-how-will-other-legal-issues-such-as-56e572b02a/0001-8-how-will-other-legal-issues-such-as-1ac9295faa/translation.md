@@ -14,12 +14,6 @@
 8. How will other legal issues, such as intellectual property rights and ownership, be managed? What legislation is applicable?
 ```
 
-### Source (en)
-
-~~~jinja
-8. How will other legal issues, such as intellectual property rights and ownership, be managed? What legislation is applicable?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

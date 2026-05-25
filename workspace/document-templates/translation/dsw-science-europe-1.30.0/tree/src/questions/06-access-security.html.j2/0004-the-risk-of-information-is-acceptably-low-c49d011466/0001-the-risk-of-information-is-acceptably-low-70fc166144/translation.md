@@ -14,12 +14,6 @@
 The risk of information is acceptably low
 ```
 
-### Source (en)
-
-~~~jinja
-{%- set _ = fragments.append("The risk of information " ~ risks ~ " is acceptably low") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

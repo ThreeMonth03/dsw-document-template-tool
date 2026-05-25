@@ -14,12 +14,6 @@
 The following project s require ethical approval:
 ```
 
-### Source (en)
-
-~~~jinja
-The following project{% if projects|length > 1 %}s{% endif %} require ethical approval:
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

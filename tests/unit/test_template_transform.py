@@ -105,6 +105,270 @@ def test_expand_then_compact_roundtrips_template_tree(tmp_path: Path) -> None:
     assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
 
 
+def test_expand_applies_reversible_science_europe_localization_patches(
+    tmp_path: Path,
+) -> None:
+    """Science Europe expansion should carry local zh-Hant and CJK font patches."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    (compact_dir / "template.json").write_text(
+        """
+{
+  "organizationId": "dsw",
+  "templateId": "science-europe",
+  "version": "1.30.0",
+  "allowedPackages": [
+    {
+      "orgId": "dsw",
+      "kmId": "root",
+      "minVersion": "2.7.0",
+      "maxVersion": null
+    }
+  ]
+}
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    (compact_dir / "src" / "style.css").write_text(
+        """
+body {
+  font-family: "Open Sans", sans-serif;
+}
+""".lstrip(),
+        encoding="utf-8",
+    )
+    (compact_dir / "src" / "index.html.j2").write_text(
+        "<p>Hello world.</p>\n",
+        encoding="utf-8",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+
+    expanded_template_json = (expanded_dir / "template.json").read_text(encoding="utf-8")
+    expanded_style = (expanded_dir / "src" / "style.css").read_text(encoding="utf-8")
+
+    assert '"kmId": "root-zh-hant"' in expanded_template_json
+    assert "DSW Document Template Tool CJK font fallback:start" in expanded_style
+    assert "68c26e34-5e77-4e15-9bf7-06ff92582257" in expanded_style
+    assert 'assets("src/fonts/NotoSansTC-Variable.ttf")' in expanded_style
+    assert "data:font/ttf;base64" in expanded_style
+    assert '"DSW Noto Sans TC", {% endif %}"Open Sans", sans-serif' in expanded_style
+    assert (expanded_dir / "src" / "fonts" / "NotoSansTC-Variable.ttf").is_file()
+
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+
+def test_expand_rewrites_inline_fallback_literals_reversibly(tmp_path: Path) -> None:
+    """Inline ternaries with fallback text should become branch-safe Jinja."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = """
+<dl>
+  <dt>{{ "Additional" if quality_count > 0 else "Our" }} quality processes are:</dt>
+  <dd>{{ projectNumber if projectNumber else "N/A" }}</dd>
+</dl>
+""".lstrip()
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    assert "__tr_inline_if_original:" in expanded_text
+    assert '{{ "Additional" }}' in expanded_text
+    assert '{{ "Our" }}' in expanded_text
+    assert "quality processes are:" in expanded_text
+    assert '{% if projectNumber %}{{ projectNumber }}{% else %}{{ "N/A" }}{% endif %}' in (
+        expanded_text
+    )
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+    contexts = [
+        {"quality_count": 0, "projectNumber": ""},
+        {"quality_count": 3, "projectNumber": "P-123"},
+    ]
+    for context in contexts:
+        assert _render_template(expanded_text, context) == _render_template(source_text, context)
+
+
+def test_expand_rewrites_simple_common_prefix_branches_reversibly(tmp_path: Path) -> None:
+    """Simple suffix alternatives should become complete branch sentences."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = """
+<p>This data are
+{% if access == "open" %}
+  freely available for any use.
+{% elif access == "quote" %}
+  freely available with obligation to quote the source.
+{% else %}
+  available under restrictions.
+{% endif %}
+</p>
+""".lstrip()
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    assert "__tr_branch_sentence_original:" in expanded_text
+    assert "This data are\n\n  freely available for any use." in expanded_text
+    assert "This data are\n\n  freely available with obligation to quote the source." in (
+        expanded_text
+    )
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+    contexts = [
+        {"access": "open"},
+        {"access": "quote"},
+        {"access": "closed"},
+    ]
+    for context in contexts:
+        assert _render_template(expanded_text, context) == _render_template(source_text, context)
+
+
+def test_expand_rewrites_simple_common_suffix_branches_reversibly(tmp_path: Path) -> None:
+    """Simple prefix alternatives should duplicate a shared suffix."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = """
+<p>{% if count > 0 %}Additional{% else %}Our{% endif %} quality processes are: {{ topic }}.</p>
+""".lstrip()
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    assert "Additional quality processes are:" in expanded_text
+    assert "Our quality processes are:" in expanded_text
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+    contexts = [
+        {"count": 0, "topic": "validation"},
+        {"count": 2, "topic": "validation"},
+    ]
+    for context in contexts:
+        assert _render_template(expanded_text, context) == _render_template(source_text, context)
+
+
+def test_expand_rewrites_simple_common_prefix_and_suffix_branches_reversibly(
+    tmp_path: Path,
+) -> None:
+    """Simple middle alternatives should duplicate both surrounding sentence parts."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = (
+        '<p>Dataset access is {% if mode == "open" %}open'
+        '{% elif mode == "shared" %}shared'
+        "{% else %}closed{% endif %} using repository {{ repo }}.</p>\n"
+    )
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    assert "Dataset access is open using repository {{ repo }}." in expanded_text
+    assert "Dataset access is shared using repository {{ repo }}." in expanded_text
+    assert "Dataset access is closed using repository {{ repo }}." in expanded_text
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+    contexts = [
+        {"mode": "open", "repo": "R1"},
+        {"mode": "shared", "repo": "R2"},
+        {"mode": "closed", "repo": "R3"},
+    ]
+    for context in contexts:
+        assert _render_template(expanded_text, context) == _render_template(source_text, context)
+
+
+def test_expand_rewrites_single_choice_optional_branches_reversibly(
+    tmp_path: Path,
+) -> None:
+    """Adjacent optional fragments in a known single-choice context become full sentences."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = """
+{% if selected_count == 1 %}
+<p>
+  We will be using
+  {% if calibrating %}calibrating measurements{% endif %}
+  {% if repetition %}repeat samples/measurements{% endif %}
+  {% if standardized %}standardized data capture/recording{% endif %}
+  as part of the quality process.
+</p>
+{% endif %}
+""".lstrip()
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    normalized_expanded = " ".join(expanded_text.split())
+    assert "We will be using calibrating measurements as part" in normalized_expanded
+    assert "We will be using repeat samples/measurements as part" in normalized_expanded
+    assert "We will be using standardized data capture/recording as part" in normalized_expanded
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+    contexts = [
+        {
+            "selected_count": 1,
+            "calibrating": True,
+            "repetition": False,
+            "standardized": False,
+        },
+        {
+            "selected_count": 1,
+            "calibrating": False,
+            "repetition": True,
+            "standardized": False,
+        },
+        {
+            "selected_count": 1,
+            "calibrating": False,
+            "repetition": False,
+            "standardized": True,
+        },
+        {
+            "selected_count": 0,
+            "calibrating": False,
+            "repetition": False,
+            "standardized": False,
+        },
+    ]
+    for context in contexts:
+        assert _render_template(expanded_text, context) == _render_template(source_text, context)
+
+
 def test_expanded_comment_markers_preserve_rendered_output_across_branch_matrix(
     tmp_path: Path,
 ) -> None:

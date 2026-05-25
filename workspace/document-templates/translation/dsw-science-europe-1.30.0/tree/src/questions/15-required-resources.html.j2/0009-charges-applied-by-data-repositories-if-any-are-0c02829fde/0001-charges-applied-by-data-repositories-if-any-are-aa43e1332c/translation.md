@@ -14,12 +14,6 @@
 Charges applied by data repositories (if any) are mentioned already in Section 4, Question 11.
 ```
 
-### Source (en)
-
-~~~jinja
-Charges applied by data repositories (if any) are mentioned already in Section 4, Question 11.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

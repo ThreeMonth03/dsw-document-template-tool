@@ -24,12 +24,14 @@ regression:
   cleanup_projects: false
   ignore_patterns:
     - "Generated at: .*"
+    - "/\\* DSW Document Template Tool CJK font fallback:start \\*/[\\s\\S]*?/\\* DSW Document Template Tool CJK font fallback:end \\*/"
+    - "\"DSW Noto Sans TC\", "
 
 fixtures:
   - name: empty-project
     project:
       name: science-europe empty project
-      knowledge_model_package_id: ../workspace/knowledge-models/final_translated.km
+      knowledge_model_package_id: ../workspace/knowledge-models/root-zh-hant-2.7.0.km
       question_tag_uuids: []
       visibility: PrivateProjectVisibility
       sharing: RestrictedProjectSharing

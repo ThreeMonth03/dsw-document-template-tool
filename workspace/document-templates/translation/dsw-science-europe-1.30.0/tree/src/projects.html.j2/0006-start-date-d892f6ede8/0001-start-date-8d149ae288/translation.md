@@ -14,12 +14,6 @@
 Start date
 ```
 
-### Source (en)
-
-~~~jinja
-Start date
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

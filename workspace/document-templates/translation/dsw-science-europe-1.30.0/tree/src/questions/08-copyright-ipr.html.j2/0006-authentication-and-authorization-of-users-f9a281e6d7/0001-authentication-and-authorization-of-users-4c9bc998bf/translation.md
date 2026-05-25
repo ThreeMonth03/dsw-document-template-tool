@@ -14,12 +14,6 @@
 Authentication and Authorization of Users
 ```
 
-### Source (en)
-
-~~~jinja
-Authentication and Authorization of Users
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

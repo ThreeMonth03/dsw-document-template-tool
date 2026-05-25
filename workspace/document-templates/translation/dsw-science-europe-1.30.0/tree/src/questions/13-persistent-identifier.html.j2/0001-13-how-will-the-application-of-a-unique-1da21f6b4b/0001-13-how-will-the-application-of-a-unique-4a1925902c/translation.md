@@ -14,12 +14,6 @@
 13. How will the application of a unique and persistent identifier (such as a Digital Object Identifier (DOI)) to each data set be ensured?
 ```
 
-### Source (en)
-
-~~~jinja
-13. How will the application of a unique and persistent identifier (such as a Digital Object Identifier (DOI)) to each data set be ensured?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

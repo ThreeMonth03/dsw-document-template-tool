@@ -14,12 +14,6 @@
 We collect consent for our use as well as for reuse of the data.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We collect consent for our use as well as for reuse of the data.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

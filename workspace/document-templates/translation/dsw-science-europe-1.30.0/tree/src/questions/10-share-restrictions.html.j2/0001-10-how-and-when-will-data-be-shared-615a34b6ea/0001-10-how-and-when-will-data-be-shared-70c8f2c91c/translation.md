@@ -14,12 +14,6 @@
 10. How and when will data be shared? Are there possible restrictions to data sharing or embargo reasons?
 ```
 
-### Source (en)
-
-~~~jinja
-10. How and when will data be shared? Are there possible restrictions to data sharing or embargo reasons?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

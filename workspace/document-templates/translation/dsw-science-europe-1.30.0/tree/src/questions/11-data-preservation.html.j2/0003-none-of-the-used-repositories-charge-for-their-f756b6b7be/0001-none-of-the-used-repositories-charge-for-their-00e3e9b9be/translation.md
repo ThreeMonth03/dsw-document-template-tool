@@ -14,12 +14,6 @@
 None of the used repositories charge for their services.
 ```
 
-### Source (en)
-
-~~~jinja
-None of the used repositories charge for their services.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

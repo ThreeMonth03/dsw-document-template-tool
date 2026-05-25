@@ -14,12 +14,6 @@
 We will set up a data access committee for authorization of potential users of the data.
 ```
 
-### Source (en)
-
-~~~jinja
-We will set up a data access committee for authorization of potential users of the data.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 The provenance will be captured using W3C PROV.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do metadataSentences.append("The provenance will be captured using W3C PROV.") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

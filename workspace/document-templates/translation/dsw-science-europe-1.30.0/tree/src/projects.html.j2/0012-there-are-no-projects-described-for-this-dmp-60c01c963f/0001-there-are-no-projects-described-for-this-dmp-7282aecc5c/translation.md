@@ -14,12 +14,6 @@
 There are no projects described for this DMP.
 ```
 
-### Source (en)
-
-~~~jinja
-There are no projects described for this DMP.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

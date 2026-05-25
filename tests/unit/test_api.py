@@ -13,7 +13,7 @@ from dsw_document_template_tool.api import (
 def test_read_knowledge_model_package_id_from_bundle_prefers_id(tmp_path: Path) -> None:
     """A local `.km` bundle should expose its package coordinates."""
 
-    bundle_path = tmp_path / "final_translated.km"
+    bundle_path = tmp_path / "root-zh-hant-2.7.0.km"
     bundle_path.write_text(
         """
 {

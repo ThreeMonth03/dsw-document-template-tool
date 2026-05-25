@@ -14,12 +14,6 @@
 The purpose of processing the personal data can be described as follows:
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('The purpose of processing the personal data can be described as follows:') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

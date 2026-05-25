@@ -14,12 +14,6 @@
 We have budgeted for the costs in the project to pay charges of the used repositories.
 ```
 
-### Source (en)
-
-~~~jinja
-We have budgeted for the costs in the project to pay charges of the used repositories.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,15 +14,6 @@
 planned
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do projAuth.append({
-              'status': 'planned',
-              'case': projAuthCase,
-            }) -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

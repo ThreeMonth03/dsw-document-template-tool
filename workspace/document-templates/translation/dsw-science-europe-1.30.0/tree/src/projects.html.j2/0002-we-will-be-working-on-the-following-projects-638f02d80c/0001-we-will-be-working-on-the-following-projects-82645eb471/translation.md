@@ -14,12 +14,6 @@
 We will be working on the following projects and for those are the data and work described in this DMP.
 ```
 
-### Source (en)
-
-~~~jinja
-We will be working on the following projects and for those are the data and work described in this DMP.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 legitimate interest.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('legitimate interest.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

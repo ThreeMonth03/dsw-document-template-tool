@@ -14,12 +14,6 @@
 We ask the data subjects for their consent.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We ask the data subjects for their consent.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

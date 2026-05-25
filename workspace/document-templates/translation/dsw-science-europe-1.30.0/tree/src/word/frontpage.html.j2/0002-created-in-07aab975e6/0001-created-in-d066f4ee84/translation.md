@@ -14,12 +14,6 @@
 Created in
 ```
 
-### Source (en)
-
-~~~jinja
-Created in
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

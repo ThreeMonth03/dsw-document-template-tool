@@ -14,12 +14,6 @@
 Data that is not legally restrained will be released after a fixed time period ({embargoPeriod}), unconditionally.
 ```
 
-### Source (en)
-
-~~~jinja
-Data that is not legally restrained will be released after a fixed time period ({{ embargoPeriod }}), unconditionally.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

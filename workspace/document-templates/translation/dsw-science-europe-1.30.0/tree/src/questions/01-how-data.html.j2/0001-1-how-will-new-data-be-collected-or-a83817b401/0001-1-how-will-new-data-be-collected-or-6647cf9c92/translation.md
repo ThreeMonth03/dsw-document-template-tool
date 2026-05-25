@@ -14,12 +14,6 @@
 1. How will new data be collected or produced and/or how will existing data be re-used?
 ```
 
-### Source (en)
-
-~~~jinja
-1. How will new data be collected or produced and/or how will existing data be re-used?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

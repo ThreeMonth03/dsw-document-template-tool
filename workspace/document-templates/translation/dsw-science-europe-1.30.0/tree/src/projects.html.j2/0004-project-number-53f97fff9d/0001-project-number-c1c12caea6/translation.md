@@ -14,12 +14,6 @@
 Project Number
 ```
 
-### Source (en)
-
-~~~jinja
-Project Number
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

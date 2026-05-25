@@ -14,12 +14,6 @@
 Section 1: Data description and collection or re-use of existing data
 ```
 
-### Source (en)
-
-~~~jinja
-Section 1: Data description and collection or re-use of existing data
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

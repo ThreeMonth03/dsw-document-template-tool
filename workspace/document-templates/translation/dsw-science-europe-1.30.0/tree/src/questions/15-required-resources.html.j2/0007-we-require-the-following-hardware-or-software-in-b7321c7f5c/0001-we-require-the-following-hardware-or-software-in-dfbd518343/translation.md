@@ -14,12 +14,6 @@
 We require the following hardware or software in addition to what is usually available in the institute: {additionalHWSWWhat}
 ```
 
-### Source (en)
-
-~~~jinja
-We require the following hardware or software in addition to what is usually available in the institute: {{ additionalHWSWWhat|dot }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 Our data is legally not copyrightable, there is no legal owner.
 ```
 
-### Source (en)
-
-~~~jinja
-Our data is legally not copyrightable, there is no legal owner.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

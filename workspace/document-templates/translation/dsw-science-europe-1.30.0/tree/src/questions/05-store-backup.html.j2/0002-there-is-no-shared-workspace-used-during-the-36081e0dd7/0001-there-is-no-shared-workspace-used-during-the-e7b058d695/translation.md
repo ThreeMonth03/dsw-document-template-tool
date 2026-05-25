@@ -14,12 +14,6 @@
 There is no shared workspace used during the project for working with data.
 ```
 
-### Source (en)
-
-~~~jinja
-There is no shared workspace used during the project for working with data.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

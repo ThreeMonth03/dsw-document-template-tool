@@ -14,12 +14,6 @@
 responsible for the management and proficiency of data including data processing, data policies, data guidelines, and data availability.
 ```
 
-### Source (en)
-
-~~~jinja
-{{ contributorsResponsibility(contributorsItems, uuids.contributorRoleDataStewardAUuid, "responsible for the management and proficiency of data including data processing, data policies, data guidelines, and data availability.") }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

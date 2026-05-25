@@ -14,12 +14,6 @@
 All personal data will be anonymized as early as possible.
 ```
 
-### Source (en)
-
-~~~jinja
-All personal data will be anonymized as early as possible.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

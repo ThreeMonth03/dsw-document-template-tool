@@ -14,12 +14,6 @@
 History of changes
 ```
 
-### Source (en)
-
-~~~jinja
-History of changes
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

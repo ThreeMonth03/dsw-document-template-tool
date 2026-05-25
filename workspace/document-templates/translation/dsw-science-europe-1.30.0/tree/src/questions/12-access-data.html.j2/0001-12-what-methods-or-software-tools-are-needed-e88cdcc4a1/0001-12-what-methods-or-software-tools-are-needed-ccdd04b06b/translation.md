@@ -14,12 +14,6 @@
 12. What methods or software tools are needed to access and use data?
 ```
 
-### Source (en)
-
-~~~jinja
-12. What methods or software tools are needed to access and use data?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

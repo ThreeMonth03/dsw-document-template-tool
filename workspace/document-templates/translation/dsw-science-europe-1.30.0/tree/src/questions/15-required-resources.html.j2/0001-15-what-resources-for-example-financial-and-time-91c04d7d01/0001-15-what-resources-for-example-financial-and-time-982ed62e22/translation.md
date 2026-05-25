@@ -14,12 +14,6 @@
 15. What resources (for example financial and time) will be dedicated to data management and ensuring that data will be FAIR (Findable, Accessible, Interoperable, Re-usable)?
 ```
 
-### Source (en)
-
-~~~jinja
-15. What resources (for example financial and time) will be dedicated to data management and ensuring that data will be FAIR (Findable, Accessible, Interoperable, Re-usable)?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

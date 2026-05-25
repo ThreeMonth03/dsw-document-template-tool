@@ -14,12 +14,6 @@
 Section 3: Storage and backup during research process
 ```
 
-### Source (en)
-
-~~~jinja
-Section 3: Storage and backup during research process
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

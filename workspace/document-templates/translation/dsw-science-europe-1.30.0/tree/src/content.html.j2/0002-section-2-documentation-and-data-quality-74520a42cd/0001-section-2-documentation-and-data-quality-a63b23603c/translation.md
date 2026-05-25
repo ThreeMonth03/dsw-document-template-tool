@@ -14,12 +14,6 @@
 Section 2: Documentation and data quality
 ```
 
-### Source (en)
-
-~~~jinja
-Section 2: Documentation and data quality
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

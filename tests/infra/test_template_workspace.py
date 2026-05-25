@@ -20,7 +20,7 @@ JINJA_BLOCK_PATTERN = re.compile(r"\{%\s*(?P<body>.*?)\s*%\}", re.DOTALL)
 def test_workspace_assets_exist(repo_root: Path) -> None:
     """The repository should keep both KM and template workspaces checked in."""
 
-    km_path = repo_root / "workspace" / "knowledge-models" / "final_translated.km"
+    km_path = repo_root / "workspace" / "knowledge-models" / "root-zh-hant-2.7.0.km"
     compact_dir = (
         repo_root / "workspace" / "document-templates" / "compact" / "dsw-science-europe-1.30.0"
     )
@@ -30,11 +30,21 @@ def test_workspace_assets_exist(repo_root: Path) -> None:
     translation_tree_dir = (
         repo_root / "workspace" / "document-templates" / "translation" / "dsw-science-europe-1.30.0"
     )
+    font_asset = (
+        repo_root
+        / "workspace"
+        / "document-templates"
+        / "assets"
+        / "fonts"
+        / "NotoSansTC-Variable.ttf"
+    )
 
     assert km_path.is_file()
     assert compact_dir.is_dir()
     assert expanded_dir.is_dir()
     assert translation_tree_dir.is_dir()
+    assert font_asset.is_file()
+    assert (expanded_dir / "src" / "fonts" / "NotoSansTC-Variable.ttf").is_file()
     assert not any(expanded_dir.rglob("_segments"))
     assert not any(
         "@i18n" in path.read_text(encoding="utf-8") for path in expanded_dir.rglob("*.j2")
@@ -47,6 +57,22 @@ def test_workspace_assets_exist(repo_root: Path) -> None:
         "{# __tr_block_" in path.read_text(encoding="utf-8") for path in expanded_dir.rglob("*.j2")
     )
     assert any(translation_tree_dir.rglob("translation.md"))
+    assert "root-zh-hant" in (expanded_dir / "template.json").read_text(encoding="utf-8")
+    assert "DSW Document Template Tool CJK font fallback:start" in (
+        expanded_dir / "src" / "style.css"
+    ).read_text(encoding="utf-8")
+    assert "68c26e34-5e77-4e15-9bf7-06ff92582257" in (expanded_dir / "src" / "style.css").read_text(
+        encoding="utf-8"
+    )
+    assert 'assets("src/fonts/NotoSansTC-Variable.ttf")' in (
+        expanded_dir / "src" / "style.css"
+    ).read_text(encoding="utf-8")
+    assert "data:font/ttf;base64" in (expanded_dir / "src" / "style.css").read_text(
+        encoding="utf-8"
+    )
+    assert '"DSW Noto Sans TC", {% endif %}"Open Sans", sans-serif' in (
+        expanded_dir / "src" / "style.css"
+    ).read_text(encoding="utf-8")
 
 
 def test_checked_in_expanded_workspace_matches_transform_output(
@@ -109,8 +135,8 @@ def test_checked_in_translation_tree_surfaces_needed_text_and_excludes_noise(
     translation_tree_dir = (
         repo_root / "workspace" / "document-templates" / "translation" / "dsw-science-europe-1.30.0"
     )
-    tree_text = _read_translation_tree_sentence_and_source_text(translation_tree_dir)
-    header_docs = _read_translation_tree_sentence_and_source_text(
+    tree_text = _read_translation_tree_sentence_text(translation_tree_dir)
+    header_docs = _read_translation_tree_sentence_text(
         translation_tree_dir / "tree" / "src" / "header.html.j2"
     )
 
@@ -167,7 +193,7 @@ def test_checked_in_translation_tree_covers_user_facing_jinja_block_literals(
     translation_tree_dir = (
         repo_root / "workspace" / "document-templates" / "translation" / "dsw-science-europe-1.30.0"
     )
-    tree_text = _read_translation_tree_sentence_and_source_text(translation_tree_dir)
+    tree_text = _read_translation_tree_sentence_text(translation_tree_dir)
     missing_literals: list[str] = []
 
     for source_path in sorted(expanded_dir.rglob("*.j2")):
@@ -182,18 +208,13 @@ def test_checked_in_translation_tree_covers_user_facing_jinja_block_literals(
     assert missing_literals == []
 
 
-def _read_translation_tree_sentence_and_source_text(root: Path) -> str:
+def _read_translation_tree_sentence_text(root: Path) -> str:
     parts: list[str] = []
     for document_path in sorted(root.rglob("translation.md")):
         markdown_text = document_path.read_text(encoding="utf-8")
-        before_source, after_source_heading = markdown_text.split("\n### Source (en)\n", 1)
-        sentence = before_source.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
-        source = after_source_heading.split("~~~jinja\n", 1)[1].split(
-            "\n~~~\n\n### Translation",
-            1,
-        )[0]
+        before_translation = markdown_text.split("\n### Translation (zh_Hant)\n", 1)[0]
+        sentence = before_translation.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
         parts.append(sentence)
-        parts.append(source)
     return "\n".join(parts)
 
 
@@ -223,8 +244,8 @@ def test_checked_in_translation_tree_has_no_connector_only_units(repo_root: Path
 
     for document_path in sorted(translation_tree_dir.rglob("translation.md")):
         markdown_text = document_path.read_text(encoding="utf-8")
-        before_source = markdown_text.split("\n### Source (en)\n", 1)[0]
-        sentence = before_source.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
+        before_translation = markdown_text.split("\n### Translation (zh_Hant)\n", 1)[0]
+        sentence = before_translation.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
         reduced_sentence = placeholder_pattern.sub(" ", sentence)
         words = re.findall(r"[A-Za-z]+", reduced_sentence)
         substantive_words = [word for word in words if word.lower() not in connectors]

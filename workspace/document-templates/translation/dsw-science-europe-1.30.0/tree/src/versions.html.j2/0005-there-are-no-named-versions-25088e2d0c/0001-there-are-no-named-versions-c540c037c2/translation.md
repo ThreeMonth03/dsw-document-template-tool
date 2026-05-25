@@ -14,12 +14,6 @@
 There are no named versions
 ```
 
-### Source (en)
-
-~~~jinja
-There are no named versions
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

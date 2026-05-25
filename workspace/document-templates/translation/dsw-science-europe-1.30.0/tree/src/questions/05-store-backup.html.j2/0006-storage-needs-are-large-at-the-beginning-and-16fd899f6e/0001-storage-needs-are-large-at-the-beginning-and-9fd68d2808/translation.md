@@ -14,12 +14,6 @@
 Storage needs are large at the beginning and will be reduced later.
 ```
 
-### Source (en)
-
-~~~jinja
-Storage needs are large at the beginning and will be reduced later.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 DataCite
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do metadataStandards.append("DataCite") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

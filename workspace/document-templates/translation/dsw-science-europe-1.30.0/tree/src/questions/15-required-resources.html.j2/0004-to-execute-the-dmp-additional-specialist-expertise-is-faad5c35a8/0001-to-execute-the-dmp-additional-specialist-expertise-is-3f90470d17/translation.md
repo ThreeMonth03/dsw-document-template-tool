@@ -14,18 +14,6 @@
 To execute the DMP, additional specialist expertise is required. We will be training existing staff on: {expertiseTrainText}.
 ```
 
-### Source (en)
-
-~~~jinja
-To execute the DMP, additional specialist expertise is required. We will be training existing staff
-        {%- set expertiseTrainPath = [expertisePath, uuids.additionalExpertiseYesTrainAUuid, uuids.additionalExpertiseYesTrainTrainingQUuid]|reply_path -%}
-        {%- set expertiseTrainText = repliesMap[expertiseTrainPath]|reply_str_value -%}
-        {%- if expertiseTrainText %}
-          {{" "}}on: {{ expertiseTrainText}}
-        {%- endif -%}
-        .
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 We will have following arrangements: {legalReasonsAuthenticatedOtherReply}
 ```
 
-### Source (en)
-
-~~~jinja
-We will have following arrangements: {{legalReasonsAuthenticatedOtherReply|dot}}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

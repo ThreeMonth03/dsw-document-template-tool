@@ -387,6 +387,19 @@ class DSWApiClient:
         self._raise_for_status(response)
         return response.content.decode("utf-8", errors="replace")
 
+    def download_url_bytes(self, url: str) -> bytes:
+        """Download one rendered artifact as raw bytes."""
+
+        download_url, headers = _apply_download_host_alias(url)
+        response = self.session.get(
+            download_url,
+            headers=headers,
+            verify=self.verify_ssl,
+            timeout=120,
+        )
+        self._raise_for_status(response)
+        return response.content
+
     def _resolve_knowledge_model_package_bundle(self, bundle_path: Path) -> str:
         package_id = _read_knowledge_model_package_id_from_bundle(bundle_path)
         if package_id is not None:

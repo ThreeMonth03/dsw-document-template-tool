@@ -14,15 +14,6 @@
 applied
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do projAuth.append({
-              'status': 'applied',
-              'case': projAuthCase,
-            }) -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

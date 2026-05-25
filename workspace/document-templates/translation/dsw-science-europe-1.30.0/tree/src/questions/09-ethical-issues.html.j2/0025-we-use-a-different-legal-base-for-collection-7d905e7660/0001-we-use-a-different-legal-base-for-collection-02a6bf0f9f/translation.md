@@ -14,12 +14,6 @@
 We use a different legal base for collection of personal data rather than public interest or consent-based:
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We use a different legal base for collection of personal data rather than public interest or consent-based: ') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 The data cannot become completely open.
 ```
 
-### Source (en)
-
-~~~jinja
-The data cannot become completely open.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

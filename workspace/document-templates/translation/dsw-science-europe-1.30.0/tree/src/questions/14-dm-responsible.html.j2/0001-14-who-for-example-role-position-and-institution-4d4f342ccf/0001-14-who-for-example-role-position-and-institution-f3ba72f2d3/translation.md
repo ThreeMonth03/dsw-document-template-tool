@@ -14,12 +14,6 @@
 14. Who (for example role, position, and institution) will be responsible for data management (i.e. the data steward)?
 ```
 
-### Source (en)
-
-~~~jinja
-14. Who (for example role, position, and institution) will be responsible for data management (i.e. the data steward)?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

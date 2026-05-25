@@ -14,13 +14,6 @@
 We plan to transfer data outside the EU/EEA and these are measures we will place to protect data: {personalDataSafeguardTransferMeasuresReply}
 ```
 
-### Source (en)
-
-~~~jinja
-We plan to transfer data outside the EU/EEA and these are measures we will place to protect data:
-                        {{personalDataSafeguardTransferMeasuresReply|dot}}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

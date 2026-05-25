@@ -14,12 +14,6 @@
 responsible for finding, gathering, and collecting data.
 ```
 
-### Source (en)
-
-~~~jinja
-{{ contributorsResponsibility(contributorsItems, uuids.contributorRoleDataCollectorAUuid, "responsible for finding, gathering, and collecting data.") }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

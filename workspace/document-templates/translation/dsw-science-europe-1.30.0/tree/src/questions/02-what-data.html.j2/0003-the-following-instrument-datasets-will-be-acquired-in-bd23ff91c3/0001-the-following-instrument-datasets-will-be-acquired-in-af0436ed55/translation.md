@@ -14,12 +14,6 @@
 The following instrument datasets will be acquired in the project:
 ```
 
-### Source (en)
-
-~~~jinja
-The following instrument datasets will be acquired in the project:
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

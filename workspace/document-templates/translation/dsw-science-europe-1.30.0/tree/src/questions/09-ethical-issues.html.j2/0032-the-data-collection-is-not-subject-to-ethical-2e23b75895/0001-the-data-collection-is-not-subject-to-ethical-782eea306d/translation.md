@@ -14,12 +14,6 @@
 The data collection is not subject to ethical legislation.
 ```
 
-### Source (en)
-
-~~~jinja
-The data collection is not subject to ethical legislation.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 We collect consent for our specific use of the data.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We collect consent for our specific use of the data.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

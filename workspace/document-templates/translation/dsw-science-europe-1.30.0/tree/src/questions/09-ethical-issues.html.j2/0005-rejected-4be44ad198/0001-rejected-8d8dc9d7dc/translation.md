@@ -14,15 +14,6 @@
 rejected
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do projAuth.append({
-              'status': 'rejected',
-              'case': projAuthCase,
-            }) -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

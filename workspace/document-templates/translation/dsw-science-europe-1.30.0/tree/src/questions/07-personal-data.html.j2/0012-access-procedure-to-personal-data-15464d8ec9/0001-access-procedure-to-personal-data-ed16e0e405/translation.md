@@ -14,12 +14,6 @@
 Access procedure to personal data
 ```
 
-### Source (en)
-
-~~~jinja
-Access procedure to personal data
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

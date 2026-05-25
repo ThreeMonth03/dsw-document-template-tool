@@ -33,11 +33,14 @@ DEFAULT_SOURCE_LANG = "en"
 DEFAULT_TARGET_LANG = "zh_Hant"
 SOURCE_FENCE = "~~~jinja"
 TRANSLATION_DOC_NAME = "translation.md"
-TEXT_SECTION_PATTERN = re.compile(
-    r"### Source \((?P<source_lang>[^)]+)\)\n\n~~~jinja\n"
-    r"(?P<source_text>.*?)\n~~~\n\n"
+TRANSLATION_SECTION_PATTERN = re.compile(
     r"### Translation \((?P<target_lang>[^)]+)\)\n\n~~~jinja\n"
     r"(?P<translation_text>.*?)\n~~~\n?\Z",
+    re.DOTALL,
+)
+SENTENCE_SECTION_PATTERN = re.compile(
+    r"### Sentence \((?P<source_lang>[^)]+)\)\n\n```text\n"
+    r"(?P<sentence_text>.*?)\n```",
     re.DOTALL,
 )
 JINJA_COMMENT_OR_BLOCK_PATTERN = re.compile(r"\{#.*?#\}|\{%.*?%\}", re.DOTALL)
@@ -47,13 +50,25 @@ HTML_BLOCK_END_PATTERN = re.compile(
     r"</(?:p|li|h[1-6]|dt|dd|th|td|caption)>|<br\s*/?>",
     re.IGNORECASE,
 )
+HTML_CONTEXT_BOUNDARY_PATTERN = re.compile(
+    r"</(?:p|li|h[1-6]|dt|dd|th|td|caption|div|ul|ol|table|tr)>|<br\s*/?>",
+    re.IGNORECASE,
+)
 VISIBLE_TEXT_PATTERN = re.compile(r"[A-Za-z0-9]+")
-TRANSLATION_TREE_HTML_TAGS = ANNOTATABLE_HTML_TAGS | {
+CONNECTOR_ONLY_WORDS = {
     "a",
-    "em",
-    "small",
-    "span",
-    "strong",
+    "an",
+    "and",
+    "at",
+    "by",
+    "for",
+    "in",
+    "of",
+    "on",
+    "or",
+    "the",
+    "to",
+    "with",
 }
 
 
@@ -87,6 +102,32 @@ class OutlineUnit:
     document_path: Path
     sentence_text: str
     is_translated: bool
+
+
+@dataclass(frozen=True)
+class JinjaBranch:
+    """One body inside an if/elif/else control group."""
+
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class JinjaBranchGroup:
+    """One parsed Jinja if group with branch body offsets."""
+
+    start: int
+    end: int
+    branches: tuple[JinjaBranch, ...]
+    has_alternatives: bool
+
+
+@dataclass(frozen=True)
+class JinjaBranchRegions:
+    """Split branch unit spans plus the control spans they came from."""
+
+    units: tuple[AnnotationRegion, ...]
+    covered: tuple[AnnotationRegion, ...]
 
 
 class TranslationTreeError(RuntimeError):
@@ -329,8 +370,12 @@ def _extract_units(*, relative_path: str, source_text: str) -> list[TranslationU
         wrapper_source_hash = _hash_text(wrapper_body)
         unit_regions = _extract_unit_regions(wrapper_body)
 
-        for unit_index, region in enumerate(unit_regions, start=1):
+        unit_index = 0
+        for region in unit_regions:
             unit_text = wrapper_body[region.start : region.end]
+            if _is_connector_only_translation_unit(unit_text):
+                continue
+            unit_index += 1
             unit_key = _build_unit_key(
                 relative_path=relative_path,
                 wrapper_name=wrapper_name,
@@ -370,6 +415,8 @@ def _extract_unit_regions(wrapper_body: str) -> list[AnnotationRegion]:
     if outer_bounds is not None:
         inner_start, inner_end = outer_bounds
         inner_text = wrapper_body[inner_start:inner_end]
+        if _should_keep_single_outer_element(wrapper_body=wrapper_body, inner_text=inner_text):
+            return [AnnotationRegion(start=0, end=len(wrapper_body))]
         inner_regions = _collect_translation_unit_regions(inner_text)
         normalized_inner_regions = _normalize_regions(
             regions=inner_regions,
@@ -390,15 +437,376 @@ def _extract_unit_regions(wrapper_body: str) -> list[AnnotationRegion]:
     return [AnnotationRegion(start=0, end=len(wrapper_body))]
 
 
+def _should_keep_single_outer_element(*, wrapper_body: str, inner_text: str) -> bool:
+    """Keep simple inline-markup sentences together instead of splitting at tags."""
+
+    if not _contains_translatable_text(wrapper_body):
+        return False
+    tokens = _lex_source_tokens(inner_text)
+    has_inline_markup = any(
+        token.kind == "html_tag" and token.tag_name in {"a", "em", "small", "span", "strong"}
+        for token in tokens
+    )
+    has_dynamic_expression = any(token.kind in {"jinja_expr", "jinja_comment"} for token in tokens)
+    has_control_block = any(token.kind == "jinja_block" for token in tokens)
+    return has_inline_markup and not has_dynamic_expression and not has_control_block
+
+
+def _contains_machine_only_inline_markup(source_text: str) -> bool:
+    """Avoid merging hidden formatter calls into one visible translation unit."""
+
+    tokens = _lex_source_tokens(source_text)
+    has_inline_markup = any(
+        token.kind == "html_tag" and token.tag_name in {"a", "em", "small", "span", "strong"}
+        for token in tokens
+    )
+    if not has_inline_markup:
+        return False
+    for match in JINJA_EXPR_PATTERN.finditer(source_text):
+        expr = " ".join(match.group("expr").strip().split())
+        if "(" in expr:
+            return True
+    return False
+
+
 def _collect_translation_unit_regions(source_text: str) -> list[AnnotationRegion]:
     tokens = _lex_source_tokens(source_text)
-    element_regions = _collect_leaf_element_regions(tokens=tokens, source_text=source_text)
+    branch_region_set = _collect_branch_unit_regions(source_text)
+    branch_regions = list(branch_region_set.units)
+    branch_covered_regions = list(branch_region_set.covered)
+    element_regions = [
+        region
+        for region in _collect_leaf_element_regions(tokens=tokens, source_text=source_text)
+        if not _overlaps_any_region(region=region, regions=branch_covered_regions)
+    ]
     inline_regions = _collect_inline_text_regions(
         tokens=tokens,
         source_text=source_text,
-        covered_regions=element_regions,
+        covered_regions=branch_covered_regions + element_regions,
     )
-    return sorted(element_regions + inline_regions, key=lambda item: item.start)
+    return sorted(branch_regions + element_regions + inline_regions, key=lambda item: item.start)
+
+
+def _collect_branch_unit_regions(source_text: str, *, base_offset: int = 0) -> JinjaBranchRegions:
+    regions: list[AnnotationRegion] = []
+    covered_regions: list[AnnotationRegion] = []
+    tokens = _lex_source_tokens(source_text)
+
+    for group in _collect_jinja_if_groups(tokens=tokens):
+        group_units: list[AnnotationRegion] = []
+        group_covered_regions: list[AnnotationRegion] = []
+        group_has_units = False
+        all_branches_are_represented = True
+
+        for branch in group.branches:
+            branch_text = source_text[branch.start : branch.end]
+            nested_regions = _collect_branch_unit_regions(
+                branch_text,
+                base_offset=base_offset + branch.start,
+            )
+            if nested_regions.units:
+                group_has_units = True
+                regions.extend(nested_regions.units)
+                covered_regions.extend(nested_regions.covered)
+                local_nested_covered = [
+                    AnnotationRegion(
+                        start=region.start - base_offset - branch.start,
+                        end=region.end - base_offset - branch.start,
+                    )
+                    for region in nested_regions.covered
+                ]
+                outside_regions = _collect_regions_outside_covered(
+                    source_text=branch_text,
+                    covered_regions=local_nested_covered,
+                )
+                for outside_region in outside_regions:
+                    absolute_region = AnnotationRegion(
+                        start=base_offset + branch.start + outside_region.start,
+                        end=base_offset + branch.start + outside_region.end,
+                    )
+                    regions.append(absolute_region)
+                    covered_regions.append(absolute_region)
+                    group_covered_regions.append(absolute_region)
+
+                represented_regions = [*local_nested_covered, *outside_regions]
+                if _contains_translatable_text_outside_regions(
+                    source_text=branch_text,
+                    covered_regions=represented_regions,
+                ):
+                    all_branches_are_represented = False
+                continue
+
+            local_control_groups = _collect_jinja_if_groups(tokens=_lex_source_tokens(branch_text))
+            local_machine_control_regions = [
+                AnnotationRegion(start=control_group.start, end=control_group.end)
+                for control_group in local_control_groups
+                if not _contains_translatable_text(
+                    branch_text[control_group.start : control_group.end]
+                )
+            ]
+            if local_machine_control_regions:
+                outside_regions = _collect_regions_outside_covered(
+                    source_text=branch_text,
+                    covered_regions=local_machine_control_regions,
+                )
+                for outside_region in outside_regions:
+                    absolute_region = AnnotationRegion(
+                        start=base_offset + branch.start + outside_region.start,
+                        end=base_offset + branch.start + outside_region.end,
+                    )
+                    regions.append(absolute_region)
+                    covered_regions.append(absolute_region)
+                    group_covered_regions.append(absolute_region)
+                    group_has_units = True
+                represented_regions = [*local_machine_control_regions, *outside_regions]
+                if not _contains_translatable_text_outside_regions(
+                    source_text=branch_text,
+                    covered_regions=represented_regions,
+                ):
+                    continue
+
+            if not group.has_alternatives:
+                all_branches_are_represented = False
+                continue
+            if _starts_with_sentence_prefix_punctuation(branch_text):
+                all_branches_are_represented = False
+                continue
+            if not _is_simple_branch_translation_unit(branch_text):
+                all_branches_are_represented = False
+                continue
+
+            local_region = _normalize_region(
+                AnnotationRegion(start=branch.start, end=branch.end),
+                source_text=source_text,
+                base_offset=0,
+            )
+            if local_region is not None and _contains_translatable_text(
+                source_text[branch.start : branch.end]
+            ):
+                group_has_units = True
+                group_units.append(
+                    AnnotationRegion(
+                        start=base_offset + local_region.start,
+                        end=base_offset + local_region.end,
+                    )
+                )
+                group_covered_regions.append(
+                    AnnotationRegion(
+                        start=base_offset + local_region.start,
+                        end=base_offset + local_region.end,
+                    )
+                )
+            else:
+                group_covered_regions.append(
+                    AnnotationRegion(
+                        start=base_offset + branch.start,
+                        end=base_offset + branch.end,
+                    )
+                )
+
+        regions.extend(group_units)
+        if group_has_units:
+            if group.has_alternatives and all_branches_are_represented:
+                covered_regions.append(
+                    AnnotationRegion(
+                        start=base_offset + group.start,
+                        end=base_offset + group.end,
+                    )
+                )
+            else:
+                covered_regions.extend(group_covered_regions)
+
+    return JinjaBranchRegions(
+        units=tuple(_dedupe_regions(regions)),
+        covered=tuple(_dedupe_regions(covered_regions)),
+    )
+
+
+def _collect_jinja_if_groups(*, tokens: list[SourceToken]) -> list[JinjaBranchGroup]:
+    groups: list[JinjaBranchGroup] = []
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token.kind == "jinja_block" and _jinja_block_keyword(token.text) == "if":
+            parsed_group, end_index = _parse_jinja_if_group(tokens=tokens, start_index=index)
+            if parsed_group is not None:
+                groups.append(parsed_group)
+                index = end_index + 1
+                continue
+        index += 1
+    return groups
+
+
+def _parse_jinja_if_group(
+    *, tokens: list[SourceToken], start_index: int
+) -> tuple[JinjaBranchGroup | None, int]:
+    start_token = tokens[start_index]
+    depth = 1
+    branch_start = start_token.end
+    branches: list[JinjaBranch] = []
+    has_elif_or_else = False
+
+    for index in range(start_index + 1, len(tokens)):
+        token = tokens[index]
+        if token.kind != "jinja_block":
+            continue
+        keyword = _jinja_block_keyword(token.text)
+        if keyword == "if":
+            depth += 1
+            continue
+        if keyword == "endif":
+            depth -= 1
+            if depth == 0:
+                branches.append(JinjaBranch(start=branch_start, end=token.start))
+                return (
+                    JinjaBranchGroup(
+                        start=start_token.start,
+                        end=token.end,
+                        branches=tuple(branches),
+                        has_alternatives=has_elif_or_else,
+                    ),
+                    index,
+                )
+            continue
+        if depth == 1 and keyword in {"elif", "else"}:
+            has_elif_or_else = True
+            branches.append(JinjaBranch(start=branch_start, end=token.start))
+            branch_start = token.end
+
+    return None, start_index
+
+
+def _jinja_block_keyword(token_text: str) -> str:
+    inner = token_text[2:-2].strip().strip("-").strip()
+    return inner.split(None, 1)[0] if inner else ""
+
+
+def _is_branch_group_locally_safe(*, source_text: str, group: JinjaBranchGroup) -> bool:
+    """Only split branch groups that are not glued to a partial surrounding sentence."""
+
+    return _has_safe_left_boundary(source_text[: group.start]) and _has_safe_right_boundary(
+        source_text[group.end :]
+    )
+
+
+def _is_simple_branch_translation_unit(source_text: str) -> bool:
+    """Avoid turning whole list/table branches into one huge translation unit."""
+
+    tokens = _lex_source_tokens(source_text)
+    structural_keywords = {"for", "endfor", "elif", "else", "macro", "endmacro"}
+    if any(
+        token.kind == "jinja_block" and _jinja_block_keyword(token.text) in structural_keywords
+        for token in tokens
+    ):
+        return False
+    if any(group.has_alternatives for group in _collect_jinja_if_groups(tokens=tokens)):
+        return False
+
+    block_tags = {
+        "blockquote",
+        "dd",
+        "div",
+        "dl",
+        "dt",
+        "li",
+        "ol",
+        "table",
+        "tbody",
+        "td",
+        "tfoot",
+        "th",
+        "thead",
+        "tr",
+        "ul",
+    }
+    return not any(token.kind == "html_tag" and token.tag_name in block_tags for token in tokens)
+
+
+def _starts_with_sentence_prefix_punctuation(source_text: str) -> bool:
+    visible = _visible_context_text(source_text)
+    return bool(visible) and visible[0] in ".,;:"
+
+
+def _has_safe_left_boundary(prefix: str) -> bool:
+    visible = _visible_left_context_text(prefix)
+    if not visible:
+        return True
+    return visible[-1] in ".!?:;)]"
+
+
+def _has_safe_right_boundary(suffix: str) -> bool:
+    visible = _visible_right_context_text(suffix)
+    if not visible:
+        return True
+    return visible[0] in ".!?:;,)]}" or visible[0].isupper()
+
+
+def _visible_context_text(source_text: str) -> str:
+    stripped = JINJA_EXPR_PATTERN.sub(" {value} ", source_text)
+    stripped = JINJA_COMMENT_OR_BLOCK_PATTERN.sub(" ", stripped)
+    stripped = HTML_TAG_PATTERN.sub(" ", stripped)
+    return re.sub(r"\s+", " ", html.unescape(stripped)).strip()
+
+
+def _visible_left_context_text(prefix: str) -> str:
+    parts = HTML_CONTEXT_BOUNDARY_PATTERN.split(prefix)
+    return _visible_context_text(parts[-1] if parts else prefix)
+
+
+def _visible_right_context_text(suffix: str) -> str:
+    match = HTML_CONTEXT_BOUNDARY_PATTERN.search(suffix)
+    if match is None:
+        return _visible_context_text(suffix)
+    return _visible_context_text(suffix[: match.start()])
+
+
+def _overlaps_any_region(*, region: AnnotationRegion, regions: list[AnnotationRegion]) -> bool:
+    return any(region.start < other.end and other.start < region.end for other in regions)
+
+
+def _contains_translatable_text_outside_regions(
+    *, source_text: str, covered_regions: list[AnnotationRegion]
+) -> bool:
+    cursor = 0
+    for region in sorted(covered_regions, key=lambda item: item.start):
+        if region.start > cursor and _contains_translatable_text(
+            source_text[cursor : region.start]
+        ):
+            return True
+        cursor = max(cursor, region.end)
+    return cursor < len(source_text) and _contains_translatable_text(source_text[cursor:])
+
+
+def _collect_regions_outside_covered(
+    *, source_text: str, covered_regions: list[AnnotationRegion]
+) -> list[AnnotationRegion]:
+    tokens = _lex_source_tokens(source_text)
+    leaf_regions = [
+        region
+        for region in _collect_leaf_element_regions(tokens=tokens, source_text=source_text)
+        if not _overlaps_any_region(region=region, regions=covered_regions)
+    ]
+    inline_regions = _collect_inline_text_regions(
+        tokens=tokens,
+        source_text=source_text,
+        covered_regions=[*covered_regions, *leaf_regions],
+        include_control_tokens=False,
+    )
+    return _normalize_regions(
+        regions=[*leaf_regions, *inline_regions],
+        source_text=source_text,
+        base_offset=0,
+    )
+
+
+def _dedupe_regions(regions: list[AnnotationRegion]) -> list[AnnotationRegion]:
+    unique = sorted(set(regions), key=lambda item: (item.start, item.end))
+    deduped: list[AnnotationRegion] = []
+    for region in unique:
+        if deduped and _overlaps_any_region(region=region, regions=[deduped[-1]]):
+            continue
+        deduped.append(region)
+    return deduped
 
 
 def _collect_leaf_element_regions(
@@ -410,13 +818,16 @@ def _collect_leaf_element_regions(
             token.kind == "html_tag"
             and token.is_opening_tag
             and not token.is_self_closing_tag
-            and token.tag_name in TRANSLATION_TREE_HTML_TAGS
+            and token.tag_name in ANNOTATABLE_HTML_TAGS
         ):
             end_index = _find_matching_tag_end(tokens=tokens, start_index=index)
             if end_index is None:
                 continue
             region = AnnotationRegion(start=token.start, end=tokens[end_index].end)
-            if _contains_translatable_text(source_text[region.start : region.end]):
+            region_text = source_text[region.start : region.end]
+            if _contains_translatable_text(
+                region_text
+            ) and not _contains_machine_only_inline_markup(region_text):
                 candidate_regions.append(region)
 
     leaf_regions: list[AnnotationRegion] = []
@@ -434,6 +845,7 @@ def _collect_inline_text_regions(
     tokens: list[SourceToken],
     source_text: str,
     covered_regions: list[AnnotationRegion],
+    include_control_tokens: bool = True,
 ) -> list[AnnotationRegion]:
     regions: list[AnnotationRegion] = []
     pending_tokens: list[SourceToken] = []
@@ -455,7 +867,9 @@ def _collect_inline_text_regions(
             continue
         # Control blocks often split one rendered sentence; keep them in the same
         # inline region so translators do not see bare connectors such as "and".
-        if token.kind in {"text", "jinja_expr", "jinja_block", "jinja_comment"}:
+        if token.kind in {"text", "jinja_expr", "jinja_comment"} or (
+            include_control_tokens and token.kind == "jinja_block"
+        ):
             pending_tokens.append(token)
             continue
         flush_pending()
@@ -486,12 +900,20 @@ def _find_single_outer_element_inner_bounds(*, tokens: list[SourceToken]) -> tup
     if end_index is None:
         return None
 
+    end_token = tokens[end_index]
+    if (
+        end_token.kind != "html_tag"
+        or not end_token.is_closing_tag
+        or end_token.tag_name != first_token.tag_name
+    ):
+        return None
+
     if any(not _is_ignorable_outer_token(token) for token in tokens[:first_index]):
         return None
     if any(not _is_ignorable_outer_token(token) for token in tokens[end_index + 1 :]):
         return None
 
-    return (first_token.end, tokens[end_index].start)
+    return (first_token.end, end_token.start)
 
 
 def _find_first_meaningful_token_index(tokens: list[SourceToken]) -> int | None:
@@ -517,20 +939,65 @@ def _normalize_regions(
 ) -> list[AnnotationRegion]:
     normalized: list[AnnotationRegion] = []
     for region in sorted(regions, key=lambda item: item.start):
-        start = base_offset + region.start
-        end = base_offset + region.end
-        while start < end and source_text[start].isspace():
-            start += 1
-        while end > start and source_text[end - 1].isspace():
-            end -= 1
-        if start >= end:
+        normalized_region = _normalize_region(
+            region,
+            source_text=source_text,
+            base_offset=base_offset,
+        )
+        if normalized_region is None:
             continue
-        if not _contains_translatable_text(source_text[start:end]):
+        if normalized and normalized_region.start < normalized[-1].end:
             continue
-        if normalized and start < normalized[-1].end:
-            continue
-        normalized.append(AnnotationRegion(start=start, end=end))
+        normalized.append(normalized_region)
     return normalized
+
+
+def _normalize_region(
+    region: AnnotationRegion,
+    *,
+    source_text: str,
+    base_offset: int,
+) -> AnnotationRegion | None:
+    start = base_offset + region.start
+    end = base_offset + region.end
+    while start < end and source_text[start].isspace():
+        start += 1
+    while end > start and source_text[end - 1].isspace():
+        end -= 1
+    start, end = _trim_non_rendering_edge_tokens(source_text=source_text, start=start, end=end)
+    if start >= end:
+        return None
+    if not _contains_translatable_text(source_text[start:end]):
+        return None
+    return AnnotationRegion(start=start, end=end)
+
+
+def _trim_non_rendering_edge_tokens(*, source_text: str, start: int, end: int) -> tuple[int, int]:
+    tokens = [
+        token for token in _lex_source_tokens(source_text[start:end]) if token.end > token.start
+    ]
+    left = 0
+    right = len(tokens)
+    while left < right and _is_non_rendering_edge_token(tokens[left]):
+        left += 1
+    while right > left and _is_non_rendering_edge_token(tokens[right - 1]):
+        right -= 1
+    if left >= right:
+        return start, start
+    return start + tokens[left].start, start + tokens[right - 1].end
+
+
+def _is_non_rendering_edge_token(token: SourceToken) -> bool:
+    if token.kind == "text":
+        return not token.text.strip()
+    if token.kind == "jinja_comment":
+        return True
+    if token.kind != "jinja_block":
+        return False
+    inner = token.text[2:-2].strip().strip("-").strip()
+    if _extract_translatable_jinja_block_literals(inner):
+        return False
+    return _jinja_block_keyword(token.text) in {"set", "do"}
 
 
 def _apply_unit_translations(
@@ -625,6 +1092,15 @@ def _contains_translatable_text(source_text: str) -> bool:
     return VISIBLE_TEXT_PATTERN.search(stripped) is not None
 
 
+def _is_connector_only_translation_unit(source_text: str) -> bool:
+    sentence = _extract_sentence_text(source_text)
+    reduced_sentence = re.sub(r"\{[^}]+\}", " ", sentence)
+    words = re.findall(r"[A-Za-z]+", reduced_sentence)
+    if not words:
+        return True
+    return all(word.lower() in CONNECTOR_ONLY_WORDS for word in words)
+
+
 def _replace_expr_with_visible_literals(match: re.Match[str]) -> str:
     return " ".join(_extract_translatable_jinja_literals(match.group("expr")))
 
@@ -682,12 +1158,6 @@ def _render_translation_document(
             _extract_sentence_text(unit.source_text),
             "```",
             "",
-            f"### Source ({source_lang})",
-            "",
-            SOURCE_FENCE,
-            unit.source_text,
-            "~~~",
-            "",
             f"### Translation ({target_lang})",
             "",
             SOURCE_FENCE,
@@ -703,17 +1173,21 @@ def _parse_translation_document(
     document_path: Path,
     source_lang: str,
     target_lang: str,
-) -> tuple[str, str]:
+) -> str:
     markdown_text = document_path.read_text(encoding="utf-8")
-    match = TEXT_SECTION_PATTERN.search(markdown_text)
-    if match is None:
+    sentence_match = SENTENCE_SECTION_PATTERN.search(markdown_text)
+    translation_match = TRANSLATION_SECTION_PATTERN.search(markdown_text)
+    if sentence_match is None or translation_match is None:
         raise TranslationTreeError(f"Invalid translation document at {document_path}")
-    if match.group("source_lang") != source_lang or match.group("target_lang") != target_lang:
+    if (
+        sentence_match.group("source_lang") != source_lang
+        or translation_match.group("target_lang") != target_lang
+    ):
         raise TranslationTreeError(
             "Unexpected language headings in translation document at "
             f"{document_path}: expected {source_lang}/{target_lang}"
         )
-    return match.group("source_text"), match.group("translation_text")
+    return translation_match.group("translation_text")
 
 
 def _load_existing_translations(
@@ -743,7 +1217,7 @@ def _load_existing_translations(
         document_path = output_dir / document_path_raw
         if not document_path.is_file():
             continue
-        _, translation_text = _parse_translation_document(
+        translation_text = _parse_translation_document(
             document_path=document_path,
             source_lang=source_lang,
             target_lang=target_lang,
@@ -768,28 +1242,21 @@ def _load_translations_by_unit_key(
     for unit in units:
         source_file = unit.get("source_file")
         unit_key = unit.get("unit_key")
-        unit_source_hash = unit.get("unit_source_hash")
         document_path_raw = unit.get("document_path")
         if (
             not isinstance(source_file, str)
             or not isinstance(unit_key, str)
-            or not isinstance(unit_source_hash, str)
             or not isinstance(document_path_raw, str)
         ):
             raise TranslationTreeError(
                 f"Invalid translation-tree manifest entry at {tree_dir / TREE_MANIFEST_PATH}"
             )
         document_path = tree_dir / document_path_raw
-        source_text, translation_text = _parse_translation_document(
+        translation_text = _parse_translation_document(
             document_path=document_path,
             source_lang=source_lang,
             target_lang=target_lang,
         )
-        if _hash_text(source_text) != unit_source_hash:
-            raise TranslationTreeError(
-                "Source section changed in translation document at "
-                f"{document_path}. Re-run `make export-translation-tree`."
-            )
         translations[(source_file, unit_key)] = translation_text
     return translations
 
@@ -811,11 +1278,11 @@ def _build_tree_readme(*, source_lang: str, target_lang: str) -> str:
             "",
             f"- Each translation unit has its own `{TRANSLATION_DOC_NAME}` file.",
             f"- Each file starts with a plain `Sentence ({source_lang})` section for",
-            "  translator review, followed by the original Jinja source.",
+            "  translator review.",
             "- Wrapper-level blocks from the expanded workspace are split into smaller",
             "  translator-facing units whenever the source structure allows it.",
             f"- Edit only `Translation ({target_lang})` sections.",
-            f"- `Source ({source_lang})` sections are the machine-exported source of truth.",
+            "- Source hashes in the metadata are machine guards; do not edit them.",
             "- Run `make sync-translation-tree` to apply translator edits back into a",
             "  generated template copy.",
             "",
@@ -913,6 +1380,7 @@ def _extract_sentence_text(source_text: str) -> str:
     sentence = re.sub(r"\s+", " ", sentence).strip()
     sentence = re.sub(r"\s+([,.;:!?])", r"\1", sentence)
     sentence = re.sub(r"([,;:])(?=\S)", r"\1 ", sentence)
+    sentence = re.sub(r"\s*/\s*\.", "", sentence)
     sentence = re.sub(r"\.{2,}", ".", sentence)
     sentence = re.sub(r"([.!?])\.", r"\1", sentence)
     sentence = re.sub(r"\s+\.", ".", sentence)
@@ -935,12 +1403,35 @@ def _jinja_expr_to_placeholder(expr: str) -> str:
     if literals:
         return " / ".join(literals)
     base = normalized.split("|", 1)[0].strip()
+    indexed_placeholder = _indexed_expr_to_placeholder(base)
+    if indexed_placeholder is not None:
+        return indexed_placeholder
     if re.match(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$", base):
         return "{" + base + "}"
     return "{value}"
 
 
+def _indexed_expr_to_placeholder(expr: str) -> str | None:
+    match = re.match(r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)\[(?P<index>[^\]]+)\]$", expr)
+    if match is None:
+        return None
+    name = match.group("name")
+    index = match.group("index").strip()
+    if name == "names":
+        if ":" in index:
+            return "{names}"
+        if index == "-1":
+            return "{lastName}"
+        if index == "0":
+            return "{firstName}"
+        if index == "1":
+            return "{secondName}"
+    return "{" + name + "}"
+
+
 def _literal_expr_to_text(expr: str) -> str | None:
+    if expr.startswith("+"):
+        expr = expr[1:].strip()
     if not (
         (expr.startswith('"') and expr.endswith('"'))
         or (expr.startswith("'") and expr.endswith("'"))

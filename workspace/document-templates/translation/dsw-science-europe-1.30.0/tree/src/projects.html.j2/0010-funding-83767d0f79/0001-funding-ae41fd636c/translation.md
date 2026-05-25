@@ -14,12 +14,6 @@
 Funding
 ```
 
-### Source (en)
-
-~~~jinja
-Funding
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

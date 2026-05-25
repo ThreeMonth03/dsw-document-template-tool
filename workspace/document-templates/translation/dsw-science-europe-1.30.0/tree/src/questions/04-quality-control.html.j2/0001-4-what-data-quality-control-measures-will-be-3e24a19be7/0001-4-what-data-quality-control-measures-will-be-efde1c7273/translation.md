@@ -14,12 +14,6 @@
 4. What data quality control measures will be used?
 ```
 
-### Source (en)
-
-~~~jinja
-4. What data quality control measures will be used?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 We do not require any hardware or software in addition to what is usually available in the institute.
 ```
 
-### Source (en)
-
-~~~jinja
-We do not require any hardware or software in addition to what is usually available in the institute.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

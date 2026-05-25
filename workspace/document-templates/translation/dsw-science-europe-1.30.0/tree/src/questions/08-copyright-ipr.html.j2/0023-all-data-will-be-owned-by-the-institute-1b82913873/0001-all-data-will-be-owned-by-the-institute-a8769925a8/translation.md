@@ -14,12 +14,6 @@
 All data will be owned by the institute.
 ```
 
-### Source (en)
-
-~~~jinja
-All data will be owned by the institute.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

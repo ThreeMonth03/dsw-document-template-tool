@@ -14,12 +14,6 @@
 Version
 ```
 
-### Source (en)
-
-~~~jinja
-Version
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

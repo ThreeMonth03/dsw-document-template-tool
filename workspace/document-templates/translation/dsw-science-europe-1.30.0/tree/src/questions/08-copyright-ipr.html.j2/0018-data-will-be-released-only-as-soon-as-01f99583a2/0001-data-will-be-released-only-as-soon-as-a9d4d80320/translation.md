@@ -14,12 +14,6 @@
 Data will be released only as soon as restrictions are falling away.
 ```
 
-### Source (en)
-
-~~~jinja
-Data will be released only as soon as restrictions are falling away.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

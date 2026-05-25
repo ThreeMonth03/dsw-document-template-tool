@@ -14,12 +14,6 @@
 We have a reserved budget for the time and effort it will take to prepare the data for publication.
 ```
 
-### Source (en)
-
-~~~jinja
-We have a reserved budget for the time and effort it will take to prepare the data for publication.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

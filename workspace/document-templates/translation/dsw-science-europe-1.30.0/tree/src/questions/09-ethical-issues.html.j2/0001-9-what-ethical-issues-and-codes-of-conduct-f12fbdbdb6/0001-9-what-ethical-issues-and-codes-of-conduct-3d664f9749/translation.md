@@ -14,12 +14,6 @@
 9. What ethical issues and codes of conduct are there, and how will they be taken into account?
 ```
 
-### Source (en)
-
-~~~jinja
-9. What ethical issues and codes of conduct are there, and how will they be taken into account?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

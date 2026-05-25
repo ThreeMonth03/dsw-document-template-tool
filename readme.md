@@ -105,7 +105,7 @@ When you run `config/regression.document.yml`, also set:
 
 By default the shipped configs already point at:
 
-- `../workspace/knowledge-models/final_translated.km` from the config directory
+- `../workspace/knowledge-models/root-zh-hant-2.7.0.km` from the config directory
 - `../workspace/document-templates/compact/dsw-science-europe-1.30.0`
 - `../workspace/document-templates/expanded/dsw-science-europe-1.30.0`
 - `../workspace/document-templates/translation/dsw-science-europe-1.30.0`

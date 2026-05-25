@@ -14,12 +14,6 @@
 Data Management Plan
 ```
 
-### Source (en)
-
-~~~jinja
-Data Management Plan
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

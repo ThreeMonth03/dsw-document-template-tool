@@ -15,8 +15,14 @@ EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPL
 TRANSLATION_TREE_DIR ?= workspace/document-templates/translation/$(WORKSPACE_TEMPLATE_NAME)
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
 TRANSLATED_EXPANDED_TEMPLATE_DIR ?= outputs/document-templates/translated-expanded/$(WORKSPACE_TEMPLATE_NAME)
+TRANSLATED_TEMPLATE_PACKAGE ?= outputs/document-templates/translated-expanded/$(WORKSPACE_TEMPLATE_NAME).zip
+PROJECT_REF ?= workspace/projects/test-project.json
+PROJECT_UUID ?= $(DSW_PROJECT_UUID)
+PROJECT_RENDER_TEMPLATE_DIR ?= $(TRANSLATED_EXPANDED_TEMPLATE_DIR)
+PROJECT_RENDER_FORMAT_UUID ?= 68c26e34-5e77-4e15-9bf7-06ff92582257
+PROJECT_RENDER_OUTPUT ?= outputs/project-render/test-project.pdf
 
-.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree sync-translation-tree start-ci-dsw stop-ci-dsw ci-dsw-logs render-regression render-regression-ci clean
+.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree sync-translation-tree start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
 venv: $(VENV_PYTHON)
 
@@ -42,11 +48,12 @@ help:
 	'  package-template  Run dsw-tdk package for TEMPLATE_DIR=/path/to/template' \
  	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
 	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
-	'  sync-translation-tree Apply $(TRANSLATION_TREE_DIR) into $(TRANSLATED_EXPANDED_TEMPLATE_DIR)' \
+	'  sync-translation-tree Apply translations and package $(TRANSLATED_TEMPLATE_PACKAGE)' \
 	'  compact-template  Rebuild $(EXPANDED_TEMPLATE_DIR) into $(REBUILT_TEMPLATE_DIR)' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
+	'  render-project    Render PROJECT_UUID or $(PROJECT_REF) with $(PROJECT_RENDER_TEMPLATE_DIR)' \
 	'  render-regression Run the DSW headless regression workflow using CONFIG=$(CONFIG)' \
 	'  render-regression-ci Run regression against the ephemeral local DSW using CI_CONFIG=$(CI_CONFIG)'
 
@@ -97,6 +104,7 @@ export-translation-tree: transform venv
 
 sync-translation-tree: venv
 	$(PYTHON) src/translation_tree.py sync --tree $(TRANSLATION_TREE_DIR) --source $(EXPANDED_TEMPLATE_DIR) --output $(TRANSLATED_EXPANDED_TEMPLATE_DIR)
+	$(DSW_TDK) package $(TRANSLATED_EXPANDED_TEMPLATE_DIR) --output $(TRANSLATED_TEMPLATE_PACKAGE) --force
 
 compact-template: venv
 	$(PYTHON) src/transform_template.py compact --source $(EXPANDED_TEMPLATE_DIR) --output $(REBUILT_TEMPLATE_DIR)
@@ -109,6 +117,14 @@ stop-ci-dsw:
 
 ci-dsw-logs:
 	scripts/ci/collect_dsw_logs.sh
+
+render-project: venv
+	$(PYTHON) src/render_project.py \
+		--project-uuid "$(PROJECT_UUID)" \
+		--project-ref "$(PROJECT_REF)" \
+		--template-dir "$(PROJECT_RENDER_TEMPLATE_DIR)" \
+		--format-uuid "$(PROJECT_RENDER_FORMAT_UUID)" \
+		--output "$(PROJECT_RENDER_OUTPUT)"
 
 render-regression: transform venv
 	$(PYTHON) src/render_regression.py --config $(CONFIG)

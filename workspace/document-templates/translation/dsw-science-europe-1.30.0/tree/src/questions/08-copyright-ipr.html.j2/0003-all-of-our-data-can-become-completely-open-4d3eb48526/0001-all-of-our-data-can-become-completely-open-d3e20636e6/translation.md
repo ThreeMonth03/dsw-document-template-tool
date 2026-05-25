@@ -14,12 +14,6 @@
 All of our data can become completely open over time.
 ```
 
-### Source (en)
-
-~~~jinja
-All of our data can become completely open over time.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

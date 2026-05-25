@@ -14,12 +14,6 @@
 We need to conduct a data protection impact assessment (DPIA).
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We need to conduct a data protection impact assessment (DPIA).') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

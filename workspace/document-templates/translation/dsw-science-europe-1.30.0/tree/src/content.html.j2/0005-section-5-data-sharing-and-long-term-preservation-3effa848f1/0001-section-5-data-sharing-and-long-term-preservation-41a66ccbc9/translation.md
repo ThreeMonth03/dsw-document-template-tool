@@ -14,12 +14,6 @@
 Section 5: Data sharing and long-term preservation
 ```
 
-### Source (en)
-
-~~~jinja
-Section 5: Data sharing and long-term preservation
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

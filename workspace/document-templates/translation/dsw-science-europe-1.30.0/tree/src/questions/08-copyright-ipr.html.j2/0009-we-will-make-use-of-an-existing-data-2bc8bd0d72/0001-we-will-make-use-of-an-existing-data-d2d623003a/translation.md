@@ -14,12 +14,6 @@
 We will make use of an existing data committee - {legalReasonsAuthenticatedCommitteeReply}
 ```
 
-### Source (en)
-
-~~~jinja
-We will make use of an existing data committee - {{legalReasonsAuthenticatedCommitteeReply|dot}}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 ORCID: {orcid}
 ```
 
-### Source (en)
-
-~~~jinja
-ORCID: {{ orcid }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

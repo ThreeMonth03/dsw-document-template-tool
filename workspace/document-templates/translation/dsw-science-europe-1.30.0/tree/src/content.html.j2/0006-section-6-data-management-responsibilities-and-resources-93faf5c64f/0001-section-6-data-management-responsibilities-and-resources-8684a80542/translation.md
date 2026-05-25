@@ -14,12 +14,6 @@
 Section 6: Data management responsibilities and resources
 ```
 
-### Source (en)
-
-~~~jinja
-Section 6: Data management responsibilities and resources
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

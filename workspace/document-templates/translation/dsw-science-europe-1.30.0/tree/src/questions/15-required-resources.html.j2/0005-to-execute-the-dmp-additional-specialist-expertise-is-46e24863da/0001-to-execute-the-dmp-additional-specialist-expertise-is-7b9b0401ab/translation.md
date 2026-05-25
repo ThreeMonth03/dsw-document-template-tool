@@ -14,18 +14,6 @@
 To execute the DMP, additional specialist expertise is required. We will be hiring new people with additional expertise in: {expertiseHireText}.
 ```
 
-### Source (en)
-
-~~~jinja
-To execute the DMP, additional specialist expertise is required. We will be hiring new people with additional expertise
-        {%- set expertiseHirePath = [expertisePath, uuids.additionalExpertiseYesHireAUuid, uuids.additionalExpertiseYesHireExpertiseQUuid]|reply_path -%}
-        {%- set expertiseHireText = repliesMap[expertiseHirePath]|reply_str_value -%}
-        {%- if expertiseHireText %}
-          {{" "}}in: {{ expertiseHireText}}
-        {%- endif -%}
-        .
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

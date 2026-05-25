@@ -14,12 +14,6 @@
 6. How will data security and protection of sensitive data be taken care of during the research?
 ```
 
-### Source (en)
-
-~~~jinja
-6. How will data security and protection of sensitive data be taken care of during the research?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

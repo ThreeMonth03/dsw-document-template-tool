@@ -14,12 +14,6 @@
 responsible for reviewing, enhancing, cleaning, or standardizing metadata and the associated data submitted for storage, use and maintenance within a data centre or repository.
 ```
 
-### Source (en)
-
-~~~jinja
-{{ contributorsResponsibility(contributorsItems, uuids.contributorRoleDataCuratorAUuid, "responsible for reviewing, enhancing, cleaning, or standardizing metadata and the associated data submitted for storage, use and maintenance within a data centre or repository.") }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

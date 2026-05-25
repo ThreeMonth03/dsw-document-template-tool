@@ -14,12 +14,6 @@
 Ethical approvals
 ```
 
-### Source (en)
-
-~~~jinja
-Ethical approvals
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

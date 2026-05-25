@@ -14,12 +14,6 @@
 We will carry the costs related to the used repositories by: {repoChargesHowPayOther}
 ```
 
-### Source (en)
-
-~~~jinja
-We will carry the costs related to the used repositories by: {{ repoChargesHowPayOther|dot }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

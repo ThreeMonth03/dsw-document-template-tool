@@ -14,12 +14,6 @@
 Section 4: Legal and ethical requirements, codes of conduct
 ```
 
-### Source (en)
-
-~~~jinja
-Section 4: Legal and ethical requirements, codes of conduct
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

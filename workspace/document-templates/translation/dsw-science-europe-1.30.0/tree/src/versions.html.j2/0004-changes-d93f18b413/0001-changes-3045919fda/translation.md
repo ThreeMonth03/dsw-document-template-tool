@@ -14,12 +14,6 @@
 Changes
 ```
 
-### Source (en)
-
-~~~jinja
-Changes
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 All personal data will be collected anonymously.
 ```
 
-### Source (en)
-
-~~~jinja
-All personal data will be collected anonymously.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

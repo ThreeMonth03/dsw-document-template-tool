@@ -14,12 +14,6 @@
 The data subjects will be informed as follows:
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('The data subjects will be informed as follows:') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

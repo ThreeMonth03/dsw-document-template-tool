@@ -14,12 +14,6 @@
 The stored data are irrevocably anonymized.
 ```
 
-### Source (en)
-
-~~~jinja
-The stored data are irrevocably anonymized.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

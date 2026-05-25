@@ -14,12 +14,6 @@
 Limited embargo will not be used as all data will be opened.
 ```
 
-### Source (en)
-
-~~~jinja
-Limited embargo will not be used as all data will be opened.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

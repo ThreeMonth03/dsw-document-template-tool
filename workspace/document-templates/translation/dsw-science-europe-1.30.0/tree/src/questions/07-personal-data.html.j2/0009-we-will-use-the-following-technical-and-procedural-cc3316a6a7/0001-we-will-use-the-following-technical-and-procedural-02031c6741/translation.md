@@ -14,12 +14,6 @@
 We will use the following technical and procedural safeguards: {personalDataSafeguardElaborateReply}
 ```
 
-### Source (en)
-
-~~~jinja
-We will use the following technical and procedural safeguards : {{personalDataSafeguardElaborateReply|dot}}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

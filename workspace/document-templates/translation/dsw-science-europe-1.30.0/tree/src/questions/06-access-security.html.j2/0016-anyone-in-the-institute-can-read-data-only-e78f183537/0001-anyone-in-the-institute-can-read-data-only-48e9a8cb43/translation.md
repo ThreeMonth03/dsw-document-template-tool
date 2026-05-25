@@ -14,12 +14,6 @@
 Anyone in the institute can read data, only project members can request write access.
 ```
 
-### Source (en)
-
-~~~jinja
-Anyone in the institute can read data, only project members can request write access.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

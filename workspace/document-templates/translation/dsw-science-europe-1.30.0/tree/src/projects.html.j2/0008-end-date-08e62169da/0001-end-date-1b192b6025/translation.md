@@ -14,12 +14,6 @@
 End date
 ```
 
-### Source (en)
-
-~~~jinja
-End date
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

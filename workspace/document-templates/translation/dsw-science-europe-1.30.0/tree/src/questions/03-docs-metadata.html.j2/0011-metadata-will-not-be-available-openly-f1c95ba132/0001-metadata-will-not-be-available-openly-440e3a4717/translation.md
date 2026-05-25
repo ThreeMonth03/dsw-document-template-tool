@@ -14,12 +14,6 @@
 Metadata will not be available openly – {explanation}
 ```
 
-### Source (en)
-
-~~~jinja
-Metadata will not be available openly &ndash; {{ explanation|e|dot }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

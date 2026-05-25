@@ -14,12 +14,6 @@
 ORCID:
 ```
 
-### Source (en)
-
-~~~jinja
-ORCID:
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

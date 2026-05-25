@@ -14,12 +14,6 @@
 The stored data are identifiable.
 ```
 
-### Source (en)
-
-~~~jinja
-The stored data are identifiable.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

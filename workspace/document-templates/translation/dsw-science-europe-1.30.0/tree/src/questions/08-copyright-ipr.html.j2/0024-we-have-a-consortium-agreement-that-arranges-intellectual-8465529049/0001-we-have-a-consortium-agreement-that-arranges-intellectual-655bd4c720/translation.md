@@ -14,12 +14,6 @@
 We have a consortium agreement that arranges Intellectual Property.
 ```
 
-### Source (en)
-
-~~~jinja
-We have a consortium agreement that arranges Intellectual Property.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 We will mitigate the risk of information
 ```
 
-### Source (en)
-
-~~~jinja
-{%- set _ = fragments.append("We will mitigate the risk of information " ~ risks) -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

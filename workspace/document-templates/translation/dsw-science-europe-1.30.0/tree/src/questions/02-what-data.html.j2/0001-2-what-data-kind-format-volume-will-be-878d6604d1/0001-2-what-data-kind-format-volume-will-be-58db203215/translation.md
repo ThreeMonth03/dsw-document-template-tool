@@ -14,12 +14,6 @@
 2. What data (kind, format, volume) will be collected or produced?
 ```
 
-### Source (en)
-
-~~~jinja
-2. What data (kind, format, volume) will be collected or produced?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

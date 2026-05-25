@@ -14,12 +14,6 @@
 The consent form will be available for re-users.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('The consent form will be available for re-users.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

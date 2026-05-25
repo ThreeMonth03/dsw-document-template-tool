@@ -14,12 +14,6 @@
 We will collect consent for our use of the data and for anonymization; We will anonymize the data afterwards for reuse.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We will collect consent for our use of the data and for anonymization; We will anonymize the data afterwards for reuse.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

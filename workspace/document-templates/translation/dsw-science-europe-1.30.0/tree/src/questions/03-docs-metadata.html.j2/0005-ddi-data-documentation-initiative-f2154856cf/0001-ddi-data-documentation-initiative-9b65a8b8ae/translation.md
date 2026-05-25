@@ -14,12 +14,6 @@
 DDI (Data Documentation Initiative)
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do metadataStandards.append("DDI (Data Documentation Initiative)") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

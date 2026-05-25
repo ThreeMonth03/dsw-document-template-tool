@@ -14,12 +14,6 @@
 We will be documenting the data with and metadata standards.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do metadataSentences.append("We will be documenting the data with " ~ metadataStandards[0] ~ " and " ~ metadataStandards[1] ~ " metadata standards.") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 We will not collect any data related to individuals, i.e. "personal data".
 ```
 
-### Source (en)
-
-~~~jinja
-We will not collect any data related to individuals, i.e. "personal data".
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

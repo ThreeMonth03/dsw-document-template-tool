@@ -14,15 +14,6 @@
 granted
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do projAuth.append({
-              'status': 'granted',
-              'case': projAuthCase,
-            }) -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

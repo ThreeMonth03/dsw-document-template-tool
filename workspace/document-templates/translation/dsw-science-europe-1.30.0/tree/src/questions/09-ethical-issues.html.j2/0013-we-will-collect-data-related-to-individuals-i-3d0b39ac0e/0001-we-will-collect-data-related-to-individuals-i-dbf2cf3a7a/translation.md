@@ -14,12 +14,6 @@
 We will collect data related to individuals, i.e. "personal data".
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We will collect data related to individuals, i.e. "personal data".') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

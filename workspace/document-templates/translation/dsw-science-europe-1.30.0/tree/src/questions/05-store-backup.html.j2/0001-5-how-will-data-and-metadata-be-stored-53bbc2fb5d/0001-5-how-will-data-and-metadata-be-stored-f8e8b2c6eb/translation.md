@@ -14,12 +14,6 @@
 5. How will data and metadata be stored and backed up during the research?
 ```
 
-### Source (en)
-
-~~~jinja
-5. How will data and metadata be stored and backed up during the research?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

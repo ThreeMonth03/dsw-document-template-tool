@@ -14,12 +14,6 @@
 (project name not given)
 ```
 
-### Source (en)
-
-~~~jinja
-(project name not given)
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

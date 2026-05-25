@@ -14,12 +14,6 @@
 To execute the DMP, additional specialist expertise is required and we have such trained support staff available.
 ```
 
-### Source (en)
-
-~~~jinja
-To execute the DMP, additional specialist expertise is required and we have such trained support staff available.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

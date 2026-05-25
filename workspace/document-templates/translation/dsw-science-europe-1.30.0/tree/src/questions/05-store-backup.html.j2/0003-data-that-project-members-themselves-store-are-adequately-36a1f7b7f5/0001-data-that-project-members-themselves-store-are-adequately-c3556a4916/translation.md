@@ -14,12 +14,6 @@
 Data that project members themselves store are adequately backed up and traceable. Therefore data are protected against both equipment failure and human error.
 ```
 
-### Source (en)
-
-~~~jinja
-Data that project members themselves store are adequately backed up and traceable. Therefore data are protected against both equipment failure and human error.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

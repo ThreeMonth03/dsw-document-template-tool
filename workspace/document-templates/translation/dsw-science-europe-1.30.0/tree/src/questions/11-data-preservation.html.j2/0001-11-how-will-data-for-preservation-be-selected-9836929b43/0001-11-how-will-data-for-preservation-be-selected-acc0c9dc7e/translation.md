@@ -14,12 +14,6 @@
 11. How will data for preservation be selected, and where data will be preserved long-term (for example a data repository or archive)?
 ```
 
-### Source (en)
-
-~~~jinja
-11. How will data for preservation be selected, and where data will be preserved long-term (for example a data repository or archive)?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

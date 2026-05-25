@@ -14,12 +14,6 @@
 We estimate the storage space that the project will require for all data and software (including temporary storage) to {size} gigabytes.
 ```
 
-### Source (en)
-
-~~~jinja
-We estimate the storage space that the project will require for all data and software (including temporary storage) to {{ size }} gigabytes.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

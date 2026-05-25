@@ -14,12 +14,6 @@
 Limited embargo cannot be used because some restricted data will be embargoed indefinitely.
 ```
 
-### Source (en)
-
-~~~jinja
-Limited embargo cannot be used because some restricted data will be embargoed indefinitely.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

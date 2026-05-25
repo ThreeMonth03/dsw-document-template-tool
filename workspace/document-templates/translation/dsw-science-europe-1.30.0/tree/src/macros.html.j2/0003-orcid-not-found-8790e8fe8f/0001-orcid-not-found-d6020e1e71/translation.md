@@ -14,12 +14,6 @@
 ORCID: Not found
 ```
 
-### Source (en)
-
-~~~jinja
-ORCID: Not found
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 We ask for consent for anonymization; We will anonymize first and all further processing is on the anonymous data.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We ask for consent for anonymization; We will anonymize first and all further processing is on the anonymous data.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 Storage needs are largest in the middle of the project.
 ```
 
-### Source (en)
-
-~~~jinja
-Storage needs are largest in the middle of the project.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

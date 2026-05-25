@@ -14,12 +14,6 @@
 List of data to be published is given in Section 5, Question 10 and 11. This also includes information about catalogs where the data can be found. Information about data types used is given in Section 1, Question 2.
 ```
 
-### Source (en)
-
-~~~jinja
-List of data to be published is given in Section 5, Question 10 and 11. This also includes information about catalogs where the data can be found. Information about data types used is given in Section 1, Question 2.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

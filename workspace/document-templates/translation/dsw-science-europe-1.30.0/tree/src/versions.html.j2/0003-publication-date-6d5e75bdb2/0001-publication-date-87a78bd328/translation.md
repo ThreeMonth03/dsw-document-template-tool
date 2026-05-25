@@ -14,12 +14,6 @@
 Publication date
 ```
 
-### Source (en)
-
-~~~jinja
-Publication date
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -39,8 +39,8 @@ def _read_translation_docs(tree_dir: Path) -> list[str]:
 def _extract_sentence_sections(markdown_docs: list[str]) -> str:
     sections: list[str] = []
     for markdown_text in markdown_docs:
-        before_source = markdown_text.split("\n### Source (en)\n", 1)[0]
-        sentence_block = before_source.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
+        before_translation = markdown_text.split("\n### Translation (zh_Hant)\n", 1)[0]
+        sentence_block = before_translation.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
         sections.append(sentence_block)
     return "\n".join(sections)
 
@@ -48,8 +48,8 @@ def _extract_sentence_sections(markdown_docs: list[str]) -> str:
 def _extract_sentence_list(markdown_docs: list[str]) -> list[str]:
     sentences: list[str] = []
     for markdown_text in markdown_docs:
-        before_source = markdown_text.split("\n### Source (en)\n", 1)[0]
-        sentence_block = before_source.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
+        before_translation = markdown_text.split("\n### Translation (zh_Hant)\n", 1)[0]
+        sentence_block = before_translation.split("```text\n", 1)[1].rsplit("\n```", 1)[0]
         sentences.append(sentence_block)
     return sentences
 
@@ -88,7 +88,7 @@ def test_export_translation_tree_creates_one_document_per_unit(tmp_path: Path) -
     assert len(docs) == 2
     first_doc = docs[0].read_text(encoding="utf-8")
     assert "### Sentence (en)" in first_doc
-    assert "### Source (en)" in first_doc
+    assert "### Source (en)" not in first_doc
     assert "### Translation (zh_Hant)" in first_doc
     assert "Hello" in first_doc or "World." in first_doc
     assert "- [ ] [file] src/index.html.j2 (0/2)" in outline
@@ -242,7 +242,8 @@ def test_export_translation_tree_includes_user_facing_jinja_literals(
     assert "responsible for curation." in joined_docs
     assert "questionnaires" in joined_docs
     assert "N/A" in joined_docs
-    assert "Additional / Our quality processes are:" in sentence_sections
+    assert "Additional quality processes are:" in sentence_sections
+    assert "Our quality processes are:" in sentence_sections
     assert "We train on: {topic}" in sentence_sections
     assert "Visible branch." in joined_docs
     assert "contributorsResponsibility" not in sentence_sections
@@ -290,8 +291,8 @@ def test_export_translation_tree_keeps_control_flow_sentence_parts_together(
     assert "on: {topic}" not in sentences
 
 
-def test_export_translation_tree_renders_branch_alternatives_readably(tmp_path: Path) -> None:
-    """Sentence summaries should not glue if/else alternatives together."""
+def test_export_translation_tree_splits_branch_alternatives_into_units(tmp_path: Path) -> None:
+    """Mutually exclusive branches should be separate translator-facing units."""
 
     compact_dir = _write_compact_template(
         tmp_path,
@@ -307,9 +308,120 @@ def test_export_translation_tree_renders_branch_alternatives_readably(tmp_path: 
     export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
 
     sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
-    assert "Role / Roles:" in sentences
-    assert "(planned) / (applied)" in sentences
+    assert "Role" in sentences
+    assert "Roles" in sentences
+    assert "(planned)" in sentences
+    assert "(applied)" in sentences
     assert "RoleRoles:" not in sentences
+    assert not any(" / " in sentence for sentence in sentences)
+
+
+def test_export_translation_tree_splits_glued_branch_alternatives_without_slash(
+    tmp_path: Path,
+) -> None:
+    """Fallbacks and adjacent branch groups should not be collapsed with slash delimiters."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<li>
+  <strong>{{ datasetName if datasetName else "(no name given)" }}</strong>
+  {% if description -%}<span class="separator">&ndash;</span> {{ description }}{%- endif -%}
+</li>
+<li>
+  {% if share == "open" %}Open{% elif share == "closed" %}Closed{% endif %}
+  using
+  {% if repository == "domain" %}
+    a domain-specific repository
+  {% else %}
+    a general-purpose repository
+  {% endif %}.
+</li>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "(no name given)" in sentences
+    assert "Open" in sentences
+    assert "Closed" in sentences
+    assert "a domain-specific repository" in sentences
+    assert "a general-purpose repository" in sentences
+    assert not any(" / " in sentence or sentence.startswith("/ ") for sentence in sentences)
+
+
+def test_export_translation_tree_splits_single_choice_optional_fragments(
+    tmp_path: Path,
+) -> None:
+    """Known single-choice optional fragments should become complete sentence units."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+{% if selected_count == 1 %}
+<p>
+  We will be using
+  {% if calibrating %}calibrating measurements{% endif %}
+  {% if repetition %}repeat samples/measurements{% endif %}
+  {% if standardized %}standardized data capture/recording{% endif %}
+  as part of the quality process.
+</p>
+{% endif %}
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "We will be using calibrating measurements as part of the quality process." in sentences
+    assert (
+        "We will be using repeat samples/measurements as part of the quality process." in sentences
+    )
+    assert (
+        "We will be using standardized data capture/recording as part of the quality process."
+        in sentences
+    )
+    assert not any(
+        sentence.startswith("We will be using calibrating measurements repeat")
+        for sentence in sentences
+    )
+
+
+def test_export_translation_tree_splits_complete_if_elif_else_sentences(
+    tmp_path: Path,
+) -> None:
+    """A shared branch site with complete alternatives should not use slash separators."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+{% if mode == "new" -%}
+<p>We will collect new interview data.</p>
+{%- elif mode == "reuse" -%}
+<p>We will re-use an existing dataset.</p>
+{%- else -%}
+<p>We will not collect or re-use data.</p>
+{%- endif %}
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "We will collect new interview data." in sentences
+    assert "We will re-use an existing dataset." in sentences
+    assert "We will not collect or re-use data." in sentences
+    assert not any(" / " in sentence for sentence in sentences)
 
 
 def test_export_translation_tree_ignores_machine_only_jinja_literals(tmp_path: Path) -> None:
@@ -333,6 +445,38 @@ def test_export_translation_tree_ignores_machine_only_jinja_literals(tmp_path: P
     export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
 
     assert _read_translation_docs(tree_dir) == []
+
+
+def test_export_translation_tree_skips_connector_only_fragments(tmp_path: Path) -> None:
+    """List lead-ins such as `of:` should not become standalone translation files."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>
+  The data cannot become completely open because
+  {% if one_reason %}
+    of legal reasons.
+  {% else %}
+    of:
+    <ul>
+      <li>legal reasons</li>
+      <li>patent-related business reasons</li>
+    </ul>
+  {% endif %}
+</p>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "/ of:" not in sentences
+    assert "legal reasons" in "\n".join(sentences)
+    assert "patent-related business reasons" in "\n".join(sentences)
 
 
 def test_export_translation_tree_excludes_html_entity_punctuation_units(

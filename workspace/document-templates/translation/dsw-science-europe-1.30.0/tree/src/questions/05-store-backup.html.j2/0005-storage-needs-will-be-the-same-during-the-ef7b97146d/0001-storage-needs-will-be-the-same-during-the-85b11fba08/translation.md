@@ -14,12 +14,6 @@
 Storage needs will be the same during the whole project.
 ```
 
-### Source (en)
-
-~~~jinja
-Storage needs will be the same during the whole project.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

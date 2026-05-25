@@ -14,12 +14,6 @@
 One of the project members will authorize potential users of the data.
 ```
 
-### Source (en)
-
-~~~jinja
-One of the project members will authorize potential users of the data.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

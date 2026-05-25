@@ -14,12 +14,6 @@
 Instrument datasets
 ```
 
-### Source (en)
-
-~~~jinja
-Instrument datasets
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

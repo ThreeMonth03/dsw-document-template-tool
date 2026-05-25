@@ -14,12 +14,6 @@
 to fulfil a contract.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('to fulfil a contract.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

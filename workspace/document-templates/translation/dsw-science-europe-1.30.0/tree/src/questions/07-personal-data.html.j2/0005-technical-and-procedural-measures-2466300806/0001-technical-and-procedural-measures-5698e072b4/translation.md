@@ -14,12 +14,6 @@
 Technical and procedural measures
 ```
 
-### Source (en)
-
-~~~jinja
-Technical and procedural measures
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

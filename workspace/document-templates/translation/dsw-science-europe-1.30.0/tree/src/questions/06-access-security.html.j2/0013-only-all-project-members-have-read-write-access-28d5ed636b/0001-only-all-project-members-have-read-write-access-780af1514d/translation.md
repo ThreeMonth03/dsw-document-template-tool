@@ -14,12 +14,6 @@
 Only all project members have read/write access to the data.
 ```
 
-### Source (en)
-
-~~~jinja
-Only all project members have read/write access to the data.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

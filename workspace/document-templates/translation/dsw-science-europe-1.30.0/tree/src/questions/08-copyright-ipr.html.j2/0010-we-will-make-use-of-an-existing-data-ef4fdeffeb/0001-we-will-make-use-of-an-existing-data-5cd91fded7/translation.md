@@ -14,12 +14,6 @@
 We will make use of an existing data committee.
 ```
 
-### Source (en)
-
-~~~jinja
-We will make use of an existing data committee.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

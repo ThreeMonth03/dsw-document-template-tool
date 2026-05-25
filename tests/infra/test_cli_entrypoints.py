@@ -21,6 +21,20 @@ def test_render_regression_help(repo_root) -> None:
     assert "--config" in result.stdout
 
 
+def test_render_project_help(repo_root) -> None:
+    """The project render CLI should expose a working help screen."""
+
+    result = subprocess.run(
+        [sys.executable, str(repo_root / "src" / "render_project.py"), "--help"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "existing filled DSW project" in result.stdout
+    assert "--project-uuid" in result.stdout
+
+
 def test_transform_template_help(repo_root) -> None:
     """The transform CLI should expose its subcommands."""
 

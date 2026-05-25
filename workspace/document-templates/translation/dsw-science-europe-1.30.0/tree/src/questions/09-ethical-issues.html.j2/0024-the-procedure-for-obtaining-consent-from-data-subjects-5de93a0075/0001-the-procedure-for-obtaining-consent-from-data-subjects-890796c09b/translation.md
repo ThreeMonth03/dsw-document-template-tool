@@ -14,12 +14,6 @@
 The procedure for obtaining consent from data subjects is set as follows:
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('The procedure for obtaining consent from data subjects is set as follows:') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

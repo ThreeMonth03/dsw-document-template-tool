@@ -14,12 +14,6 @@
 Access to data during research
 ```
 
-### Source (en)
-
-~~~jinja
-Access to data during research
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

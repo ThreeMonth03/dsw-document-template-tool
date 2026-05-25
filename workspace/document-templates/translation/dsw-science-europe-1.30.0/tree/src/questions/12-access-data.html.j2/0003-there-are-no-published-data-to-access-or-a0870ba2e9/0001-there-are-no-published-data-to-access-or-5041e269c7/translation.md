@@ -14,12 +14,6 @@
 There are no published data to access or use.
 ```
 
-### Source (en)
-
-~~~jinja
-There are no published data to access or use.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

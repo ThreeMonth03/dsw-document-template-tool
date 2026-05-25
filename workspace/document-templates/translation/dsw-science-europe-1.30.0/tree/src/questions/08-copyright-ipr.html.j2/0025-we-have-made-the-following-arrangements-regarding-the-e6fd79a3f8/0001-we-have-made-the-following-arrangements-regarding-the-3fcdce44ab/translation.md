@@ -14,12 +14,6 @@
 We have made the following arrangements regarding the data ownership: {ownershipOther}
 ```
 
-### Source (en)
-
-~~~jinja
-We have made the following arrangements regarding the data ownership: {{ ownershipOther|dot }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

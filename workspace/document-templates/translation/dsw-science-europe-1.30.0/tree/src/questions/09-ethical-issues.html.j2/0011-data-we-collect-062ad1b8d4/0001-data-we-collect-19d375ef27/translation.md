@@ -14,12 +14,6 @@
 Data we collect
 ```
 
-### Source (en)
-
-~~~jinja
-Data we collect
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

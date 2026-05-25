@@ -14,12 +14,6 @@
 To execute the DMP, no additional specialist expertise is required.
 ```
 
-### Source (en)
-
-~~~jinja
-To execute the DMP, no additional specialist expertise is required.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

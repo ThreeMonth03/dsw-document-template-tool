@@ -14,12 +14,6 @@
 There is a procedure for users to access private data as follows: {personalDataManagedAccessReply}
 ```
 
-### Source (en)
-
-~~~jinja
-There is a procedure for users to access private data as follows: {{personalDataManagedAccessReply}}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -1,0 +1,12 @@
+{
+  "name": "測試project",
+  "project_uuid": "ae12e1c3-d7a9-4185-af97-1c310d7e6aad",
+  "api_url": "http://localhost:3000/wizard-api",
+  "knowledge_model_package": {
+    "name": "Common DSW Knowledge Model (zh_Hant)",
+    "version": "2.7.0",
+    "uuid": "6c2e6f82-0932-40fd-8095-bbf1611baebd"
+  },
+  "updated_at": "2026-05-25T07:33:34.334536Z",
+  "note": "Local DSW project reference used by `make render-project`; answers remain in DSW."
+}

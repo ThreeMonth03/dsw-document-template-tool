@@ -14,12 +14,6 @@
 3. What metadata and documentation (for example the methodology of data collection and way of organizing data) will accompany the data?
 ```
 
-### Source (en)
-
-~~~jinja
-3. What metadata and documentation (for example the methodology of data collection and way of organizing data) will accompany the data?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

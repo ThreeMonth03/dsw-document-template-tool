@@ -14,12 +14,6 @@
 The possible impact of information is small
 ```
 
-### Source (en)
-
-~~~jinja
-{%- set _ = fragments.append("The possible impact of information " ~ risks ~ " is small") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

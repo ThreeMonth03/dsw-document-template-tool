@@ -14,12 +14,6 @@
 Projects
 ```
 
-### Source (en)
-
-~~~jinja
-Projects
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

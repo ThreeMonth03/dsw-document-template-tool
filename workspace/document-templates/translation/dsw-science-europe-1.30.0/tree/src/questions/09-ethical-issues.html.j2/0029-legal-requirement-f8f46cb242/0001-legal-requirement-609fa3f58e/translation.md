@@ -14,12 +14,6 @@
 legal requirement.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('legal requirement.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

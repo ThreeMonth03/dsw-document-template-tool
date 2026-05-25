@@ -14,12 +14,6 @@
 Data storage and file conventions
 ```
 
-### Source (en)
-
-~~~jinja
-Data storage and file conventions
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

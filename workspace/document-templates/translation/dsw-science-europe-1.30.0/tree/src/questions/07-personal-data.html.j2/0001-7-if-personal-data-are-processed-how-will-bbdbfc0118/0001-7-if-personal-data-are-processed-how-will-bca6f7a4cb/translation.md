@@ -14,12 +14,6 @@
 7. If personal data are processed, how will compliance with legislation on personal data and on security be ensured?
 ```
 
-### Source (en)
-
-~~~jinja
-7. If personal data are processed, how will compliance with legislation on personal data and on security be ensured?
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

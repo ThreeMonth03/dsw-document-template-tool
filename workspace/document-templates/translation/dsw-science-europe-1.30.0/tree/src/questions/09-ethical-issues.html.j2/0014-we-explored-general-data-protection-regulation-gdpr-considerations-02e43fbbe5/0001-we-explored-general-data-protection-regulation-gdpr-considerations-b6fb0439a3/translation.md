@@ -14,12 +14,6 @@
 We explored General Data Protection Regulation (GDPR) considerations and relevant materials.
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do sentences.append('We explored General Data Protection Regulation (GDPR) considerations and relevant materials.') -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

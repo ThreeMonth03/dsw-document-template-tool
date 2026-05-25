@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import base64
 import html
 import json
 import re
@@ -34,10 +35,70 @@ GENERATED_BLOCK_PATTERN = re.compile(
     r"\{% endset %\}\{\{ (?P=set_name) \}\}",
     re.DOTALL,
 )
+INLINE_CONDITIONAL_REWRITE_PATTERN = re.compile(
+    r"\{# __tr_inline_if_original:(?P<payload>[A-Za-z0-9_-]+=*) #\}"
+    r".*?"
+    r"\{# __tr_inline_if_original:end #\}",
+    re.DOTALL,
+)
+BRANCH_SENTENCE_REWRITE_PATTERN = re.compile(
+    r"\{# __tr_branch_sentence_original:(?P<payload>[A-Za-z0-9_-]+=*) #\}"
+    r".*?"
+    r"\{# __tr_branch_sentence_original:end #\}",
+    re.DOTALL,
+)
 MANIFEST_PATH = Path(".transform") / "manifest.json"
 MANIFEST_VERSION = 2
 UPSTREAM_README_NAME = "UPSTREAM-README.md"
 GENERATED_BLOCK_PREFIX = "__tr_block_"
+CJK_FONT_PATCH_NAME = "cjk_font_face"
+ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME = "zh_hant_allowed_package"
+CJK_FONT_SOURCE_PATH = Path("workspace/document-templates/assets/fonts/NotoSansTC-Variable.ttf")
+CJK_FONT_TEMPLATE_PATH = Path("src/fonts/NotoSansTC-Variable.ttf")
+CJK_FONT_PDF_FORMAT_UUID = "68c26e34-5e77-4e15-9bf7-06ff92582257"
+CJK_FONT_FAMILY_ORIGINAL = '"Open Sans", sans-serif'
+CJK_FONT_FAMILY_PATCHED = (
+    f'{{% if dsw_document_format_uuid == "{CJK_FONT_PDF_FORMAT_UUID}" %}}'
+    '"DSW Noto Sans TC", '
+    "{% endif %}"
+    f"{CJK_FONT_FAMILY_ORIGINAL}"
+)
+CJK_FONT_CSS_START = "/* DSW Document Template Tool CJK font fallback:start */"
+CJK_FONT_CSS_END = "/* DSW Document Template Tool CJK font fallback:end */"
+CJK_FONT_CSS = f"""{{% set dsw_document_format_uuid = ctx.document.formatUuid|default("") -%}}
+{{% if dsw_document_format_uuid == "{CJK_FONT_PDF_FORMAT_UUID}" -%}}
+{{% set dsw_noto_sans_tc_font = assets("{CJK_FONT_TEMPLATE_PATH.as_posix()}") -%}}
+{{% if dsw_noto_sans_tc_font -%}}
+{CJK_FONT_CSS_START}
+@font-face {{
+  font-family: "DSW Noto Sans TC";
+  src: url("data:font/ttf;base64,{{{{ dsw_noto_sans_tc_font.data_base64 }}}}") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  unicode-range: U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+3100-312F,
+    U+31C0-31EF, U+3200-32FF, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF;
+}}
+
+@font-face {{
+  font-family: "DSW Noto Sans TC";
+  src: url("data:font/ttf;base64,{{{{ dsw_noto_sans_tc_font.data_base64 }}}}") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  unicode-range: U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+3100-312F,
+    U+31C0-31EF, U+3200-32FF, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF;
+}}
+{CJK_FONT_CSS_END}
+{{% endif -%}}
+{{% endif -%}}
+"""
+ZH_HANT_ALLOWED_PACKAGE_RULE = {
+    "orgId": "dsw",
+    "kmId": "root-zh-hant",
+    "minVersion": "2.7.0",
+    "maxVersion": None,
+}
 ANNOTATABLE_HTML_TAGS = {
     "h1",
     "h2",
@@ -114,6 +175,25 @@ class AnnotationRegion:
     end: int
 
 
+@dataclass(frozen=True)
+class BranchRewriteBranch:
+    """One if/elif/else branch body inside a rewriteable Jinja group."""
+
+    opener_text: str
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class BranchRewriteGroup:
+    """One rewriteable top-level Jinja if group."""
+
+    start: int
+    end: int
+    end_text: str
+    branches: tuple[BranchRewriteBranch, ...]
+
+
 class TemplateTransformError(RuntimeError):
     """Raised when a template cannot be expanded or compacted safely."""
 
@@ -139,6 +219,8 @@ def expand_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
         transformed_files.append(relative_path.as_posix())
 
     _rewrite_workspace_readme(source_dir=source_dir, output_dir=output_dir)
+    post_expand_patch_state = _build_post_expand_patch_state(output_dir=output_dir)
+    post_expand_patches = _apply_post_expand_patches(output_dir=output_dir)
 
     manifest = {
         "version": MANIFEST_VERSION,
@@ -146,6 +228,8 @@ def expand_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
         "files": transformed_files,
         "workspace_readme": "README.md",
         "upstream_readme": UPSTREAM_README_NAME if (source_dir / "README.md").is_file() else None,
+        "post_expand_patches": post_expand_patches,
+        "post_expand_patch_state": post_expand_patch_state,
     }
     manifest_path = output_dir / MANIFEST_PATH
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -181,10 +265,12 @@ def compact_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
             )
         relative_path = Path(relative_raw)
         source_path = output_dir / relative_path
+        compacted_text = _restore_branch_sentence_rewrites(source_path.read_text(encoding="utf-8"))
         compacted_text = GENERATED_BLOCK_PATTERN.sub(
             lambda match: generated_block_body(match),
-            source_path.read_text(encoding="utf-8"),
+            compacted_text,
         )
+        compacted_text = _restore_inline_conditional_rewrites(compacted_text)
         source_path.write_text(compacted_text, encoding="utf-8")
 
     shutil.rmtree(output_dir / MANIFEST_PATH.parent, ignore_errors=True)
@@ -201,6 +287,11 @@ def compact_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
         workspace_readme = payload.get("workspace_readme")
         if isinstance(workspace_readme, str) and workspace_readme:
             (output_dir / workspace_readme).unlink(missing_ok=True)
+    _revert_post_expand_patches(
+        output_dir=output_dir,
+        patches=payload.get("post_expand_patches"),
+        patch_state=payload.get("post_expand_patch_state"),
+    )
     return output_dir
 
 
@@ -216,7 +307,191 @@ def snapshot_tree(root_dir: Path) -> dict[str, bytes]:
     return snapshot
 
 
+def _build_post_expand_patch_state(*, output_dir: Path) -> dict[str, object]:
+    template_json_path = output_dir / "template.json"
+    return {
+        "template_json_trailing_newline": (
+            template_json_path.read_bytes().endswith(b"\n")
+            if template_json_path.is_file()
+            else None
+        )
+    }
+
+
+def _apply_post_expand_patches(*, output_dir: Path) -> list[str]:
+    """Apply deterministic local template patches after reversible expansion."""
+
+    patches: list[str] = []
+    if _patch_zh_hant_allowed_package(output_dir=output_dir):
+        patches.append(ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME)
+    if _patch_cjk_font_face(output_dir=output_dir):
+        patches.append(CJK_FONT_PATCH_NAME)
+    return patches
+
+
+def _revert_post_expand_patches(
+    *,
+    output_dir: Path,
+    patches: object,
+    patch_state: object,
+) -> None:
+    """Remove local-only patches when compacting back to the upstream template."""
+
+    if not isinstance(patches, list):
+        return
+    state = patch_state if isinstance(patch_state, dict) else {}
+    patch_names = {patch for patch in patches if isinstance(patch, str)}
+    if ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME in patch_names:
+        _remove_zh_hant_allowed_package(
+            output_dir=output_dir,
+            trailing_newline=state.get("template_json_trailing_newline"),
+        )
+    if CJK_FONT_PATCH_NAME in patch_names:
+        _remove_cjk_font_face(output_dir=output_dir)
+
+
+def _patch_zh_hant_allowed_package(*, output_dir: Path) -> bool:
+    template_json_path = output_dir / "template.json"
+    if not template_json_path.is_file():
+        return False
+    payload = json.loads(template_json_path.read_text(encoding="utf-8"))
+    allowed_packages = payload.get("allowedPackages")
+    if not isinstance(allowed_packages, list):
+        return False
+    if not any(
+        _is_allowed_package_rule(rule, org_id="dsw", km_id="root") for rule in allowed_packages
+    ):
+        return False
+    if any(
+        _is_allowed_package_rule(rule, org_id="dsw", km_id="root-zh-hant")
+        for rule in allowed_packages
+    ):
+        return False
+
+    allowed_packages.append(dict(ZH_HANT_ALLOWED_PACKAGE_RULE))
+    template_json_path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return True
+
+
+def _remove_zh_hant_allowed_package(*, output_dir: Path, trailing_newline: object) -> None:
+    template_json_path = output_dir / "template.json"
+    if not template_json_path.is_file():
+        return
+    payload = json.loads(template_json_path.read_text(encoding="utf-8"))
+    allowed_packages = payload.get("allowedPackages")
+    if not isinstance(allowed_packages, list):
+        return
+    filtered_packages = [
+        rule
+        for rule in allowed_packages
+        if not _is_exact_allowed_package_rule(rule, ZH_HANT_ALLOWED_PACKAGE_RULE)
+    ]
+    if len(filtered_packages) == len(allowed_packages):
+        return
+    payload["allowedPackages"] = filtered_packages
+    suffix = "\n" if trailing_newline is not False else ""
+    template_json_path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + suffix,
+        encoding="utf-8",
+    )
+
+
+def _patch_cjk_font_face(*, output_dir: Path) -> bool:
+    style_path = output_dir / "src" / "style.css"
+    if not style_path.is_file():
+        return False
+    style_text = style_path.read_text(encoding="utf-8")
+    if CJK_FONT_CSS_START in style_text:
+        return False
+
+    font_source_path = _repo_root() / CJK_FONT_SOURCE_PATH
+    if not font_source_path.is_file():
+        raise TemplateTransformError(
+            f"Cannot apply CJK font patch because the font asset is missing: {font_source_path}"
+        )
+
+    font_destination_path = output_dir / CJK_FONT_TEMPLATE_PATH
+    font_destination_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(font_source_path, font_destination_path)
+    style_text = style_text.replace(CJK_FONT_FAMILY_ORIGINAL, CJK_FONT_FAMILY_PATCHED)
+    style_path.write_text(
+        _insert_css_after_initial_imports(style_text, CJK_FONT_CSS),
+        encoding="utf-8",
+    )
+    return True
+
+
+def _remove_cjk_font_face(*, output_dir: Path) -> None:
+    style_path = output_dir / "src" / "style.css"
+    if style_path.is_file():
+        style_text = style_path.read_text(encoding="utf-8")
+        style_text = re.sub(
+            rf"\{{%\s*set dsw_document_format_uuid\b[\s\S]*?"
+            rf"{re.escape(CJK_FONT_CSS_END)}\s*"
+            rf"\{{%\s*endif\s*-?%\}}\s*"
+            rf"\{{%\s*endif\s*-?%\}}\s*",
+            "",
+            style_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        style_text = re.sub(
+            rf"{re.escape(CJK_FONT_CSS_START)}.*?{re.escape(CJK_FONT_CSS_END)}\n*",
+            "",
+            style_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        style_text = style_text.replace(CJK_FONT_FAMILY_PATCHED, CJK_FONT_FAMILY_ORIGINAL)
+        style_path.write_text(style_text, encoding="utf-8")
+
+    font_destination_path = output_dir / CJK_FONT_TEMPLATE_PATH
+    font_destination_path.unlink(missing_ok=True)
+    fonts_dir = font_destination_path.parent
+    if fonts_dir.is_dir() and not any(fonts_dir.iterdir()):
+        fonts_dir.rmdir()
+
+
+def _is_allowed_package_rule(rule: object, *, org_id: str, km_id: str) -> bool:
+    return isinstance(rule, dict) and rule.get("orgId") == org_id and rule.get("kmId") == km_id
+
+
+def _is_exact_allowed_package_rule(rule: object, expected: dict[str, object]) -> bool:
+    return (
+        isinstance(rule, dict)
+        and rule.get("orgId") == expected["orgId"]
+        and rule.get("kmId") == expected["kmId"]
+        and rule.get("minVersion") == expected["minVersion"]
+        and rule.get("maxVersion") == expected["maxVersion"]
+    )
+
+
+def _insert_css_after_initial_imports(style_text: str, css_block: str) -> str:
+    lines = style_text.splitlines(keepends=True)
+    insert_at = 0
+    while insert_at < len(lines):
+        stripped = lines[insert_at].strip()
+        if stripped.startswith("@charset") or stripped.startswith("@import"):
+            insert_at += 1
+            continue
+        if not stripped:
+            insert_at += 1
+            continue
+        break
+
+    return "".join([*lines[:insert_at], css_block, "\n", *lines[insert_at:]])
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
 def _expand_template_text(*, source_text: str) -> str:
+    source_text = _rewrite_inline_conditional_expressions(source_text)
+    source_text = _rewrite_common_prefix_branch_sentences(source_text)
     tokens = _lex_source_tokens(source_text)
     regions = _collect_annotation_regions(tokens=tokens, source_text=source_text)
 
@@ -235,6 +510,454 @@ def _expand_template_text(*, source_text: str) -> str:
 
 def _wrap_translatable_block(block_name: str, source_text: str) -> str:
     return f"{{# {block_name}:start #}}{source_text}{{# {block_name}:end #}}"
+
+
+def _rewrite_inline_conditional_expressions(source_text: str) -> str:
+    """Expand inline Jinja ternaries so fallback strings can be translated safely."""
+
+    def replace(match: re.Match[str]) -> str:
+        original = match.group(0)
+        parts = _split_inline_conditional_expression(match.group("expr"))
+        if parts is None:
+            return original
+        true_expr, condition_expr, false_expr = parts
+        if not _should_rewrite_inline_conditional(true_expr=true_expr, false_expr=false_expr):
+            return original
+        encoded_original = base64.urlsafe_b64encode(original.encode("utf-8")).decode("ascii")
+        return (
+            f"{{# __tr_inline_if_original:{encoded_original} #}}"
+            f"{{% if {condition_expr} %}}{{{{ {true_expr} }}}}"
+            f"{{% else %}}{{{{ {false_expr} }}}}{{% endif %}}"
+            "{# __tr_inline_if_original:end #}"
+        )
+
+    return JINJA_EXPR_PATTERN.sub(replace, source_text)
+
+
+def _restore_inline_conditional_rewrites(source_text: str) -> str:
+    """Restore original inline ternaries when compacting an expanded workspace."""
+
+    def replace(match: re.Match[str]) -> str:
+        try:
+            return base64.urlsafe_b64decode(match.group("payload")).decode("utf-8")
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise TemplateTransformError("Invalid inline conditional rewrite marker") from exc
+
+    return INLINE_CONDITIONAL_REWRITE_PATTERN.sub(replace, source_text)
+
+
+def _rewrite_common_prefix_branch_sentences(source_text: str) -> str:
+    """Duplicate shared sentence parts into simple mutually exclusive branches."""
+
+    tokens = _lex_source_tokens(source_text)
+    rewrite_regions: list[tuple[int, int, str]] = []
+
+    for start_index, token in enumerate(tokens):
+        if (
+            token.kind != "html_tag"
+            or not token.is_opening_tag
+            or token.is_self_closing_tag
+            or token.tag_name not in ANNOTATABLE_HTML_TAGS
+        ):
+            continue
+        end_index = _find_matching_tag_end(tokens=tokens, start_index=start_index)
+        if end_index is None:
+            continue
+        end_token = tokens[end_index]
+        if (
+            end_token.kind != "html_tag"
+            or not end_token.is_closing_tag
+            or end_token.tag_name != token.tag_name
+        ):
+            continue
+
+        inner_start = token.end
+        inner_end = end_token.start
+        inner_text = source_text[inner_start:inner_end]
+        active_conditions = _active_jinja_if_conditions_at(tokens=tokens, token_index=start_index)
+        rewritten_inner = _rewrite_inner_common_prefix_branch(
+            inner_text,
+            opening_tag=token.text,
+            closing_tag=end_token.text,
+            active_conditions=active_conditions,
+        )
+        if rewritten_inner is None:
+            continue
+
+        original_region = source_text[token.start : end_token.end]
+        encoded_original = base64.urlsafe_b64encode(original_region.encode("utf-8")).decode("ascii")
+        rewritten_region = (
+            f"{{# __tr_branch_sentence_original:{encoded_original} #}}"
+            f"{rewritten_inner}"
+            "{# __tr_branch_sentence_original:end #}"
+        )
+        rewrite_regions.append((token.start, end_token.end, rewritten_region))
+
+    if not rewrite_regions:
+        return source_text
+    return _replace_non_overlapping_regions(source_text, rewrite_regions)
+
+
+def _rewrite_inner_common_prefix_branch(
+    inner_text: str,
+    *,
+    opening_tag: str,
+    closing_tag: str,
+    active_conditions: list[str],
+) -> str | None:
+    inner_tokens = _lex_source_tokens(inner_text)
+    groups = _collect_top_level_branch_rewrite_groups(tokens=inner_tokens)
+    if len(groups) == 1:
+        return _rewrite_single_alternative_branch_group(
+            inner_text=inner_text,
+            opening_tag=opening_tag,
+            closing_tag=closing_tag,
+            group=groups[0],
+        )
+
+    return _rewrite_single_choice_optional_branch_groups(
+        inner_text=inner_text,
+        opening_tag=opening_tag,
+        closing_tag=closing_tag,
+        active_conditions=active_conditions,
+    )
+
+
+def _rewrite_single_alternative_branch_group(
+    *,
+    inner_text: str,
+    opening_tag: str,
+    closing_tag: str,
+    group: BranchRewriteGroup,
+) -> str | None:
+    """Rewrite one if/elif/else group into complete branch sentences."""
+
+    prefix = inner_text[: group.start]
+    suffix = inner_text[group.end :]
+    prefix_has_text = _contains_translatable_text(prefix)
+    suffix_has_words = bool(_visible_words(suffix))
+    if not prefix_has_text and not suffix_has_words:
+        return None
+    if prefix_has_text and _visible_text_for_rewrite(prefix).rstrip().endswith(
+        (".", "!", "?", ":", ";")
+    ):
+        return None
+    if not all(
+        _is_simple_branch_sentence_fragment(inner_text[branch.start : branch.end])
+        for branch in group.branches
+    ):
+        return None
+
+    rewritten_parts: list[str] = []
+    for branch in group.branches:
+        branch_body = inner_text[branch.start : branch.end]
+        rewritten_parts.append(branch.opener_text)
+        rewritten_parts.append(opening_tag)
+        rewritten_parts.append(prefix)
+        rewritten_parts.append(branch_body)
+        rewritten_parts.append(suffix)
+        rewritten_parts.append(closing_tag)
+    rewritten_parts.append(group.end_text)
+    return "".join(rewritten_parts)
+
+
+def _rewrite_single_choice_optional_branch_groups(
+    *,
+    inner_text: str,
+    opening_tag: str,
+    closing_tag: str,
+    active_conditions: list[str],
+) -> str | None:
+    """Rewrite adjacent optional if fragments when an outer condition guarantees one choice."""
+
+    if not _is_single_choice_context(active_conditions):
+        return None
+
+    inner_tokens = _lex_source_tokens(inner_text)
+    groups = _collect_top_level_optional_rewrite_groups(tokens=inner_tokens)
+    if len(groups) < 2:
+        return None
+    if not all(len(group.branches) == 1 for group in groups):
+        return None
+
+    prefix = inner_text[: groups[0].start]
+    suffix = inner_text[groups[-1].end :]
+    if not _contains_translatable_text(prefix) or not _visible_words(suffix):
+        return None
+    if _visible_text_for_rewrite(prefix).rstrip().endswith((".", "!", "?", ":", ";")):
+        return None
+    gaps = [
+        inner_text[left.end : right.start] for left, right in zip(groups, groups[1:], strict=False)
+    ]
+    if any(gap.strip() for gap in gaps):
+        return None
+    if not all(
+        _is_simple_branch_sentence_fragment(
+            inner_text[group.branches[0].start : group.branches[0].end]
+        )
+        for group in groups
+    ):
+        return None
+
+    rewritten_parts: list[str] = []
+    for index, group in enumerate(groups):
+        branch = group.branches[0]
+        branch_body = inner_text[branch.start : branch.end]
+        rewritten_parts.append(branch.opener_text)
+        rewritten_parts.append(opening_tag)
+        rewritten_parts.append(prefix)
+        rewritten_parts.append("".join(gaps[:index]))
+        rewritten_parts.append(branch_body)
+        rewritten_parts.append("".join(gaps[index:]))
+        rewritten_parts.append(suffix)
+        rewritten_parts.append(closing_tag)
+        rewritten_parts.append(group.end_text)
+    return "".join(rewritten_parts)
+
+
+def _restore_branch_sentence_rewrites(source_text: str) -> str:
+    """Restore original common-prefix branches when compacting."""
+
+    def replace(match: re.Match[str]) -> str:
+        try:
+            return base64.urlsafe_b64decode(match.group("payload")).decode("utf-8")
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise TemplateTransformError("Invalid branch sentence rewrite marker") from exc
+
+    return BRANCH_SENTENCE_REWRITE_PATTERN.sub(replace, source_text)
+
+
+def _collect_top_level_branch_rewrite_groups(
+    *, tokens: list[SourceToken]
+) -> list[BranchRewriteGroup]:
+    return _collect_top_level_rewrite_groups(tokens=tokens, require_alternatives=True)
+
+
+def _collect_top_level_optional_rewrite_groups(
+    *, tokens: list[SourceToken]
+) -> list[BranchRewriteGroup]:
+    return _collect_top_level_rewrite_groups(tokens=tokens, require_alternatives=False)
+
+
+def _collect_top_level_rewrite_groups(
+    *, tokens: list[SourceToken], require_alternatives: bool
+) -> list[BranchRewriteGroup]:
+    groups: list[BranchRewriteGroup] = []
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token.kind == "jinja_block" and _jinja_block_keyword(token.text) == "if":
+            parsed_group, end_index = _parse_branch_rewrite_group(
+                tokens=tokens,
+                start_index=index,
+                require_alternatives=require_alternatives,
+            )
+            if parsed_group is not None:
+                groups.append(parsed_group)
+                index = end_index + 1
+                continue
+        index += 1
+    return groups
+
+
+def _parse_branch_rewrite_group(
+    *, tokens: list[SourceToken], start_index: int, require_alternatives: bool
+) -> tuple[BranchRewriteGroup | None, int]:
+    start_token = tokens[start_index]
+    depth = 1
+    branch_start = start_token.end
+    branch_opener = start_token.text
+    branches: list[BranchRewriteBranch] = []
+    has_alternatives = False
+
+    for index in range(start_index + 1, len(tokens)):
+        token = tokens[index]
+        if token.kind != "jinja_block":
+            continue
+        keyword = _jinja_block_keyword(token.text)
+        if keyword == "if":
+            depth += 1
+            continue
+        if keyword == "endif":
+            depth -= 1
+            if depth == 0:
+                branches.append(
+                    BranchRewriteBranch(
+                        opener_text=branch_opener,
+                        start=branch_start,
+                        end=token.start,
+                    )
+                )
+                if require_alternatives and not has_alternatives:
+                    return None, index
+                return (
+                    BranchRewriteGroup(
+                        start=start_token.start,
+                        end=token.end,
+                        end_text=token.text,
+                        branches=tuple(branches),
+                    ),
+                    index,
+                )
+            continue
+        if depth == 1 and keyword in {"elif", "else"}:
+            has_alternatives = True
+            branches.append(
+                BranchRewriteBranch(
+                    opener_text=branch_opener,
+                    start=branch_start,
+                    end=token.start,
+                )
+            )
+            branch_opener = token.text
+            branch_start = token.end
+
+    return None, start_index
+
+
+def _active_jinja_if_conditions_at(*, tokens: list[SourceToken], token_index: int) -> list[str]:
+    """Return the active surrounding Jinja if/elif conditions before one token."""
+
+    conditions: list[str] = []
+    for token in tokens[:token_index]:
+        if token.kind != "jinja_block":
+            continue
+        inner = _jinja_block_inner(token.text)
+        keyword = inner.split(None, 1)[0] if inner else ""
+        if keyword == "if":
+            conditions.append(inner.split(None, 1)[1] if " " in inner else "")
+        elif keyword == "elif":
+            if conditions:
+                conditions[-1] = inner.split(None, 1)[1] if " " in inner else ""
+        elif keyword == "else":
+            if conditions:
+                conditions[-1] = "else"
+        elif keyword == "endif" and conditions:
+            conditions.pop()
+    return conditions
+
+
+def _is_single_choice_context(active_conditions: list[str]) -> bool:
+    return any(re.search(r"(^|[^=!<>])==\s*1(\D|$)", condition) for condition in active_conditions)
+
+
+def _jinja_block_keyword(token_text: str) -> str:
+    inner = _jinja_block_inner(token_text)
+    return inner.split(None, 1)[0] if inner else ""
+
+
+def _jinja_block_inner(token_text: str) -> str:
+    return token_text[2:-2].strip().strip("-").strip()
+
+
+def _is_simple_branch_sentence_fragment(source_text: str) -> bool:
+    if not _contains_translatable_text(source_text):
+        return False
+    tokens = _lex_source_tokens(source_text)
+    for token in tokens:
+        if token.kind == "jinja_block":
+            return False
+        if token.kind == "html_tag" and token.tag_name not in {
+            "a",
+            "em",
+            "small",
+            "span",
+            "strong",
+        }:
+            return False
+    return True
+
+
+def _visible_text_for_rewrite(source_text: str) -> str:
+    stripped = JINJA_EXPR_PATTERN.sub(" {value} ", source_text)
+    stripped = JINJA_BLOCK_PATTERN.sub(" ", stripped)
+    stripped = re.sub(r"\{#.*?#\}", " ", stripped, flags=re.DOTALL)
+    stripped = HTML_TAG_PATTERN.sub(" ", stripped)
+    return re.sub(r"\s+", " ", html.unescape(stripped)).strip()
+
+
+def _visible_words(source_text: str) -> list[str]:
+    return re.findall(r"[A-Za-z0-9]+", _visible_text_for_rewrite(source_text))
+
+
+def _replace_non_overlapping_regions(
+    source_text: str, replacements: list[tuple[int, int, str]]
+) -> str:
+    parts: list[str] = []
+    cursor = 0
+    for start, end, replacement in sorted(replacements, key=lambda item: item[0]):
+        if start < cursor:
+            continue
+        parts.append(source_text[cursor:start])
+        parts.append(replacement)
+        cursor = end
+    parts.append(source_text[cursor:])
+    return "".join(parts)
+
+
+def _split_inline_conditional_expression(expr: str) -> tuple[str, str, str] | None:
+    normalized = expr.strip()
+    if not normalized:
+        return None
+    if_index = _find_top_level_keyword(normalized, "if", start=0)
+    if if_index is None:
+        return None
+    else_index = _find_top_level_keyword(normalized, "else", start=if_index + len("if"))
+    if else_index is None:
+        return None
+
+    true_expr = normalized[:if_index].strip()
+    condition_expr = normalized[if_index + len("if") : else_index].strip()
+    false_expr = normalized[else_index + len("else") :].strip()
+    if not true_expr or not condition_expr or not false_expr:
+        return None
+    return true_expr, condition_expr, false_expr
+
+
+def _find_top_level_keyword(expr: str, keyword: str, *, start: int) -> int | None:
+    quote: str | None = None
+    escape_next = False
+    bracket_depth = 0
+    index = start
+    while index < len(expr):
+        char = expr[index]
+        if quote is not None:
+            if escape_next:
+                escape_next = False
+            elif char == "\\":
+                escape_next = True
+            elif char == quote:
+                quote = None
+            index += 1
+            continue
+        if char in {"'", '"'}:
+            quote = char
+            index += 1
+            continue
+        if char in "([{":
+            bracket_depth += 1
+            index += 1
+            continue
+        if char in ")]}":
+            bracket_depth = max(0, bracket_depth - 1)
+            index += 1
+            continue
+        if bracket_depth == 0 and expr.startswith(keyword, index):
+            before = expr[index - 1] if index > 0 else " "
+            after_index = index + len(keyword)
+            after = expr[after_index] if after_index < len(expr) else " "
+            if not (before.isalnum() or before == "_") and not (after.isalnum() or after == "_"):
+                return index
+        index += 1
+    return None
+
+
+def _should_rewrite_inline_conditional(*, true_expr: str, false_expr: str) -> bool:
+    return _expr_has_translatable_literal(true_expr) or _expr_has_translatable_literal(false_expr)
+
+
+def _expr_has_translatable_literal(expr: str) -> bool:
+    return bool(_extract_translatable_jinja_literals(expr))
 
 
 def generated_block_name(match: re.Match[str]) -> str:
@@ -349,7 +1072,11 @@ def _find_matching_tag_end(*, tokens: list[SourceToken], start_index: int) -> in
                         and html_depth == 1
                         and saw_inner_control
                         and not control_stack
-                        and _should_close_unbalanced_flow(tokens=tokens, next_index=index + 1)
+                        and _should_close_unbalanced_flow(
+                            tokens=tokens,
+                            next_index=index + 1,
+                            tag_name=tag_name,
+                        )
                     ):
                         return index
             continue
@@ -399,7 +1126,9 @@ def _pop_matching_control(*, control_stack: list[str], control_name: str) -> Non
             return
 
 
-def _should_close_unbalanced_flow(*, tokens: list[SourceToken], next_index: int) -> bool:
+def _should_close_unbalanced_flow(
+    *, tokens: list[SourceToken], next_index: int, tag_name: str
+) -> bool:
     for token in tokens[next_index:]:
         if token.kind == "jinja_comment":
             continue
@@ -416,6 +1145,8 @@ def _should_close_unbalanced_flow(*, tokens: list[SourceToken], next_index: int)
             event_kind, _ = control_event
             return event_kind == "close"
         if token.kind == "html_tag":
+            if token.is_closing_tag and token.tag_name == tag_name:
+                return False
             return True
     return True
 

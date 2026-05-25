@@ -14,12 +14,6 @@
 The project will require so little storage space for all data and software (including temporary storage) that it is not a problem.
 ```
 
-### Source (en)
-
-~~~jinja
-The project will require so little storage space for all data and software (including temporary storage) that it is not a problem.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

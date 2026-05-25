@@ -14,12 +14,6 @@
 Policies and Procedures
 ```
 
-### Source (en)
-
-~~~jinja
-Policies and Procedures
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 Anyone in the institute has read access to the data; all project members have read/write access.
 ```
 
-### Source (en)
-
-~~~jinja
-Anyone in the institute has read access to the data; all project members have read/write access.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 responsible for all issues relating to the protection of personal data and data protection policies in general.
 ```
 
-### Source (en)
-
-~~~jinja
-{{ contributorsResponsibility(contributorsItems, uuids.contributorRoleDataProtectorAUuid, "responsible for all issues relating to the protection of personal data and data protection policies in general.") }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

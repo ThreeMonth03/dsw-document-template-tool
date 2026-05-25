@@ -14,12 +14,6 @@
 Dublin Core
 ```
 
-### Source (en)
-
-~~~jinja
-{%- do metadataStandards.append("Dublin Core") -%}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

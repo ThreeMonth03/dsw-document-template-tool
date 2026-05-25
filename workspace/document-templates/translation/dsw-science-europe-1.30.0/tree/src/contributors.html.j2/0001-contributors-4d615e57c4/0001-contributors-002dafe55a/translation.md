@@ -14,12 +14,6 @@
 Contributors
 ```
 
-### Source (en)
-
-~~~jinja
-Contributors
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 Data security protection is described in Section 3, Question 6.
 ```
 
-### Source (en)
-
-~~~jinja
-Data security protection is described in Section 3, Question 6.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

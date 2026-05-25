@@ -14,12 +14,6 @@
 Storage needs are small at the beginning and will grow later.
 ```
 
-### Source (en)
-
-~~~jinja
-Storage needs are small at the beginning and will grow later.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

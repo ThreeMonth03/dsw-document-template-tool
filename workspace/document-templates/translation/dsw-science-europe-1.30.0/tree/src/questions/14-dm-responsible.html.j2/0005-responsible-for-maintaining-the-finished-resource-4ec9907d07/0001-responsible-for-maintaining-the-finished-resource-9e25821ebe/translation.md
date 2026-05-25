@@ -14,12 +14,6 @@
 responsible for maintaining the finished resource.
 ```
 
-### Source (en)
-
-~~~jinja
-{{ contributorsResponsibility(contributorsItems, uuids.contributorRoleDataManagerAUuid, "responsible for maintaining the finished resource.") }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

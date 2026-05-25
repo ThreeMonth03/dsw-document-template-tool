@@ -14,12 +14,6 @@
 The costs related to the used repositories will be carried by (one of) the departments involved in the project.
 ```
 
-### Source (en)
-
-~~~jinja
-The costs related to the used repositories will be carried by (one of) the departments involved in the project.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

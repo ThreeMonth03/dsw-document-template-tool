@@ -14,12 +14,6 @@
 Ensuring PIDs for published data
 ```
 
-### Source (en)
-
-~~~jinja
-Ensuring PIDs for published data
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

@@ -14,12 +14,6 @@
 The stored data are psuedoanonymized.
 ```
 
-### Source (en)
-
-~~~jinja
-The stored data are psuedoanonymized.
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

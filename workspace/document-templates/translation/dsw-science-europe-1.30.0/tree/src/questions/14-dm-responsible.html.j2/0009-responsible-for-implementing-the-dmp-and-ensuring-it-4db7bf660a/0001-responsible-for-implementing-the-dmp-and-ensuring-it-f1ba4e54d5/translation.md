@@ -14,12 +14,6 @@
 responsible for implementing the DMP, and ensuring it is reviewed and revised.
 ```
 
-### Source (en)
-
-~~~jinja
-{{ contributorsResponsibility(contributorsItems, uuids.contributorRoleCreatorOfDMPAUuid, "responsible for implementing the DMP, and ensuring it is reviewed and revised.") }}
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja

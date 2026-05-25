@@ -14,12 +14,6 @@
 For the reference and non-reference data sets that we reuse, conditions are as follows:
 ```
 
-### Source (en)
-
-~~~jinja
-For the reference and non-reference data sets that we reuse, conditions are as follows:
-~~~
-
 ### Translation (zh_Hant)
 
 ~~~jinja
