@@ -96,6 +96,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert 'src/transform_template.py" expand' in workflow_text
     assert 'src/translation_tree.py" export' in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
+    assert "Translation sync failed" in workflow_text
+    assert "GITHUB_STEP_SUMMARY" in workflow_text
+    assert "::error title=Translation sync failed::" in workflow_text
     assert 'dsw-tdk" package' in workflow_text
     assert "make start-ci-dsw" in workflow_text
     assert "src/render_project.py" in workflow_text

@@ -88,11 +88,31 @@ jobs:
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
           TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
+          SYNC_LOG="$(mktemp)"
 
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" sync \
+          if ! "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" sync \
             --tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
             --source "$HOST_ROOT/$EXPANDED_TEMPLATE_DIR" \
-            --output "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR"
+            --output "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR" 2>&1 | tee "$SYNC_LOG"; then
+            {
+              echo "## Translation sync failed"
+              echo
+              echo "The translated template could not be generated. Check the message below;"
+              echo "it usually points at the exact translation.md file and placeholder issue."
+              echo
+              echo '```text'
+              tail -n 80 "$SYNC_LOG"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            ERROR_LINE="$(grep -E 'Translation(TreeError| is | uses | introduces )|Missing translation document|Invalid translation document' "$SYNC_LOG" | tail -n 1 || true)"
+            if [ -n "$ERROR_LINE" ]; then
+              echo "::error title=Translation sync failed::$ERROR_LINE"
+            else
+              echo "::error title=Translation sync failed::See job summary for details."
+            fi
+            exit 1
+          fi
 
           "$TOOL_ROOT/.venv/bin/dsw-tdk" package "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR" \
             --output "$HOST_ROOT/$TRANSLATED_TEMPLATE_PACKAGE" \

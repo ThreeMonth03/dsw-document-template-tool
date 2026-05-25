@@ -107,6 +107,14 @@ class OutlineUnit:
 
 
 @dataclass(frozen=True)
+class TranslationEntry:
+    """Translator-edited text plus the document it came from."""
+
+    text: str
+    document_path: str
+
+
+@dataclass(frozen=True)
 class JinjaBranch:
     """One body inside an if/elif/else control group."""
 
@@ -1010,7 +1018,7 @@ def _apply_unit_translations(
     source_file: str,
     wrapper_body: str,
     wrapper_units: list[dict[str, str | int]],
-    translations: dict[tuple[str, str], str],
+    translations: dict[tuple[str, str], TranslationEntry],
 ) -> str:
     rebuilt_parts: list[str] = []
     cursor = 0
@@ -1049,11 +1057,15 @@ def _apply_unit_translations(
             )
 
         rebuilt_parts.append(wrapper_body[cursor:unit_start])
-        translation_text = translations.get((source_file, unit_key)) or source_unit_text
-        if translation_text.strip():
+        translation_entry = translations.get((source_file, unit_key))
+        if translation_entry is not None and translation_entry.text.strip():
+            translation_text = translation_entry.text
             _validate_translation_placeholders(
                 source_file=source_file,
                 unit_key=unit_key,
+                translation_document_path=(
+                    translation_entry.document_path if translation_entry is not None else None
+                ),
                 source_text=source_unit_text,
                 translation_text=translation_text,
             )
@@ -1061,6 +1073,8 @@ def _apply_unit_translations(
                 source_text=source_unit_text,
                 translation_text=translation_text,
             )
+        else:
+            translation_text = source_unit_text
         rebuilt_parts.append(translation_text)
         cursor = unit_end
 
@@ -1072,6 +1086,7 @@ def _validate_translation_placeholders(
     *,
     source_file: str,
     unit_key: str,
+    translation_document_path: str | None,
     source_text: str,
     translation_text: str,
 ) -> None:
@@ -1084,18 +1099,28 @@ def _validate_translation_placeholders(
     unknown_shorthand_names = sorted(set(shorthand_names) - set(placeholder_map))
     if unknown_shorthand_names:
         formatted_names = ", ".join(f"{{{name}}}" for name in unknown_shorthand_names)
+        location = _format_translation_location(
+            source_file,
+            unit_key,
+            translation_document_path,
+        )
         raise TranslationTreeError(
             "Translation uses placeholder names that cannot be mapped back to Jinja "
-            f"for {source_file} ({unit_key}): {formatted_names}"
+            f"for {location}: {formatted_names}"
         )
 
     translation_counts = _translation_placeholder_counts(translation_text)
     unexpected_placeholder_names = sorted(set(translation_counts) - set(source_counts))
     if unexpected_placeholder_names:
         formatted_names = ", ".join(f"{{{name}}}" for name in unexpected_placeholder_names)
+        location = _format_translation_location(
+            source_file,
+            unit_key,
+            translation_document_path,
+        )
         raise TranslationTreeError(
             "Translation introduces placeholders that are not present in the source for "
-            f"{source_file} ({unit_key}): {formatted_names}"
+            f"{location}: {formatted_names}"
         )
 
     missing_counts = source_counts - translation_counts
@@ -1104,10 +1129,25 @@ def _validate_translation_placeholders(
             f"{{{name}}}" if count == 1 else f"{{{name}}} x{count}"
             for name, count in sorted(missing_counts.items())
         )
-        raise TranslationTreeError(
-            "Translation is missing required placeholders for "
-            f"{source_file} ({unit_key}): {formatted_names}"
+        location = _format_translation_location(
+            source_file,
+            unit_key,
+            translation_document_path,
         )
+        raise TranslationTreeError(
+            f"Translation is missing required placeholders for {location}: {formatted_names}"
+        )
+
+
+def _format_translation_location(
+    source_file: str,
+    unit_key: str,
+    translation_document_path: str | None,
+) -> str:
+    location = f"{source_file} ({unit_key})"
+    if translation_document_path:
+        location = f"{location} in {translation_document_path}"
+    return location
 
 
 def _source_placeholder_counts(source_text: str) -> Counter[str]:
@@ -1345,14 +1385,14 @@ def _load_translations_by_unit_key(
     tree_dir: Path,
     source_lang: str,
     target_lang: str,
-) -> dict[tuple[str, str], str]:
+) -> dict[tuple[str, str], TranslationEntry]:
     manifest = _load_tree_manifest(tree_dir)
     units = manifest.get("units")
     if not isinstance(units, list):
         raise TranslationTreeError(
             f"Invalid translation-tree manifest at {tree_dir / TREE_MANIFEST_PATH}"
         )
-    translations: dict[tuple[str, str], str] = {}
+    translations: dict[tuple[str, str], TranslationEntry] = {}
     for unit in units:
         source_file = unit.get("source_file")
         unit_key = unit.get("unit_key")
@@ -1376,7 +1416,10 @@ def _load_translations_by_unit_key(
             source_lang=source_lang,
             target_lang=target_lang,
         )
-        translations[(source_file, unit_key)] = translation_text
+        translations[(source_file, unit_key)] = TranslationEntry(
+            text=translation_text,
+            document_path=document_path_raw,
+        )
     return translations
 
 

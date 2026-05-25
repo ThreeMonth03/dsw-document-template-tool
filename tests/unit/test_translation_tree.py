@@ -670,13 +670,15 @@ def test_sync_translation_tree_rejects_missing_required_placeholder(
     document_path = next(tree_dir.rglob("translation.md"))
     _write_translation_block(document_path, "<p>可取得。</p>")
 
-    with pytest.raises(TranslationTreeError, match=r"\{pid\}"):
+    with pytest.raises(TranslationTreeError, match=r"\{pid\}") as exc_info:
         sync_translation_tree(
             tree_dir=tree_dir,
             source_dir=expanded_dir,
             output_dir=translated_expanded_dir,
         )
 
+    assert "translation.md" in str(exc_info.value)
+    assert "tree/src/index.html.j2/" in str(exc_info.value)
     assert translated_expanded_dir.exists() is False
 
 
