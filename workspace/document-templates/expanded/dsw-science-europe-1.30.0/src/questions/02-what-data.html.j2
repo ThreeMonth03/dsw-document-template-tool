@@ -30,27 +30,28 @@
               {# __tr_block_0005:start #}<p>This dataset will be collected by experts in the project, at a specialized infrastructure.</p>{# __tr_block_0005:end #}
             {%- elif measuredDataWhoAUuid == uuids.measuredDataWhoExternalAUuid -%}
               {%- set mdExternalOwnershipPath = [measuredDataWhoPath, uuids.measuredDataWhoExternalAUuid, uuids.mdExternalOwnershipQUuid]|reply_path -%}
-              {%- set mdExternalOwnershipAUuid = repliesMap[mdExternalOwnershipPath]|reply_str_value -%}
-              {# __tr_block_0006:start #}<p>
-                This dataset will be collected by an external party.
-                {% if mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartyAUuid -%}
-                  The ownership of the resulting data will remain with the external party.
-                {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartnersAUuid -%}
-                  The project partners acquire full ownership of the data.
-                {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipOtherAUuid -%}
-                  {%- set mdExternalOwnershipOtherPath = [mdExternalOwnershipPath, uuids.mdExternalOwnershipOtherAUuid, uuids.mdExternalOwnershipOtherQUuid]|reply_path -%}
-                  {%- set mdExternalOwnershipOther = repliesMap[mdExternalOwnershipOtherPath]|reply_str_value -%}
-                  {%- if mdExternalOwnershipOther -%}
-                    For the ownership of the data we have made the following arrangements: {{ mdExternalOwnershipOther|dot }}
-                  {%- endif -%}
+              {%- set mdExternalOwnershipAUuid = repliesMap[mdExternalOwnershipPath]|reply_str_value -%}{# __tr_branch_sentence_original:CiAgICAgICAgICAgICAgPHA-CiAgICAgICAgICAgICAgICBUaGlzIGRhdGFzZXQgd2lsbCBiZSBjb2xsZWN0ZWQgYnkgYW4gZXh0ZXJuYWwgcGFydHkuCiAgICAgICAgICAgICAgICB7JSBpZiBtZEV4dGVybmFsT3duZXJzaGlwQVV1aWQgPT0gdXVpZHMubWRFeHRlcm5hbE93bmVyc2hpcFBhcnR5QVV1aWQgLSV9CiAgICAgICAgICAgICAgICAgIFRoZSBvd25lcnNoaXAgb2YgdGhlIHJlc3VsdGluZyBkYXRhIHdpbGwgcmVtYWluIHdpdGggdGhlIGV4dGVybmFsIHBhcnR5LgogICAgICAgICAgICAgICAgeyUtIGVsaWYgbWRFeHRlcm5hbE93bmVyc2hpcEFVdWlkID09IHV1aWRzLm1kRXh0ZXJuYWxPd25lcnNoaXBQYXJ0bmVyc0FVdWlkIC0lfQogICAgICAgICAgICAgICAgICBUaGUgcHJvamVjdCBwYXJ0bmVycyBhY3F1aXJlIGZ1bGwgb3duZXJzaGlwIG9mIHRoZSBkYXRhLgogICAgICAgICAgICAgICAgeyUtIGVsaWYgbWRFeHRlcm5hbE93bmVyc2hpcEFVdWlkID09IHV1aWRzLm1kRXh0ZXJuYWxPd25lcnNoaXBPdGhlckFVdWlkIC0lfQogICAgICAgICAgICAgICAgICB7JS0gc2V0IG1kRXh0ZXJuYWxPd25lcnNoaXBPdGhlclBhdGggPSBbbWRFeHRlcm5hbE93bmVyc2hpcFBhdGgsIHV1aWRzLm1kRXh0ZXJuYWxPd25lcnNoaXBPdGhlckFVdWlkLCB1dWlkcy5tZEV4dGVybmFsT3duZXJzaGlwT3RoZXJRVXVpZF18cmVwbHlfcGF0aCAtJX0KICAgICAgICAgICAgICAgICAgeyUtIHNldCBtZEV4dGVybmFsT3duZXJzaGlwT3RoZXIgPSByZXBsaWVzTWFwW21kRXh0ZXJuYWxPd25lcnNoaXBPdGhlclBhdGhdfHJlcGx5X3N0cl92YWx1ZSAtJX0KICAgICAgICAgICAgICAgICAgeyUtIGlmIG1kRXh0ZXJuYWxPd25lcnNoaXBPdGhlciAtJX0KICAgICAgICAgICAgICAgICAgICBGb3IgdGhlIG93bmVyc2hpcCBvZiB0aGUgZGF0YSB3ZSBoYXZlIG1hZGUgdGhlIGZvbGxvd2luZyBhcnJhbmdlbWVudHM6IHt7IG1kRXh0ZXJuYWxPd25lcnNoaXBPdGhlcnxkb3QgfX0KICAgICAgICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICAgIDwvcD4K #}
+              {%- if mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartyAUuid -%}
+                {# __tr_block_0006:start #}<p>This dataset will be collected by an external party. The ownership of the resulting data will remain with the external party.</p>{# __tr_block_0006:end #}
+              {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartnersAUuid -%}
+                {# __tr_block_0007:start #}<p>This dataset will be collected by an external party. The project partners acquire full ownership of the data.</p>{# __tr_block_0007:end #}
+              {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipOtherAUuid -%}
+                {%- set mdExternalOwnershipOtherPath = [mdExternalOwnershipPath, uuids.mdExternalOwnershipOtherAUuid, uuids.mdExternalOwnershipOtherQUuid]|reply_path -%}
+                {%- set mdExternalOwnershipOther = repliesMap[mdExternalOwnershipOtherPath]|reply_str_value -%}
+                {%- if mdExternalOwnershipOther -%}
+                  {# __tr_block_0008:start #}<p>This dataset will be collected by an external party. For the ownership of the data we have made the following arrangements: {{ mdExternalOwnershipOther|dot }}</p>{# __tr_block_0008:end #}
+                {%- else -%}
+                  {# __tr_block_0009:start #}<p>This dataset will be collected by an external party.</p>{# __tr_block_0009:end #}
                 {%- endif -%}
-              </p>{# __tr_block_0006:end #}
-            {%- endif -%}
+              {%- else -%}
+                {# __tr_block_0010:start #}<p>This dataset will be collected by an external party.</p>{# __tr_block_0010:end #}
+              {%- endif -%}
+{# __tr_branch_sentence_original:end #}            {%- endif -%}
             {# Equipment standard? #}
             {% if measuredDataEquipAUuid == uuids.measuredDataEquipDescribedAUuid -%}
-              {# __tr_block_0007:start #}<p>The equipment is very well described and known.</p>{# __tr_block_0007:end #}
+              {# __tr_block_0011:start #}<p>The equipment is very well described and known.</p>{# __tr_block_0011:end #}
             {%- elif measuredDataEquipAUuid == uuids.measuredDataEquipCareAUuid -%}
-              {# __tr_block_0008:start #}<p>The equipment is less well described or not completely standard, so we will need to take extra care documenting the process.</p>{# __tr_block_0008:end #}
+              {# __tr_block_0012:start #}<p>The equipment is less well described or not completely standard, so we will need to take extra care documenting the process.</p>{# __tr_block_0012:end #}
             {%- endif -%}
           </li>
         {%- endfor -%}
@@ -78,14 +79,14 @@
     {%- set eRecords = neqDataERecordsAUuid == uuids.neqDataERecordsYesAUuid -%}
     {%- if questionnaires or caseReport or eRecords or neqDataSetsItems|length > 0 -%}
       <div>
-      {# __tr_block_0009:start #}<h4>Non-equipment datasets</h4>{# __tr_block_0009:end #}
+      {# __tr_block_0013:start #}<h4>Non-equipment datasets</h4>{# __tr_block_0013:end #}
       {# Types #}
       {%- set typesNames = [] -%}
-      {%- if questionnaires -%}{# __tr_block_0010:start #}{%- do typesNames.append("questionnaires") -%}{# __tr_block_0010:end #}{%- endif -%}
-      {%- if caseReport -%}{# __tr_block_0011:start #}{%- do typesNames.append("case report forms") -%}{# __tr_block_0011:end #}{%- endif -%}
-      {%- if eRecords -%}{# __tr_block_0012:start #}{%- do typesNames.append("electronic patient records") -%}{# __tr_block_0012:end #}{%- endif -%}
+      {%- if questionnaires -%}{# __tr_block_0014:start #}{%- do typesNames.append("questionnaires") -%}{# __tr_block_0014:end #}{%- endif -%}
+      {%- if caseReport -%}{# __tr_block_0015:start #}{%- do typesNames.append("case report forms") -%}{# __tr_block_0015:end #}{%- endif -%}
+      {%- if eRecords -%}{# __tr_block_0016:start #}{%- do typesNames.append("electronic patient records") -%}{# __tr_block_0016:end #}{%- endif -%}
       {%- set typesCount = typesNames|length -%}
-      {# __tr_branch_sentence_original:PHA-CiAgICAgICAgeyUtIGlmIHR5cGVzQ291bnQgPiAwIC0lfQogICAgICAgICAgV2UgY29sbGVjdCBkYXRhIGZyb20KICAgICAgICAgIHslIGlmIHR5cGVzQ291bnQgPT0gMSAtJX0KICAgICAgICAgICAgICB7eyB0eXBlc05hbWVzWzBdIH19LgogICAgICAgICAgeyUtIGVsaWYgdHlwZXNDb3VudCA9PSAyIC0lfQogICAgICAgICAgICAgIHt7IHR5cGVzTmFtZXNbMF0gfX0gYW5kIHt7IHR5cGVzTmFtZXNbMV0gfX0uCiAgICAgICAgICB7JS0gZWxzZSAtJX0KICAgICAgICAgICAgICB7eyB0eXBlc05hbWVzWzBdIH19LCB7eyB0eXBlc05hbWVzWzFdIH19LCBhbmQge3sgdHlwZXNOYW1lc1syXSB9fS4KICAgICAgICAgIHslLSBlbmRpZiAtJX0KICAgICAgICB7JSBlbmRpZiAlfQogICAgICAgIHsjIERhdGFzZXRzICN9CiAgICAgICAgeyUtIGlmIG5lcURhdGFTZXRzSXRlbXN8bGVuZ3RoID4gMCAtJX0KICAgICAgICAgIFRoZSBub24tZXF1aXBtZW50IGRhdGFzZXRzIGFyZToKICAgICAgICAgIDx1bD4KICAgICAgICAgIHslLSBmb3IgbmVxRGF0YVNldEl0ZW0gaW4gbmVxRGF0YVNldHNJdGVtcyAtJX0KICAgICAgICAgICAgeyUtIHNldCBwYXRoUHJlZml4ID0gW25lcURhdGFTZXRzUGF0aCwgbmVxRGF0YVNldEl0ZW1dfHJlcGx5X3BhdGggLSV9CiAgICAgICAgICAgIHslLSBzZXQgbmVxRGF0YVNldHNOYW1lID0gcmVwbGllc01hcFtbcGF0aFByZWZpeCwgdXVpZHMubmVxRGF0YVNldHNOYW1lUVV1aWRdfHJlcGx5X3BhdGhdfHJlcGx5X3N0cl92YWx1ZSAtJX0KICAgICAgICAgICAgeyUtIHNldCBuZXFEYXRhU2V0c0Rlc2MgPSByZXBsaWVzTWFwW1twYXRoUHJlZml4LCB1dWlkcy5uZXFEYXRhU2V0c0Rlc2NRVXVpZF18cmVwbHlfcGF0aF18cmVwbHlfc3RyX3ZhbHVlIC0lfQogICAgICAgICAgICA8bGk-CiAgICAgICAgICAgICAgPHN0cm9uZz57IyBfX3RyX2lubGluZV9pZl9vcmlnaW5hbDplM3NnYm1WeFJHRjBZVk5sZEhOT1lXMWxJR2xtSUc1bGNVUmhkR0ZUWlhSelRtRnRaU0JsYkhObElDSW9ibThnYm1GdFpTQm5hWFpsYmlraUlIMTkgI317JSBpZiBuZXFEYXRhU2V0c05hbWUgJX17eyBuZXFEYXRhU2V0c05hbWUgfX17JSBlbHNlICV9e3sgIihubyBuYW1lIGdpdmVuKSIgfX17JSBlbmRpZiAlfXsjIF9fdHJfaW5saW5lX2lmX29yaWdpbmFsOmVuZCAjfTwvc3Ryb25nPgogICAgICAgICAgICAgIHslIGlmIG5lcURhdGFTZXRzRGVzYyAtJX08c3BhbiBjbGFzcz0ic2VwYXJhdG9yIj4mbmRhc2g7PC9zcGFuPiB7eyBuZXFEYXRhU2V0c0Rlc2MgfX17JS0gZW5kaWYgLSV9CiAgICAgICAgICAgIDwvbGk-CiAgICAgICAgICB7JS0gZW5kZm9yIC0lfQogICAgICAgICAgPC91bD4KICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgIDwvcD4= #}{# __tr_block_0013:start #}<p>
+      {# __tr_branch_sentence_original:PHA-CiAgICAgICAgeyUtIGlmIHR5cGVzQ291bnQgPiAwIC0lfQogICAgICAgICAgV2UgY29sbGVjdCBkYXRhIGZyb20KICAgICAgICAgIHslIGlmIHR5cGVzQ291bnQgPT0gMSAtJX0KICAgICAgICAgICAgICB7eyB0eXBlc05hbWVzWzBdIH19LgogICAgICAgICAgeyUtIGVsaWYgdHlwZXNDb3VudCA9PSAyIC0lfQogICAgICAgICAgICAgIHt7IHR5cGVzTmFtZXNbMF0gfX0gYW5kIHt7IHR5cGVzTmFtZXNbMV0gfX0uCiAgICAgICAgICB7JS0gZWxzZSAtJX0KICAgICAgICAgICAgICB7eyB0eXBlc05hbWVzWzBdIH19LCB7eyB0eXBlc05hbWVzWzFdIH19LCBhbmQge3sgdHlwZXNOYW1lc1syXSB9fS4KICAgICAgICAgIHslLSBlbmRpZiAtJX0KICAgICAgICB7JSBlbmRpZiAlfQogICAgICAgIHsjIERhdGFzZXRzICN9CiAgICAgICAgeyUtIGlmIG5lcURhdGFTZXRzSXRlbXN8bGVuZ3RoID4gMCAtJX0KICAgICAgICAgIFRoZSBub24tZXF1aXBtZW50IGRhdGFzZXRzIGFyZToKICAgICAgICAgIDx1bD4KICAgICAgICAgIHslLSBmb3IgbmVxRGF0YVNldEl0ZW0gaW4gbmVxRGF0YVNldHNJdGVtcyAtJX0KICAgICAgICAgICAgeyUtIHNldCBwYXRoUHJlZml4ID0gW25lcURhdGFTZXRzUGF0aCwgbmVxRGF0YVNldEl0ZW1dfHJlcGx5X3BhdGggLSV9CiAgICAgICAgICAgIHslLSBzZXQgbmVxRGF0YVNldHNOYW1lID0gcmVwbGllc01hcFtbcGF0aFByZWZpeCwgdXVpZHMubmVxRGF0YVNldHNOYW1lUVV1aWRdfHJlcGx5X3BhdGhdfHJlcGx5X3N0cl92YWx1ZSAtJX0KICAgICAgICAgICAgeyUtIHNldCBuZXFEYXRhU2V0c0Rlc2MgPSByZXBsaWVzTWFwW1twYXRoUHJlZml4LCB1dWlkcy5uZXFEYXRhU2V0c0Rlc2NRVXVpZF18cmVwbHlfcGF0aF18cmVwbHlfc3RyX3ZhbHVlIC0lfQogICAgICAgICAgICA8bGk-CiAgICAgICAgICAgICAgPHN0cm9uZz57IyBfX3RyX2lubGluZV9pZl9vcmlnaW5hbDplM3NnYm1WeFJHRjBZVk5sZEhOT1lXMWxJR2xtSUc1bGNVUmhkR0ZUWlhSelRtRnRaU0JsYkhObElDSW9ibThnYm1GdFpTQm5hWFpsYmlraUlIMTkgI317JSBpZiBuZXFEYXRhU2V0c05hbWUgJX17eyBuZXFEYXRhU2V0c05hbWUgfX17JSBlbHNlICV9e3sgIihubyBuYW1lIGdpdmVuKSIgfX17JSBlbmRpZiAlfXsjIF9fdHJfaW5saW5lX2lmX29yaWdpbmFsOmVuZCAjfTwvc3Ryb25nPgogICAgICAgICAgICAgIHslIGlmIG5lcURhdGFTZXRzRGVzYyAtJX08c3BhbiBjbGFzcz0ic2VwYXJhdG9yIj4mbmRhc2g7PC9zcGFuPiB7eyBuZXFEYXRhU2V0c0Rlc2MgfX17JS0gZW5kaWYgLSV9CiAgICAgICAgICAgIDwvbGk-CiAgICAgICAgICB7JS0gZW5kZm9yIC0lfQogICAgICAgICAgPC91bD4KICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgIDwvcD4= #}{# __tr_block_0017:start #}<p>
         {%- if typesCount > 0 -%}{% if typesCount == 1 -%}
           We collect data from
           {{ typesNames[0] }}.{%- elif typesCount == 2 -%}
@@ -106,7 +107,7 @@
           {%- endfor -%}
           </ul>
         {%- endif -%}
-      </p>{# __tr_block_0013:end #}{# __tr_branch_sentence_original:end #}
+      </p>{# __tr_block_0017:end #}{# __tr_branch_sentence_original:end #}
       </div>
     {%- endif -%}
   {%- endif -%}
@@ -120,8 +121,8 @@
     {%- set nrefDataItems = repliesMap[nrefDataPath]|reply_items -%}
     {%- if (refDataItems|length + nrefDataItems|length) > 0 -%}
       <div>
-        {# __tr_block_0014:start #}<h4>Re-used datasets</h4>{# __tr_block_0014:end #}
-        {# __tr_block_0015:start #}<p>Datasets considered for reuse and actually reused are described in Question 1.</p>{# __tr_block_0015:end #}
+        {# __tr_block_0018:start #}<h4>Re-used datasets</h4>{# __tr_block_0018:end #}
+        {# __tr_block_0019:start #}<p>Datasets considered for reuse and actually reused are described in Question 1.</p>{# __tr_block_0019:end #}
       </div>
     {%- endif -%}
   {%- endif -%}
@@ -130,9 +131,9 @@
   {%- set formatsPath = [uuids.creatingCUuid, uuids.formatsQUuid]|reply_path -%}
   {%- set formatsItems = repliesMap[formatsPath]|reply_items -%}
   {%- if formatsItems|length > 0 -%}
-    {# __tr_block_0016:start #}<h4>Data formats and types</h4>{# __tr_block_0016:end #}
-    <div>{# __tr_block_0017:start #}We will be using the following data formats and types:
-    {# __tr_block_0017:end #}<ul>
+    {# __tr_block_0020:start #}<h4>Data formats and types</h4>{# __tr_block_0020:end #}
+    <div>{# __tr_block_0021:start #}We will be using the following data formats and types:
+    {# __tr_block_0021:end #}<ul>
       {%- for formatItem in formatsItems -%}
         {%- set formatPrefix = [formatsPath, formatItem]|reply_path -%}
         {%- set formatNameReply = repliesMap[[formatPrefix, uuids.formatsNameQUuid]|reply_path] -%}
@@ -142,7 +143,7 @@
         {%- set formatsIsLTSuitableAUuid = repliesMap[formatsIsLTSuitablePath]|reply_str_value -%}
         {%- set formatsVolumePath = [formatPrefix, uuids.formatsVolumeQUuid]|reply_path -%}
         {%- set formatsVolumeAUuid = repliesMap[formatsVolumePath]|reply_str_value -%}
-        {# __tr_block_0018:start #}<li>
+        {# __tr_block_0022:start #}<li>
           {# identification #}
           <div>{{ macros.integrationFairSharing(formatNameReply) }}</div>
           {%- if formatsIsStandardAUuid or formatsIsLTSuitableAUuid or formatsVolumeAUuid -%}
@@ -159,13 +160,13 @@
                 We are not using a standardized format but it is optimized for processing speed and/or volume.
               {%- elif formatsWhyNonStandardAUuid == uuids.formatsWhyNSAnotherReasonAUuid -%}
                 {%- set formatsWhyNSAnotherReasonPath = [formatsWhyNonStandardPath, uuids.formatsWhyNSAnotherReasonAUuid, uuids.formatsWhyNSAnotherReasonQUuid]|reply_path -%}
-                {%- set formatsWhyNSAnotherReason = repliesMap[formatsWhyNSAnotherReasonPath]|reply_str_value -%}
-                We are not using a standardized format
+                {%- set formatsWhyNSAnotherReason = repliesMap[formatsWhyNSAnotherReasonPath]|reply_str_value -%}{# __tr_branch_sentence_original:CiAgICAgICAgICAgICAgICBXZSBhcmUgbm90IHVzaW5nIGEgc3RhbmRhcmRpemVkIGZvcm1hdAogICAgICAgICAgICAgICAgeyUtIGlmIGZvcm1hdHNXaHlOU0Fub3RoZXJSZWFzb24gLSV9CiAgICAgICAgICAgICAgICAgICwgYmVjYXVzZToge3sgZm9ybWF0c1doeU5TQW5vdGhlclJlYXNvbnxjYXBpdGFsaXplIH19CiAgICAgICAgICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgICAgICAgICAgICAuCg== #}
                 {%- if formatsWhyNSAnotherReason -%}
-                  , because: {{ formatsWhyNSAnotherReason|capitalize }}
+                  We are not using a standardized format, because: {{ formatsWhyNSAnotherReason|capitalize }}.
+                {%- else -%}
+                  We are not using a standardized format.
                 {%- endif -%}
-                .
-              {%- endif -%}
+{# __tr_branch_sentence_original:end #}              {%- endif -%}
             {%- endif -%}
             {# long-term suitable? #}
             {%- if formatsIsLTSuitableAUuid == uuids.formatsIsLTSuitableYesAUuid %}
@@ -197,7 +198,7 @@
             {%- endif -%}
 {# __tr_branch_sentence_original:end #}            </p>
           {%- endif -%}
-        </li>{# __tr_block_0018:end #}
+        </li>{# __tr_block_0022:end #}
       {%- endfor -%}
     </ul>
     </div>

@@ -615,6 +615,40 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
           {%- endif -%}
 """
 
+    measured_external_ownership_original = """
+              <p>
+                This dataset will be collected by an external party.
+                {% if mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartyAUuid -%}
+                  The ownership of the resulting data will remain with the external party.
+                {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartnersAUuid -%}
+                  The project partners acquire full ownership of the data.
+                {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipOtherAUuid -%}
+                  {%- set mdExternalOwnershipOtherPath = [mdExternalOwnershipPath, uuids.mdExternalOwnershipOtherAUuid, uuids.mdExternalOwnershipOtherQUuid]|reply_path -%}
+                  {%- set mdExternalOwnershipOther = repliesMap[mdExternalOwnershipOtherPath]|reply_str_value -%}
+                  {%- if mdExternalOwnershipOther -%}
+                    For the ownership of the data we have made the following arrangements: {{ mdExternalOwnershipOther|dot }}
+                  {%- endif -%}
+                {%- endif -%}
+              </p>
+"""
+    measured_external_ownership_replacement = """
+              {%- if mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartyAUuid -%}
+                <p>This dataset will be collected by an external party. The ownership of the resulting data will remain with the external party.</p>
+              {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartnersAUuid -%}
+                <p>This dataset will be collected by an external party. The project partners acquire full ownership of the data.</p>
+              {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipOtherAUuid -%}
+                {%- set mdExternalOwnershipOtherPath = [mdExternalOwnershipPath, uuids.mdExternalOwnershipOtherAUuid, uuids.mdExternalOwnershipOtherQUuid]|reply_path -%}
+                {%- set mdExternalOwnershipOther = repliesMap[mdExternalOwnershipOtherPath]|reply_str_value -%}
+                {%- if mdExternalOwnershipOther -%}
+                  <p>This dataset will be collected by an external party. For the ownership of the data we have made the following arrangements: {{ mdExternalOwnershipOther|dot }}</p>
+                {%- else -%}
+                  <p>This dataset will be collected by an external party.</p>
+                {%- endif -%}
+              {%- else -%}
+                <p>This dataset will be collected by an external party.</p>
+              {%- endif -%}
+"""
+
     nref_personal_legal_basis_original = """
           <p>
             This data include personal data
@@ -1122,6 +1156,21 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             {%- endif -%}
 """
 
+    nonstandard_format_other_reason_original = """
+                We are not using a standardized format
+                {%- if formatsWhyNSAnotherReason -%}
+                  , because: {{ formatsWhyNSAnotherReason|capitalize }}
+                {%- endif -%}
+                .
+"""
+    nonstandard_format_other_reason_replacement = """
+                {%- if formatsWhyNSAnotherReason -%}
+                  We are not using a standardized format, because: {{ formatsWhyNSAnotherReason|capitalize }}.
+                {%- else -%}
+                  We are not using a standardized format.
+                {%- endif -%}
+"""
+
     published_license_heading_original = """
                         {%- if licensesItems|length > 0 %}
                             The distribution will be available under the following {{ "licenses" if licensesItems|length > 1 else "license" }}:
@@ -1161,6 +1210,7 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
         (
             (ref_data_conditions_original, ref_data_conditions_replacement),
             (nref_data_conditions_original, nref_data_conditions_replacement),
+            (measured_external_ownership_original, measured_external_ownership_replacement),
             (nref_personal_legal_basis_original, nref_personal_legal_basis_replacement),
             (computer_readable_original, computer_readable_replacement),
             (ref_data_used_identification_original, ref_data_used_identification_replacement),
@@ -1176,6 +1226,7 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             (shared_workspace_original, shared_workspace_replacement),
             (published_software_original, published_software_replacement),
             (format_volume_original, format_volume_replacement),
+            (nonstandard_format_other_reason_original, nonstandard_format_other_reason_replacement),
             (published_license_heading_original, published_license_heading_replacement),
             (published_data_fixed_period_original, published_data_fixed_period_replacement),
         ),

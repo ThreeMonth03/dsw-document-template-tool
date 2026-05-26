@@ -60,6 +60,12 @@ HTML_CONTEXT_BOUNDARY_PATTERN = re.compile(
     re.IGNORECASE,
 )
 INLINE_TRANSLATOR_TAGS = {"a", "em", "small", "span", "strong"}
+INLINE_PLACEHOLDER_ELEMENT_PATTERN = re.compile(
+    r"<(?P<tag>a|em|small|span|strong)\b[^>]*>"
+    r".*?\{\{\s*(?P<expr>.*?)\s*\}\}.*?"
+    r"</(?P=tag)>",
+    re.DOTALL | re.IGNORECASE,
+)
 TRANSLATOR_PLACEHOLDER_PATTERN = re.compile(r"(?<!\{)\{(?P<name>[A-Za-z_][A-Za-z0-9_.]*)\}(?!\})")
 RAW_JINJA_IN_TRANSLATION_PATTERN = re.compile(r"\{[#%{]")
 VISIBLE_TEXT_PATTERN = re.compile(r"[A-Za-z0-9]+")
@@ -1338,6 +1344,13 @@ def _is_inside_region(*, token: SourceToken, regions: list[AnnotationRegion]) ->
 
 
 def _find_single_outer_element_inner_bounds(*, tokens: list[SourceToken]) -> tuple[int, int] | None:
+    element = _find_single_outer_element(tokens=tokens)
+    if element is None:
+        return None
+    return (element[1], element[2])
+
+
+def _find_single_outer_element(*, tokens: list[SourceToken]) -> tuple[str, int, int] | None:
     first_index = _find_first_meaningful_token_index(tokens)
     if first_index is None:
         return None
@@ -1368,7 +1381,7 @@ def _find_single_outer_element_inner_bounds(*, tokens: list[SourceToken]) -> tup
     if any(not _is_ignorable_outer_token(token) for token in tokens[end_index + 1 :]):
         return None
 
-    return (first_token.end, end_token.start)
+    return (first_token.tag_name or "", first_token.end, end_token.start)
 
 
 def _find_first_meaningful_token_index(tokens: list[SourceToken]) -> int | None:
@@ -1676,12 +1689,44 @@ def _preserve_single_outer_element(*, source_text: str, translation_text: str) -
         return translation_text
 
     tokens = _lex_source_tokens(source_text)
-    outer_bounds = _find_single_outer_element_inner_bounds(tokens=tokens)
-    if outer_bounds is None:
+    outer_element = _find_single_outer_element(tokens=tokens)
+    outer_tag = outer_element[0] if outer_element is not None else ""
+    if outer_tag not in INLINE_TRANSLATOR_TAGS:
+        translation_text = _preserve_inline_placeholder_elements(
+            source_text=source_text,
+            translation_text=translation_text,
+        )
+
+    if outer_element is None:
         return translation_text
 
-    inner_start, inner_end = outer_bounds
+    _, inner_start, inner_end = outer_element
     return source_text[:inner_start] + translation_text + source_text[inner_end:]
+
+
+def _preserve_inline_placeholder_elements(*, source_text: str, translation_text: str) -> str:
+    """Restore inline source markup that only wraps one visible placeholder.
+
+    Translators usually should not edit HTML. When they provide text-only
+    translations, source links such as ``<a href="{{ pid }}">{{ pid }}</a>``
+    still need to survive because the href is machine wiring, not prose.
+    """
+
+    restored_text = translation_text
+    for match in INLINE_PLACEHOLDER_ELEMENT_PATTERN.finditer(source_text):
+        inline_source = match.group(0)
+        if _contains_jinja_block_or_comment(inline_source):
+            continue
+
+        expression = " ".join(match.group("expr").strip().split())
+        visible_inner = HTML_TAG_PATTERN.sub("", inline_source)
+        visible_inner = re.sub(r"\s+", " ", visible_inner).strip()
+        if visible_inner != "{{ " + expression + " }}":
+            continue
+
+        placeholder = "{{ " + expression + " }}"
+        restored_text = restored_text.replace(placeholder, inline_source, 1)
+    return restored_text
 
 
 def _build_wrapper_key(*, relative_path: str, source_text: str) -> str:

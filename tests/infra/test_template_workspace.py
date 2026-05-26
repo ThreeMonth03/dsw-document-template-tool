@@ -145,6 +145,8 @@ def test_checked_in_translation_tree_surfaces_needed_text_and_excludes_noise(
         "questionnaires",
         "case report forms",
         "electronic patient records",
+        "This dataset will be collected by an external party. For the ownership of the data",
+        "We are not using a standardized format, because:",
         "Dublin Core",
         "DataCite",
         "DDI (Data Documentation Initiative)",

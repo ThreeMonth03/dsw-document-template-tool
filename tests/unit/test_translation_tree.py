@@ -860,6 +860,49 @@ def test_export_translation_tree_keeps_legal_basis_prefix_with_other_branch(
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
 
+def test_export_translation_tree_keeps_external_ownership_arrangement_complete(
+    tmp_path: Path,
+) -> None:
+    """The Science Europe external-ownership fallback should become translatable."""
+
+    compact_dir = _write_compact_template_raw(
+        tmp_path,
+        """
+              <p>
+                This dataset will be collected by an external party.
+                {% if mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartyAUuid -%}
+                  The ownership of the resulting data will remain with the external party.
+                {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipPartnersAUuid -%}
+                  The project partners acquire full ownership of the data.
+                {%- elif mdExternalOwnershipAUuid == uuids.mdExternalOwnershipOtherAUuid -%}
+                  {%- set mdExternalOwnershipOtherPath = [mdExternalOwnershipPath, uuids.mdExternalOwnershipOtherAUuid, uuids.mdExternalOwnershipOtherQUuid]|reply_path -%}
+                  {%- set mdExternalOwnershipOther = repliesMap[mdExternalOwnershipOtherPath]|reply_str_value -%}
+                  {%- if mdExternalOwnershipOther -%}
+                    For the ownership of the data we have made the following arrangements: {{ mdExternalOwnershipOther|dot }}
+                  {%- endif -%}
+                {%- endif -%}
+              </p>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "For the ownership of the data we have made the following arrangements:" not in (
+        sentences
+    )
+    assert any(
+        "This dataset will be collected by an external party. For the ownership "
+        "of the data we have made the following arrangements: {mdExternalOwnershipOther}"
+        in sentence
+        for sentence in sentences
+    )
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
 def test_export_translation_tree_keeps_open_reason_prefix_with_single_reasons(
     tmp_path: Path,
 ) -> None:
@@ -920,6 +963,36 @@ def test_export_translation_tree_keeps_open_reason_prefix_with_single_reasons(
         "The data cannot become completely open because of patent-related business reasons."
         in sentence
         for sentence in sentences
+    )
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
+def test_export_translation_tree_keeps_nonstandard_format_reason_complete(
+    tmp_path: Path,
+) -> None:
+    """The Science Europe non-standard-format reason should not split after comma."""
+
+    compact_dir = _write_compact_template_raw(
+        tmp_path,
+        """
+                We are not using a standardized format
+                {%- if formatsWhyNSAnotherReason -%}
+                  , because: {{ formatsWhyNSAnotherReason|capitalize }}
+                {%- endif -%}
+                .
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "We are not using a standardized format." in sentences
+    assert "because: {formatsWhyNSAnotherReason}" not in sentences
+    assert (
+        "We are not using a standardized format, because: {formatsWhyNSAnotherReason}." in sentences
     )
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
@@ -1222,7 +1295,7 @@ def test_sync_translation_tree_accepts_text_only_translation_for_html_unit(
 def test_translation_placeholder_validation_ignores_html_attribute_only_duplicates(
     tmp_path: Path,
 ) -> None:
-    """Links expose one visible placeholder even when href uses the same value."""
+    """Links expose one visible placeholder and keep machine href wiring."""
 
     compact_dir = _write_compact_template(
         tmp_path,
@@ -1252,8 +1325,88 @@ def test_translation_placeholder_validation_ignores_html_attribute_only_duplicat
     translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
         encoding="utf-8"
     )
-    assert "為了 {{ usage }}，可透過 {{ pid }} 取得。" in translated_text
-    assert 'href="{{ pid }}"' not in translated_text
+    assert (
+        '為了 {{ usage }}，可透過 <a href="{{ pid }}" target="_blank">{{ pid }}</a> 取得。'
+        in translated_text
+    )
+
+
+def test_sync_translation_tree_preserves_distinct_href_placeholder(
+    tmp_path: Path,
+) -> None:
+    """Attribute-only URL placeholders should survive text-only translations."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Created in &laquo;<a href="{{ serviceUrl }}" target="_blank">{{ serviceDomain }}</a>&raquo;.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    translated_expanded_dir = tmp_path / "translated-expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = next(tree_dir.rglob("translation.md"))
+    _write_translation_block(document_path, "建立於 {serviceDomain}。")
+
+    issues = audit_translation_tree(source_dir=expanded_dir, tree_dir=tree_dir)
+    assert issues == []
+
+    sync_translation_tree(
+        tree_dir=tree_dir,
+        source_dir=expanded_dir,
+        output_dir=translated_expanded_dir,
+    )
+
+    translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        '建立於 <a href="{{ serviceUrl }}" target="_blank">{{ serviceDomain }}</a>。'
+        in translated_text
+    )
+
+
+def test_sync_translation_tree_preserves_nested_inline_placeholder_markup(
+    tmp_path: Path,
+) -> None:
+    """Nested inline markup around identifiers should not disappear during sync."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<li>DOI: <strong><a href="https://doi.org/{{ identifierValue }}" target="_blank">{{ identifierValue }}</a></strong></li>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    translated_expanded_dir = tmp_path / "translated-expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = next(tree_dir.rglob("translation.md"))
+    _write_translation_block(document_path, "DOI：{identifierValue}")
+
+    issues = audit_translation_tree(source_dir=expanded_dir, tree_dir=tree_dir)
+    assert issues == []
+
+    sync_translation_tree(
+        tree_dir=tree_dir,
+        source_dir=expanded_dir,
+        output_dir=translated_expanded_dir,
+    )
+
+    translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        'DOI：<strong><a href="https://doi.org/{{ identifierValue }}" '
+        'target="_blank">{{ identifierValue }}</a></strong>' in translated_text
+    )
 
 
 def test_sync_translation_tree_rejects_missing_required_placeholder(

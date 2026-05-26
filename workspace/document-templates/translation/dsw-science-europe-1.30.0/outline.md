@@ -1020,7 +1020,7 @@
 
           [T] [translation](<tree/src/questions/01-how-data.html.j2/0030-we-will-use-other-solution-than-electronic-lab-40df8f155d/0001-we-will-use-other-solution-than-electronic-lab-904e47f57f/translation.md>)
 
-- [ ] [file] src/questions/02-what-data.html.j2 (0/33)
+- [ ] [file] src/questions/02-what-data.html.j2 (0/37)
 
   [J2] `src/questions/02-what-data.html.j2`
 
@@ -1072,165 +1072,197 @@
 
           [T] [translation](<tree/src/questions/02-what-data.html.j2/0006-this-dataset-will-be-collected-by-experts-in-e2038a9f53/0001-this-dataset-will-be-collected-by-experts-in-d40933b07b/translation.md>)
 
-    - [ ] [wrapper] 0007-this-dataset-will-be-collected-by-an-external-3be74e1065 (0/3)
+    - [ ] [wrapper] 0007-this-dataset-will-be-collected-by-an-external-5a8d4a9815 (0/1)
 
-      [W] `0007-this-dataset-will-be-collected-by-an-external-3be74e1065`
+      [W] `0007-this-dataset-will-be-collected-by-an-external-5a8d4a9815`
 
-        - [ ] [unit] 0001-this-dataset-will-be-collected-by-an-external-f8e4268ede: This dataset will be collected by an external party.
+        - [ ] [unit] 0001-this-dataset-will-be-collected-by-an-external-72c44cd586: This dataset will be collected by an external party. The ownership of the resulting data will remain with the external party.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0007-this-dataset-will-be-collected-by-an-external-3be74e1065/0001-this-dataset-will-be-collected-by-an-external-f8e4268ede/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0007-this-dataset-will-be-collected-by-an-external-5a8d4a9815/0001-this-dataset-will-be-collected-by-an-external-72c44cd586/translation.md>)
 
-        - [ ] [unit] 0002-the-ownership-of-the-resulting-data-will-remain-0e1fc2f4f0: The ownership of the resulting data will remain with the external party.
+    - [ ] [wrapper] 0008-this-dataset-will-be-collected-by-an-external-45d02531b9 (0/1)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0007-this-dataset-will-be-collected-by-an-external-3be74e1065/0002-the-ownership-of-the-resulting-data-will-remain-0e1fc2f4f0/translation.md>)
+      [W] `0008-this-dataset-will-be-collected-by-an-external-45d02531b9`
 
-        - [ ] [unit] 0003-the-project-partners-acquire-full-ownership-of-the-17aeff3b36: The project partners acquire full ownership of the data.
+        - [ ] [unit] 0001-this-dataset-will-be-collected-by-an-external-d186c0f19a: This dataset will be collected by an external party. The project partners acquire full ownership of the data.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0007-this-dataset-will-be-collected-by-an-external-3be74e1065/0003-the-project-partners-acquire-full-ownership-of-the-17aeff3b36/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0008-this-dataset-will-be-collected-by-an-external-45d02531b9/0001-this-dataset-will-be-collected-by-an-external-d186c0f19a/translation.md>)
 
-    - [ ] [wrapper] 0008-the-equipment-is-very-well-described-and-known-4f4564e694 (0/1)
+    - [ ] [wrapper] 0009-this-dataset-will-be-collected-by-an-external-4db0d7825a (0/1)
 
-      [W] `0008-the-equipment-is-very-well-described-and-known-4f4564e694`
+      [W] `0009-this-dataset-will-be-collected-by-an-external-4db0d7825a`
 
-        - [ ] [unit] 0001-the-equipment-is-very-well-described-and-known-3a4a29aeaf: The equipment is very well described and known.
+        - [ ] [unit] 0001-this-dataset-will-be-collected-by-an-external-6b553b1c43: This dataset will be collected by an external party. For the ownership of the data we have made the following arrangements: {mdExternalOwnershipOther}
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0008-the-equipment-is-very-well-described-and-known-4f4564e694/0001-the-equipment-is-very-well-described-and-known-3a4a29aeaf/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0009-this-dataset-will-be-collected-by-an-external-4db0d7825a/0001-this-dataset-will-be-collected-by-an-external-6b553b1c43/translation.md>)
 
-    - [ ] [wrapper] 0009-the-equipment-is-less-well-described-or-not-72910ad29c (0/1)
+    - [ ] [wrapper] 0010-this-dataset-will-be-collected-by-an-external-6b598c67c7 (0/1)
 
-      [W] `0009-the-equipment-is-less-well-described-or-not-72910ad29c`
+      [W] `0010-this-dataset-will-be-collected-by-an-external-6b598c67c7`
 
-        - [ ] [unit] 0001-the-equipment-is-less-well-described-or-not-dd27b9a6f3: The equipment is less well described or not completely standard, so we will need to take extra care documenting the process.
+        - [ ] [unit] 0001-this-dataset-will-be-collected-by-an-external-e6be16fff6: This dataset will be collected by an external party.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0009-the-equipment-is-less-well-described-or-not-72910ad29c/0001-the-equipment-is-less-well-described-or-not-dd27b9a6f3/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0010-this-dataset-will-be-collected-by-an-external-6b598c67c7/0001-this-dataset-will-be-collected-by-an-external-e6be16fff6/translation.md>)
 
-    - [ ] [wrapper] 0010-non-equipment-datasets-71e1e443d1 (0/1)
+    - [ ] [wrapper] 0011-this-dataset-will-be-collected-by-an-external-6b598c67c7 (0/1)
 
-      [W] `0010-non-equipment-datasets-71e1e443d1`
+      [W] `0011-this-dataset-will-be-collected-by-an-external-6b598c67c7`
 
-        - [ ] [unit] 0001-non-equipment-datasets-132f23fcf6: Non-equipment datasets
+        - [ ] [unit] 0001-this-dataset-will-be-collected-by-an-external-b1aed4017c: This dataset will be collected by an external party.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0010-non-equipment-datasets-71e1e443d1/0001-non-equipment-datasets-132f23fcf6/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0011-this-dataset-will-be-collected-by-an-external-6b598c67c7/0001-this-dataset-will-be-collected-by-an-external-b1aed4017c/translation.md>)
 
-    - [ ] [wrapper] 0011-questionnaires-6af1469659 (0/1)
+    - [ ] [wrapper] 0012-the-equipment-is-very-well-described-and-known-4f4564e694 (0/1)
 
-      [W] `0011-questionnaires-6af1469659`
+      [W] `0012-the-equipment-is-very-well-described-and-known-4f4564e694`
 
-        - [ ] [unit] 0001-questionnaires-c4df9ff609: questionnaires
+        - [ ] [unit] 0001-the-equipment-is-very-well-described-and-known-eba452bc52: The equipment is very well described and known.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0011-questionnaires-6af1469659/0001-questionnaires-c4df9ff609/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0012-the-equipment-is-very-well-described-and-known-4f4564e694/0001-the-equipment-is-very-well-described-and-known-eba452bc52/translation.md>)
 
-    - [ ] [wrapper] 0012-case-report-forms-c3f77198cd (0/1)
+    - [ ] [wrapper] 0013-the-equipment-is-less-well-described-or-not-72910ad29c (0/1)
 
-      [W] `0012-case-report-forms-c3f77198cd`
+      [W] `0013-the-equipment-is-less-well-described-or-not-72910ad29c`
 
-        - [ ] [unit] 0001-case-report-forms-e2332cf81c: case report forms
+        - [ ] [unit] 0001-the-equipment-is-less-well-described-or-not-9f463f8524: The equipment is less well described or not completely standard, so we will need to take extra care documenting the process.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0012-case-report-forms-c3f77198cd/0001-case-report-forms-e2332cf81c/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0013-the-equipment-is-less-well-described-or-not-72910ad29c/0001-the-equipment-is-less-well-described-or-not-9f463f8524/translation.md>)
 
-    - [ ] [wrapper] 0013-electronic-patient-records-a61dafe473 (0/1)
+    - [ ] [wrapper] 0014-non-equipment-datasets-71e1e443d1 (0/1)
 
-      [W] `0013-electronic-patient-records-a61dafe473`
+      [W] `0014-non-equipment-datasets-71e1e443d1`
 
-        - [ ] [unit] 0001-electronic-patient-records-875875abee: electronic patient records
+        - [ ] [unit] 0001-non-equipment-datasets-4ae1d23750: Non-equipment datasets
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0013-electronic-patient-records-a61dafe473/0001-electronic-patient-records-875875abee/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-non-equipment-datasets-71e1e443d1/0001-non-equipment-datasets-4ae1d23750/translation.md>)
 
-    - [ ] [wrapper] 0014-we-collect-data-from-we-collect-data-from-701d4df7dd (0/5)
+    - [ ] [wrapper] 0015-questionnaires-6af1469659 (0/1)
 
-      [W] `0014-we-collect-data-from-we-collect-data-from-701d4df7dd`
+      [W] `0015-questionnaires-6af1469659`
 
-        - [ ] [unit] 0001-we-collect-data-from-b8bdfcf0f6: We collect data from {typesNames_0}.
+        - [ ] [unit] 0001-questionnaires-7ca3878130: questionnaires
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0001-we-collect-data-from-b8bdfcf0f6/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0015-questionnaires-6af1469659/0001-questionnaires-7ca3878130/translation.md>)
 
-        - [ ] [unit] 0002-we-collect-data-from-and-da4d9b3f07: We collect data from {typesNames_0} and {typesNames_1}.
+    - [ ] [wrapper] 0016-case-report-forms-c3f77198cd (0/1)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0002-we-collect-data-from-and-da4d9b3f07/translation.md>)
+      [W] `0016-case-report-forms-c3f77198cd`
 
-        - [ ] [unit] 0003-we-collect-data-from-and-5729f4b53d: We collect data from {typesNames_0}, {typesNames_1}, and {typesNames_2}.
+        - [ ] [unit] 0001-case-report-forms-9f4960055c: case report forms
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0003-we-collect-data-from-and-5729f4b53d/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0016-case-report-forms-c3f77198cd/0001-case-report-forms-9f4960055c/translation.md>)
 
-        - [ ] [unit] 0004-the-non-equipment-datasets-are-0003619e41: The non-equipment datasets are:
+    - [ ] [wrapper] 0017-electronic-patient-records-a61dafe473 (0/1)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0004-the-non-equipment-datasets-are-0003619e41/translation.md>)
+      [W] `0017-electronic-patient-records-a61dafe473`
 
-        - [ ] [unit] 0005-no-name-given-01d1dfc8a2: (no name given)
+        - [ ] [unit] 0001-electronic-patient-records-5179b18c2c: electronic patient records
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0005-no-name-given-01d1dfc8a2/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0017-electronic-patient-records-a61dafe473/0001-electronic-patient-records-5179b18c2c/translation.md>)
 
-    - [ ] [wrapper] 0015-re-used-datasets-7672950d95 (0/1)
+    - [ ] [wrapper] 0018-we-collect-data-from-we-collect-data-from-701d4df7dd (0/5)
 
-      [W] `0015-re-used-datasets-7672950d95`
+      [W] `0018-we-collect-data-from-we-collect-data-from-701d4df7dd`
 
-        - [ ] [unit] 0001-re-used-datasets-42c2b29843: Re-used datasets
+        - [ ] [unit] 0001-we-collect-data-from-9f86d2c5f3: We collect data from {typesNames_0}.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0015-re-used-datasets-7672950d95/0001-re-used-datasets-42c2b29843/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0018-we-collect-data-from-we-collect-data-from-701d4df7dd/0001-we-collect-data-from-9f86d2c5f3/translation.md>)
 
-    - [ ] [wrapper] 0016-datasets-considered-for-reuse-and-actually-reused-are-ef834ddd7a (0/1)
+        - [ ] [unit] 0002-we-collect-data-from-and-c1f543832b: We collect data from {typesNames_0} and {typesNames_1}.
 
-      [W] `0016-datasets-considered-for-reuse-and-actually-reused-are-ef834ddd7a`
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0018-we-collect-data-from-we-collect-data-from-701d4df7dd/0002-we-collect-data-from-and-c1f543832b/translation.md>)
 
-        - [ ] [unit] 0001-datasets-considered-for-reuse-and-actually-reused-are-d6328b2d66: Datasets considered for reuse and actually reused are described in Question 1.
+        - [ ] [unit] 0003-we-collect-data-from-and-f62b27288b: We collect data from {typesNames_0}, {typesNames_1}, and {typesNames_2}.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0016-datasets-considered-for-reuse-and-actually-reused-are-ef834ddd7a/0001-datasets-considered-for-reuse-and-actually-reused-are-d6328b2d66/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0018-we-collect-data-from-we-collect-data-from-701d4df7dd/0003-we-collect-data-from-and-f62b27288b/translation.md>)
 
-    - [ ] [wrapper] 0017-data-formats-and-types-24220813ca (0/1)
+        - [ ] [unit] 0004-the-non-equipment-datasets-are-5929581b43: The non-equipment datasets are:
 
-      [W] `0017-data-formats-and-types-24220813ca`
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0018-we-collect-data-from-we-collect-data-from-701d4df7dd/0004-the-non-equipment-datasets-are-5929581b43/translation.md>)
 
-        - [ ] [unit] 0001-data-formats-and-types-7e5cd7bdf5: Data formats and types
+        - [ ] [unit] 0005-no-name-given-6f2abc162f: (no name given)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0017-data-formats-and-types-24220813ca/0001-data-formats-and-types-7e5cd7bdf5/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0018-we-collect-data-from-we-collect-data-from-701d4df7dd/0005-no-name-given-6f2abc162f/translation.md>)
 
-    - [ ] [wrapper] 0018-we-will-be-using-the-following-data-formats-4a1051c6ff (0/1)
+    - [ ] [wrapper] 0019-re-used-datasets-7672950d95 (0/1)
 
-      [W] `0018-we-will-be-using-the-following-data-formats-4a1051c6ff`
+      [W] `0019-re-used-datasets-7672950d95`
 
-        - [ ] [unit] 0001-we-will-be-using-the-following-data-formats-d3737b5fbd: We will be using the following data formats and types:
+        - [ ] [unit] 0001-re-used-datasets-93dbdad1ec: Re-used datasets
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0018-we-will-be-using-the-following-data-formats-4a1051c6ff/0001-we-will-be-using-the-following-data-formats-d3737b5fbd/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-re-used-datasets-7672950d95/0001-re-used-datasets-93dbdad1ec/translation.md>)
 
-    - [ ] [wrapper] 0019-it-is-a-standardized-format-we-are-not-1374bc603f (0/9)
+    - [ ] [wrapper] 0020-datasets-considered-for-reuse-and-actually-reused-are-ef834ddd7a (0/1)
 
-      [W] `0019-it-is-a-standardized-format-we-are-not-1374bc603f`
+      [W] `0020-datasets-considered-for-reuse-and-actually-reused-are-ef834ddd7a`
 
-        - [ ] [unit] 0001-it-is-a-standardized-format-ab528da684: It is a standardized format.
+        - [ ] [unit] 0001-datasets-considered-for-reuse-and-actually-reused-are-4c4f942c66: Datasets considered for reuse and actually reused are described in Question 1.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0001-it-is-a-standardized-format-ab528da684/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0020-datasets-considered-for-reuse-and-actually-reused-are-ef834ddd7a/0001-datasets-considered-for-reuse-and-actually-reused-are-4c4f942c66/translation.md>)
 
-        - [ ] [unit] 0002-we-are-not-using-a-standardized-format-because-6ffc49eee9: We are not using a standardized format because there is no standardized format for this data type.
+    - [ ] [wrapper] 0021-data-formats-and-types-24220813ca (0/1)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0002-we-are-not-using-a-standardized-format-because-6ffc49eee9/translation.md>)
+      [W] `0021-data-formats-and-types-24220813ca`
 
-        - [ ] [unit] 0003-we-are-not-using-a-standardized-format-but-db45d7015f: We are not using a standardized format but it is optimized for processing speed and/or volume.
+        - [ ] [unit] 0001-data-formats-and-types-95ef61634f: Data formats and types
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0003-we-are-not-using-a-standardized-format-but-db45d7015f/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0021-data-formats-and-types-24220813ca/0001-data-formats-and-types-95ef61634f/translation.md>)
 
-        - [ ] [unit] 0004-this-is-a-suitable-format-for-long-term-81fa71a50c: This is a suitable format for long-term archiving.
+    - [ ] [wrapper] 0022-we-will-be-using-the-following-data-formats-4a1051c6ff (0/1)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0004-this-is-a-suitable-format-for-long-term-81fa71a50c/translation.md>)
+      [W] `0022-we-will-be-using-the-following-data-formats-4a1051c6ff`
 
-        - [ ] [unit] 0005-this-is-not-a-suitable-format-for-long-a407df2f7d: This is not a suitable format for long-term archiving; however, we plan to convert it to a suitable format before the end of the project.
+        - [ ] [unit] 0001-we-will-be-using-the-following-data-formats-ad89f87235: We will be using the following data formats and types:
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0005-this-is-not-a-suitable-format-for-long-a407df2f7d/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0022-we-will-be-using-the-following-data-formats-4a1051c6ff/0001-we-will-be-using-the-following-data-formats-ad89f87235/translation.md>)
 
-        - [ ] [unit] 0006-we-are-aware-that-this-is-not-a-152d0fc406: We are aware that this is not a suitable format for long-term archiving.
+    - [ ] [wrapper] 0023-it-is-a-standardized-format-we-are-not-9b897ca277 (0/11)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0006-we-are-aware-that-this-is-not-a-152d0fc406/translation.md>)
+      [W] `0023-it-is-a-standardized-format-we-are-not-9b897ca277`
 
-        - [ ] [unit] 0007-we-will-have-only-a-small-amount-of-83e279de41: We will have only a small amount of data stored in this format.
+        - [ ] [unit] 0001-it-is-a-standardized-format-457972eded: It is a standardized format.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0007-we-will-have-only-a-small-amount-of-83e279de41/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0001-it-is-a-standardized-format-457972eded/translation.md>)
 
-        - [ ] [unit] 0008-we-expect-to-have-gb-of-data-in-c0a6ac2873: We expect to have {formatsVolumeTotalGB} GB of data in this format.
+        - [ ] [unit] 0002-we-are-not-using-a-standardized-format-because-bc05e15018: We are not using a standardized format because there is no standardized format for this data type.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0008-we-expect-to-have-gb-of-data-in-c0a6ac2873/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0002-we-are-not-using-a-standardized-format-because-bc05e15018/translation.md>)
 
-        - [ ] [unit] 0009-we-expect-to-have-files-of-average-size-6a7100e62d: We expect to have {formatsVolumeFiles} files of average size {formatsVolumeFileGB} GB (i.e. approximately {formatsVolumeApproxGB} GB in total).
+        - [ ] [unit] 0003-we-are-not-using-a-standardized-format-but-820160009c: We are not using a standardized format but it is optimized for processing speed and/or volume.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0009-we-expect-to-have-files-of-average-size-6a7100e62d/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0003-we-are-not-using-a-standardized-format-but-820160009c/translation.md>)
+
+        - [ ] [unit] 0004-we-are-not-using-a-standardized-format-because-7f13945230: We are not using a standardized format, because: {formatsWhyNSAnotherReason}.
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0004-we-are-not-using-a-standardized-format-because-7f13945230/translation.md>)
+
+        - [ ] [unit] 0005-we-are-not-using-a-standardized-format-36f42fcb84: We are not using a standardized format.
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0005-we-are-not-using-a-standardized-format-36f42fcb84/translation.md>)
+
+        - [ ] [unit] 0006-this-is-a-suitable-format-for-long-term-c76a7ce517: This is a suitable format for long-term archiving.
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0006-this-is-a-suitable-format-for-long-term-c76a7ce517/translation.md>)
+
+        - [ ] [unit] 0007-this-is-not-a-suitable-format-for-long-10b4ac35e2: This is not a suitable format for long-term archiving; however, we plan to convert it to a suitable format before the end of the project.
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0007-this-is-not-a-suitable-format-for-long-10b4ac35e2/translation.md>)
+
+        - [ ] [unit] 0008-we-are-aware-that-this-is-not-a-fb92883a5a: We are aware that this is not a suitable format for long-term archiving.
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0008-we-are-aware-that-this-is-not-a-fb92883a5a/translation.md>)
+
+        - [ ] [unit] 0009-we-will-have-only-a-small-amount-of-6346317b91: We will have only a small amount of data stored in this format.
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0009-we-will-have-only-a-small-amount-of-6346317b91/translation.md>)
+
+        - [ ] [unit] 0010-we-expect-to-have-gb-of-data-in-aaf0eaecf4: We expect to have {formatsVolumeTotalGB} GB of data in this format.
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0010-we-expect-to-have-gb-of-data-in-aaf0eaecf4/translation.md>)
+
+        - [ ] [unit] 0011-we-expect-to-have-files-of-average-size-8ef8df4df2: We expect to have {formatsVolumeFiles} files of average size {formatsVolumeFileGB} GB (i.e. approximately {formatsVolumeApproxGB} GB in total).
+
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0023-it-is-a-standardized-format-we-are-not-9b897ca277/0011-we-expect-to-have-files-of-average-size-8ef8df4df2/translation.md>)
 
 - [ ] [file] src/questions/03-docs-metadata.html.j2 (0/41)
 
