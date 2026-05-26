@@ -209,8 +209,8 @@ jobs:
           content_paths=("$TRANSLATED_TEMPLATE_DIR")
           output_paths=("$TRANSLATED_TEMPLATE_DIR" "$TRANSLATED_TEMPLATE_PACKAGE")
           if [ -n "$PROJECT_RENDER_OUTPUT" ]; then
-            content_paths+=("$PROJECT_RENDER_OUTPUT" "$PROJECT_RENDER_OUTPUT.json")
-            output_paths+=("$PROJECT_RENDER_OUTPUT" "$PROJECT_RENDER_OUTPUT.json")
+            content_paths+=("$PROJECT_RENDER_OUTPUT")
+            output_paths+=("$PROJECT_RENDER_OUTPUT")
           fi
 
           # `dsw-tdk package` embeds UUID/timestamp metadata in the zip. Avoid
