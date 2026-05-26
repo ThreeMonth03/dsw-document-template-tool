@@ -1513,6 +1513,10 @@ def _apply_unit_translations(
                 source_text=source_unit_text,
                 translation_text=translation_text,
             )
+            translation_text = _preserve_single_outer_element(
+                source_text=source_unit_text,
+                translation_text=translation_text,
+            )
         else:
             translation_text = source_unit_text
         rebuilt_parts.append(translation_text)
@@ -1603,7 +1607,7 @@ def _format_translation_location(
 
 def _source_placeholder_counts(source_text: str) -> Counter[str]:
     counts: Counter[str] = Counter()
-    for match in JINJA_EXPR_PATTERN.finditer(source_text):
+    for match in JINJA_EXPR_PATTERN.finditer(_visible_placeholder_source_text(source_text)):
         for name in _extract_translator_placeholder_names(
             _jinja_expr_to_placeholder(match.group("expr"))
         ):
@@ -1623,7 +1627,7 @@ def _translation_placeholder_counts(translation_text: str) -> Counter[str]:
 
 def _build_source_placeholder_map(source_text: str) -> dict[str, str]:
     expressions_by_name: dict[str, set[str]] = {}
-    for match in JINJA_EXPR_PATTERN.finditer(source_text):
+    for match in JINJA_EXPR_PATTERN.finditer(_visible_placeholder_source_text(source_text)):
         expression = " ".join(match.group("expr").strip().split())
         placeholder_names = _extract_translator_placeholder_names(
             _jinja_expr_to_placeholder(match.group("expr"))
@@ -1652,6 +1656,32 @@ def _materialize_translation_placeholders(*, source_text: str, translation_text:
         return "{{ " + expression + " }}"
 
     return TRANSLATOR_PLACEHOLDER_PATTERN.sub(replace_placeholder, translation_text)
+
+
+def _visible_placeholder_source_text(source_text: str) -> str:
+    """Return source text that translators can actually see and rearrange.
+
+    Attribute-only Jinja expressions such as ``href="{{ url }}"`` are machine
+    wiring. They must not force translators to duplicate placeholders that are
+    already visible inside the link text.
+    """
+
+    return HTML_TAG_PATTERN.sub(" ", source_text)
+
+
+def _preserve_single_outer_element(*, source_text: str, translation_text: str) -> str:
+    """Keep simple structural tags when translators provide text-only content."""
+
+    if HTML_TAG_PATTERN.search(translation_text):
+        return translation_text
+
+    tokens = _lex_source_tokens(source_text)
+    outer_bounds = _find_single_outer_element_inner_bounds(tokens=tokens)
+    if outer_bounds is None:
+        return translation_text
+
+    inner_start, inner_end = outer_bounds
+    return source_text[:inner_start] + translation_text + source_text[inner_end:]
 
 
 def _build_wrapper_key(*, relative_path: str, source_text: str) -> str:

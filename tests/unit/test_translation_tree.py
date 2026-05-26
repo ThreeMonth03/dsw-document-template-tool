@@ -1186,6 +1186,76 @@ def test_sync_translation_tree_restores_translator_placeholders_to_jinja(
     assert "<p>為了 {{ usage }}，可透過 {{ pid }} 取得。</p>" in translated_text
 
 
+def test_sync_translation_tree_accepts_text_only_translation_for_html_unit(
+    tmp_path: Path,
+) -> None:
+    """Text-only translations should preserve simple outer HTML structure."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Available via {{ pid }} for {{ usage }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    translated_expanded_dir = tmp_path / "translated-expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = next(tree_dir.rglob("translation.md"))
+    _write_translation_block(document_path, "為了 {usage}，可透過 {pid} 取得。")
+
+    sync_translation_tree(
+        tree_dir=tree_dir,
+        source_dir=expanded_dir,
+        output_dir=translated_expanded_dir,
+    )
+
+    translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
+    assert "<p>為了 {{ usage }}，可透過 {{ pid }} 取得。</p>" in translated_text
+
+
+def test_translation_placeholder_validation_ignores_html_attribute_only_duplicates(
+    tmp_path: Path,
+) -> None:
+    """Links expose one visible placeholder even when href uses the same value."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Available via <a href="{{ pid }}" target="_blank">{{ pid }}</a> for {{ usage }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    translated_expanded_dir = tmp_path / "translated-expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = next(tree_dir.rglob("translation.md"))
+    _write_translation_block(document_path, "為了 {usage}，可透過 {pid} 取得。")
+
+    issues = audit_translation_tree(source_dir=expanded_dir, tree_dir=tree_dir)
+    assert issues == []
+
+    sync_translation_tree(
+        tree_dir=tree_dir,
+        source_dir=expanded_dir,
+        output_dir=translated_expanded_dir,
+    )
+
+    translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
+    assert "為了 {{ usage }}，可透過 {{ pid }} 取得。" in translated_text
+    assert 'href="{{ pid }}"' not in translated_text
+
+
 def test_sync_translation_tree_rejects_missing_required_placeholder(
     tmp_path: Path,
 ) -> None:
