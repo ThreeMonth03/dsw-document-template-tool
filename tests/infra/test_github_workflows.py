@@ -117,7 +117,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "chore(sync): refresh generated document outputs" in workflow_text
     assert "content_paths=" in workflow_text
     assert 'git add "${output_paths[@]}"' in workflow_text
-    assert "zip-only churn" in workflow_text
+    assert "zip/PDF-only churn" in workflow_text
     assert '"$TRANSLATION_TREE_DIR/.translation-tree"' in workflow_text
     assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
     assert "outline.md" in workflow_text

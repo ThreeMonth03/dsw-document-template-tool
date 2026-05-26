@@ -209,16 +209,19 @@ jobs:
           content_paths=("$TRANSLATED_TEMPLATE_DIR")
           output_paths=("$TRANSLATED_TEMPLATE_DIR" "$TRANSLATED_TEMPLATE_PACKAGE")
           if [ -n "$PROJECT_RENDER_OUTPUT" ]; then
-            content_paths+=("$PROJECT_RENDER_OUTPUT")
             output_paths+=("$PROJECT_RENDER_OUTPUT")
           fi
 
           # `dsw-tdk package` embeds UUID/timestamp metadata in the zip. Avoid
-          # committing zip-only churn when the generated directory/PDF did not
-          # actually change.
+          # committing zip/PDF-only churn when the translated template directory
+          # did not actually change.
           if [ -z "$(git status --short -- "${content_paths[@]}")" ]; then
             if [ -n "$(git status --short -- "$TRANSLATED_TEMPLATE_PACKAGE")" ]; then
               git checkout -- "$TRANSLATED_TEMPLATE_PACKAGE"
+            fi
+            if [ -n "$PROJECT_RENDER_OUTPUT" ] &&
+              [ -n "$(git status --short -- "$PROJECT_RENDER_OUTPUT")" ]; then
+              git checkout -- "$PROJECT_RENDER_OUTPUT"
             fi
             echo "No generated output changes to commit."
             exit 0
