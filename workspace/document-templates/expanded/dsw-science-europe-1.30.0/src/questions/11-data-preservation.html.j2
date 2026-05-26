@@ -31,13 +31,17 @@
             {% if publishedDataHowLongAUuid == uuids.publishedDataHowLongTechnicalAUuid -%}
               <p>This data set will be kept available as long as technically possible.</p>
             {%- elif publishedDataHowLongAUuid == uuids.publishedDataHowLongDeletedAUuid -%}
-              <p> This data set will be kept available until it needs to be deleted for legal, contractual or regulatory reasons.</p>
+              <p> This data set will be kept available until it needs to be deleted for legal, contractual or regulatory reasons.</p>{# __tr_branch_sentence_original:CiAgICAgICAgICAgIHslLSBlbGlmIHB1Ymxpc2hlZERhdGFIb3dMb25nQVV1aWQgPT0gdXVpZHMucHVibGlzaGVkRGF0YUhvd0xvbmdGaXhlZEFVdWlkIC0lfQogICAgICAgICAgICAgIHslLSBzZXQgcHVibGlzaGVkRGF0YUhvd0xvbmdGaXhlZFBhdGggPSBbcHVibGlzaGVkRGF0YUhvd0xvbmdQYXRoLCB1dWlkcy5wdWJsaXNoZWREYXRhSG93TG9uZ0ZpeGVkQVV1aWQsIHV1aWRzLnB1Ymxpc2hlZERhdGFIb3dMb25nRml4ZWRRVXVpZF18cmVwbHlfcGF0aCAtJX0KICAgICAgICAgICAgICB7JS0gc2V0IHB1Ymxpc2hlZERhdGFIb3dMb25nRml4ZWQgPSByZXBsaWVzTWFwW3B1Ymxpc2hlZERhdGFIb3dMb25nRml4ZWRQYXRoXXxyZXBseV9zdHJfdmFsdWUgLSV9CiAgICAgICAgICAgICAgPHA-VGhpcyBkYXRhIHNldCB3aWxsIGJlIGtlcHQgYXZhaWxhYmxlIGZvciBhIGZpeGVkIHBlcmlvZCAocHJlcGFpZCl7eyAiIG9mOiAiIH4gcHVibGlzaGVkRGF0YUhvd0xvbmdGaXhlZHxkb3QgaWYgcHVibGlzaGVkRGF0YUhvd0xvbmdGaXhlZCBlbHNlICIuIiB9fTwvcD4KICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQo= #}
             {%- elif publishedDataHowLongAUuid == uuids.publishedDataHowLongFixedAUuid -%}
               {%- set publishedDataHowLongFixedPath = [publishedDataHowLongPath, uuids.publishedDataHowLongFixedAUuid, uuids.publishedDataHowLongFixedQUuid]|reply_path -%}
               {%- set publishedDataHowLongFixed = repliesMap[publishedDataHowLongFixedPath]|reply_str_value -%}
-              {# __tr_branch_sentence_original:PHA-VGhpcyBkYXRhIHNldCB3aWxsIGJlIGtlcHQgYXZhaWxhYmxlIGZvciBhIGZpeGVkIHBlcmlvZCAocHJlcGFpZCl7IyBfX3RyX2lubGluZV9pZl9vcmlnaW5hbDplM3NnSWlCdlpqb2dJaUItSUhCMVlteHBjMmhsWkVSaGRHRkliM2RNYjI1blJtbDRaV1I4Wkc5MElHbG1JSEIxWW14cGMyaGxaRVJoZEdGSWIzZE1iMjVuUm1sNFpXUWdaV3h6WlNBaUxpSWdmWDA9ICN9eyUgaWYgcHVibGlzaGVkRGF0YUhvd0xvbmdGaXhlZCAlfXt7ICIgb2Y6ICIgfiBwdWJsaXNoZWREYXRhSG93TG9uZ0ZpeGVkfGRvdCB9fXslIGVsc2UgJX17eyAiLiIgfX17JSBlbmRpZiAlfXsjIF9fdHJfaW5saW5lX2lmX29yaWdpbmFsOmVuZCAjfTwvcD4= #}{% if publishedDataHowLongFixed %}<p>This data set will be kept available for a fixed period (prepaid){# __tr_inline_if_original:e3sgIiBvZjogIiB-IHB1Ymxpc2hlZERhdGFIb3dMb25nRml4ZWR8ZG90IGlmIHB1Ymxpc2hlZERhdGFIb3dMb25nRml4ZWQgZWxzZSAiLiIgfX0= #}{{ " of: " ~ publishedDataHowLongFixed|dot }}{# __tr_inline_if_original:end #}</p>{% else %}<p>This data set will be kept available for a fixed period (prepaid){# __tr_inline_if_original:e3sgIiBvZjogIiB-IHB1Ymxpc2hlZERhdGFIb3dMb25nRml4ZWR8ZG90IGlmIHB1Ymxpc2hlZERhdGFIb3dMb25nRml4ZWQgZWxzZSAiLiIgfX0= #}{{ "." }}{# __tr_inline_if_original:end #}</p>{% endif %}{# __tr_branch_sentence_original:end #}
+              {%- if publishedDataHowLongFixed -%}
+                <p>This data set will be kept available for a fixed period (prepaid) of: {{ publishedDataHowLongFixed|dot }}</p>
+              {%- else -%}
+                <p>This data set will be kept available for a fixed period (prepaid).</p>
+              {%- endif -%}
             {%- endif -%}
-            {%- if publishedDataMetadataPersistentAUuid == uuids.publishedDataMetadataPersistentYesAUuid %}
+{# __tr_branch_sentence_original:end #}            {%- if publishedDataMetadataPersistentAUuid == uuids.publishedDataMetadataPersistentYesAUuid %}
               <p>The metadata will be available even when the data no longer exists.</p>
             {%- endif -%}
           {%- endif -%}

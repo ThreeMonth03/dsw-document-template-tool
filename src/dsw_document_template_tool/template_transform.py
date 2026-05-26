@@ -1088,6 +1088,74 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
                             {%- endfor -%}
 """
 
+    format_volume_original = """
+            {%- if formatsVolumeAUuid == uuids.formatsVolumeSmallAUuid %}
+              We will have only a small amount of data stored in this format.
+            {%- elif formatsVolumeAUuid == uuids.formatsVolumeTotalAUuid -%}
+              {%- set formatsVolumeTotalGB = repliesMap[[formatsVolumePath, uuids.formatsVolumeTotalAUuid, uuids.formatsVolumeTotalGBQUuid]|reply_path]|reply_str_value -%}
+              {%- if formatsVolumeTotalGB %}
+                We expect to have {{ formatsVolumeTotalGB }} GB of data in this format.
+              {%- endif -%}
+            {%- elif formatsVolumeAUuid == uuids.formatsVolumeFileSizeAUuid -%}
+              {%- set formatsVolumeFiles = repliesMap[[formatsVolumePath, uuids.formatsVolumeFileSizeAUuid, uuids.formatsVolumeFilesQUuid]|reply_path]|reply_str_value -%}
+              {%- set formatsVolumeFileGB = repliesMap[[formatsVolumePath, uuids.formatsVolumeFileSizeAUuid, uuids.formatsVolumeFileGBQUuid]|reply_path]|reply_str_value -%}
+              {%- if formatsVolumeFiles and formatsVolumeFileGB %}
+                We expect to have {{ formatsVolumeFiles }} files of average size {{ formatsVolumeFileGB }} GB (i.e. approximately {{ (formatsVolumeFiles|int * formatsVolumeFileGB|float)|round(2) }} GB in total).
+              {%- endif -%}
+            {%- endif -%}
+"""
+    format_volume_replacement = """
+            {%- if formatsVolumeAUuid == uuids.formatsVolumeSmallAUuid %}
+              We will have only a small amount of data stored in this format.
+            {%- elif formatsVolumeAUuid == uuids.formatsVolumeTotalAUuid -%}
+              {%- set formatsVolumeTotalGB = repliesMap[[formatsVolumePath, uuids.formatsVolumeTotalAUuid, uuids.formatsVolumeTotalGBQUuid]|reply_path]|reply_str_value -%}
+              {%- if formatsVolumeTotalGB %}
+                We expect to have {{ formatsVolumeTotalGB }} GB of data in this format.
+              {%- endif -%}
+            {%- elif formatsVolumeAUuid == uuids.formatsVolumeFileSizeAUuid -%}
+              {%- set formatsVolumeFiles = repliesMap[[formatsVolumePath, uuids.formatsVolumeFileSizeAUuid, uuids.formatsVolumeFilesQUuid]|reply_path]|reply_str_value -%}
+              {%- set formatsVolumeFileGB = repliesMap[[formatsVolumePath, uuids.formatsVolumeFileSizeAUuid, uuids.formatsVolumeFileGBQUuid]|reply_path]|reply_str_value -%}
+              {%- if formatsVolumeFiles and formatsVolumeFileGB %}
+                {% set formatsVolumeApproxGB = (formatsVolumeFiles|int * formatsVolumeFileGB|float)|round(2) %}
+                We expect to have {{ formatsVolumeFiles }} files of average size {{ formatsVolumeFileGB }} GB (i.e. approximately {{ formatsVolumeApproxGB }} GB in total).
+              {%- endif -%}
+            {%- endif -%}
+"""
+
+    published_license_heading_original = """
+                        {%- if licensesItems|length > 0 %}
+                            The distribution will be available under the following {{ "licenses" if licensesItems|length > 1 else "license" }}:
+                            <ul>
+"""
+    published_license_heading_replacement = """
+                        {%- if licensesItems|length > 0 %}
+                            {%- if licensesItems|length > 1 -%}
+                              The distribution will be available under the following licenses:
+                            {%- else -%}
+                              The distribution will be available under the following license:
+                            {%- endif -%}
+                            <ul>
+"""
+
+    published_data_fixed_period_original = """
+            {%- elif publishedDataHowLongAUuid == uuids.publishedDataHowLongFixedAUuid -%}
+              {%- set publishedDataHowLongFixedPath = [publishedDataHowLongPath, uuids.publishedDataHowLongFixedAUuid, uuids.publishedDataHowLongFixedQUuid]|reply_path -%}
+              {%- set publishedDataHowLongFixed = repliesMap[publishedDataHowLongFixedPath]|reply_str_value -%}
+              <p>This data set will be kept available for a fixed period (prepaid){{ " of: " ~ publishedDataHowLongFixed|dot if publishedDataHowLongFixed else "." }}</p>
+            {%- endif -%}
+"""
+    published_data_fixed_period_replacement = """
+            {%- elif publishedDataHowLongAUuid == uuids.publishedDataHowLongFixedAUuid -%}
+              {%- set publishedDataHowLongFixedPath = [publishedDataHowLongPath, uuids.publishedDataHowLongFixedAUuid, uuids.publishedDataHowLongFixedQUuid]|reply_path -%}
+              {%- set publishedDataHowLongFixed = repliesMap[publishedDataHowLongFixedPath]|reply_str_value -%}
+              {%- if publishedDataHowLongFixed -%}
+                <p>This data set will be kept available for a fixed period (prepaid) of: {{ publishedDataHowLongFixed|dot }}</p>
+              {%- else -%}
+                <p>This data set will be kept available for a fixed period (prepaid).</p>
+              {%- endif -%}
+            {%- endif -%}
+"""
+
     return _apply_reversible_replacements(
         source_text,
         (
@@ -1107,6 +1175,9 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             ),
             (shared_workspace_original, shared_workspace_replacement),
             (published_software_original, published_software_replacement),
+            (format_volume_original, format_volume_replacement),
+            (published_license_heading_original, published_license_heading_replacement),
+            (published_data_fixed_period_original, published_data_fixed_period_replacement),
         ),
     )
 

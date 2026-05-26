@@ -109,12 +109,16 @@
                         {%- endif -%}
                         {# Licenses #}
                         {%- set licensesPath = [distroPrefix, uuids.publishedDataLicensesQUuid]|reply_path -%}
-                        {%- set licensesItems = repliesMap[licensesPath]|reply_items -%}
-                        {%- if licensesItems|length > 0 %}{# __tr_block_0012:start #}
-                            The distribution will be available under the following {# __tr_block_0012:end #}{# __tr_inline_if_original:e3sgImxpY2Vuc2VzIiBpZiBsaWNlbnNlc0l0ZW1zfGxlbmd0aCA-IDEgZWxzZSAibGljZW5zZSIgfX0= #}{% if licensesItems|length > 1 %}{# __tr_block_0013:start #}{{ "licenses" }}{# __tr_block_0013:end #}{% else %}{# __tr_block_0014:start #}{{ "license" }}{# __tr_block_0014:end #}{% endif %}{# __tr_inline_if_original:end #}:
+                        {%- set licensesItems = repliesMap[licensesPath]|reply_items -%}{# __tr_branch_sentence_original:CiAgICAgICAgICAgICAgICAgICAgICAgIHslLSBpZiBsaWNlbnNlc0l0ZW1zfGxlbmd0aCA-IDAgJX0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRoZSBkaXN0cmlidXRpb24gd2lsbCBiZSBhdmFpbGFibGUgdW5kZXIgdGhlIGZvbGxvd2luZyB7eyAibGljZW5zZXMiIGlmIGxpY2Vuc2VzSXRlbXN8bGVuZ3RoID4gMSBlbHNlICJsaWNlbnNlIiB9fToKICAgICAgICAgICAgICAgICAgICAgICAgICAgIDx1bD4K #}
+                        {%- if licensesItems|length > 0 %}
+                            {%- if licensesItems|length > 1 -%}{# __tr_block_0012:start #}
+                              The distribution will be available under the following licenses:
+                            {# __tr_block_0012:end #}{%- else -%}{# __tr_block_0013:start #}
+                              The distribution will be available under the following license:
+                            {# __tr_block_0013:end #}{%- endif -%}
                             <ul>
-                            {%- for k in licensesItems -%}
-                                {# __tr_block_0015:start #}<li>
+{# __tr_branch_sentence_original:end #}                            {%- for k in licensesItems -%}
+                                {# __tr_block_0014:start #}<li>
                                 {%- set licensePrefix = [licensesPath, k]|reply_path -%}
                                 {%- set licenseStartPath = [licensePrefix, uuids.publishedDataLicenseStartQUuid]|reply_path -%}
                                 {%- set licenseStart = repliesMap[licenseStartPath]|reply_str_value -%}
@@ -155,7 +159,7 @@
                                     More information about the restrictions can be found here: <a href="{{ licenseRestrictLink }}" target="_blank">{{ licenseRestrictLink }}</a>.
                                     {% endif %}
                                 {%- endif -%}
-                                </li>{# __tr_block_0015:end #}
+                                </li>{# __tr_block_0014:end #}
                             {%- endfor -%}
                             </ul>
                         {%- endif -%}
@@ -168,22 +172,22 @@
             {%- set publishedDataCataloguePath = [isPublishedDataPath, uuids.isPublishedDataYesAUuid, uuids.publishedDataCatalogueQUuid]|reply_path -%}
             {%- set publishedDataCatalogueAUuid = repliesMap[publishedDataCataloguePath]|reply_str_value -%}
             {%- if publishedDataCatalogueAUuid == uuids.publishedDataCatalogueYesAUuid -%}
-                <br>{# __tr_block_0016:start #}We will be adding a reference to the published data to at least one data catalogue.
-            {# __tr_block_0016:end #}{%- endif -%}
+                <br>{# __tr_block_0015:start #}We will be adding a reference to the published data to at least one data catalogue.
+            {# __tr_block_0015:end #}{%- endif -%}
             {# When published #}
             {%- set publishedWhenPath = [isPublishedDataPath, uuids.isPublishedDataYesAUuid, uuids.publishedWhenQUuid]|reply_path -%}
             {%- set publishedWhenAUuid = repliesMap[publishedWhenPath]|reply_str_value -%}
             {%- if publishedWhenAUuid == uuids.publishedWhenSoonAUuid %}
-                <br>{# __tr_block_0017:start #}The dataset will published as soon as possible after collecting it.
-            {# __tr_block_0017:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenCleanupAUuid %}
-                <br>{# __tr_block_0018:start #}The dataset will published after initial cleanup.
-            {# __tr_block_0018:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenFinishedAUuid %}
-                <br>{# __tr_block_0019:start #}The dataset will published after all our processing has finished.
-            {# __tr_block_0019:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenWrappedAUuid %}
-                <br>{# __tr_block_0020:start #}The dataset will published when the project is wrapped up.
-            {# __tr_block_0020:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenEmbargoAUuid %}
-                <br>{# __tr_block_0021:start #}The dataset will published after an embargo.
-            {# __tr_block_0021:end #}{%- endif %}
+                <br>{# __tr_block_0016:start #}The dataset will published as soon as possible after collecting it.
+            {# __tr_block_0016:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenCleanupAUuid %}
+                <br>{# __tr_block_0017:start #}The dataset will published after initial cleanup.
+            {# __tr_block_0017:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenFinishedAUuid %}
+                <br>{# __tr_block_0018:start #}The dataset will published after all our processing has finished.
+            {# __tr_block_0018:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenWrappedAUuid %}
+                <br>{# __tr_block_0019:start #}The dataset will published when the project is wrapped up.
+            {# __tr_block_0019:end #}{%- elif publishedWhenAUuid == uuids.publishedWhenEmbargoAUuid %}
+                <br>{# __tr_block_0020:start #}The dataset will published after an embargo.
+            {# __tr_block_0020:end #}{%- endif %}
             {# Qualified references #}
             {%- set publishedQReferencesPath = [isPublishedDataPath, uuids.isPublishedDataYesAUuid, uuids.publishedQReferencesQUuid]|reply_path -%}
             {%- set publishedQReferencesAUuid = repliesMap[publishedQReferencesPath]|reply_str_value -%}
@@ -203,8 +207,8 @@
                 {%- endfor -%}
             {%- endif -%}
             {%- if qreferences|length > 0 -%}
-                <br>{# __tr_block_0022:start #}The following qualified references to other data sets will be included:
-                {# __tr_block_0022:end #}<ul>
+                <br>{# __tr_block_0021:start #}The following qualified references to other data sets will be included:
+                {# __tr_block_0021:end #}<ul>
                     {%- for qref in qreferences -%}
                     <li><em>{{ qref.id|e }}</em> &ndash; {{ qref.relation|e }}</li>
                     {%- endfor -%}
@@ -217,13 +221,13 @@
 
     {# Restrictions #}
 
-    {# __tr_block_0023:start #}<h4>Restrictions on data sharing</h4>{# __tr_block_0023:end #}
-    {# __tr_block_0024:start #}<p>Ethical and legal restrictions are documented under Section 4. We have used the {{ dc.config.service_name }}, which made us aware of options to minimize the restrictions.</p>{# __tr_block_0024:end #}
+    {# __tr_block_0022:start #}<h4>Restrictions on data sharing</h4>{# __tr_block_0022:end #}
+    {# __tr_block_0023:start #}<p>Ethical and legal restrictions are documented under Section 4. We have used the {{ dc.config.service_name }}, which made us aware of options to minimize the restrictions.</p>{# __tr_block_0023:end #}
 
     {%- set openImmediatelyPath = [uuids.accessCUuid, uuids.openImmediatelyQUuid]|reply_path -%}
     {%- set openImmediatelyAUuid = repliesMap[openImmediatelyPath]|reply_str_value -%}
     {%- if openImmediatelyAUuid == uuids.openImmediatelyYesAUuid -%}
-      {# __tr_block_0025:start #}<p>No data sharing agreement will be required.</p>{# __tr_block_0025:end #}
+      {# __tr_block_0024:start #}<p>No data sharing agreement will be required.</p>{# __tr_block_0024:end #}
     {%- elif openImmediatelyAUuid == uuids.openImmediatelyNoAUuid -%}
       {%- set pathPrefix = [openImmediatelyPath, uuids.openImmediatelyNoAUuid]|reply_path -%}
       {%- set embargoPath = [uuids.accessCUuid, uuids.limitedEmbargoQUuid]|reply_path -%}
@@ -231,18 +235,18 @@
       {%- if embargoAUuid == uuids.limitedEmbargoYesAUuid -%}
         {%- set embargoPeriodPath = [embargoPath, embargoAUuid, uuids.limitedEmbargoPeriodQUuid]|reply_path -%}
         {%- set embargoPeriod = repliesMap[embargoPeriodPath]|reply_str_value -%}
-        {# __tr_block_0026:start #}<p>
+        {# __tr_block_0025:start #}<p>
           Data cannot be completely open due to legal reasons. But data that is not legally restrained will be released after a fixed time period.
           {%- if embargoPeriod %}
             The embargo period will be {{ embargoPeriod|dot }}
           {%- endif %}
-        </p>{# __tr_block_0026:end #}
+        </p>{# __tr_block_0025:end #}
       {%- endif -%}
 
       {%- set legalReasonsAuthenticatedPath = [pathPrefix, uuids.notOpenLegalReasonsQUuid, uuids.notOpenLegalReasonsYesAUuid, uuids.legalReasonsAuthenticatedQUuid]|reply_path -%}
       {%- set legalReasonsAuthenticatedAUuid = repliesMap[legalReasonsAuthenticatedPath]|reply_str_value -%}
       {%- if legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthenticatedYesAUuid -%}
-        {# __tr_block_0027:start #}<p>
+        {# __tr_block_0026:start #}<p>
           A data sharing agreement will be required.
           {%- set legalReasonsAuthorizePath = [legalReasonsAuthenticatedPath, uuids.legalReasonsAuthenticatedYesAUuid, uuids.legalReasonsAuthorizeQUuid]|reply_path -%}
           {%- set legalReasonsAuthorizeAUuid = repliesMap[legalReasonsAuthorizePath]|reply_str_value -%}
@@ -263,21 +267,21 @@
             {%- set legalReasonsAuthorizeOther = repliesMap[legalReasonsAuthorizeOtherPath]|reply_str_value %}
             For the authorization of potential users, we will make special arrangements{{ ": " ~ legalReasonsAuthorizeOther|dot if legalReasonsAuthorizeOther else "." }}
           {%- endif -%}
-        </p>{# __tr_block_0027:end #}
+        </p>{# __tr_block_0026:end #}
       {%- endif -%}
     {%- endif -%}
 
     {%- set collabPath = [uuids.creatingCUuid, uuids.collabQUuid]|reply_path -%}
     {%- set collabAUuid = repliesMap[collabPath]|reply_str_value -%}
     {%- if collabAUuid == uuids.collabNoAUuid -%}
-      {# __tr_block_0028:start #}<p>We are not running the project in a collaboration between different groups nor institutes. Therefore, no collaboration agreement related to data access is needed.</p>{# __tr_block_0028:end #}
+      {# __tr_block_0027:start #}<p>We are not running the project in a collaboration between different groups nor institutes. Therefore, no collaboration agreement related to data access is needed.</p>{# __tr_block_0027:end #}
     {%- elif collabAUuid == uuids.collabYesAUuid -%}
       {%- set collabAgreePath = [collabPath, collabAUuid, uuids.collabAgreeQUuid]|reply_path -%}
       {%- set collabAgreeAUuid = repliesMap[collabAgreePath]|reply_str_value -%}
       {%- if collabAgreeAUuid == uuids.collabAgreeNoAUuid -%}
-        {# __tr_block_0029:start #}<p>We are running the project in a collaboration between different groups and institutes. However, there is no collaboration agreement in the project that describes who can have access to what data.</p>{# __tr_block_0029:end #}
+        {# __tr_block_0028:start #}<p>We are running the project in a collaboration between different groups and institutes. However, there is no collaboration agreement in the project that describes who can have access to what data.</p>{# __tr_block_0028:end #}
       {%- elif collabAgreeAUuid == uuids.collabAgreeYesAUuid -%}
-        {# __tr_block_0030:start #}<p>We are running the project in a collaboration between different groups and institutes. A collaboration agreement that describes who can have access to what data in the project is set.</p>{# __tr_block_0030:end #}
+        {# __tr_block_0029:start #}<p>We are running the project in a collaboration between different groups and institutes. A collaboration agreement that describes who can have access to what data in the project is set.</p>{# __tr_block_0029:end #}
       {%- endif -%}
     {%- endif -%}
   </div>

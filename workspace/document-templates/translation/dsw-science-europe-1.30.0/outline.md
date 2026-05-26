@@ -1020,7 +1020,7 @@
 
           [T] [translation](<tree/src/questions/01-how-data.html.j2/0030-we-will-use-other-solution-than-electronic-lab-40df8f155d/0001-we-will-use-other-solution-than-electronic-lab-904e47f57f/translation.md>)
 
-- [ ] [file] src/questions/02-what-data.html.j2 (0/35)
+- [ ] [file] src/questions/02-what-data.html.j2 (0/33)
 
   [J2] `src/questions/02-what-data.html.j2`
 
@@ -1192,53 +1192,45 @@
 
           [T] [translation](<tree/src/questions/02-what-data.html.j2/0018-we-will-be-using-the-following-data-formats-4a1051c6ff/0001-we-will-be-using-the-following-data-formats-d3737b5fbd/translation.md>)
 
-    - [ ] [wrapper] 0019-it-is-a-standardized-format-we-are-not-5d318252b5 (0/11)
+    - [ ] [wrapper] 0019-it-is-a-standardized-format-we-are-not-1374bc603f (0/9)
 
-      [W] `0019-it-is-a-standardized-format-we-are-not-5d318252b5`
+      [W] `0019-it-is-a-standardized-format-we-are-not-1374bc603f`
 
         - [ ] [unit] 0001-it-is-a-standardized-format-ab528da684: It is a standardized format.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0001-it-is-a-standardized-format-ab528da684/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0001-it-is-a-standardized-format-ab528da684/translation.md>)
 
         - [ ] [unit] 0002-we-are-not-using-a-standardized-format-because-6ffc49eee9: We are not using a standardized format because there is no standardized format for this data type.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0002-we-are-not-using-a-standardized-format-because-6ffc49eee9/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0002-we-are-not-using-a-standardized-format-because-6ffc49eee9/translation.md>)
 
         - [ ] [unit] 0003-we-are-not-using-a-standardized-format-but-db45d7015f: We are not using a standardized format but it is optimized for processing speed and/or volume.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0003-we-are-not-using-a-standardized-format-but-db45d7015f/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0003-we-are-not-using-a-standardized-format-but-db45d7015f/translation.md>)
 
         - [ ] [unit] 0004-this-is-a-suitable-format-for-long-term-81fa71a50c: This is a suitable format for long-term archiving.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0004-this-is-a-suitable-format-for-long-term-81fa71a50c/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0004-this-is-a-suitable-format-for-long-term-81fa71a50c/translation.md>)
 
         - [ ] [unit] 0005-this-is-not-a-suitable-format-for-long-a407df2f7d: This is not a suitable format for long-term archiving; however, we plan to convert it to a suitable format before the end of the project.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0005-this-is-not-a-suitable-format-for-long-a407df2f7d/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0005-this-is-not-a-suitable-format-for-long-a407df2f7d/translation.md>)
 
         - [ ] [unit] 0006-we-are-aware-that-this-is-not-a-152d0fc406: We are aware that this is not a suitable format for long-term archiving.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0006-we-are-aware-that-this-is-not-a-152d0fc406/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0006-we-are-aware-that-this-is-not-a-152d0fc406/translation.md>)
 
         - [ ] [unit] 0007-we-will-have-only-a-small-amount-of-83e279de41: We will have only a small amount of data stored in this format.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0007-we-will-have-only-a-small-amount-of-83e279de41/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0007-we-will-have-only-a-small-amount-of-83e279de41/translation.md>)
 
-        - [ ] [unit] 0008-we-expect-to-have-19bd11a413: We expect to have
+        - [ ] [unit] 0008-we-expect-to-have-gb-of-data-in-c0a6ac2873: We expect to have {formatsVolumeTotalGB} GB of data in this format.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0008-we-expect-to-have-19bd11a413/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0008-we-expect-to-have-gb-of-data-in-c0a6ac2873/translation.md>)
 
-        - [ ] [unit] 0009-gb-of-data-in-this-format-891efc24ba: GB of data in this format.
+        - [ ] [unit] 0009-we-expect-to-have-files-of-average-size-6a7100e62d: We expect to have {formatsVolumeFiles} files of average size {formatsVolumeFileGB} GB (i.e. approximately {formatsVolumeApproxGB} GB in total).
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0009-gb-of-data-in-this-format-891efc24ba/translation.md>)
-
-        - [ ] [unit] 0010-we-expect-to-have-19bd11a413-2: We expect to have
-
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0010-we-expect-to-have-19bd11a413-2/translation.md>)
-
-        - [ ] [unit] 0011-gb-in-total-79ceb2947b: GB in total).
-
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-5d318252b5/0011-gb-in-total-79ceb2947b/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0019-it-is-a-standardized-format-we-are-not-1374bc603f/0009-we-expect-to-have-files-of-average-size-6a7100e62d/translation.md>)
 
 - [ ] [file] src/questions/03-docs-metadata.html.j2 (0/41)
 
@@ -1744,9 +1736,9 @@
 
       [W] `0002-project-members-will-not-store-data-or-software-a70a772cc0`
 
-        - [ ] [unit] 0001-project-members-will-not-store-data-or-software-30721458fa: Project members will not store data or software on computers in the lab or external hard drives connected to those computers.
+        - [ ] [unit] 0001-project-members-will-not-store-data-or-software-fc41c9e071: Project members will not store data or software on computers in the lab or external hard drives connected to those computers.
 
-          [T] [translation](<tree/src/questions/06-access-security.html.j2/0002-project-members-will-not-store-data-or-software-a70a772cc0/0001-project-members-will-not-store-data-or-software-30721458fa/translation.md>)
+          [T] [translation](<tree/src/questions/06-access-security.html.j2/0002-project-members-will-not-store-data-or-software-a70a772cc0/0001-project-members-will-not-store-data-or-software-fc41c9e071/translation.md>)
 
         - [ ] [unit] 0002-they-will-not-carry-data-with-them-e-fdb25e7bb7: They will not carry data with them (e.g. on laptops, USB sticks, or other external media).
 
@@ -2712,7 +2704,7 @@
 
           [T] [translation](<tree/src/questions/09-ethical-issues.html.j2/0034-the-data-collection-is-subject-to-ethical-legislation-27cbb89b50/0005-it-involves-human-subjects-c07d086818/translation.md>)
 
-- [ ] [file] src/questions/10-share-restrictions.html.j2 (0/56)
+- [ ] [file] src/questions/10-share-restrictions.html.j2 (0/55)
 
   [J2] `src/questions/10-share-restrictions.html.j2`
 
@@ -2856,213 +2848,205 @@
 
           [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0012-open-shared-with-anyone-shared-with-a-predefined-0741c3c187/0012-using-a-special-purpose-repository-for-the-project-ffe64e4c86/translation.md>)
 
-    - [ ] [wrapper] 0013-the-distribution-will-be-available-under-the-following-e784b0e1a5 (0/1)
+    - [ ] [wrapper] 0013-the-distribution-will-be-available-under-the-following-484db7678d (0/1)
 
-      [W] `0013-the-distribution-will-be-available-under-the-following-e784b0e1a5`
+      [W] `0013-the-distribution-will-be-available-under-the-following-484db7678d`
 
-        - [ ] [unit] 0001-the-distribution-will-be-available-under-the-following-dd7c97dbf4: The distribution will be available under the following
+        - [ ] [unit] 0001-the-distribution-will-be-available-under-the-following-72f845e690: The distribution will be available under the following licenses:
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0013-the-distribution-will-be-available-under-the-following-e784b0e1a5/0001-the-distribution-will-be-available-under-the-following-dd7c97dbf4/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0013-the-distribution-will-be-available-under-the-following-484db7678d/0001-the-distribution-will-be-available-under-the-following-72f845e690/translation.md>)
 
-    - [ ] [wrapper] 0014-licenses-47972352bf (0/1)
+    - [ ] [wrapper] 0014-the-distribution-will-be-available-under-the-following-42c9481060 (0/1)
 
-      [W] `0014-licenses-47972352bf`
+      [W] `0014-the-distribution-will-be-available-under-the-following-42c9481060`
 
-        - [ ] [unit] 0001-licenses-7d1a6d0a93: licenses
+        - [ ] [unit] 0001-the-distribution-will-be-available-under-the-following-4d2b0cf7e6: The distribution will be available under the following license:
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0014-licenses-47972352bf/0001-licenses-7d1a6d0a93/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0014-the-distribution-will-be-available-under-the-following-42c9481060/0001-the-distribution-will-be-available-under-the-following-4d2b0cf7e6/translation.md>)
 
-    - [ ] [wrapper] 0015-license-0e81718c84 (0/1)
+    - [ ] [wrapper] 0015-starting-freely-available-for-any-use-public-domain-d97af11d43 (0/9)
 
-      [W] `0015-license-0e81718c84`
+      [W] `0015-starting-freely-available-for-any-use-public-domain-d97af11d43`
 
-        - [ ] [unit] 0001-license-ea30b99e82: license
+        - [ ] [unit] 0001-starting-8ce869d0d3: Starting {licenseStart}:
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-license-0e81718c84/0001-license-ea30b99e82/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0001-starting-8ce869d0d3/translation.md>)
 
-    - [ ] [wrapper] 0016-starting-freely-available-for-any-use-public-domain-d97af11d43 (0/9)
+        - [ ] [unit] 0002-freely-available-for-any-use-public-domain-or-4e4b3372a9: Freely available for any use (public domain or CC0).
 
-      [W] `0016-starting-freely-available-for-any-use-public-domain-d97af11d43`
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0002-freely-available-for-any-use-public-domain-or-4e4b3372a9/translation.md>)
 
-        - [ ] [unit] 0001-starting-dd9a6764aa: Starting
+        - [ ] [unit] 0003-freely-available-with-obligation-to-quote-the-source-34b982ae74: Freely available with obligation to quote the source (e.g. CC-BY).
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0001-starting-dd9a6764aa/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0003-freely-available-with-obligation-to-quote-the-source-34b982ae74/translation.md>)
 
-        - [ ] [unit] 0002-freely-available-for-any-use-public-domain-or-76aa95dff6: Freely available for any use (public domain or CC0).
+        - [ ] [unit] 0004-available-under-some-restrictions-which-we-will-follow-24e3359c44: Available under some restrictions, which we will follow in our project{licenseRestrictConditions}
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0002-freely-available-for-any-use-public-domain-or-76aa95dff6/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0004-available-under-some-restrictions-which-we-will-follow-24e3359c44/translation.md>)
 
-        - [ ] [unit] 0003-freely-available-with-obligation-to-quote-the-source-1acfc3005d: Freely available with obligation to quote the source (e.g. CC-BY).
+        - [ ] [unit] 0005-re-users-will-be-able-to-get-access-d9dacc29b3: Re-users will be able to get access by request to the contact person.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0003-freely-available-with-obligation-to-quote-the-source-1acfc3005d/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0005-re-users-will-be-able-to-get-access-d9dacc29b3/translation.md>)
 
-        - [ ] [unit] 0004-available-under-some-restrictions-which-we-will-follow-14d946a346: Available under some restrictions, which we will follow in our project{licenseRestrictConditions}
+        - [ ] [unit] 0006-re-users-will-be-able-to-get-access-86ba5273e4: Re-users will be able to get access through a Data Access Committee for the project.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0004-available-under-some-restrictions-which-we-will-follow-14d946a346/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0006-re-users-will-be-able-to-get-access-86ba5273e4/translation.md>)
 
-        - [ ] [unit] 0005-re-users-will-be-able-to-get-access-9e3285b939: Re-users will be able to get access by request to the contact person.
+        - [ ] [unit] 0007-re-users-will-be-able-to-get-access-7a8499f7dd: Re-users will be able to get access through a specialized process{licenseRestrictAccessAnother}
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0005-re-users-will-be-able-to-get-access-9e3285b939/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0007-re-users-will-be-able-to-get-access-7a8499f7dd/translation.md>)
 
-        - [ ] [unit] 0006-re-users-will-be-able-to-get-access-ed7097b643: Re-users will be able to get access through a Data Access Committee for the project.
+        - [ ] [unit] 0008-the-conditions-will-be-published-as-part-of-9a4cee7151: The conditions will be published as part of open metadata.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0006-re-users-will-be-able-to-get-access-ed7097b643/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0008-the-conditions-will-be-published-as-part-of-9a4cee7151/translation.md>)
 
-        - [ ] [unit] 0007-re-users-will-be-able-to-get-access-b1690f2367: Re-users will be able to get access through a specialized process{licenseRestrictAccessAnother}
+        - [ ] [unit] 0009-more-information-about-the-restrictions-can-be-found-41ae2dc502: More information about the restrictions can be found here: {licenseRestrictLink}.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0007-re-users-will-be-able-to-get-access-b1690f2367/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0015-starting-freely-available-for-any-use-public-domain-d97af11d43/0009-more-information-about-the-restrictions-can-be-found-41ae2dc502/translation.md>)
 
-        - [ ] [unit] 0008-the-conditions-will-be-published-as-part-of-f2ae4d2938: The conditions will be published as part of open metadata.
+    - [ ] [wrapper] 0016-we-will-be-adding-a-reference-to-the-cca4441e1b (0/1)
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0008-the-conditions-will-be-published-as-part-of-f2ae4d2938/translation.md>)
+      [W] `0016-we-will-be-adding-a-reference-to-the-cca4441e1b`
 
-        - [ ] [unit] 0009-more-information-about-the-restrictions-can-be-found-d7dd80606b: More information about the restrictions can be found here:
+        - [ ] [unit] 0001-we-will-be-adding-a-reference-to-the-8a948496d6: We will be adding a reference to the published data to at least one data catalogue.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-starting-freely-available-for-any-use-public-domain-d97af11d43/0009-more-information-about-the-restrictions-can-be-found-d7dd80606b/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0016-we-will-be-adding-a-reference-to-the-cca4441e1b/0001-we-will-be-adding-a-reference-to-the-8a948496d6/translation.md>)
 
-    - [ ] [wrapper] 0017-we-will-be-adding-a-reference-to-the-cca4441e1b (0/1)
+    - [ ] [wrapper] 0017-the-dataset-will-published-as-soon-as-possible-28f99ca1f8 (0/1)
 
-      [W] `0017-we-will-be-adding-a-reference-to-the-cca4441e1b`
+      [W] `0017-the-dataset-will-published-as-soon-as-possible-28f99ca1f8`
 
-        - [ ] [unit] 0001-we-will-be-adding-a-reference-to-the-c4a687a71f: We will be adding a reference to the published data to at least one data catalogue.
+        - [ ] [unit] 0001-the-dataset-will-published-as-soon-as-possible-ca9e6499a5: The dataset will published as soon as possible after collecting it.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0017-we-will-be-adding-a-reference-to-the-cca4441e1b/0001-we-will-be-adding-a-reference-to-the-c4a687a71f/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0017-the-dataset-will-published-as-soon-as-possible-28f99ca1f8/0001-the-dataset-will-published-as-soon-as-possible-ca9e6499a5/translation.md>)
 
-    - [ ] [wrapper] 0018-the-dataset-will-published-as-soon-as-possible-28f99ca1f8 (0/1)
+    - [ ] [wrapper] 0018-the-dataset-will-published-after-initial-cleanup-656229aae9 (0/1)
 
-      [W] `0018-the-dataset-will-published-as-soon-as-possible-28f99ca1f8`
+      [W] `0018-the-dataset-will-published-after-initial-cleanup-656229aae9`
 
-        - [ ] [unit] 0001-the-dataset-will-published-as-soon-as-possible-139cc3d1d9: The dataset will published as soon as possible after collecting it.
+        - [ ] [unit] 0001-the-dataset-will-published-after-initial-cleanup-644eb56ccb: The dataset will published after initial cleanup.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0018-the-dataset-will-published-as-soon-as-possible-28f99ca1f8/0001-the-dataset-will-published-as-soon-as-possible-139cc3d1d9/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0018-the-dataset-will-published-after-initial-cleanup-656229aae9/0001-the-dataset-will-published-after-initial-cleanup-644eb56ccb/translation.md>)
 
-    - [ ] [wrapper] 0019-the-dataset-will-published-after-initial-cleanup-656229aae9 (0/1)
+    - [ ] [wrapper] 0019-the-dataset-will-published-after-all-our-processing-fd47b54b01 (0/1)
 
-      [W] `0019-the-dataset-will-published-after-initial-cleanup-656229aae9`
+      [W] `0019-the-dataset-will-published-after-all-our-processing-fd47b54b01`
 
-        - [ ] [unit] 0001-the-dataset-will-published-after-initial-cleanup-22211571b5: The dataset will published after initial cleanup.
+        - [ ] [unit] 0001-the-dataset-will-published-after-all-our-processing-65438824e6: The dataset will published after all our processing has finished.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0019-the-dataset-will-published-after-initial-cleanup-656229aae9/0001-the-dataset-will-published-after-initial-cleanup-22211571b5/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0019-the-dataset-will-published-after-all-our-processing-fd47b54b01/0001-the-dataset-will-published-after-all-our-processing-65438824e6/translation.md>)
 
-    - [ ] [wrapper] 0020-the-dataset-will-published-after-all-our-processing-fd47b54b01 (0/1)
+    - [ ] [wrapper] 0020-the-dataset-will-published-when-the-project-is-ba35c03e51 (0/1)
 
-      [W] `0020-the-dataset-will-published-after-all-our-processing-fd47b54b01`
+      [W] `0020-the-dataset-will-published-when-the-project-is-ba35c03e51`
 
-        - [ ] [unit] 0001-the-dataset-will-published-after-all-our-processing-ef9027fb02: The dataset will published after all our processing has finished.
+        - [ ] [unit] 0001-the-dataset-will-published-when-the-project-is-4fdfacdaf0: The dataset will published when the project is wrapped up.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0020-the-dataset-will-published-after-all-our-processing-fd47b54b01/0001-the-dataset-will-published-after-all-our-processing-ef9027fb02/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0020-the-dataset-will-published-when-the-project-is-ba35c03e51/0001-the-dataset-will-published-when-the-project-is-4fdfacdaf0/translation.md>)
 
-    - [ ] [wrapper] 0021-the-dataset-will-published-when-the-project-is-ba35c03e51 (0/1)
+    - [ ] [wrapper] 0021-the-dataset-will-published-after-an-embargo-a65bb7ad74 (0/1)
 
-      [W] `0021-the-dataset-will-published-when-the-project-is-ba35c03e51`
+      [W] `0021-the-dataset-will-published-after-an-embargo-a65bb7ad74`
 
-        - [ ] [unit] 0001-the-dataset-will-published-when-the-project-is-55302e1cf5: The dataset will published when the project is wrapped up.
+        - [ ] [unit] 0001-the-dataset-will-published-after-an-embargo-fa1ff700c3: The dataset will published after an embargo.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0021-the-dataset-will-published-when-the-project-is-ba35c03e51/0001-the-dataset-will-published-when-the-project-is-55302e1cf5/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0021-the-dataset-will-published-after-an-embargo-a65bb7ad74/0001-the-dataset-will-published-after-an-embargo-fa1ff700c3/translation.md>)
 
-    - [ ] [wrapper] 0022-the-dataset-will-published-after-an-embargo-a65bb7ad74 (0/1)
+    - [ ] [wrapper] 0022-the-following-qualified-references-to-other-data-sets-2b227cfc2c (0/1)
 
-      [W] `0022-the-dataset-will-published-after-an-embargo-a65bb7ad74`
+      [W] `0022-the-following-qualified-references-to-other-data-sets-2b227cfc2c`
 
-        - [ ] [unit] 0001-the-dataset-will-published-after-an-embargo-b1fc3389a4: The dataset will published after an embargo.
+        - [ ] [unit] 0001-the-following-qualified-references-to-other-data-sets-79fdbd3ab6: The following qualified references to other data sets will be included:
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0022-the-dataset-will-published-after-an-embargo-a65bb7ad74/0001-the-dataset-will-published-after-an-embargo-b1fc3389a4/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0022-the-following-qualified-references-to-other-data-sets-2b227cfc2c/0001-the-following-qualified-references-to-other-data-sets-79fdbd3ab6/translation.md>)
 
-    - [ ] [wrapper] 0023-the-following-qualified-references-to-other-data-sets-2b227cfc2c (0/1)
+    - [ ] [wrapper] 0023-restrictions-on-data-sharing-17990fa1de (0/1)
 
-      [W] `0023-the-following-qualified-references-to-other-data-sets-2b227cfc2c`
+      [W] `0023-restrictions-on-data-sharing-17990fa1de`
 
-        - [ ] [unit] 0001-the-following-qualified-references-to-other-data-sets-2faf24ce61: The following qualified references to other data sets will be included:
+        - [ ] [unit] 0001-restrictions-on-data-sharing-718351ef3d: Restrictions on data sharing
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0023-the-following-qualified-references-to-other-data-sets-2b227cfc2c/0001-the-following-qualified-references-to-other-data-sets-2faf24ce61/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0023-restrictions-on-data-sharing-17990fa1de/0001-restrictions-on-data-sharing-718351ef3d/translation.md>)
 
-    - [ ] [wrapper] 0024-restrictions-on-data-sharing-17990fa1de (0/1)
+    - [ ] [wrapper] 0024-ethical-and-legal-restrictions-are-documented-under-section-4ff8cba7e3 (0/1)
 
-      [W] `0024-restrictions-on-data-sharing-17990fa1de`
+      [W] `0024-ethical-and-legal-restrictions-are-documented-under-section-4ff8cba7e3`
 
-        - [ ] [unit] 0001-restrictions-on-data-sharing-a7fa2e9c54: Restrictions on data sharing
+        - [ ] [unit] 0001-ethical-and-legal-restrictions-are-documented-under-section-d1445e0b53: Ethical and legal restrictions are documented under Section 4. We have used the {dc.config.service_name}, which made us aware of options to minimize the restrictions.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0024-restrictions-on-data-sharing-17990fa1de/0001-restrictions-on-data-sharing-a7fa2e9c54/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0024-ethical-and-legal-restrictions-are-documented-under-section-4ff8cba7e3/0001-ethical-and-legal-restrictions-are-documented-under-section-d1445e0b53/translation.md>)
 
-    - [ ] [wrapper] 0025-ethical-and-legal-restrictions-are-documented-under-section-4ff8cba7e3 (0/1)
+    - [ ] [wrapper] 0025-no-data-sharing-agreement-will-be-required-2bf1dd5063 (0/1)
 
-      [W] `0025-ethical-and-legal-restrictions-are-documented-under-section-4ff8cba7e3`
+      [W] `0025-no-data-sharing-agreement-will-be-required-2bf1dd5063`
 
-        - [ ] [unit] 0001-ethical-and-legal-restrictions-are-documented-under-section-68f1e1514c: Ethical and legal restrictions are documented under Section 4. We have used the {dc.config.service_name}, which made us aware of options to minimize the restrictions.
+        - [ ] [unit] 0001-no-data-sharing-agreement-will-be-required-6f05933156: No data sharing agreement will be required.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0025-ethical-and-legal-restrictions-are-documented-under-section-4ff8cba7e3/0001-ethical-and-legal-restrictions-are-documented-under-section-68f1e1514c/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0025-no-data-sharing-agreement-will-be-required-2bf1dd5063/0001-no-data-sharing-agreement-will-be-required-6f05933156/translation.md>)
 
-    - [ ] [wrapper] 0026-no-data-sharing-agreement-will-be-required-2bf1dd5063 (0/1)
+    - [ ] [wrapper] 0026-data-cannot-be-completely-open-due-to-legal-95a3529f52 (0/2)
 
-      [W] `0026-no-data-sharing-agreement-will-be-required-2bf1dd5063`
+      [W] `0026-data-cannot-be-completely-open-due-to-legal-95a3529f52`
 
-        - [ ] [unit] 0001-no-data-sharing-agreement-will-be-required-1ccca78d7e: No data sharing agreement will be required.
+        - [ ] [unit] 0001-data-cannot-be-completely-open-due-to-legal-9408d81be7: Data cannot be completely open due to legal reasons. But data that is not legally restrained will be released after a fixed time period.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0026-no-data-sharing-agreement-will-be-required-2bf1dd5063/0001-no-data-sharing-agreement-will-be-required-1ccca78d7e/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0026-data-cannot-be-completely-open-due-to-legal-95a3529f52/0001-data-cannot-be-completely-open-due-to-legal-9408d81be7/translation.md>)
 
-    - [ ] [wrapper] 0027-data-cannot-be-completely-open-due-to-legal-95a3529f52 (0/2)
+        - [ ] [unit] 0002-the-embargo-period-will-be-5a215c2ead: The embargo period will be {embargoPeriod}
 
-      [W] `0027-data-cannot-be-completely-open-due-to-legal-95a3529f52`
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0026-data-cannot-be-completely-open-due-to-legal-95a3529f52/0002-the-embargo-period-will-be-5a215c2ead/translation.md>)
 
-        - [ ] [unit] 0001-data-cannot-be-completely-open-due-to-legal-fdca1bfbe5: Data cannot be completely open due to legal reasons. But data that is not legally restrained will be released after a fixed time period.
+    - [ ] [wrapper] 0027-a-data-sharing-agreement-will-be-required-people-e40111b99b (0/6)
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-data-cannot-be-completely-open-due-to-legal-95a3529f52/0001-data-cannot-be-completely-open-due-to-legal-fdca1bfbe5/translation.md>)
+      [W] `0027-a-data-sharing-agreement-will-be-required-people-e40111b99b`
 
-        - [ ] [unit] 0002-the-embargo-period-will-be-acf7016a76: The embargo period will be {embargoPeriod}
+        - [ ] [unit] 0001-a-data-sharing-agreement-will-be-required-6db3982c31: A data sharing agreement will be required.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-data-cannot-be-completely-open-due-to-legal-95a3529f52/0002-the-embargo-period-will-be-acf7016a76/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-a-data-sharing-agreement-will-be-required-people-e40111b99b/0001-a-data-sharing-agreement-will-be-required-6db3982c31/translation.md>)
 
-    - [ ] [wrapper] 0028-a-data-sharing-agreement-will-be-required-people-e40111b99b (0/6)
+        - [ ] [unit] 0002-people-can-apply-to-one-of-the-project-15a78eca1c: People can apply to one of the project members.
 
-      [W] `0028-a-data-sharing-agreement-will-be-required-people-e40111b99b`
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-a-data-sharing-agreement-will-be-required-people-e40111b99b/0002-people-can-apply-to-one-of-the-project-15a78eca1c/translation.md>)
 
-        - [ ] [unit] 0001-a-data-sharing-agreement-will-be-required-38e93876a7: A data sharing agreement will be required.
+        - [ ] [unit] 0003-people-can-apply-to-the-data-access-committee-95bbcb359f: People can apply to the data access committee that we will set up.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0028-a-data-sharing-agreement-will-be-required-people-e40111b99b/0001-a-data-sharing-agreement-will-be-required-38e93876a7/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-a-data-sharing-agreement-will-be-required-people-e40111b99b/0003-people-can-apply-to-the-data-access-committee-95bbcb359f/translation.md>)
 
-        - [ ] [unit] 0002-people-can-apply-to-one-of-the-project-e718d6ee6e: People can apply to one of the project members.
+        - [ ] [unit] 0004-people-can-apply-to-the-data-access-committee-ad87010644: People can apply to the {legalReasonsAuthorizeOldCommittee} data access committee.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0028-a-data-sharing-agreement-will-be-required-people-e40111b99b/0002-people-can-apply-to-one-of-the-project-e718d6ee6e/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-a-data-sharing-agreement-will-be-required-people-e40111b99b/0004-people-can-apply-to-the-data-access-committee-ad87010644/translation.md>)
 
-        - [ ] [unit] 0003-people-can-apply-to-the-data-access-committee-c2be4cbce6: People can apply to the data access committee that we will set up.
+        - [ ] [unit] 0005-people-can-apply-to-an-existing-data-access-0ba131b282: People can apply to an existing data access committee.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0028-a-data-sharing-agreement-will-be-required-people-e40111b99b/0003-people-can-apply-to-the-data-access-committee-c2be4cbce6/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-a-data-sharing-agreement-will-be-required-people-e40111b99b/0005-people-can-apply-to-an-existing-data-access-0ba131b282/translation.md>)
 
-        - [ ] [unit] 0004-people-can-apply-to-the-data-access-committee-e5fc823929: People can apply to the {legalReasonsAuthorizeOldCommittee} data access committee.
+        - [ ] [unit] 0006-for-the-authorization-of-potential-users-we-will-f162aa7413: For the authorization of potential users, we will make special arrangements{legalReasonsAuthorizeOther}
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0028-a-data-sharing-agreement-will-be-required-people-e40111b99b/0004-people-can-apply-to-the-data-access-committee-e5fc823929/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0027-a-data-sharing-agreement-will-be-required-people-e40111b99b/0006-for-the-authorization-of-potential-users-we-will-f162aa7413/translation.md>)
 
-        - [ ] [unit] 0005-people-can-apply-to-an-existing-data-access-0599d9423c: People can apply to an existing data access committee.
+    - [ ] [wrapper] 0028-we-are-not-running-the-project-in-a-9f5968c070 (0/1)
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0028-a-data-sharing-agreement-will-be-required-people-e40111b99b/0005-people-can-apply-to-an-existing-data-access-0599d9423c/translation.md>)
+      [W] `0028-we-are-not-running-the-project-in-a-9f5968c070`
 
-        - [ ] [unit] 0006-for-the-authorization-of-potential-users-we-will-36939db1e2: For the authorization of potential users, we will make special arrangements{legalReasonsAuthorizeOther}
+        - [ ] [unit] 0001-we-are-not-running-the-project-in-a-3cad0967b2: We are not running the project in a collaboration between different groups nor institutes. Therefore, no collaboration agreement related to data access is needed.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0028-a-data-sharing-agreement-will-be-required-people-e40111b99b/0006-for-the-authorization-of-potential-users-we-will-36939db1e2/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0028-we-are-not-running-the-project-in-a-9f5968c070/0001-we-are-not-running-the-project-in-a-3cad0967b2/translation.md>)
 
-    - [ ] [wrapper] 0029-we-are-not-running-the-project-in-a-9f5968c070 (0/1)
+    - [ ] [wrapper] 0029-we-are-running-the-project-in-a-collaboration-4418efcc74 (0/1)
 
-      [W] `0029-we-are-not-running-the-project-in-a-9f5968c070`
+      [W] `0029-we-are-running-the-project-in-a-collaboration-4418efcc74`
 
-        - [ ] [unit] 0001-we-are-not-running-the-project-in-a-1aae62bfa2: We are not running the project in a collaboration between different groups nor institutes. Therefore, no collaboration agreement related to data access is needed.
+        - [ ] [unit] 0001-we-are-running-the-project-in-a-collaboration-8f85e56b3b: We are running the project in a collaboration between different groups and institutes. However, there is no collaboration agreement in the project that describes who can have access to what data.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0029-we-are-not-running-the-project-in-a-9f5968c070/0001-we-are-not-running-the-project-in-a-1aae62bfa2/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0029-we-are-running-the-project-in-a-collaboration-4418efcc74/0001-we-are-running-the-project-in-a-collaboration-8f85e56b3b/translation.md>)
 
-    - [ ] [wrapper] 0030-we-are-running-the-project-in-a-collaboration-4418efcc74 (0/1)
+    - [ ] [wrapper] 0030-we-are-running-the-project-in-a-collaboration-937ebd518e (0/1)
 
-      [W] `0030-we-are-running-the-project-in-a-collaboration-4418efcc74`
+      [W] `0030-we-are-running-the-project-in-a-collaboration-937ebd518e`
 
-        - [ ] [unit] 0001-we-are-running-the-project-in-a-collaboration-1124c9c5b7: We are running the project in a collaboration between different groups and institutes. However, there is no collaboration agreement in the project that describes who can have access to what data.
+        - [ ] [unit] 0001-we-are-running-the-project-in-a-collaboration-4d3ae2f694: We are running the project in a collaboration between different groups and institutes. A collaboration agreement that describes who can have access to what data in the project is set.
 
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0030-we-are-running-the-project-in-a-collaboration-4418efcc74/0001-we-are-running-the-project-in-a-collaboration-1124c9c5b7/translation.md>)
-
-    - [ ] [wrapper] 0031-we-are-running-the-project-in-a-collaboration-937ebd518e (0/1)
-
-      [W] `0031-we-are-running-the-project-in-a-collaboration-937ebd518e`
-
-        - [ ] [unit] 0001-we-are-running-the-project-in-a-collaboration-98742c998d: We are running the project in a collaboration between different groups and institutes. A collaboration agreement that describes who can have access to what data in the project is set.
-
-          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0031-we-are-running-the-project-in-a-collaboration-937ebd518e/0001-we-are-running-the-project-in-a-collaboration-98742c998d/translation.md>)
+          [T] [translation](<tree/src/questions/10-share-restrictions.html.j2/0030-we-are-running-the-project-in-a-collaboration-937ebd518e/0001-we-are-running-the-project-in-a-collaboration-4d3ae2f694/translation.md>)
 
 - [ ] [file] src/questions/11-data-preservation.html.j2 (0/31)
 
@@ -3076,105 +3060,105 @@
 
           [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0001-11-how-will-data-for-preservation-be-selected-9836929b43/0001-11-how-will-data-for-preservation-be-selected-acc0c9dc7e/translation.md>)
 
-    - [ ] [wrapper] 0002-we-plan-to-produce-the-following-datasets-no-f662722607 (0/24)
+    - [ ] [wrapper] 0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee (0/24)
 
-      [W] `0002-we-plan-to-produce-the-following-datasets-no-f662722607`
+      [W] `0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee`
 
         - [ ] [unit] 0001-we-plan-to-produce-the-following-datasets-e59d4bdd45: We plan to produce the following datasets:
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0001-we-plan-to-produce-the-following-datasets-e59d4bdd45/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0001-we-plan-to-produce-the-following-datasets-e59d4bdd45/translation.md>)
 
         - [ ] [unit] 0002-no-name-given-c15dbf9c19: (no name given)
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0002-no-name-given-c15dbf9c19/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0002-no-name-given-c15dbf9c19/translation.md>)
 
         - [ ] [unit] 0003-not-published-9224581c46: (not published)
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0003-not-published-9224581c46/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0003-not-published-9224581c46/translation.md>)
 
         - [ ] [unit] 0004-will-be-published-946836cd34: (will be published)
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0004-will-be-published-946836cd34/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0004-will-be-published-946836cd34/translation.md>)
 
         - [ ] [unit] 0005-this-data-set-will-be-kept-available-as-1cf968b2b1: This data set will be kept available as long as technically possible.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0005-this-data-set-will-be-kept-available-as-1cf968b2b1/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0005-this-data-set-will-be-kept-available-as-1cf968b2b1/translation.md>)
 
         - [ ] [unit] 0006-this-data-set-will-be-kept-available-until-a2afe4b1a7: This data set will be kept available until it needs to be deleted for legal, contractual or regulatory reasons.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0006-this-data-set-will-be-kept-available-until-a2afe4b1a7/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0006-this-data-set-will-be-kept-available-until-a2afe4b1a7/translation.md>)
 
-        - [ ] [unit] 0007-this-data-set-will-be-kept-available-for-879147cc0d: This data set will be kept available for a fixed period (prepaid) of:.
+        - [ ] [unit] 0007-this-data-set-will-be-kept-available-for-d29adbcd8f: This data set will be kept available for a fixed period (prepaid) of: {publishedDataHowLongFixed}.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0007-this-data-set-will-be-kept-available-for-879147cc0d/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0007-this-data-set-will-be-kept-available-for-d29adbcd8f/translation.md>)
 
-        - [ ] [unit] 0008-this-data-set-will-be-kept-available-for-c41009937f: This data set will be kept available for a fixed period (prepaid).
+        - [ ] [unit] 0008-this-data-set-will-be-kept-available-for-a6d8419ad4: This data set will be kept available for a fixed period (prepaid).
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0008-this-data-set-will-be-kept-available-for-c41009937f/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0008-this-data-set-will-be-kept-available-for-a6d8419ad4/translation.md>)
 
         - [ ] [unit] 0009-the-metadata-will-be-available-even-when-the-8faa822d9b: The metadata will be available even when the data no longer exists.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0009-the-metadata-will-be-available-even-when-the-8faa822d9b/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0009-the-metadata-will-be-available-even-when-the-8faa822d9b/translation.md>)
 
-        - [ ] [unit] 0010-the-distributions-will-be-stored-in-0fbc201905: The distributions will be stored in:.
+        - [ ] [unit] 0010-the-distributions-will-be-stored-in-0fbc201905: The distributions will be stored in:
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0010-the-distributions-will-be-stored-in-0fbc201905/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0010-the-distributions-will-be-stored-in-0fbc201905/translation.md>)
 
         - [ ] [unit] 0011-domain-specific-repository-3498d34084: Domain-specific repository
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0011-domain-specific-repository-3498d34084/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0011-domain-specific-repository-3498d34084/translation.md>)
 
         - [ ] [unit] 0012-we-don-t-need-to-contact-the-repository-963dd682c3: We don't need to contact the repository because it is a routine for us.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0012-we-don-t-need-to-contact-the-repository-963dd682c3/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0012-we-don-t-need-to-contact-the-repository-963dd682c3/translation.md>)
 
         - [ ] [unit] 0013-we-have-already-contacted-the-repository-1d5d13547a: We have already contacted the repository.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0013-we-have-already-contacted-the-repository-1d5d13547a/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0013-we-have-already-contacted-the-repository-1d5d13547a/translation.md>)
 
         - [ ] [unit] 0014-we-are-going-to-contact-the-repository-1f9e800498: We are going to contact the repository.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0014-we-are-going-to-contact-the-repository-1f9e800498/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0014-we-are-going-to-contact-the-repository-1f9e800498/translation.md>)
 
         - [ ] [unit] 0015-we-have-made-other-arrangements-instead-of-contacting-ca8b2c6d0c: We have made other arrangements instead of contacting the repository directly{domainSpecificRepoContactBeforeOther}
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0015-we-have-made-other-arrangements-instead-of-contacting-ca8b2c6d0c/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0015-we-have-made-other-arrangements-instead-of-contacting-ca8b2c6d0c/translation.md>)
 
         - [ ] [unit] 0016-general-purpose-repository-3b77697586: General-purpose repository
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0016-general-purpose-repository-3b77697586/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0016-general-purpose-repository-3b77697586/translation.md>)
 
         - [ ] [unit] 0017-our-national-repository-b19aec6108: Our national repository.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0017-our-national-repository-b19aec6108/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0017-our-national-repository-b19aec6108/translation.md>)
 
         - [ ] [unit] 0018-our-institutional-repository-6c93521a40: Our institutional repository.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0018-our-institutional-repository-6c93521a40/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0018-our-institutional-repository-6c93521a40/translation.md>)
 
         - [ ] [unit] 0019-special-purpose-repository-for-the-project-9ab6d03380: Special-purpose repository for the project.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0019-special-purpose-repository-for-the-project-9ab6d03380/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0019-special-purpose-repository-for-the-project-9ab6d03380/translation.md>)
 
         - [ ] [unit] 0020-we-will-be-able-to-support-this-repository-9729415906: We will be able to support this repository for a sufficiently long time.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0020-we-will-be-able-to-support-this-repository-9729415906/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0020-we-will-be-able-to-support-this-repository-9729415906/translation.md>)
 
         - [ ] [unit] 0021-the-repository-will-provide-download-only-service-77ea015d72: The repository will provide download-only service.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0021-the-repository-will-provide-download-only-service-77ea015d72/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0021-the-repository-will-provide-download-only-service-77ea015d72/translation.md>)
 
         - [ ] [unit] 0022-the-repository-will-provide-a-search-and-simple-96a66f8bb1: The repository will provide a search and simple access interface.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0022-the-repository-will-provide-a-search-and-simple-96a66f8bb1/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0022-the-repository-will-provide-a-search-and-simple-96a66f8bb1/translation.md>)
 
         - [ ] [unit] 0023-the-repository-will-provide-an-advanced-processing-service-e36b52fc21: The repository will provide an advanced processing service.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0023-the-repository-will-provide-an-advanced-processing-service-e36b52fc21/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0023-the-repository-will-provide-an-advanced-processing-service-e36b52fc21/translation.md>)
 
         - [ ] [unit] 0024-we-will-be-adding-a-reference-to-the-a8e9b5c4da: We will be adding a reference to the published data to at least one data catalogue.
 
-          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-f662722607/0024-we-will-be-adding-a-reference-to-the-a8e9b5c4da/translation.md>)
+          [T] [translation](<tree/src/questions/11-data-preservation.html.j2/0002-we-plan-to-produce-the-following-datasets-no-d2971eb8ee/0024-we-will-be-adding-a-reference-to-the-a8e9b5c4da/translation.md>)
 
     - [ ] [wrapper] 0003-none-of-the-used-repositories-charge-for-their-f756b6b7be (0/1)
 
@@ -3340,7 +3324,7 @@
 
           [T] [translation](<tree/src/questions/13-persistent-identifier.html.j2/0006-domain-specific-repository-general-purpose-repository-national-repository-2a1e466a62/0005-special-purpose-repository-dc84073233/translation.md>)
 
-        - [ ] [unit] 0006-within-this-repository-unique-and-persistent-identifiers-will-29d7de6791: Within this repository, unique and persistent identifiers will be applied as follows:.
+        - [ ] [unit] 0006-within-this-repository-unique-and-persistent-identifiers-will-29d7de6791: Within this repository, unique and persistent identifiers will be applied as follows:
 
           [T] [translation](<tree/src/questions/13-persistent-identifier.html.j2/0006-domain-specific-repository-general-purpose-repository-national-repository-2a1e466a62/0006-within-this-repository-unique-and-persistent-identifiers-will-29d7de6791/translation.md>)
 

@@ -179,7 +179,7 @@
                 We are aware that this is not a suitable format for long-term archiving.
               {%- endif -%}
             {%- endif -%}
-            {# volume #}
+            {# volume #}{# __tr_branch_sentence_original:CiAgICAgICAgICAgIHslLSBpZiBmb3JtYXRzVm9sdW1lQVV1aWQgPT0gdXVpZHMuZm9ybWF0c1ZvbHVtZVNtYWxsQVV1aWQgJX0KICAgICAgICAgICAgICBXZSB3aWxsIGhhdmUgb25seSBhIHNtYWxsIGFtb3VudCBvZiBkYXRhIHN0b3JlZCBpbiB0aGlzIGZvcm1hdC4KICAgICAgICAgICAgeyUtIGVsaWYgZm9ybWF0c1ZvbHVtZUFVdWlkID09IHV1aWRzLmZvcm1hdHNWb2x1bWVUb3RhbEFVdWlkIC0lfQogICAgICAgICAgICAgIHslLSBzZXQgZm9ybWF0c1ZvbHVtZVRvdGFsR0IgPSByZXBsaWVzTWFwW1tmb3JtYXRzVm9sdW1lUGF0aCwgdXVpZHMuZm9ybWF0c1ZvbHVtZVRvdGFsQVV1aWQsIHV1aWRzLmZvcm1hdHNWb2x1bWVUb3RhbEdCUVV1aWRdfHJlcGx5X3BhdGhdfHJlcGx5X3N0cl92YWx1ZSAtJX0KICAgICAgICAgICAgICB7JS0gaWYgZm9ybWF0c1ZvbHVtZVRvdGFsR0IgJX0KICAgICAgICAgICAgICAgIFdlIGV4cGVjdCB0byBoYXZlIHt7IGZvcm1hdHNWb2x1bWVUb3RhbEdCIH19IEdCIG9mIGRhdGEgaW4gdGhpcyBmb3JtYXQuCiAgICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICB7JS0gZWxpZiBmb3JtYXRzVm9sdW1lQVV1aWQgPT0gdXVpZHMuZm9ybWF0c1ZvbHVtZUZpbGVTaXplQVV1aWQgLSV9CiAgICAgICAgICAgICAgeyUtIHNldCBmb3JtYXRzVm9sdW1lRmlsZXMgPSByZXBsaWVzTWFwW1tmb3JtYXRzVm9sdW1lUGF0aCwgdXVpZHMuZm9ybWF0c1ZvbHVtZUZpbGVTaXplQVV1aWQsIHV1aWRzLmZvcm1hdHNWb2x1bWVGaWxlc1FVdWlkXXxyZXBseV9wYXRoXXxyZXBseV9zdHJfdmFsdWUgLSV9CiAgICAgICAgICAgICAgeyUtIHNldCBmb3JtYXRzVm9sdW1lRmlsZUdCID0gcmVwbGllc01hcFtbZm9ybWF0c1ZvbHVtZVBhdGgsIHV1aWRzLmZvcm1hdHNWb2x1bWVGaWxlU2l6ZUFVdWlkLCB1dWlkcy5mb3JtYXRzVm9sdW1lRmlsZUdCUVV1aWRdfHJlcGx5X3BhdGhdfHJlcGx5X3N0cl92YWx1ZSAtJX0KICAgICAgICAgICAgICB7JS0gaWYgZm9ybWF0c1ZvbHVtZUZpbGVzIGFuZCBmb3JtYXRzVm9sdW1lRmlsZUdCICV9CiAgICAgICAgICAgICAgICBXZSBleHBlY3QgdG8gaGF2ZSB7eyBmb3JtYXRzVm9sdW1lRmlsZXMgfX0gZmlsZXMgb2YgYXZlcmFnZSBzaXplIHt7IGZvcm1hdHNWb2x1bWVGaWxlR0IgfX0gR0IgKGkuZS4gYXBwcm94aW1hdGVseSB7eyAoZm9ybWF0c1ZvbHVtZUZpbGVzfGludCAqIGZvcm1hdHNWb2x1bWVGaWxlR0J8ZmxvYXQpfHJvdW5kKDIpIH19IEdCIGluIHRvdGFsKS4KICAgICAgICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgICAgICAgIHslLSBlbmRpZiAtJX0K #}
             {%- if formatsVolumeAUuid == uuids.formatsVolumeSmallAUuid %}
               We will have only a small amount of data stored in this format.
             {%- elif formatsVolumeAUuid == uuids.formatsVolumeTotalAUuid -%}
@@ -191,10 +191,11 @@
               {%- set formatsVolumeFiles = repliesMap[[formatsVolumePath, uuids.formatsVolumeFileSizeAUuid, uuids.formatsVolumeFilesQUuid]|reply_path]|reply_str_value -%}
               {%- set formatsVolumeFileGB = repliesMap[[formatsVolumePath, uuids.formatsVolumeFileSizeAUuid, uuids.formatsVolumeFileGBQUuid]|reply_path]|reply_str_value -%}
               {%- if formatsVolumeFiles and formatsVolumeFileGB %}
-                We expect to have {{ formatsVolumeFiles }} files of average size {{ formatsVolumeFileGB }} GB (i.e. approximately {{ (formatsVolumeFiles|int * formatsVolumeFileGB|float)|round(2) }} GB in total).
+                {% set formatsVolumeApproxGB = (formatsVolumeFiles|int * formatsVolumeFileGB|float)|round(2) %}
+                We expect to have {{ formatsVolumeFiles }} files of average size {{ formatsVolumeFileGB }} GB (i.e. approximately {{ formatsVolumeApproxGB }} GB in total).
               {%- endif -%}
             {%- endif -%}
-            </p>
+{# __tr_branch_sentence_original:end #}            </p>
           {%- endif -%}
         </li>{# __tr_block_0018:end #}
       {%- endfor -%}

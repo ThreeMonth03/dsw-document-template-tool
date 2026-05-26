@@ -11,7 +11,7 @@
 ### Sentence (en)
 
 ```text
-Within this repository, unique and persistent identifiers will be applied as follows:.
+Within this repository, unique and persistent identifiers will be applied as follows:
 ```
 
 ### Translation (zh_Hant)

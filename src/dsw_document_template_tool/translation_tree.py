@@ -811,16 +811,22 @@ def _should_merge_inline_expression_split(*, left: str, gap: str, combined: str)
     if not gap.strip():
         return False
     gap_tokens = _lex_source_tokens(gap)
-    if not gap_tokens or any(token.kind != "jinja_expr" for token in gap_tokens):
+    if not gap_tokens or not any(token.kind == "jinja_expr" for token in gap_tokens):
+        return False
+    if any(token.kind in {"html_tag", "jinja_block", "jinja_comment"} for token in gap_tokens):
         return False
     if _contains_jinja_block_or_comment(combined):
         return False
 
     left_sentence = _extract_sentence_text(left)
     combined_sentence = _extract_sentence_text(combined)
-    if left_sentence.endswith((".", "!", "?", ":")):
+    if _ends_with_sentence_punctuation(left_sentence):
         return False
-    return combined_sentence.endswith((".", "!", "?", ":"))
+    return _ends_with_sentence_punctuation(combined_sentence)
+
+
+def _ends_with_sentence_punctuation(sentence: str) -> bool:
+    return sentence.rstrip(")]}\"'»”").endswith((".", "!", "?", ":"))
 
 
 def _should_keep_single_outer_element(*, wrapper_body: str, inner_text: str) -> bool:
@@ -1243,7 +1249,9 @@ def _collect_jinja_literal_regions(
 
 
 def _dedupe_regions(regions: list[AnnotationRegion]) -> list[AnnotationRegion]:
-    unique = sorted(set(regions), key=lambda item: (item.start, item.end))
+    # Prefer the widest region for the same start. Otherwise a raw text fragment
+    # such as "Starting" can hide the richer branch unit "Starting {{ date }}:".
+    unique = sorted(set(regions), key=lambda item: (item.start, -item.end))
     deduped: list[AnnotationRegion] = []
     for region in unique:
         if deduped and _overlaps_any_region(region=region, regions=[deduped[-1]]):
@@ -1393,10 +1401,8 @@ def _normalize_regions(
         )
         if normalized_region is None:
             continue
-        if normalized and normalized_region.start < normalized[-1].end:
-            continue
         normalized.append(normalized_region)
-    return normalized
+    return _dedupe_regions(normalized)
 
 
 def _normalize_region(
@@ -2022,6 +2028,7 @@ def _extract_sentence_text(source_text: str) -> str:
     sentence = re.sub(r"(?<![/.])\.{2,}", ".", sentence)
     sentence = re.sub(r"(?<![/.])([.!?])\.", r"\1", sentence)
     sentence = re.sub(r"\s+\.", ".", sentence)
+    sentence = re.sub(r":\.$", ":", sentence)
     sentence = re.sub(r"^,\s+(available at\b)", r"\1", sentence, flags=re.IGNORECASE)
     sentence = sentence.strip()
     sentence = _repair_sentence_text_glue(sentence)

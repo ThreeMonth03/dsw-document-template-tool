@@ -642,6 +642,68 @@ def test_export_translation_tree_merges_inline_expression_sentence_split(
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
 
+def test_export_translation_tree_merges_multiple_inline_expression_splits(
+    tmp_path: Path,
+) -> None:
+    """Multiple placeholders inside one sentence should remain one translation unit."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>
+  {%- if size and count -%}
+    We expect to have {{ count }} files of average size {{ size }} GB in total.
+  {%- endif -%}
+</p>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+
+    assert "We expect to have {count} files of average size {size} GB in total." in sentences
+    assert "We expect to have" not in sentences
+    assert "GB in total." not in sentences
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
+def test_export_translation_tree_prefers_placeholder_region_over_text_fragment(
+    tmp_path: Path,
+) -> None:
+    """Overlapping regions should keep placeholders needed by translators."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<li>
+  {% if licenseStart %}
+    Starting {{ licenseStart }}:
+  {% endif %}
+  {% if license == "cc0" %}
+    Freely available for any use.
+  {% else %}
+    Available under restrictions.
+  {% endif %}
+</li>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+
+    assert "Starting {licenseStart}:" in sentences
+    assert "Starting" not in sentences
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
 def test_export_translation_tree_keeps_inline_reason_suffix_with_prefix(
     tmp_path: Path,
 ) -> None:
