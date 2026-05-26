@@ -97,7 +97,13 @@ jobs:
             github.event.pull_request.head.ref || 'master' }}
         run: |
           set -euo pipefail
-          if [ -z "$(git status --short -- "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR")" ]; then
+          required_paths=(
+            "$EXPANDED_TEMPLATE_DIR"
+            "$TRANSLATION_TREE_DIR/.translation-tree"
+            "$TRANSLATION_TREE_DIR/tree"
+          )
+
+          if [ -z "$(git status --short -- "${required_paths[@]}")" ]; then
             echo "No generated translation input repairs to commit."
             exit 0
           fi
