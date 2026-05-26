@@ -30,6 +30,8 @@
                             {# __tr_block_0007:start #}<p> We are collecting and processing personal data{{+" "}}based on vital interest.</p>{# __tr_block_0007:end #}
                         {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichLegalAUuid -%}
                             {# __tr_block_0008:start #}<p> We are collecting and processing personal data{{+" "}}based on legal requirement.</p>{# __tr_block_0008:end #}
+                        {%- else -%}
+                            {# __tr_block_0009:start #}<p> We are collecting and processing personal data{%- if false -%}</p>{%- endif -%}{# __tr_block_0009:end #}
                         {%- endif -%}
                     {%- endif -%}
 {# __tr_branch_sentence_original:end #}                {%- endif -%}
@@ -40,23 +42,23 @@
 
                 {%- if personalDataSafeguardReply == uuids.cpersGdprSafeguardsAUuid -%}
 
-                    {# __tr_block_0009:start #}<h4>Technical and procedural measures</h4>{# __tr_block_0009:end #}
+                    {# __tr_block_0010:start #}<h4>Technical and procedural measures</h4>{# __tr_block_0010:end #}
 
                     {%- set personalDataSafeguardLvlIdentifQUuid = [personalDataSafeguardsQUuid, uuids.cpersGdprSafeguardsAUuid, uuids.cpersGdprSafeguardsIdentifQUuid]|reply_path -%}
                     {%- set personalDataSafeguardLvlIdentifReply = repliesMap[personalDataSafeguardLvlIdentifQUuid]|reply_str_value -%}
 
                     {%- if personalDataSafeguardLvlIdentifReply == uuids.cpersGdprSafeguardsIdentifAnonymAUuid -%}
-                        {# __tr_block_0010:start #}<p>The stored data are irrevocably anonymized.</p>{# __tr_block_0010:end #}
+                        {# __tr_block_0011:start #}<p>The stored data are irrevocably anonymized.</p>{# __tr_block_0011:end #}
                     {%- elif personalDataSafeguardLvlIdentifReply == uuids.cpersGdprSafeguardsIdentifPseudoAUuid -%}
-                        {# __tr_block_0011:start #}<p>The stored data are psuedoanonymized.</p>{# __tr_block_0011:end #}
+                        {# __tr_block_0012:start #}<p>The stored data are psuedoanonymized.</p>{# __tr_block_0012:end #}
                     {%- elif personalDataSafeguardLvlIdentifReply == uuids.cpersGdprSafeguardsIdentifIdentifiableAUuid -%}
-                        {# __tr_block_0012:start #}<p>The stored data are identifiable.</p>{# __tr_block_0012:end #}
+                        {# __tr_block_0013:start #}<p>The stored data are identifiable.</p>{# __tr_block_0013:end #}
                     {%- endif -%}
 
                     {%- set personalDataSafeguardElaborateQUuid = [personalDataSafeguardsQUuid, uuids.cpersGdprSafeguardsAUuid, uuids.cpersGdprSafeguardElaborateQUuid ]|reply_path  -%}
                     {%- set personalDataSafeguardElaborateReply = repliesMap[personalDataSafeguardElaborateQUuid]|reply_str_value -%}
                     {%- if personalDataSafeguardElaborateReply -%}
-                        {# __tr_block_0013:start #}<p>We will use the following technical and procedural safeguards : {{personalDataSafeguardElaborateReply|dot}}</p>{# __tr_block_0013:end #}
+                        {# __tr_block_0014:start #}<p>We will use the following technical and procedural safeguards : {{personalDataSafeguardElaborateReply|dot}}</p>{# __tr_block_0014:end #}
                    {%- endif -%}
 
                     {%- set personalDataSafeguardTransferQUuid = [personalDataSafeguardsQUuid, uuids.cpersGdprSafeguardsAUuid, uuids.cpersGdprSafeguardsTransferQUuid]|reply_path -%}
@@ -65,13 +67,13 @@
                     {%- set personalDataSafeguardTransferMeasuresReply = repliesMap[personalDataSafeguardTransferMeasuresQUuid]|reply_str_value -%}
 
                     {%- if (personalDataSafeguardTransferReply == uuids.cpersGdprSafeguardsTransferYesAUuid) and (personalDataSafeguardTransferMeasuresReply) -%}
-                        {# __tr_block_0014:start #}<p>We plan to transfer data outside the EU/EEA and these are measures we will place to protect data:
-                        {{personalDataSafeguardTransferMeasuresReply|dot}}</p>{# __tr_block_0014:end #}
+                        {# __tr_block_0015:start #}<p>We plan to transfer data outside the EU/EEA and these are measures we will place to protect data:
+                        {{personalDataSafeguardTransferMeasuresReply|dot}}</p>{# __tr_block_0015:end #}
                     {%- endif -%}
                 {%- endif -%}
             {%- endif -%}
         {%- elif personalDataReply == uuids.collectPersonalNoAUuid -%}
-        {# __tr_block_0015:start #}<p>We will not collect any data related to individuals.</p>{# __tr_block_0015:end #}
+        {# __tr_block_0016:start #}<p>We will not collect any data related to individuals.</p>{# __tr_block_0016:end #}
         {%- endif -%}
 
         {# Managed access procedure to personal data #}
@@ -87,8 +89,8 @@
                 {%- set personalDataManagedAccessReply = repliesMap[personalDataManagedAccessQUuid]|reply_str_value -%}
                 
                 {%- if personalDataManagedAccessReply -%}
-                    {# __tr_block_0016:start #}<h4>Access procedure to personal data</h4>{# __tr_block_0016:end #}
-                    {# __tr_block_0017:start #}<p>There is a procedure for users to access private data as follows: {{personalDataManagedAccessReply}}</p>{# __tr_block_0017:end #}
+                    {# __tr_block_0017:start #}<h4>Access procedure to personal data</h4>{# __tr_block_0017:end #}
+                    {# __tr_block_0018:start #}<p>There is a procedure for users to access private data as follows: {{personalDataManagedAccessReply}}</p>{# __tr_block_0018:end #}
                 {%- endif -%}
             {%- endif -%}
         {%- endif -%}

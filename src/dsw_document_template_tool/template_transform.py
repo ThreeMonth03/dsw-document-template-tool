@@ -658,28 +658,28 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
           {%- set nrefDataPersonalLegalBasis = [nrefDataPersonal, uuids.nrefDataPersonalYesAUuid, uuids.nrefDataPersonalLegalBasisQUuid]|reply_path -%}
           {%- set nrefDataPersonalLegalBasisReply = repliesMap[nrefDataPersonalLegalBasis]|reply_str_value -%}
           {%- if nrefDataPersonalLegalBasisReply == uuids.nrefDataPersonalLegalBasisPubInterestAUuid -%}
-            <p>This data include personal data, legally based on{{+" "}}public interest for processing the data under GDPR.</p>
+              <p>This data include personal data, legaly based on{{+" "}}public interest for processing the data under GDPR.</p>
           {%- elif nrefDataPersonalLegalBasisReply == uuids.nrefDataPersonalLegalBasisConsentAUuid -%}
             {%- set nrefDataPersonalLegalBasisReuse = [nrefDataPersonalLegalBasis, uuids.nrefDataPersonalLegalBasisConsentAUuid, uuids.nrefDataPersonalLegalBasisConsentReuseQUuid]|reply_path -%}
             {%- set nrefDataPersonalLegalBasisReuseReply = repliesMap[nrefDataPersonalLegalBasisReuse]|reply_str_value -%}
             {%- if nrefDataPersonalLegalBasisReuseReply == uuids.nrefDataPersonalLegalBasisConsentReuseYesAUuid -%}
-              <p>This data include personal data, legally based on{{+" "}}consent given by the research subject for processing the data under GDPR, which{{+" "}}covers also our reuse.</p>
+              <p>This data include personal data, legaly based on{{+" "}}consent given by the research subject for processing the data under GDPR, which{{+" "}}covers also our reuse.</p>
             {%- elif nrefDataPersonalLegalBasisReuseReply == uuids.nrefDataPersonalLegalBasisConsentReuseNoAUuid -%}
-              <p>This data include personal data, legally based on{{+" "}}consent given by the research subject for processing the data under GDPR, which{{+" "}}does not cover our reuse; therefore, new consent will be needed.</p>
+              <p>This data include personal data, legaly based on{{+" "}}consent given by the research subject for processing the data under GDPR, which{{+" "}}does not cover our reuse; therefore, new consent will be needed.</p>
             {%- else -%}
-              <p>This data include personal data, legally based on{{+" "}}consent given by the research subject for processing the data under GDPR.</p>
+              <p>This data include personal data, legaly based on{{+" "}}consent given by the research subject for processing the data under GDPR.</p>
             {%- endif -%}
           {%- elif nrefDataPersonalLegalBasisReply == uuids.nrefDataPersonalLebalBasisOtherAUuid -%}
             {%- set nrefDataPersonalLegalBasisOther = [nrefDataPersonalLegalBasis, uuids.nrefDataPersonalLebalBasisOtherAUuid, uuids.nrefDataPersonalLegalBasisOtherQUuid]|reply_path -%}
             {%- set nrefDataPersonalLegalBasisOtherReply = repliesMap[nrefDataPersonalLegalBasisOther]|reply_str_value -%}
             {%- if nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherLegalAUuid -%}
-              <p>This data include personal data, legally based on{{+" "}}a legal requirement (meaning a legal obligation to do this data processing).</p>
+              <p>This data include personal data, legaly based on{{+" "}}a legal requirement (meaning a legal obligation to do this data processing).</p>
             {%- elif nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherVitalAUuid -%}
-              <p>This data include personal data, legally based on{{+" "}}a vital interest (meaning it needs to be done to protect the vital interests of the data subject).</p>
+              <p>This data include personal data, legaly based on{{+" "}}a vital interest (meaning it needs to be done to protect the vital interests of the data subject).</p>
             {%- elif nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherLegitAUuid -%}
-              <p>This data include personal data, legally based on{{+" "}}a legitimate interest (meaning data subjects all expect us to do this data processing because of who we are).</p>
+              <p>This data include personal data, legaly based on{{+" "}}a legitimate interest (meaning data subjects all expect us to do this data processing because of who we are).</p>
             {%- elif nrefDataPersonalLegalBasisOtherReply == uuids.nrefDataPersonalLegalBasisOtherContractAUuid -%}
-              <p>This data include personal data, legally based on{{+" "}}a requirement to fulfill our contract with the data subjects.</p>
+              <p>This data include personal data, legaly based on{{+" "}}a requirement to fulfill our contract with the data subjects.</p>
             {%- else -%}
               <p>This data include personal data.</p>
             {%- endif -%}
@@ -753,7 +753,7 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
         {%- set dataCompReadWhichMetadataStandardPath = [dataCompReadOthers, uuids.dataCompReadOthersYesAUuid, uuids.dataCompReadOthersYesStandardsQUuid]|reply_path -%}
         {%- set dataCompReadMetadataStandardItems =  repliesMap[dataCompReadWhichMetadataStandardPath]|reply_items -%}
         {%- if dataCompReadMetadataStandardItems|length  > 0 -%}
-          We will provide machine readable, standardized metadata to others{{+" "}}and we will use following Metadata Standards:{{+" "}}
+          {{+" "}}We will provide machine readable, standardized metadata to others{{+" "}}and we will use following Metadata Standards:{{+" "}}
           {%- for dataCompReadMetadataStandardItem in dataCompReadMetadataStandardItems -%}
             {%- set dataCompReadMetadataStandardPrefix = [dataCompReadWhichMetadataStandardPath, dataCompReadMetadataStandardItem]|reply_path -%}
             {%- set dataCompReadMetadataStandard = [dataCompReadMetadataStandardPrefix, uuids.dataCompReadOthersYesStandardQUuid]|reply_path -%}
@@ -761,7 +761,7 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             {{ macros.integrationFairSharing(dataCompReadMetadataStandardReply) }}{{ ", " if not loop.last else "." }}
           {%- endfor -%}
         {%- else -%}
-          We will provide machine readable, standardized metadata to others.
+          {{+" "}}We will provide machine readable, standardized metadata to others.
         {%- endif -%}
       {%- endif -%}
       </p>
@@ -1068,6 +1068,8 @@ def _rewrite_known_science_europe_fragments(source_text: str) -> str:
                             <p> We are collecting and processing personal data{{+" "}}based on vital interest.</p>
                         {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichLegalAUuid -%}
                             <p> We are collecting and processing personal data{{+" "}}based on legal requirement.</p>
+                        {%- else -%}
+                            <p> We are collecting and processing personal data{%- if false -%}</p>{%- endif -%}
                         {%- endif -%}
                     {%- endif -%}
 """
@@ -1109,20 +1111,21 @@ def _rewrite_known_science_europe_fragments(source_text: str) -> str:
 """
     copyright_open_reasons_replacement = """
       {%- if nReasons > 0 -%}
+        <p>
         {%- if nReasons == 1 -%}
           {%- if legalReasons %}
-            <p>The data cannot become completely open because of legal reasons.</p>
+            The data cannot become completely open because of legal reasons.
           {%- elif businessReasonsPatents %}
-            <p>The data cannot become completely open because of patent-related business reasons.</p>
+            The data cannot become completely open because of patent-related business reasons.
           {%- elif businessReasonsOther %}
-            <p>The data cannot become completely open because of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}</p>
+            The data cannot become completely open because of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}
           {%- elif otherReasonsPapers %}
-            <p>The data cannot become completely open because we want to publish a paper first.</p>
+            The data cannot become completely open because we want to publish a paper first.
           {%- elif otherReasonsOther %}
-            <p>The data cannot become completely open because we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}</p>
+            The data cannot become completely open because we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}
           {%- endif -%}
         {%- else %}
-          <p>The data cannot become completely open because of:</p>
+          The data cannot become completely open because of:
           <ul>
             {%- if legalReasons %}
               <li>legal reasons</li>

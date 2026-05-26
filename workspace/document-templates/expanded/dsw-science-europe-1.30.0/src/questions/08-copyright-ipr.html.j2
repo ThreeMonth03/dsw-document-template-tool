@@ -37,38 +37,39 @@
       {%- set nReasons = reasons|select("true")|list|length -%}
 {# __tr_branch_sentence_original:CiAgICAgIHslLSBpZiBuUmVhc29ucyA-IDAgLSV9CiAgICAgICAgPHA-CiAgICAgICAgVGhlIGRhdGEgY2Fubm90IGJlY29tZSBjb21wbGV0ZWx5IG9wZW4gYmVjYXVzZSAKICAgICAgICB7JS0gaWYgblJlYXNvbnMgPT0gMSAtJX0KICAgICAgICAgIHslLSBpZiBsZWdhbFJlYXNvbnMgJX0KICAgICAgICAgICAgb2YgbGVnYWwgcmVhc29ucy4KICAgICAgICAgIHslLSBlbGlmIGJ1c2luZXNzUmVhc29uc1BhdGVudHMgJX0KICAgICAgICAgICAgb2YgcGF0ZW50LXJlbGF0ZWQgYnVzaW5lc3MgcmVhc29ucy4KICAgICAgICAgIHslLSBlbGlmIGJ1c2luZXNzUmVhc29uc090aGVyICV9CiAgICAgICAgICAgIG9mIG5vbi1wYXRlbnQgYnVzaW5lc3MgcmVhc29uc3t7ICAiOiAiIH4gbm90T3BlbkJ1c2luZXNzUmVhc29uc090aGVyfGRvdCBpZiBub3RPcGVuQnVzaW5lc3NSZWFzb25zT3RoZXIgZWxzZSAiLiIgfX0KICAgICAgICAgIHslLSBlbGlmIG90aGVyUmVhc29uc1BhcGVycyAlfQogICAgICAgICAgICB3ZSB3YW50IHRvIHB1Ymxpc2ggYSBwYXBlciBmaXJzdC4KICAgICAgICAgIHslLSBlbGlmIG90aGVyUmVhc29uc090aGVyICV9CiAgICAgICAgICAgIHdlIGhhdmUgb3RoZXIgdGhhbiBwYXBlci1wdWJsaXNoaW5nIHJlYXNvbnN7eyAiOiAiIH4gbm90T3Blbk90aGVyUmVhc29uc090aGVyfGRvdCBpZiBub3RPcGVuT3RoZXJSZWFzb25zT3RoZXIgZWxzZSAiLiIgfX0KICAgICAgICAgIHslLSBlbmRpZiAtJX0KICAgICAgICB7JS0gZWxzZSAlfQogICAgICAgICAgb2Y6CiAgICAgICAgICA8dWw-CiAgICAgICAgICAgIHslLSBpZiBsZWdhbFJlYXNvbnMgJX0KICAgICAgICAgICAgICA8bGk-bGVnYWwgcmVhc29uczwvbGk-CiAgICAgICAgICAgIHslLSBlbmRpZiAtJX0KICAgICAgICAgICAgeyUtIGlmIGJ1c2luZXNzUmVhc29uc1BhdGVudHMgJX0KICAgICAgICAgICAgICA8bGk-cGF0ZW50LXJlbGF0ZWQgYnVzaW5lc3MgcmVhc29uczwvbGk-CiAgICAgICAgICAgIHslLSBlbGlmIGJ1c2luZXNzUmVhc29uc090aGVyICV9CiAgICAgICAgICAgICAgPGxpPm5vbi1wYXRlbnQgYnVzaW5lc3MgcmVhc29uc3t7ICI6ICIgfiBub3RPcGVuQnVzaW5lc3NSZWFzb25zT3RoZXIgaWYgbm90T3BlbkJ1c2luZXNzUmVhc29uc090aGVyIGVsc2UgIiIgfX08L2xpPgogICAgICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgICAgICAgIHslLSBpZiBvdGhlclJlYXNvbnNQYXBlcnMgJX0KICAgICAgICAgICAgICA8bGk-d2Ugd2FudCB0byBwdWJsaXNoIGEgcGFwZXIgZmlyc3Q8L2xpPgogICAgICAgICAgICB7JS0gZWxpZiBvdGhlclJlYXNvbnNPdGhlciAtJX0KICAgICAgICAgICAgICA8bGk-d2UgaGF2ZSBvdGhlciB0aGFuIHBhcGVyLXB1Ymxpc2hpbmcgcmVhc29uc3t7ICI6ICIgfiBub3RPcGVuT3RoZXJSZWFzb25zT3RoZXIgaWYgbm90T3Blbk90aGVyUmVhc29uc090aGVyIGVsc2UgIiIgfX08L2xpPgogICAgICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgICAgICA8L3VsPgogICAgICAgIHslLSBlbmRpZiAtJX0K #}
       {%- if nReasons > 0 -%}
+        {# __tr_block_0003:start #}<p>
         {%- if nReasons == 1 -%}
           {%- if legalReasons %}
-            {# __tr_block_0003:start #}<p>The data cannot become completely open because of legal reasons.</p>{# __tr_block_0003:end #}
+            The data cannot become completely open because of legal reasons.
           {%- elif businessReasonsPatents %}
-            {# __tr_block_0004:start #}<p>The data cannot become completely open because of patent-related business reasons.</p>{# __tr_block_0004:end #}
+            The data cannot become completely open because of patent-related business reasons.
           {%- elif businessReasonsOther %}
-            {# __tr_block_0005:start #}<p>The data cannot become completely open because of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}</p>{# __tr_block_0005:end #}
+            The data cannot become completely open because of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}
           {%- elif otherReasonsPapers %}
-            {# __tr_block_0006:start #}<p>The data cannot become completely open because we want to publish a paper first.</p>{# __tr_block_0006:end #}
+            The data cannot become completely open because we want to publish a paper first.
           {%- elif otherReasonsOther %}
-            {# __tr_block_0007:start #}<p>The data cannot become completely open because we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}</p>{# __tr_block_0007:end #}
+            The data cannot become completely open because we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}
           {%- endif -%}
         {%- else %}
-          {# __tr_block_0008:start #}<p>The data cannot become completely open because of:</p>{# __tr_block_0008:end #}
+          The data cannot become completely open because of:
           <ul>
             {%- if legalReasons %}
-              {# __tr_block_0009:start #}<li>legal reasons</li>{# __tr_block_0009:end #}
+              <li>legal reasons</li>
             {%- endif -%}
             {%- if businessReasonsPatents %}
-              {# __tr_block_0010:start #}<li>patent-related business reasons</li>{# __tr_block_0010:end #}
+              <li>patent-related business reasons</li>
             {%- elif businessReasonsOther %}
-              {# __tr_block_0011:start #}<li>non-patent business reasons{{ ": " ~ notOpenBusinessReasonsOther if notOpenBusinessReasonsOther else "" }}</li>{# __tr_block_0011:end #}
+              <li>non-patent business reasons{{ ": " ~ notOpenBusinessReasonsOther if notOpenBusinessReasonsOther else "" }}</li>
             {%- endif -%}
             {%- if otherReasonsPapers %}
-              {# __tr_block_0012:start #}<li>we want to publish a paper first</li>{# __tr_block_0012:end #}
+              <li>we want to publish a paper first</li>
             {%- elif otherReasonsOther -%}
-              {# __tr_block_0013:start #}<li>we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther if notOpenOtherReasonsOther else "" }}</li>{# __tr_block_0013:end #}
+              <li>we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther if notOpenOtherReasonsOther else "" }}</li>
             {%- endif -%}
           </ul>
-        {%- endif -%}
+        {%- endif -%}{# __tr_block_0003:end #}
 {# __tr_branch_sentence_original:end #}      {%- else -%}
-        {# __tr_block_0014:start #}<p>The data cannot become completely open.</p>{# __tr_block_0014:end #}
+        {# __tr_block_0004:start #}<p>The data cannot become completely open.</p>{# __tr_block_0004:end #}
       {%- endif -%}
 
       {# Authentication and authorization of users #}
@@ -78,19 +79,19 @@
         {%- set legalReasonsAuthenticatedAUuid = repliesMap[legalReasonsAuthenticatedQUuid]|reply_str_value -%}
         
         {%- if legalReasonsAuthenticatedAUuid -%}
-          {# __tr_block_0015:start #}<h4>Authentication and Authorization of Users</h4>{# __tr_block_0015:end #}
+          {# __tr_block_0005:start #}<h4>Authentication and Authorization of Users</h4>{# __tr_block_0005:end #}
           {%- if legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeMemberAUuid -%}
-            {# __tr_block_0016:start #}<p>One of the project members will authorize potential users of the data.</p>{# __tr_block_0016:end #}
+            {# __tr_block_0006:start #}<p>One of the project members will authorize potential users of the data.</p>{# __tr_block_0006:end #}
           {%- elif legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeNewCommitteeAUuid -%}
-            {# __tr_block_0017:start #}<p>We will set up a data access committee for authorization of potential users of the data.</p>{# __tr_block_0017:end #}
+            {# __tr_block_0007:start #}<p>We will set up a data access committee for authorization of potential users of the data.</p>{# __tr_block_0007:end #}
           {%- elif legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeOldCommitteeAUuid -%}
             {%- set legalReasonsAuthenticatedCommitteeQUuid = [legalReasonsAuthenticatedQUuid, uuids.legalReasonsAuthorizeOldCommitteeAUuid, uuids.legalReasonsAuthorizeOldCommitteeQUuid]|reply_path -%}
             {%- set legalReasonsAuthenticatedCommitteeReply = repliesMap[legalReasonsAuthenticatedCommitteeQUuid]|reply_str_value -%}
             
             {%- if legalReasonsAuthenticatedCommitteeReply -%}
-              {# __tr_block_0018:start #}<p>We will make use of an existing data committee - {{legalReasonsAuthenticatedCommitteeReply|dot}}</p>{# __tr_block_0018:end #}
+              {# __tr_block_0008:start #}<p>We will make use of an existing data committee - {{legalReasonsAuthenticatedCommitteeReply|dot}}</p>{# __tr_block_0008:end #}
             {%- else -%}
-              {# __tr_block_0019:start #}<p>We will make use of an existing data committee.</p>{# __tr_block_0019:end #}
+              {# __tr_block_0009:start #}<p>We will make use of an existing data committee.</p>{# __tr_block_0009:end #}
             {%- endif -%}
 
           {%- elif legalReasonsAuthenticatedAUuid == uuids.legalReasonsAuthorizeOtherAUuid -%}
@@ -98,9 +99,9 @@
             {%- set legalReasonsAuthenticatedOtherReply = repliesMap[legalReasonsAuthenticatedOtherQUuid]|reply_str_value -%}
 
             {%- if legalReasonsAuthenticatedOtherReply  -%}
-              {# __tr_block_0020:start #}<p>We will have following arrangements: {{legalReasonsAuthenticatedOtherReply|dot}}</p>{# __tr_block_0020:end #}
+              {# __tr_block_0010:start #}<p>We will have following arrangements: {{legalReasonsAuthenticatedOtherReply|dot}}</p>{# __tr_block_0010:end #}
             {%- else -%}
-              {# __tr_block_0021:start #}<p>We will have not decided yet.</p>{# __tr_block_0021:end #}
+              {# __tr_block_0011:start #}<p>We will have not decided yet.</p>{# __tr_block_0011:end #}
             {%- endif -%}
           {%- endif -%}
  
@@ -111,11 +112,11 @@
       {%- set notOpenLimitedEmbargoPath = [openImmediatelyPath, uuids.openImmediatelyNoAUuid, uuids.notOpenLimitedEmbargoQUuid]|reply_path -%}
       {%- set notOpenLimitedEmbargoAUuid = repliesMap[notOpenLimitedEmbargoPath]|reply_str_value -%}
       {%- if notOpenLimitedEmbargoAUuid == uuids.notOpenLimitedEmbargoIndefinitelyAUuid -%}
-        {# __tr_block_0022:start #}<p>Limited embargo cannot be used because some restricted data will be embargoed indefinitely.</p>{# __tr_block_0022:end #}
+        {# __tr_block_0012:start #}<p>Limited embargo cannot be used because some restricted data will be embargoed indefinitely.</p>{# __tr_block_0012:end #}
       {%- elif notOpenLimitedEmbargoAUuid == uuids.notOpenLimitedEmbargoReleasedSoonAUuid -%}
-        {# __tr_block_0023:start #}<p>Data will be released only as soon as restrictions are falling away.</p>{# __tr_block_0023:end #}
+        {# __tr_block_0013:start #}<p>Data will be released only as soon as restrictions are falling away.</p>{# __tr_block_0013:end #}
       {%- elif notOpenLimitedEmbargoAUuid == uuids.notOpenLimitedEmbargoYesAUuid -%}
-        {# __tr_block_0024:start #}<p>Data that is not legally restrained will be released after a fixed time period, unconditionally.</p>{# __tr_block_0024:end #}
+        {# __tr_block_0014:start #}<p>Data that is not legally restrained will be released after a fixed time period, unconditionally.</p>{# __tr_block_0014:end #}
       {%- endif -%}
     {%- endif -%}
 
@@ -123,18 +124,18 @@
     {%- set embargoPath = [uuids.accessCUuid, uuids.limitedEmbargoQUuid]|reply_path -%}
     {%- set embargoAUuid = repliesMap[embargoPath]|reply_str_value -%}
     {%- if embargoAUuid == uuids.limitedEmbargoOpenAUuid -%}
-      {# __tr_block_0025:start #}<p>Limited embargo will not be used as all data will be opened.</p>{# __tr_block_0025:end #}
+      {# __tr_block_0015:start #}<p>Limited embargo will not be used as all data will be opened.</p>{# __tr_block_0015:end #}
     {%- elif embargoAUuid == uuids.limitedEmbargoIndefinitelyAUuid -%}
-      {# __tr_block_0026:start #}<p>Limited embargo cannot be used because some restricted data will be embargoed indefinitely.</p>{# __tr_block_0026:end #}
+      {# __tr_block_0016:start #}<p>Limited embargo cannot be used because some restricted data will be embargoed indefinitely.</p>{# __tr_block_0016:end #}
     {%- elif embargoAUuid == uuids.limitedEmbargoReleasedSoonAUuid -%}
-      {# __tr_block_0027:start #}<p>Data will be released only as soon as restrictions are falling away.</p>{# __tr_block_0027:end #}
+      {# __tr_block_0017:start #}<p>Data will be released only as soon as restrictions are falling away.</p>{# __tr_block_0017:end #}
     {%- elif embargoAUuid == uuids.limitedEmbargoYesAUuid -%}
       {%- set embargoPeriodPath = [embargoPath, embargoAUuid, uuids.limitedEmbargoPeriodQUuid]|reply_path -%}
       {%- set embargoPeriod = repliesMap[embargoPeriodPath]|reply_str_value -%}
       {%- if embargoPeriod -%}
-        {# __tr_block_0028:start #}<p>Data that is not legally restrained will be released after a fixed time period ({{ embargoPeriod }}), unconditionally.</p>{# __tr_block_0028:end #}
+        {# __tr_block_0018:start #}<p>Data that is not legally restrained will be released after a fixed time period ({{ embargoPeriod }}), unconditionally.</p>{# __tr_block_0018:end #}
       {%- else -%}
-        {# __tr_block_0029:start #}<p>Data that is not legally restrained will be released after a fixed time period, unconditionally.</p>{# __tr_block_0029:end #}
+        {# __tr_block_0019:start #}<p>Data that is not legally restrained will be released after a fixed time period, unconditionally.</p>{# __tr_block_0019:end #}
       {%- endif -%}
     {%- endif -%}
     
@@ -142,18 +143,18 @@
     {%- set ownershipPath = [uuids.creatingCUuid, uuids.ownershipQUuid]|reply_path -%}
     {%- set ownershipAUuid = repliesMap[ownershipPath]|reply_str_value -%}
     {%- if ownershipAUuid == uuids.ownershipNoOwnerAUuid -%}
-      {# __tr_block_0030:start #}<p>Our data is legally not copyrightable, there is no legal owner.</p>{# __tr_block_0030:end #}
+      {# __tr_block_0020:start #}<p>Our data is legally not copyrightable, there is no legal owner.</p>{# __tr_block_0020:end #}
     {%- elif ownershipAUuid == uuids.ownershipPIAUuid -%}
-      {# __tr_block_0031:start #}<p>All data will be owned by the Principal Investigator.</p>{# __tr_block_0031:end #}
+      {# __tr_block_0021:start #}<p>All data will be owned by the Principal Investigator.</p>{# __tr_block_0021:end #}
     {%- elif ownershipAUuid == uuids.ownershipInstituteAUuid -%}
-      {# __tr_block_0032:start #}<p>All data will be owned by the institute.</p>{# __tr_block_0032:end #}
+      {# __tr_block_0022:start #}<p>All data will be owned by the institute.</p>{# __tr_block_0022:end #}
     {%- elif ownershipAUuid == uuids.ownershipConsortiumAUuid -%}
-      {# __tr_block_0033:start #}<p>We have a consortium agreement that arranges Intellectual Property.</p>{# __tr_block_0033:end #}
+      {# __tr_block_0023:start #}<p>We have a consortium agreement that arranges Intellectual Property.</p>{# __tr_block_0023:end #}
     {%- elif ownershipAUuid == uuids.ownershipOtherAUuid -%}
       {%- set ownershipOtherPath = [ownershipPath, uuids.ownershipOtherAUuid, uuids.ownershipOtherQUuid]|reply_path -%}
       {%- set ownershipOther = repliesMap[ownershipOtherPath]|reply_str_value -%}
       {%- if ownershipOther -%}
-        {# __tr_block_0034:start #}<p>We have made the following arrangements regarding the data ownership: {{ ownershipOther|dot }}</p>{# __tr_block_0034:end #}
+        {# __tr_block_0024:start #}<p>We have made the following arrangements regarding the data ownership: {{ ownershipOther|dot }}</p>{# __tr_block_0024:end #}
       {%- endif -%}
     {%- endif -%}
 
@@ -182,7 +183,7 @@
         {%- endif -%}
       {%- endfor -%}
       {%- if (answeredRefData|length + answeredNRefData|length) > 0 -%}
-        {# __tr_block_0035:start #}<p>For the reference and non-reference data sets that we reuse, conditions are as follows:
+        {# __tr_block_0025:start #}<p>For the reference and non-reference data sets that we reuse, conditions are as follows:
         <ul>
           {%- for i in answeredRefData -%}
             {%- set refDataPrefix = [refDataPath, i]|reply_path -%}
@@ -236,7 +237,7 @@
                 {%- endif -%}
               </li>
             {%- endif -%}
-          {%- endfor -%}{# __tr_block_0035:end #}
+          {%- endfor -%}{# __tr_block_0025:end #}
         </ul>
       {%- endif -%}
     {%- endif -%}
