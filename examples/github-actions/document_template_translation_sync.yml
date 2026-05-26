@@ -215,13 +215,21 @@ jobs:
           # `dsw-tdk package` embeds UUID/timestamp metadata in the zip. Avoid
           # committing zip/PDF-only churn when the translated template directory
           # did not actually change.
+          restore_generated_path() {
+            if git ls-files --error-unmatch "$1" >/dev/null 2>&1; then
+              git checkout -- "$1"
+            else
+              rm -rf "$1"
+            fi
+          }
+
           if [ -z "$(git status --short -- "${content_paths[@]}")" ]; then
             if [ -n "$(git status --short -- "$TRANSLATED_TEMPLATE_PACKAGE")" ]; then
-              git checkout -- "$TRANSLATED_TEMPLATE_PACKAGE"
+              restore_generated_path "$TRANSLATED_TEMPLATE_PACKAGE"
             fi
             if [ -n "$PROJECT_RENDER_OUTPUT" ] &&
               [ -n "$(git status --short -- "$PROJECT_RENDER_OUTPUT")" ]; then
-              git checkout -- "$PROJECT_RENDER_OUTPUT"
+              restore_generated_path "$PROJECT_RENDER_OUTPUT"
             fi
             echo "No generated output changes to commit."
             exit 0
