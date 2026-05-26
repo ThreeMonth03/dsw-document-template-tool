@@ -11,7 +11,7 @@
 ### Sentence (en)
 
 ```text
-, available at {swPIDReply}
+available at {swPIDReply}
 ```
 
 ### Translation (zh_Hant)

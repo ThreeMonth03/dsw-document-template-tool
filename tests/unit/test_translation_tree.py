@@ -566,10 +566,10 @@ def test_export_translation_tree_keeps_nested_restriction_with_label(
     ]
 
 
-def test_export_translation_tree_keeps_reason_prefix_with_branch_reason(
+def test_audit_translation_tree_reports_unmerged_reason_prefix_fragments(
     tmp_path: Path,
 ) -> None:
-    """Reason branches should include their shared decision prefix."""
+    """CI should reject generic nested reason branches if the prefix still splits."""
 
     compact_dir = _write_compact_template(
         tmp_path,
@@ -605,6 +605,40 @@ def test_export_translation_tree_keeps_reason_prefix_with_branch_reason(
         "but decided not to reuse it because it is not sufficient quality" in sentence
         for sentence in sentences
     )
+    issues = audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir)
+    assert [issue.code for issue in issues] == [
+        "hard-to-translate-source-fragment",
+        "hard-to-translate-source-fragment",
+        "hard-to-translate-source-fragment",
+    ]
+
+
+def test_export_translation_tree_merges_inline_expression_sentence_split(
+    tmp_path: Path,
+) -> None:
+    """A placeholder in the middle of a sentence should stay in one unit."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>
+  {%- if version -%}
+    We will use version "{{ version }}" of this dataset.
+  {%- endif -%}
+</p>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+
+    assert 'We will use version "{version}" of this dataset.' in sentences
+    assert 'We will use version "' not in sentences
+    assert '" of this dataset.' not in sentences
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
 

@@ -86,10 +86,11 @@ HARD_FRAGMENT_SENTENCES = {
     "we will use.",
 }
 HARD_FRAGMENT_PREFIXES = (
+    '" of this dataset',
+    ", but decided ",
     ", legally",
     ", which",
     "and we will ",
-    "but decided ",
     "but we won't ",
     'in order to "',
 )
@@ -761,7 +762,10 @@ def _extract_unit_regions(wrapper_body: str) -> list[AnnotationRegion]:
             base_offset=inner_start,
         )
         if normalized_inner_regions:
-            return normalized_inner_regions
+            return _merge_inline_expression_split_regions(
+                regions=normalized_inner_regions,
+                source_text=wrapper_body,
+            )
 
     normalized_regions = _normalize_regions(
         regions=_collect_translation_unit_regions(wrapper_body),
@@ -769,9 +773,54 @@ def _extract_unit_regions(wrapper_body: str) -> list[AnnotationRegion]:
         base_offset=0,
     )
     if normalized_regions:
-        return normalized_regions
+        return _merge_inline_expression_split_regions(
+            regions=normalized_regions,
+            source_text=wrapper_body,
+        )
 
     return [AnnotationRegion(start=0, end=len(wrapper_body))]
+
+
+def _merge_inline_expression_split_regions(
+    *,
+    regions: list[AnnotationRegion],
+    source_text: str,
+) -> list[AnnotationRegion]:
+    """Repair regions split only by a placeholder inside one sentence."""
+
+    merged: list[AnnotationRegion] = []
+    for region in regions:
+        if not merged:
+            merged.append(region)
+            continue
+
+        previous = merged[-1]
+        candidate = AnnotationRegion(start=previous.start, end=region.end)
+        if _should_merge_inline_expression_split(
+            left=source_text[previous.start : previous.end],
+            gap=source_text[previous.end : region.start],
+            combined=source_text[candidate.start : candidate.end],
+        ):
+            merged[-1] = candidate
+        else:
+            merged.append(region)
+    return merged
+
+
+def _should_merge_inline_expression_split(*, left: str, gap: str, combined: str) -> bool:
+    if not gap.strip():
+        return False
+    gap_tokens = _lex_source_tokens(gap)
+    if not gap_tokens or any(token.kind != "jinja_expr" for token in gap_tokens):
+        return False
+    if _contains_jinja_block_or_comment(combined):
+        return False
+
+    left_sentence = _extract_sentence_text(left)
+    combined_sentence = _extract_sentence_text(combined)
+    if left_sentence.endswith((".", "!", "?", ":")):
+        return False
+    return combined_sentence.endswith((".", "!", "?", ":"))
 
 
 def _should_keep_single_outer_element(*, wrapper_body: str, inner_text: str) -> bool:
@@ -910,13 +959,13 @@ def _collect_branch_unit_regions(source_text: str, *, base_offset: int = 0) -> J
                 ):
                     continue
 
-            if not group.has_alternatives:
-                all_branches_are_represented = False
-                continue
             if _starts_with_sentence_prefix_punctuation(branch_text):
                 all_branches_are_represented = False
                 continue
             if not _is_simple_branch_translation_unit(branch_text):
+                all_branches_are_represented = False
+                continue
+            if not group.has_alternatives and not _is_complete_standalone_unit(branch_text):
                 all_branches_are_represented = False
                 continue
 
@@ -1065,6 +1114,17 @@ def _is_simple_branch_translation_unit(source_text: str) -> bool:
         "ul",
     }
     return not any(token.kind == "html_tag" and token.tag_name in block_tags for token in tokens)
+
+
+def _is_complete_standalone_unit(source_text: str) -> bool:
+    """Allow optional `if` bodies only when they are complete translator units."""
+
+    sentence = _extract_sentence_text(source_text)
+    if not re.search(r"[A-Za-z0-9]", sentence):
+        return False
+    if sentence.startswith((",", ".", ";", ":")):
+        return False
+    return sentence.endswith((".", "!", "?", ":"))
 
 
 def _starts_with_sentence_prefix_punctuation(source_text: str) -> bool:
@@ -1962,6 +2022,7 @@ def _extract_sentence_text(source_text: str) -> str:
     sentence = re.sub(r"(?<![/.])\.{2,}", ".", sentence)
     sentence = re.sub(r"(?<![/.])([.!?])\.", r"\1", sentence)
     sentence = re.sub(r"\s+\.", ".", sentence)
+    sentence = re.sub(r"^,\s+(available at\b)", r"\1", sentence, flags=re.IGNORECASE)
     sentence = sentence.strip()
     sentence = _repair_sentence_text_glue(sentence)
     return sentence or "(no visible sentence)"
