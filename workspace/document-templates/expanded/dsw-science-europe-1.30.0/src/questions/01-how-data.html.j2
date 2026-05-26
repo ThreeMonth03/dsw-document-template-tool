@@ -77,7 +77,7 @@
                   
                   as part of the quality process.
                 </p>{# __tr_block_0006:end #}{%- endif -%}{%- if repetition -%}{# __tr_block_0007:start #}<p>
-                  We will be using
+                  We will be using{{" "}}
                   repeat samples/measurements
                   
                   
@@ -85,7 +85,7 @@
                   
                   as part of the quality process.
                 </p>{# __tr_block_0007:end #}{%- endif -%}{%- if standardized -%}{# __tr_block_0008:start #}<p>
-                  We will be using
+                  We will be using{{" "}}
                   
                   standardized data capture/recording
                   
@@ -93,7 +93,7 @@
                   
                   as part of the quality process.
                 </p>{# __tr_block_0008:end #}{%- endif -%}{%- if validation -%}{# __tr_block_0009:start #}<p>
-                  We will be using
+                  We will be using{{" "}}
                   
                   
                   <em>Data Entry</em> validation
@@ -101,7 +101,7 @@
                   
                   as part of the quality process.
                 </p>{# __tr_block_0009:end #}{%- endif -%}{%- if peerReview -%}{# __tr_block_0010:start #}<p>
-                  We will be using
+                  We will be using{{" "}}
                   
                   
                   
@@ -109,7 +109,7 @@
                   
                   as part of the quality process.
                 </p>{# __tr_block_0010:end #}{%- endif -%}{%- if vocabularies -%}{# __tr_block_0011:start #}<p>
-                  We will be using
+                  We will be using{{" "}}
                   
                   
                   
@@ -118,7 +118,7 @@
                   
                   as part of the quality process.
                 </p>{# __tr_block_0011:end #}{%- endif %}{%- if consistency -%}{# __tr_block_0012:start #}<p>
-                  We will be using
+                  We will be using{{" "}}
                   
                   
                   
@@ -212,8 +212,8 @@
             {# identification #}
             <p>We will re-use this standard reference data
             {%- if refDataWhere -%}{%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
-              {{" "}}available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.{%- else -%}
-              {{" "}}available via:{{" "}}{{ refDataWhere }}{%- endif -%}{%- endif -%}
+              {{" "}}available via:{{" "}}{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.{%- else -%}
+              {{" "}}available via:{{" "}}{{" "}}{{ refDataWhere }}{%- endif -%}{%- endif -%}
     
             {# usage #}
             {%- set refDataUsageQ = [ refDataUsedPrefix, uuids.refDataUsageQUuid]|reply_path -%}
@@ -272,8 +272,8 @@
               {%- elif refDataConditionsReply == uuids.refDataConditionsCCBYAUuid -%}
                 freely available with obligation to quote the source.
               {%- elif refDataConditionsReply == uuids.refDataConditionsOtherAUuid -%}{%- if refDataConditionsOtherRepl -%}
-                available with {{" "}}following restrictions: "{{refDataConditionsOtherRepl}}".{%- else -%}
-                available with {{" "}}{{" "}}restrictions, that will be specified.{%- endif -%}{%- endif -%}
+                available with {{" "}}{{" "}}following restrictions: "{{refDataConditionsOtherRepl}}".{%- else -%}
+                available with {{" "}}{{" "}}{{" "}}restrictions, that will be specified.{%- endif -%}{%- endif -%}
              </p>
             {%- endif -%}
 
@@ -298,22 +298,22 @@
             {# identification #}
             <p> We considered reusing this standard reference data
             {%- if refDataWhere -%}{%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
-            {{" "}}available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.{%- else -%}
-            {{" "}}available via:{{" "}}{{ refDataWhere}}{%- endif -%}{%- endif -%}
+            {{" "}}available via:{{" "}}{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.{%- else -%}
+            {{" "}}available via:{{" "}}{{" "}}{{ refDataWhere}}{%- endif -%}{%- endif -%}
 
             {# no usage reason #}
             {%- if refDataUseNoReply -%}{%- if refDataUseNoReply == uuids.refDataUseNoDataAUuid -%}
-              , but decided not to re-use it{{" "}}because it misses data we need.
+              , but decided not to re-use it{{" "}}{{" "}}because it misses data we need.
             {%- elif refDataUseNoReply == uuids.refDataUseNoAspectAUuid -%}
-              , but decided not to re-use it{{" "}}because it misses required aspects.
+              , but decided not to re-use it{{" "}}{{" "}}because it misses required aspects.
             {%- elif refDataUseNoReply == uuids.refDataUseNoQualityAUuid -%}
-              , but decided not to re-use it{{" "}}because it is not sufficient quality.
+              , but decided not to re-use it{{" "}}{{" "}}because it is not sufficient quality.
             {%- elif refDataUseNoReply == uuids.refDataUseNoCondAUuid -%}
-              , but decided not to re-use it{{" "}}because its conditions of use do not allow us to use it.
+              , but decided not to re-use it{{" "}}{{" "}}because its conditions of use do not allow us to use it.
             {%- elif refDataUseNoReply == uuids.refDataUseNoReasonAUuid and refDataUseNoOtherReasonReply -%}
-              , but decided not to re-use it{{" "}}because: "{{refDataUseNoOtherReasonReply}}".
+              , but decided not to re-use it{{" "}}{{" "}}because: "{{refDataUseNoOtherReasonReply}}".
             {% else %}
-              , but decided not to re-use it.
+              , but decided not to re-use it{{" "}}.
             {%- endif -%}{%- else -%}
             . </p>
             {%- endif -%}
@@ -344,9 +344,14 @@
         {%- if nrefDataUseReply == uuids.nrefDataUseYesAUuid %}
 
           {# identification #}
-          {# __tr_branch_sentence_original:PHA-V2Ugd2lsbCByZS11c2UgdGhpcyBub24tcmVmZXJlY2UgZGF0YSAKICAgICAgICAgIHslLSBpZiBucmVmRGF0YVdoZXJlIC0lfQogICAgICAgICB7eyIgIn19IGF2YWlsYWJsZSB2aWE6e3siICJ9fQogICAgICAgICAgICB7JS0gaWYgbnJlZkRhdGFXaGVyZS5zdGFydHN3aXRoKCJodHRwOi8vIikgb3IgbnJlZkRhdGFXaGVyZS5zdGFydHN3aXRoKCJodHRwczovLyIpIG9yIG5yZWZEYXRhV2hlcmUuc3RhcnRzd2l0aCgiZnRwOi8vIikgLSV9CiAgICAgICAgICAgICAgPGEgaHJlZj0ie3sgbnJlZkRhdGFXaGVyZSB9fSIgdGFyZ2V0PSJfYmxhbmsiPnt7IG5yZWZEYXRhV2hlcmUgfX0gPC9hPi4KICAgICAgICAgICAgeyUtIGVsc2UgLSV9CiAgICAgICAgICAgICAge3sgbnJlZkRhdGFXaGVyZSB9fQogICAgICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAKICAgICAgICAgIHsjIHVzYWdlICN9CiAgICAgICAgICB7JS0gc2V0IG5yZWZEYXRhVXNhZ2VRID0gW25yZWZEYXRhVXNlZFByZWZpeCwgdXVpZHMubnJlZkRhdGFVc2FnZVFVdWlkXXxyZXBseV9wYXRoICAtJX0KICAgICAgICAgIHslLSBzZXQgbnJlZkRhdGFVc2FnZVJlcGx5ID0gcmVwbGllc01hcFtucmVmRGF0YVVzYWdlUV18cmVwbHlfc3RyX3ZhbHVlIC0lfQogICAgICAgICAgeyUtIGlmIG5yZWZEYXRhVXNhZ2VSZXBseSAtJX0KICAgICAgICAgICAge3srIiAifX1pbiBvcmRlciB0byAie3sgbnJlZkRhdGFVc2FnZVJlcGx5fX0iCiAgICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgICAgICAuPC9wPg== #}{%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}<p>We will re-use this non-referece data 
-          {%- if nrefDataWhere -%}
-         {{" "}} available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.{%- endif -%}
+          <p>We will re-use this non-referece data 
+          {%- if nrefDataWhere -%}{# __tr_branch_sentence_original:CiAgICAgICAgIHt7IiAifX0gYXZhaWxhYmxlIHZpYTp7eyIgIn19CiAgICAgICAgICAgIHslLSBpZiBucmVmRGF0YVdoZXJlLnN0YXJ0c3dpdGgoImh0dHA6Ly8iKSBvciBucmVmRGF0YVdoZXJlLnN0YXJ0c3dpdGgoImh0dHBzOi8vIikgb3IgbnJlZkRhdGFXaGVyZS5zdGFydHN3aXRoKCJmdHA6Ly8iKSAtJX0KICAgICAgICAgICAgICA8YSBocmVmPSJ7eyBucmVmRGF0YVdoZXJlIH19IiB0YXJnZXQ9Il9ibGFuayI-e3sgbnJlZkRhdGFXaGVyZSB9fSA8L2E-LgogICAgICAgICAgICB7JS0gZWxzZSAtJX0KICAgICAgICAgICAgICB7eyBucmVmRGF0YVdoZXJlIH19CiAgICAgICAgICAgIHslLSBlbmRpZiAtJX0K #}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+         {{" "}} available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+         {{" "}} available via:{{" "}}{{ nrefDataWhere }}
+            {%- endif -%}
+{# __tr_branch_sentence_original:end #}          {%- endif -%}
     
           {# usage #}
           {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
@@ -354,23 +359,13 @@
           {%- if nrefDataUsageReply -%}
             {{+" "}}in order to "{{ nrefDataUsageReply}}"
           {%- endif -%}
-          .</p>{%- else -%}<p>We will re-use this non-referece data 
-          {%- if nrefDataWhere -%}
-         {{" "}} available via:{{" "}}{{ nrefDataWhere }}{%- endif -%}
-    
-          {# usage #}
-          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
-          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
-          {%- if nrefDataUsageReply -%}
-            {{+" "}}in order to "{{ nrefDataUsageReply}}"
-          {%- endif -%}
-          .</p>{%- endif -%}{# __tr_branch_sentence_original:end #}
+          .</p>
 
           {# Which part of the non-reference data we will use #}
           {%- set nrefDataComplete = [nrefDataUsedPrefix, uuids.nrefDataCompleteQUuid]|reply_path  -%}
           {%- set nrefDataCompleteReply = repliesMap[nrefDataComplete]|reply_str_value -%}
           {%- if nrefDataCompleteReply -%}
-            {# __tr_branch_sentence_original:PHA-V2Ugd2lsbCB1c2V7eysiICJ9fQogICAgICAgICAgICB7JS0gaWYgbnJlZkRhdGFDb21wbGV0ZVJlcGx5ID09IHV1aWRzLm5yZWZEYXRhQ29tcGxldGVVc2VBVXVpZCAtJX0KICAgICAgICAgICAgICB0aGUgY29tcGxldGUgZGF0YSBzZXQuIAogICAgICAgICAgICB7JS0gZWxpZiBucmVmRGF0YUNvbXBsZXRlUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFDb21wbGV0ZURvY3VtZW50QVV1aWQgLSV9CiAgICAgICAgICAgICAgb25seSBzdWJzZXQgb2YgZGF0YSBhbmQgd2Ugd2lsbCBzZWxlY3QgaXQgYnkgZmlsdGVyaW5nIGFuZC9vciBzZWxlY3Rpb24gKHdoaWNoIHdpbGwgYmUgZG9jdW1lbnRlZCkuCiAgICAgICAgICAgIHslLSBlbGlmIG5yZWZEYXRhQ29tcGxldGVSZXBseSA9PSB1dWlkcy5ucmVmRGF0YUNvbXBsZXRlU3Vic2V0QVV1aWQgLSV9CiAgICAgICAgICAgICAgb25seSBzZWxlY3RlZCBzdWJzZXQgb2YgZGF0YSwgd2hpY2ggd2lsbCBiZSBhdmFpbGFibGUgdG9nZXRoZXIgd2l0aCBvdXIgcmVzdWx0cy4KICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICA8L3A- #}{%- if nrefDataCompleteReply == uuids.nrefDataCompleteUseAUuid -%}<p>We will use{{+" "}}the complete data set.</p>{%- elif nrefDataCompleteReply == uuids.nrefDataCompleteDocumentAUuid -%}<p>We will use{{+" "}}only subset of data and we will select it by filtering and/or selection (which will be documented).</p>{%- elif nrefDataCompleteReply == uuids.nrefDataCompleteSubsetAUuid -%}<p>We will use{{+" "}}only selected subset of data, which will be available together with our results.</p>{% else %}<p>We will use{{+" "}}</p>{%- endif -%}{# __tr_branch_sentence_original:end #}
+            {# __tr_branch_sentence_original:PHA-V2Ugd2lsbCB1c2V7eysiICJ9fQogICAgICAgICAgICB7JS0gaWYgbnJlZkRhdGFDb21wbGV0ZVJlcGx5ID09IHV1aWRzLm5yZWZEYXRhQ29tcGxldGVVc2VBVXVpZCAtJX0KICAgICAgICAgICAgICB0aGUgY29tcGxldGUgZGF0YSBzZXQuIAogICAgICAgICAgICB7JS0gZWxpZiBucmVmRGF0YUNvbXBsZXRlUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFDb21wbGV0ZURvY3VtZW50QVV1aWQgLSV9CiAgICAgICAgICAgICAgb25seSBzdWJzZXQgb2YgZGF0YSBhbmQgd2Ugd2lsbCBzZWxlY3QgaXQgYnkgZmlsdGVyaW5nIGFuZC9vciBzZWxlY3Rpb24gKHdoaWNoIHdpbGwgYmUgZG9jdW1lbnRlZCkuCiAgICAgICAgICAgIHslLSBlbGlmIG5yZWZEYXRhQ29tcGxldGVSZXBseSA9PSB1dWlkcy5ucmVmRGF0YUNvbXBsZXRlU3Vic2V0QVV1aWQgLSV9CiAgICAgICAgICAgICAgb25seSBzZWxlY3RlZCBzdWJzZXQgb2YgZGF0YSwgd2hpY2ggd2lsbCBiZSBhdmFpbGFibGUgdG9nZXRoZXIgd2l0aCBvdXIgcmVzdWx0cy4KICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICA8L3A- #}{%- if nrefDataCompleteReply == uuids.nrefDataCompleteUseAUuid -%}<p>We will use{{+" "}}{{" "}}the complete data set.</p>{%- elif nrefDataCompleteReply == uuids.nrefDataCompleteDocumentAUuid -%}<p>We will use{{+" "}}{{" "}}only subset of data and we will select it by filtering and/or selection (which will be documented).</p>{%- elif nrefDataCompleteReply == uuids.nrefDataCompleteSubsetAUuid -%}<p>We will use{{+" "}}{{" "}}only selected subset of data, which will be available together with our results.</p>{% else %}<p>We will use{{+" "}}</p>{%- endif -%}{# __tr_branch_sentence_original:end #}
           {%- endif -%}
 
           {# Format #}
@@ -384,7 +379,7 @@
           {%- set nrefDataFixed = [nrefDataUsedPrefix, uuids.nrefDataFixedQUuid]|reply_path -%}
           {%- set nrefDataFixedReply = repliesMap[nrefDataFixed]|reply_str_value -%}
           {%- if nrefDataFixedReply %}
-            {# __tr_branch_sentence_original:PHA-VGhpcyBkYXRhe3srIiAifX0KICAgICAgICAgICAgeyUtIGlmIG5yZWZEYXRhRml4ZWRSZXBseSA9PSB1dWlkcy5ucmVmRGF0YUZpeGVkRml4ZWRBVXVpZCAtJX0KICAgICAgICAgICAgICBhcmUgZml4ZWQsIHRoZXJlZm9yZSB3aWxsIG5vdCBpbmZsdWVuY2UgcmVwcm9kdWNpYmlsaXR5IG9mIG91ciByZXN1bHRzLgogICAgICAgICAgICB7JS0gZWxpZiBucmVmRGF0YUZpeGVkUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFGaXhlZENoYW5nZUFVdWlkIC0lfQogICAgICAgICAgICAgIG1heSBjaGFuZ2UgaW4gdGhlIGZ1dHVyZSwgd2hpY2ggbWlnaHQgaW5mbHVlbmNlIHJlcHJvZHVjaWJpbGl0eSBvZiBvdXIgcmVzdWx0cy4KICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICA8L3A- #}{%- if nrefDataFixedReply == uuids.nrefDataFixedFixedAUuid -%}<p>This data{{+" "}}are fixed, therefore will not influence reproducibility of our results.</p>{%- elif nrefDataFixedReply == uuids.nrefDataFixedChangeAUuid -%}<p>This data{{+" "}}may change in the future, which might influence reproducibility of our results.</p>{% else %}<p>This data{{+" "}}</p>{%- endif -%}{# __tr_branch_sentence_original:end #}
+            {# __tr_branch_sentence_original:PHA-VGhpcyBkYXRhe3srIiAifX0KICAgICAgICAgICAgeyUtIGlmIG5yZWZEYXRhRml4ZWRSZXBseSA9PSB1dWlkcy5ucmVmRGF0YUZpeGVkRml4ZWRBVXVpZCAtJX0KICAgICAgICAgICAgICBhcmUgZml4ZWQsIHRoZXJlZm9yZSB3aWxsIG5vdCBpbmZsdWVuY2UgcmVwcm9kdWNpYmlsaXR5IG9mIG91ciByZXN1bHRzLgogICAgICAgICAgICB7JS0gZWxpZiBucmVmRGF0YUZpeGVkUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFGaXhlZENoYW5nZUFVdWlkIC0lfQogICAgICAgICAgICAgIG1heSBjaGFuZ2UgaW4gdGhlIGZ1dHVyZSwgd2hpY2ggbWlnaHQgaW5mbHVlbmNlIHJlcHJvZHVjaWJpbGl0eSBvZiBvdXIgcmVzdWx0cy4KICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICA8L3A- #}{%- if nrefDataFixedReply == uuids.nrefDataFixedFixedAUuid -%}<p>This data{{+" "}}{{" "}}are fixed, therefore will not influence reproducibility of our results.</p>{%- elif nrefDataFixedReply == uuids.nrefDataFixedChangeAUuid -%}<p>This data{{+" "}}{{" "}}may change in the future, which might influence reproducibility of our results.</p>{% else %}<p>This data{{+" "}}</p>{%- endif -%}{# __tr_branch_sentence_original:end #}
           {%- endif -%}
 
           {# Licence #}
@@ -482,22 +477,21 @@
 {# __tr_branch_sentence_original:end #}          {%- endif -%}
 
           {# no usage reason #}
-          {%- if nrefDataUseNoReply -%}{# __tr_branch_sentence_original:CiAgICAgICAgICAgICwgYnV0IGRlY2lkZWQgbm90IHRvIHJldXNlIGl0CiAgICAgICAgICAgIHslLSBpZiBucmVmRGF0YVVzZU5vUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFVc2VOb0RhdGFBVXVpZCAtJX0KICAgICAgICAgICAgICB7eyIgIn19YmVjYXVzZSBpdCBtaXNzZXMgZGF0YSB3ZSBuZWVkCiAgICAgICAgICAgIHslLSBlbGlmIG5yZWZEYXRhVXNlTm9SZXBseSA9PSB1dWlkcy5ucmVmRGF0YVVzZU5vQXNwZWN0QVV1aWQgLSV9CiAgICAgICAgICAgICAge3siICJ9fWJlY2F1c2VpdCBtaXNzZXMgcmVxdWlyZWQgYXNwZWN0cwogICAgICAgICAgICB7JS0gZWxpZiBucmVmRGF0YVVzZU5vUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFVc2VOb1F1YWxpdHlBVXVpZCAtJX0KICAgICAgICAgICAgICB7eyIgIn19YmVjYXVzZWl0IGlzIG5vdCBzdWZmaWNpZW50IHF1YWxpdHkKICAgICAgICAgICAgeyUtIGVsaWYgbnJlZkRhdGFVc2VOb1JlcGx5ID09IHV1aWRzLm5yZWZEYXRhVXNlTm9Db25kQVV1aWQgLSV9CiAgICAgICAgICAgICAge3siICJ9fWJlY2F1c2UgaXRzIGNvbmRpdGlvbnMgb2YgdXNlIGRvIG5vdCBhbGxvdyB1cyB0byB1c2UgaXQKICAgICAgICAgICAgeyUtIGVsaWYgbnJlZkRhdGFVc2VOb1JlcGx5ID09IHV1aWRzLm5yZWZEYXRhVXNlTm9SZWFzb25BVXVpZCBhbmQgbnJlZkRhdGFVc2VOb090aGVyUmVhc29uUmVwbHkgLSV9CiAgICAgICAgICAgICAge3siICJ9fWJlY2F1c2U6ICJ7e25yZWZEYXRhVXNlTm9PdGhlclJlYXNvblJlcGx5fX0iCiAgICAgICAgICAgIHslLSBlbmRpZiAtJX0K #}
+          {%- if nrefDataUseNoReply -%}{# __tr_branch_sentence_original:CiAgICAgICAgICAgICwgYnV0IGRlY2lkZWQgbm90IHRvIHJldXNlIGl0CiAgICAgICAgICAgIHslLSBpZiBucmVmRGF0YVVzZU5vUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFVc2VOb0RhdGFBVXVpZCAtJX0KICAgICAgICAgICAgICB7eyIgIn19YmVjYXVzZSBpdCBtaXNzZXMgZGF0YSB3ZSBuZWVkCiAgICAgICAgICAgIHslLSBlbGlmIG5yZWZEYXRhVXNlTm9SZXBseSA9PSB1dWlkcy5ucmVmRGF0YVVzZU5vQXNwZWN0QVV1aWQgLSV9CiAgICAgICAgICAgICAge3siICJ9fWJlY2F1c2VpdCBtaXNzZXMgcmVxdWlyZWQgYXNwZWN0cwogICAgICAgICAgICB7JS0gZWxpZiBucmVmRGF0YVVzZU5vUmVwbHkgPT0gdXVpZHMubnJlZkRhdGFVc2VOb1F1YWxpdHlBVXVpZCAtJX0KICAgICAgICAgICAgICB7eyIgIn19YmVjYXVzZWl0IGlzIG5vdCBzdWZmaWNpZW50IHF1YWxpdHkKICAgICAgICAgICAgeyUtIGVsaWYgbnJlZkRhdGFVc2VOb1JlcGx5ID09IHV1aWRzLm5yZWZEYXRhVXNlTm9Db25kQVV1aWQgLSV9CiAgICAgICAgICAgICAge3siICJ9fWJlY2F1c2UgaXRzIGNvbmRpdGlvbnMgb2YgdXNlIGRvIG5vdCBhbGxvdyB1cyB0byB1c2UgaXQKICAgICAgICAgICAgeyUtIGVsaWYgbnJlZkRhdGFVc2VOb1JlcGx5ID09IHV1aWRzLm5yZWZEYXRhVXNlTm9SZWFzb25BVXVpZCBhbmQgbnJlZkRhdGFVc2VOb090aGVyUmVhc29uUmVwbHkgLSV9CiAgICAgICAgICAgICAge3siICJ9fWJlY2F1c2U6ICJ7e25yZWZEYXRhVXNlTm9PdGhlclJlYXNvblJlcGx5fX0iCiAgICAgICAgICAgIHslLSBlbmRpZiAtJX0KICAgICAgICAgICAgLgo= #}
             {%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}
-            , but decided not to reuse it{{" "}}because it misses data we need
+            , but decided not to reuse it{{" "}}because it misses data we need.
             {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}
-            , but decided not to reuse it{{" "}}becauseit misses required aspects
+            , but decided not to reuse it{{" "}}becauseit misses required aspects.
             {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}
-            , but decided not to reuse it{{" "}}becauseit is not sufficient quality
+            , but decided not to reuse it{{" "}}becauseit is not sufficient quality.
             {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}
-            , but decided not to reuse it{{" "}}because its conditions of use do not allow us to use it
+            , but decided not to reuse it{{" "}}because its conditions of use do not allow us to use it.
             {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid and nrefDataUseNoOtherReasonReply -%}
-            , but decided not to reuse it{{" "}}because: "{{nrefDataUseNoOtherReasonReply}}"
+            , but decided not to reuse it{{" "}}because: "{{nrefDataUseNoOtherReasonReply}}".
             {%- else -%}
-            , but decided not to reuse it
+            , but decided not to reuse it.
             {%- endif -%}
-{# __tr_branch_sentence_original:end #}            .
-          {%- else -%}
+{# __tr_branch_sentence_original:end #}          {%- else -%}
           .</p>
           {%- endif -%}
 

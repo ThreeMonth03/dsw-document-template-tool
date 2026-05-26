@@ -72,21 +72,21 @@
 
           [T] [translation](<tree/src/contributors.html.j2/0002-the-following-contributors-are-related-to-the-of-247d39b9ed/0001-the-following-contributors-are-related-to-the-of-3fbbe45426/translation.md>)
 
-    - [ ] [wrapper] 0003-role-roles-affiliation-d87d4adead (0/3)
+    - [ ] [wrapper] 0003-role-roles-affiliation-800ed7beb5 (0/3)
 
-      [W] `0003-role-roles-affiliation-d87d4adead`
+      [W] `0003-role-roles-affiliation-800ed7beb5`
 
-        - [ ] [unit] 0001-role-b269570042: Role:
+        - [ ] [unit] 0001-role-46336aed4c: Role
 
-          [T] [translation](<tree/src/contributors.html.j2/0003-role-roles-affiliation-d87d4adead/0001-role-b269570042/translation.md>)
+          [T] [translation](<tree/src/contributors.html.j2/0003-role-roles-affiliation-800ed7beb5/0001-role-46336aed4c/translation.md>)
 
-        - [ ] [unit] 0002-roles-a0ec314ff6: Roles:
+        - [ ] [unit] 0002-roles-a56630089b: Roles
 
-          [T] [translation](<tree/src/contributors.html.j2/0003-role-roles-affiliation-d87d4adead/0002-roles-a0ec314ff6/translation.md>)
+          [T] [translation](<tree/src/contributors.html.j2/0003-role-roles-affiliation-800ed7beb5/0002-roles-a56630089b/translation.md>)
 
         - [ ] [unit] 0003-affiliation-b4c1b60847: Affiliation: {affiliation}
 
-          [T] [translation](<tree/src/contributors.html.j2/0003-role-roles-affiliation-d87d4adead/0003-affiliation-b4c1b60847/translation.md>)
+          [T] [translation](<tree/src/contributors.html.j2/0003-role-roles-affiliation-800ed7beb5/0003-affiliation-b4c1b60847/translation.md>)
 
     - [ ] [wrapper] 0004-affiliation-414b9fe89a (0/1)
 
@@ -364,7 +364,7 @@
 
           [T] [translation](<tree/src/projects.html.j2/0012-there-are-no-projects-described-for-this-dmp-60c01c963f/0001-there-are-no-projects-described-for-this-dmp-7282aecc5c/translation.md>)
 
-- [ ] [file] src/questions/01-how-data.html.j2 (0/107)
+- [ ] [file] src/questions/01-how-data.html.j2 (0/111)
 
   [J2] `src/questions/01-how-data.html.j2`
 
@@ -424,53 +424,53 @@
 
           [T] [translation](<tree/src/questions/01-how-data.html.j2/0007-we-will-be-using-calibrating-measurements-as-part-d3e8d57925/0001-we-will-be-using-calibrating-measurements-as-part-c6956ad0af/translation.md>)
 
-    - [ ] [wrapper] 0008-we-will-be-using-repeat-samples-measurements-as-c421c0615e (0/1)
+    - [ ] [wrapper] 0008-we-will-be-using-repeat-samples-measurements-as-52a3c320bb (0/1)
 
-      [W] `0008-we-will-be-using-repeat-samples-measurements-as-c421c0615e`
+      [W] `0008-we-will-be-using-repeat-samples-measurements-as-52a3c320bb`
 
-        - [ ] [unit] 0001-we-will-be-using-repeat-samples-measurements-as-0c222c0f27: We will be using repeat samples/measurements as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-repeat-samples-measurements-as-cc88e2e99a: We will be using repeat samples/measurements as part of the quality process.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0008-we-will-be-using-repeat-samples-measurements-as-c421c0615e/0001-we-will-be-using-repeat-samples-measurements-as-0c222c0f27/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0008-we-will-be-using-repeat-samples-measurements-as-52a3c320bb/0001-we-will-be-using-repeat-samples-measurements-as-cc88e2e99a/translation.md>)
 
-    - [ ] [wrapper] 0009-we-will-be-using-standardized-data-capture-recording-9e67e6c4da (0/1)
+    - [ ] [wrapper] 0009-we-will-be-using-standardized-data-capture-recording-0c24f8a2bd (0/1)
 
-      [W] `0009-we-will-be-using-standardized-data-capture-recording-9e67e6c4da`
+      [W] `0009-we-will-be-using-standardized-data-capture-recording-0c24f8a2bd`
 
-        - [ ] [unit] 0001-we-will-be-using-standardized-data-capture-recording-44c5ff4117: We will be using standardized data capture/recording as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-standardized-data-capture-recording-01a4ca52ca: We will be using standardized data capture/recording as part of the quality process.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0009-we-will-be-using-standardized-data-capture-recording-9e67e6c4da/0001-we-will-be-using-standardized-data-capture-recording-44c5ff4117/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0009-we-will-be-using-standardized-data-capture-recording-0c24f8a2bd/0001-we-will-be-using-standardized-data-capture-recording-01a4ca52ca/translation.md>)
 
-    - [ ] [wrapper] 0010-we-will-be-using-data-entry-validation-as-8f8a04b220 (0/1)
+    - [ ] [wrapper] 0010-we-will-be-using-data-entry-validation-as-883a909fc6 (0/1)
 
-      [W] `0010-we-will-be-using-data-entry-validation-as-8f8a04b220`
+      [W] `0010-we-will-be-using-data-entry-validation-as-883a909fc6`
 
-        - [ ] [unit] 0001-we-will-be-using-data-entry-validation-as-9ae68f4888: We will be using Data Entry validation as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-data-entry-validation-as-be328d50c3: We will be using Data Entry validation as part of the quality process.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0010-we-will-be-using-data-entry-validation-as-8f8a04b220/0001-we-will-be-using-data-entry-validation-as-9ae68f4888/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0010-we-will-be-using-data-entry-validation-as-883a909fc6/0001-we-will-be-using-data-entry-validation-as-be328d50c3/translation.md>)
 
-    - [ ] [wrapper] 0011-we-will-be-using-data-peer-review-as-1549139157 (0/1)
+    - [ ] [wrapper] 0011-we-will-be-using-data-peer-review-as-ddc0a13982 (0/1)
 
-      [W] `0011-we-will-be-using-data-peer-review-as-1549139157`
+      [W] `0011-we-will-be-using-data-peer-review-as-ddc0a13982`
 
-        - [ ] [unit] 0001-we-will-be-using-data-peer-review-as-5a1eb8deb6: We will be using data peer review as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-data-peer-review-as-813ff2749b: We will be using data peer review as part of the quality process.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0011-we-will-be-using-data-peer-review-as-1549139157/0001-we-will-be-using-data-peer-review-as-5a1eb8deb6/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0011-we-will-be-using-data-peer-review-as-ddc0a13982/0001-we-will-be-using-data-peer-review-as-813ff2749b/translation.md>)
 
-    - [ ] [wrapper] 0012-we-will-be-using-controlled-vocabularies-as-part-38846c715f (0/1)
+    - [ ] [wrapper] 0012-we-will-be-using-controlled-vocabularies-as-part-1c143d4fba (0/1)
 
-      [W] `0012-we-will-be-using-controlled-vocabularies-as-part-38846c715f`
+      [W] `0012-we-will-be-using-controlled-vocabularies-as-part-1c143d4fba`
 
-        - [ ] [unit] 0001-we-will-be-using-controlled-vocabularies-as-part-48f3f50d41: We will be using controlled vocabularies as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-controlled-vocabularies-as-part-169b3a2da9: We will be using controlled vocabularies as part of the quality process.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0012-we-will-be-using-controlled-vocabularies-as-part-38846c715f/0001-we-will-be-using-controlled-vocabularies-as-part-48f3f50d41/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0012-we-will-be-using-controlled-vocabularies-as-part-1c143d4fba/0001-we-will-be-using-controlled-vocabularies-as-part-169b3a2da9/translation.md>)
 
-    - [ ] [wrapper] 0013-we-will-be-using-measuring-samples-for-which-ff6575eb3c (0/1)
+    - [ ] [wrapper] 0013-we-will-be-using-measuring-samples-for-which-328f7bd318 (0/1)
 
-      [W] `0013-we-will-be-using-measuring-samples-for-which-ff6575eb3c`
+      [W] `0013-we-will-be-using-measuring-samples-for-which-328f7bd318`
 
-        - [ ] [unit] 0001-we-will-be-using-measuring-samples-for-which-d13fe60225: We will be using measuring samples for which the outcome is known in order to monitor consistency as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-measuring-samples-for-which-09ac23bd82: We will be using measuring samples for which the outcome is known in order to monitor consistency as part of the quality process.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0013-we-will-be-using-measuring-samples-for-which-ff6575eb3c/0001-we-will-be-using-measuring-samples-for-which-d13fe60225/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0013-we-will-be-using-measuring-samples-for-which-328f7bd318/0001-we-will-be-using-measuring-samples-for-which-09ac23bd82/translation.md>)
 
     - [ ] [wrapper] 0014-we-will-be-using-the-following-quality-processes-aea79da4b7 (0/8)
 
@@ -544,277 +544,293 @@
 
           [T] [translation](<tree/src/questions/01-how-data.html.j2/0018-re-used-datasets-cab1e5312b/0001-re-used-datasets-957ebc63ce/translation.md>)
 
-    - [ ] [wrapper] 0019-no-name-given-we-will-re-use-this-0b09a9de10 (0/29)
+    - [ ] [wrapper] 0019-no-name-given-we-will-re-use-this-4c16111989 (0/29)
 
-      [W] `0019-no-name-given-we-will-re-use-this-0b09a9de10`
+      [W] `0019-no-name-given-we-will-re-use-this-4c16111989`
 
         - [ ] [unit] 0001-no-name-given-bb0f7d6090: (no name given)
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0001-no-name-given-bb0f7d6090/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0001-no-name-given-bb0f7d6090/translation.md>)
 
         - [ ] [unit] 0002-we-will-re-use-this-standard-reference-data-84ceb43589: We will re-use this standard reference data
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0002-we-will-re-use-this-standard-reference-data-84ceb43589/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0002-we-will-re-use-this-standard-reference-data-84ceb43589/translation.md>)
 
-        - [ ] [unit] 0003-available-via-af16c5a825: available via: {refDataWhere}.
+        - [ ] [unit] 0003-available-via-8c33bb66b7: available via: {refDataWhere}.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0003-available-via-af16c5a825/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0003-available-via-8c33bb66b7/translation.md>)
 
-        - [ ] [unit] 0004-available-via-ede8b96d96: available via: {refDataWhere}
+        - [ ] [unit] 0004-available-via-b2133931f1: available via: {refDataWhere}
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0004-available-via-ede8b96d96/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0004-available-via-b2133931f1/translation.md>)
 
         - [ ] [unit] 0005-in-order-to-9cfc571887: in order to "{refDataUsageReply}"
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0005-in-order-to-9cfc571887/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0005-in-order-to-9cfc571887/translation.md>)
 
         - [ ] [unit] 0006-we-will-use-version-00c8b2c8bd: We will use version "
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0006-we-will-use-version-00c8b2c8bd/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0006-we-will-use-version-00c8b2c8bd/translation.md>)
 
         - [ ] [unit] 0007-of-this-dataset-4a5bc9a432: " of this dataset.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0007-of-this-dataset-4a5bc9a432/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0007-of-this-dataset-4a5bc9a432/translation.md>)
 
         - [ ] [unit] 0008-if-a-new-version-becomes-available-during-the-6b08b6cfdb: If a new version becomes available during the project, we will stay with the old version.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0008-if-a-new-version-becomes-available-during-the-6b08b6cfdb/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0008-if-a-new-version-becomes-available-during-the-6b08b6cfdb/translation.md>)
 
         - [ ] [unit] 0009-if-a-new-version-becomes-available-during-the-995741c9af: If a new version becomes available during the project, new analyses will be done with the new version.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0009-if-a-new-version-becomes-available-during-the-995741c9af/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0009-if-a-new-version-becomes-available-during-the-995741c9af/translation.md>)
 
         - [ ] [unit] 0010-if-a-new-version-becomes-available-during-the-054c7cd73e: If a new version becomes available during the project, all analyses will be redone with the new version.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0010-if-a-new-version-becomes-available-during-the-054c7cd73e/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0010-if-a-new-version-becomes-available-during-the-054c7cd73e/translation.md>)
 
         - [ ] [unit] 0011-this-standard-reference-data-will-be-available-for-392ec39d05: This standard reference data will be available for long-term by the provider.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0011-this-standard-reference-data-will-be-available-for-392ec39d05/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0011-this-standard-reference-data-will-be-available-for-392ec39d05/translation.md>)
 
         - [ ] [unit] 0012-we-will-keep-the-copy-of-this-standard-7d565e4520: We will keep the copy of this standard reference data and make it available with our results.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0012-we-will-keep-the-copy-of-this-standard-7d565e4520/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0012-we-will-keep-the-copy-of-this-standard-7d565e4520/translation.md>)
 
         - [ ] [unit] 0013-this-standard-reference-data-will-be-available-for-cf5fa2f93c: This standard reference data will be available for long-term by the provider as well as we will keep the copy of this dataset and make it available with our results.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0013-this-standard-reference-data-will-be-available-for-cf5fa2f93c/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0013-this-standard-reference-data-will-be-available-for-cf5fa2f93c/translation.md>)
 
         - [ ] [unit] 0014-this-standard-reference-data-are-c70c8eae47: This standard reference data are
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0014-this-standard-reference-data-are-c70c8eae47/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0014-this-standard-reference-data-are-c70c8eae47/translation.md>)
 
         - [ ] [unit] 0015-freely-available-for-any-use-dbaa8d00de: freely available for any use.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0015-freely-available-for-any-use-dbaa8d00de/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0015-freely-available-for-any-use-dbaa8d00de/translation.md>)
 
         - [ ] [unit] 0016-freely-available-with-obligation-to-quote-the-source-827527f9ee: freely available with obligation to quote the source.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0016-freely-available-with-obligation-to-quote-the-source-827527f9ee/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0016-freely-available-with-obligation-to-quote-the-source-827527f9ee/translation.md>)
 
-        - [ ] [unit] 0017-available-with-following-restrictions-ad18258e6c: available with following restrictions: "{refDataConditionsOtherRepl}".
+        - [ ] [unit] 0017-available-with-following-restrictions-f620fac970: available with following restrictions: "{refDataConditionsOtherRepl}".
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0017-available-with-following-restrictions-ad18258e6c/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0017-available-with-following-restrictions-f620fac970/translation.md>)
 
-        - [ ] [unit] 0018-available-with-restrictions-that-will-be-specified-8ec8c21afa: available with restrictions, that will be specified.
+        - [ ] [unit] 0018-available-with-restrictions-that-will-be-specified-8a8e21451c: available with restrictions, that will be specified.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0018-available-with-restrictions-that-will-be-specified-8ec8c21afa/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0018-available-with-restrictions-that-will-be-specified-8a8e21451c/translation.md>)
 
         - [ ] [unit] 0019-the-standard-reference-data-are-in-the-format-f1b6a79bde: The standard reference data are in the format that has to be transformed before using.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0019-the-standard-reference-data-are-in-the-format-f1b6a79bde/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0019-the-standard-reference-data-are-in-the-format-f1b6a79bde/translation.md>)
 
         - [ ] [unit] 0020-the-standard-reference-data-are-in-the-format-0e336c7c95: The standard reference data are in the format that does not have to be transformed and we can use it directly.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0020-the-standard-reference-data-are-in-the-format-0e336c7c95/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0020-the-standard-reference-data-are-in-the-format-0e336c7c95/translation.md>)
 
         - [ ] [unit] 0021-we-considered-reusing-this-standard-reference-data-c7ac312283: We considered reusing this standard reference data
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0021-we-considered-reusing-this-standard-reference-data-c7ac312283/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0021-we-considered-reusing-this-standard-reference-data-c7ac312283/translation.md>)
 
-        - [ ] [unit] 0022-available-via-af16c5a825-2: available via: {refDataWhere}.
+        - [ ] [unit] 0022-available-via-8c33bb66b7-2: available via: {refDataWhere}.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0022-available-via-af16c5a825-2/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0022-available-via-8c33bb66b7-2/translation.md>)
 
-        - [ ] [unit] 0023-available-via-b9296bb321: available via: {refDataWhere}
+        - [ ] [unit] 0023-available-via-10f1679300: available via: {refDataWhere}
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0023-available-via-b9296bb321/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0023-available-via-10f1679300/translation.md>)
 
-        - [ ] [unit] 0024-but-decided-not-to-re-use-itbecause-it-77998703dc: , but decided not to re-use it because it misses data we need.
+        - [ ] [unit] 0024-but-decided-not-to-re-use-itbecause-it-8a415ed4cc: , but decided not to re-use it because it misses data we need.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0024-but-decided-not-to-re-use-itbecause-it-77998703dc/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0024-but-decided-not-to-re-use-itbecause-it-8a415ed4cc/translation.md>)
 
-        - [ ] [unit] 0025-but-decided-not-to-re-use-itbecause-it-4d50eaefaf: , but decided not to re-use it because it misses required aspects.
+        - [ ] [unit] 0025-but-decided-not-to-re-use-itbecause-it-27e479d408: , but decided not to re-use it because it misses required aspects.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0025-but-decided-not-to-re-use-itbecause-it-4d50eaefaf/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0025-but-decided-not-to-re-use-itbecause-it-27e479d408/translation.md>)
 
-        - [ ] [unit] 0026-but-decided-not-to-re-use-itbecause-it-54ccfb2d46: , but decided not to re-use it because it is not sufficient quality.
+        - [ ] [unit] 0026-but-decided-not-to-re-use-itbecause-it-9e59c81e91: , but decided not to re-use it because it is not sufficient quality.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0026-but-decided-not-to-re-use-itbecause-it-54ccfb2d46/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0026-but-decided-not-to-re-use-itbecause-it-9e59c81e91/translation.md>)
 
-        - [ ] [unit] 0027-but-decided-not-to-re-use-itbecause-its-e06cb88b05: , but decided not to re-use it because its conditions of use do not allow us to use it.
+        - [ ] [unit] 0027-but-decided-not-to-re-use-itbecause-its-b72eb6aab5: , but decided not to re-use it because its conditions of use do not allow us to use it.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0027-but-decided-not-to-re-use-itbecause-its-e06cb88b05/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0027-but-decided-not-to-re-use-itbecause-its-b72eb6aab5/translation.md>)
 
-        - [ ] [unit] 0028-but-decided-not-to-re-use-itbecause-d0ca0ddad2: , but decided not to re-use it because: "{refDataUseNoOtherReasonReply}".
+        - [ ] [unit] 0028-but-decided-not-to-re-use-itbecause-5213a39ac4: , but decided not to re-use it because: "{refDataUseNoOtherReasonReply}".
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0028-but-decided-not-to-re-use-itbecause-d0ca0ddad2/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0028-but-decided-not-to-re-use-itbecause-5213a39ac4/translation.md>)
 
-        - [ ] [unit] 0029-but-decided-not-to-re-use-it-5b72237a4f: , but decided not to re-use it.
+        - [ ] [unit] 0029-but-decided-not-to-re-use-it-bcfb977a3a: , but decided not to re-use it.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-0b09a9de10/0029-but-decided-not-to-re-use-it-5b72237a4f/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0019-no-name-given-we-will-re-use-this-4c16111989/0029-but-decided-not-to-re-use-it-bcfb977a3a/translation.md>)
 
-    - [ ] [wrapper] 0020-no-name-given-we-will-re-use-this-693655cbcf (0/37)
+    - [ ] [wrapper] 0020-no-name-given-we-will-re-use-this-d3b048bd59 (0/41)
 
-      [W] `0020-no-name-given-we-will-re-use-this-693655cbcf`
+      [W] `0020-no-name-given-we-will-re-use-this-d3b048bd59`
 
         - [ ] [unit] 0001-no-name-given-49eb462e9c: (no name given)
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0001-no-name-given-49eb462e9c/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0001-no-name-given-49eb462e9c/translation.md>)
 
-        - [ ] [unit] 0002-we-will-usethe-complete-data-set-5022fd72e0: We will use the complete data set.
+        - [ ] [unit] 0002-we-will-re-use-this-non-referece-data-0b657bd18a: We will re-use this non-referece data
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0002-we-will-usethe-complete-data-set-5022fd72e0/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0002-we-will-re-use-this-non-referece-data-0b657bd18a/translation.md>)
 
-        - [ ] [unit] 0003-we-will-useonly-subset-of-data-and-we-2e06c39d18: We will use only subset of data and we will select it by filtering and/or selection (which will be documented).
+        - [ ] [unit] 0003-available-via-290125ced8: available via: {nrefDataWhere}.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0003-we-will-useonly-subset-of-data-and-we-2e06c39d18/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0003-available-via-290125ced8/translation.md>)
 
-        - [ ] [unit] 0004-we-will-useonly-selected-subset-of-data-which-e54c9fa7d6: We will use only selected subset of data, which will be available together with our results.
+        - [ ] [unit] 0004-available-via-dcc2d25b47: available via: {nrefDataWhere}
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0004-we-will-useonly-selected-subset-of-data-which-e54c9fa7d6/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0004-available-via-dcc2d25b47/translation.md>)
 
-        - [ ] [unit] 0005-we-will-use-24985c0e65: We will use.
+        - [ ] [unit] 0005-in-order-to-3b41ab937a: in order to "{nrefDataUsageReply}"
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0005-we-will-use-24985c0e65/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0005-in-order-to-3b41ab937a/translation.md>)
 
-        - [ ] [unit] 0006-the-format-of-this-data-needs-to-be-bd7a0ed41c: The format of this data needs to be transformed before our using.
+        - [ ] [unit] 0006-we-will-usethe-complete-data-set-51edc63c9b: We will use the complete data set.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0006-the-format-of-this-data-needs-to-be-bd7a0ed41c/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0006-we-will-usethe-complete-data-set-51edc63c9b/translation.md>)
 
-        - [ ] [unit] 0007-this-dataare-fixed-therefore-will-not-influence-reproducibility-33a31e11c2: This data are fixed, therefore will not influence reproducibility of our results.
+        - [ ] [unit] 0007-we-will-useonly-subset-of-data-and-we-a2d92f9785: We will use only subset of data and we will select it by filtering and/or selection (which will be documented).
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0007-this-dataare-fixed-therefore-will-not-influence-reproducibility-33a31e11c2/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0007-we-will-useonly-subset-of-data-and-we-a2d92f9785/translation.md>)
 
-        - [ ] [unit] 0008-this-datamay-change-in-the-future-which-might-f957ef6c75: This data may change in the future, which might influence reproducibility of our results.
+        - [ ] [unit] 0008-we-will-useonly-selected-subset-of-data-which-f4c079f6ec: We will use only selected subset of data, which will be available together with our results.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0008-this-datamay-change-in-the-future-which-might-f957ef6c75/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0008-we-will-useonly-selected-subset-of-data-which-f4c079f6ec/translation.md>)
 
-        - [ ] [unit] 0009-this-data-33046947c0: This data.
+        - [ ] [unit] 0009-we-will-use-24985c0e65: We will use.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0009-this-data-33046947c0/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0009-we-will-use-24985c0e65/translation.md>)
 
-        - [ ] [unit] 0010-this-data-are-7cb3360954: This data are
+        - [ ] [unit] 0010-the-format-of-this-data-needs-to-be-bd7a0ed41c: The format of this data needs to be transformed before our using.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0010-this-data-are-7cb3360954/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0010-the-format-of-this-data-needs-to-be-bd7a0ed41c/translation.md>)
 
-        - [ ] [unit] 0011-freely-available-for-any-use-2b6a07fd12: freely available for any use.
+        - [ ] [unit] 0011-this-dataare-fixed-therefore-will-not-influence-reproducibility-845a644a56: This data are fixed, therefore will not influence reproducibility of our results.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0011-freely-available-for-any-use-2b6a07fd12/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0011-this-dataare-fixed-therefore-will-not-influence-reproducibility-845a644a56/translation.md>)
 
-        - [ ] [unit] 0012-freely-available-with-obligation-to-quote-the-source-73ffbf5622: freely available with obligation to quote the source.
+        - [ ] [unit] 0012-this-datamay-change-in-the-future-which-might-50541181cb: This data may change in the future, which might influence reproducibility of our results.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0012-freely-available-with-obligation-to-quote-the-source-73ffbf5622/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0012-this-datamay-change-in-the-future-which-might-50541181cb/translation.md>)
 
-        - [ ] [unit] 0013-available-withfollowing-restrictions-ee5fb48a1e: available with following restrictions: "{nrefDataConditionsOtherReply}".
+        - [ ] [unit] 0013-this-data-33046947c0: This data.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0013-available-withfollowing-restrictions-ee5fb48a1e/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0013-this-data-33046947c0/translation.md>)
 
-        - [ ] [unit] 0014-available-withrestrictions-that-will-be-specified-63f39bb043: available with restrictions, that will be specified.
+        - [ ] [unit] 0014-this-data-are-7cb3360954: This data are
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0014-available-withrestrictions-that-will-be-specified-63f39bb043/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0014-this-data-are-7cb3360954/translation.md>)
 
-        - [ ] [unit] 0015-this-data-include-personal-data-9346c55cd3: This data include personal data
+        - [ ] [unit] 0015-freely-available-for-any-use-2b6a07fd12: freely available for any use.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0015-this-data-include-personal-data-9346c55cd3/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0015-freely-available-for-any-use-2b6a07fd12/translation.md>)
 
-        - [ ] [unit] 0016-legaly-based-on-71dfd8fd6a: , legally based on
+        - [ ] [unit] 0016-freely-available-with-obligation-to-quote-the-source-73ffbf5622: freely available with obligation to quote the source.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0016-legaly-based-on-71dfd8fd6a/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0016-freely-available-with-obligation-to-quote-the-source-73ffbf5622/translation.md>)
 
-        - [ ] [unit] 0017-public-interest-for-processing-the-data-under-gdpr-0af7c8a3ac: public interest for processing the data under GDPR.
+        - [ ] [unit] 0017-available-withfollowing-restrictions-ee5fb48a1e: available with following restrictions: "{nrefDataConditionsOtherReply}".
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0017-public-interest-for-processing-the-data-under-gdpr-0af7c8a3ac/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0017-available-withfollowing-restrictions-ee5fb48a1e/translation.md>)
 
-        - [ ] [unit] 0018-consent-given-by-the-research-subject-for-processing-6f072a607c: consent given by the research subject for processing the data under GDPR
+        - [ ] [unit] 0018-available-withrestrictions-that-will-be-specified-63f39bb043: available with restrictions, that will be specified.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0018-consent-given-by-the-research-subject-for-processing-6f072a607c/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0018-available-withrestrictions-that-will-be-specified-63f39bb043/translation.md>)
 
-        - [ ] [unit] 0019-which-6f64654ad4: , which
+        - [ ] [unit] 0019-this-data-include-personal-data-9346c55cd3: This data include personal data
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0019-which-6f64654ad4/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0019-this-data-include-personal-data-9346c55cd3/translation.md>)
 
-        - [ ] [unit] 0020-covers-also-our-reuse-9a106e3ecf: covers also our reuse.
+        - [ ] [unit] 0020-legaly-based-on-71dfd8fd6a: , legally based on
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0020-covers-also-our-reuse-9a106e3ecf/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0020-legaly-based-on-71dfd8fd6a/translation.md>)
 
-        - [ ] [unit] 0021-does-not-cover-our-reuse-therefore-new-consent-6d1f3bd929: does not cover our reuse; therefore, new consent will be needed.
+        - [ ] [unit] 0021-public-interest-for-processing-the-data-under-gdpr-0af7c8a3ac: public interest for processing the data under GDPR.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0021-does-not-cover-our-reuse-therefore-new-consent-6d1f3bd929/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0021-public-interest-for-processing-the-data-under-gdpr-0af7c8a3ac/translation.md>)
 
-        - [ ] [unit] 0022-a-legal-requirement-meaning-a-legal-obligation-to-cac209bc9f: a legal requirement (meaning a legal obligation to do this data processing).
+        - [ ] [unit] 0022-consent-given-by-the-research-subject-for-processing-6f072a607c: consent given by the research subject for processing the data under GDPR
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0022-a-legal-requirement-meaning-a-legal-obligation-to-cac209bc9f/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0022-consent-given-by-the-research-subject-for-processing-6f072a607c/translation.md>)
 
-        - [ ] [unit] 0023-a-vital-interest-meaning-it-needs-to-be-ff779ebd23: a vital interest (meaning it needs to be done to protect the vital interests of the data subject).
+        - [ ] [unit] 0023-which-6f64654ad4: , which
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0023-a-vital-interest-meaning-it-needs-to-be-ff779ebd23/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0023-which-6f64654ad4/translation.md>)
 
-        - [ ] [unit] 0024-a-legitimate-interest-meaning-data-subjects-all-expect-edfd2eade2: a legitimate interest (meaning data subjects all expect us to do this data processing because of who we are).
+        - [ ] [unit] 0024-covers-also-our-reuse-9a106e3ecf: covers also our reuse.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0024-a-legitimate-interest-meaning-data-subjects-all-expect-edfd2eade2/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0024-covers-also-our-reuse-9a106e3ecf/translation.md>)
 
-        - [ ] [unit] 0025-a-requirement-to-fulfill-our-contract-with-the-fb01168d44: a requirement to fulfill our contract with the data subjects.
+        - [ ] [unit] 0025-does-not-cover-our-reuse-therefore-new-consent-6d1f3bd929: does not cover our reuse; therefore, new consent will be needed.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0025-a-requirement-to-fulfill-our-contract-with-the-fb01168d44/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0025-does-not-cover-our-reuse-therefore-new-consent-6d1f3bd929/translation.md>)
 
-        - [ ] [unit] 0026-the-existing-ethical-approval-under-research-ethics-laws-d185600010: The existing ethical approval under research ethics laws of this non-reference data covers our reuse.
+        - [ ] [unit] 0026-a-legal-requirement-meaning-a-legal-obligation-to-cac209bc9f: a legal requirement (meaning a legal obligation to do this data processing).
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0026-the-existing-ethical-approval-under-research-ethics-laws-d185600010/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0026-a-legal-requirement-meaning-a-legal-obligation-to-cac209bc9f/translation.md>)
 
-        - [ ] [unit] 0027-an-extension-of-existing-ethical-approval-under-research-4056ed61c6: An extension of existing ethical approval under research ethics laws of this non-reference data will be needed.
+        - [ ] [unit] 0027-a-vital-interest-meaning-it-needs-to-be-ff779ebd23: a vital interest (meaning it needs to be done to protect the vital interests of the data subject).
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0027-an-extension-of-existing-ethical-approval-under-research-4056ed61c6/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0027-a-vital-interest-meaning-it-needs-to-be-ff779ebd23/translation.md>)
 
-        - [ ] [unit] 0028-new-ethical-approval-under-research-ethics-laws-of-5bd694271a: New ethical approval under research ethics laws of this non-reference data will be needed to cover our usage of the data.
+        - [ ] [unit] 0028-a-legitimate-interest-meaning-data-subjects-all-expect-edfd2eade2: a legitimate interest (meaning data subjects all expect us to do this data processing because of who we are).
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0028-new-ethical-approval-under-research-ethics-laws-of-5bd694271a/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0028-a-legitimate-interest-meaning-data-subjects-all-expect-edfd2eade2/translation.md>)
 
-        - [ ] [unit] 0029-we-considered-reusing-this-non-reference-data-7cc640dcb3: We considered reusing this non-reference data
+        - [ ] [unit] 0029-a-requirement-to-fulfill-our-contract-with-the-fb01168d44: a requirement to fulfill our contract with the data subjects.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0029-we-considered-reusing-this-non-reference-data-7cc640dcb3/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0029-a-requirement-to-fulfill-our-contract-with-the-fb01168d44/translation.md>)
 
-        - [ ] [unit] 0030-available-via-b7b2fca60d: available via: {nrefDataWhere}.
+        - [ ] [unit] 0030-the-existing-ethical-approval-under-research-ethics-laws-d185600010: The existing ethical approval under research ethics laws of this non-reference data covers our reuse.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0030-available-via-b7b2fca60d/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0030-the-existing-ethical-approval-under-research-ethics-laws-d185600010/translation.md>)
 
-        - [ ] [unit] 0031-available-via-e3880ec958: available via: {nrefDataWhere}
+        - [ ] [unit] 0031-an-extension-of-existing-ethical-approval-under-research-4056ed61c6: An extension of existing ethical approval under research ethics laws of this non-reference data will be needed.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0031-available-via-e3880ec958/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0031-an-extension-of-existing-ethical-approval-under-research-4056ed61c6/translation.md>)
 
-        - [ ] [unit] 0032-but-decided-not-to-reuse-itbecause-it-misses-ebb60fa657: , but decided not to reuse it because it misses data we need
+        - [ ] [unit] 0032-new-ethical-approval-under-research-ethics-laws-of-5bd694271a: New ethical approval under research ethics laws of this non-reference data will be needed to cover our usage of the data.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0032-but-decided-not-to-reuse-itbecause-it-misses-ebb60fa657/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0032-new-ethical-approval-under-research-ethics-laws-of-5bd694271a/translation.md>)
 
-        - [ ] [unit] 0033-but-decided-not-to-reuse-itbecauseit-misses-required-cf733d1428: , but decided not to reuse it because it misses required aspects
+        - [ ] [unit] 0033-we-considered-reusing-this-non-reference-data-7cc640dcb3: We considered reusing this non-reference data
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0033-but-decided-not-to-reuse-itbecauseit-misses-required-cf733d1428/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0033-we-considered-reusing-this-non-reference-data-7cc640dcb3/translation.md>)
 
-        - [ ] [unit] 0034-but-decided-not-to-reuse-itbecauseit-is-not-87c47a3f53: , but decided not to reuse it because it is not sufficient quality
+        - [ ] [unit] 0034-available-via-b7b2fca60d: available via: {nrefDataWhere}.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0034-but-decided-not-to-reuse-itbecauseit-is-not-87c47a3f53/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0034-available-via-b7b2fca60d/translation.md>)
 
-        - [ ] [unit] 0035-but-decided-not-to-reuse-itbecause-its-conditions-9564ffe9fb: , but decided not to reuse it because its conditions of use do not allow us to use it
+        - [ ] [unit] 0035-available-via-e3880ec958: available via: {nrefDataWhere}
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0035-but-decided-not-to-reuse-itbecause-its-conditions-9564ffe9fb/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0035-available-via-e3880ec958/translation.md>)
 
-        - [ ] [unit] 0036-but-decided-not-to-reuse-itbecause-a8dedefdf7: , but decided not to reuse it because: "{nrefDataUseNoOtherReasonReply}"
+        - [ ] [unit] 0036-but-decided-not-to-reuse-itbecause-it-misses-a84304664e: , but decided not to reuse it because it misses data we need.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0036-but-decided-not-to-reuse-itbecause-a8dedefdf7/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0036-but-decided-not-to-reuse-itbecause-it-misses-a84304664e/translation.md>)
 
-        - [ ] [unit] 0037-but-decided-not-to-reuse-it-01ef4e17f7: , but decided not to reuse it
+        - [ ] [unit] 0037-but-decided-not-to-reuse-itbecauseit-misses-required-7ce5c3902c: , but decided not to reuse it because it misses required aspects.
 
-          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-693655cbcf/0037-but-decided-not-to-reuse-it-01ef4e17f7/translation.md>)
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0037-but-decided-not-to-reuse-itbecauseit-misses-required-7ce5c3902c/translation.md>)
+
+        - [ ] [unit] 0038-but-decided-not-to-reuse-itbecauseit-is-not-d65ee89b8d: , but decided not to reuse it because it is not sufficient quality.
+
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0038-but-decided-not-to-reuse-itbecauseit-is-not-d65ee89b8d/translation.md>)
+
+        - [ ] [unit] 0039-but-decided-not-to-reuse-itbecause-its-conditions-1448beef05: , but decided not to reuse it because its conditions of use do not allow us to use it.
+
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0039-but-decided-not-to-reuse-itbecause-its-conditions-1448beef05/translation.md>)
+
+        - [ ] [unit] 0040-but-decided-not-to-reuse-itbecause-26201a9a2b: , but decided not to reuse it because: "{nrefDataUseNoOtherReasonReply}".
+
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0040-but-decided-not-to-reuse-itbecause-26201a9a2b/translation.md>)
+
+        - [ ] [unit] 0041-but-decided-not-to-reuse-it-872307329d: , but decided not to reuse it.
+
+          [T] [translation](<tree/src/questions/01-how-data.html.j2/0020-no-name-given-we-will-re-use-this-d3b048bd59/0041-but-decided-not-to-reuse-it-872307329d/translation.md>)
 
     - [ ] [wrapper] 0021-there-are-no-re-used-datasets-ea6450c3b9 (0/1)
 
@@ -916,7 +932,7 @@
 
           [T] [translation](<tree/src/questions/01-how-data.html.j2/0030-we-will-use-other-solution-than-electronic-lab-40df8f155d/0001-we-will-use-other-solution-than-electronic-lab-904e47f57f/translation.md>)
 
-- [ ] [file] src/questions/02-what-data.html.j2 (0/32)
+- [ ] [file] src/questions/02-what-data.html.j2 (0/31)
 
   [J2] `src/questions/02-what-data.html.j2`
 
@@ -1032,33 +1048,29 @@
 
           [T] [translation](<tree/src/questions/02-what-data.html.j2/0013-electronic-patient-records-a61dafe473/0001-electronic-patient-records-875875abee/translation.md>)
 
-    - [ ] [wrapper] 0014-we-collect-data-from-we-collect-data-from-112c3c2917 (0/6)
+    - [ ] [wrapper] 0014-we-collect-data-from-we-collect-data-from-701d4df7dd (0/5)
 
-      [W] `0014-we-collect-data-from-we-collect-data-from-112c3c2917`
+      [W] `0014-we-collect-data-from-we-collect-data-from-701d4df7dd`
 
         - [ ] [unit] 0001-we-collect-data-from-b8bdfcf0f6: We collect data from {typesNames_0}.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-112c3c2917/0001-we-collect-data-from-b8bdfcf0f6/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0001-we-collect-data-from-b8bdfcf0f6/translation.md>)
 
-        - [ ] [unit] 0002-we-collect-data-from-and-d15390a0ae: We collect data from{typesNames_0} and {typesNames_1}.
+        - [ ] [unit] 0002-we-collect-data-from-and-da4d9b3f07: We collect data from {typesNames_0} and {typesNames_1}.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-112c3c2917/0002-we-collect-data-from-and-d15390a0ae/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0002-we-collect-data-from-and-da4d9b3f07/translation.md>)
 
-        - [ ] [unit] 0003-we-collect-data-from-and-d34a86a925: We collect data from{typesNames_0}, {typesNames_1}, and {typesNames_2}.
+        - [ ] [unit] 0003-we-collect-data-from-and-5729f4b53d: We collect data from {typesNames_0}, {typesNames_1}, and {typesNames_2}.
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-112c3c2917/0003-we-collect-data-from-and-d34a86a925/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0003-we-collect-data-from-and-5729f4b53d/translation.md>)
 
         - [ ] [unit] 0004-the-non-equipment-datasets-are-0003619e41: The non-equipment datasets are:
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-112c3c2917/0004-the-non-equipment-datasets-are-0003619e41/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0004-the-non-equipment-datasets-are-0003619e41/translation.md>)
 
-        - [ ] [unit] 0005-the-non-equipment-datasets-are-0003619e41-2: The non-equipment datasets are:
+        - [ ] [unit] 0005-no-name-given-01d1dfc8a2: (no name given)
 
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-112c3c2917/0005-the-non-equipment-datasets-are-0003619e41-2/translation.md>)
-
-        - [ ] [unit] 0006-no-name-given-e0ab3cb43a: (no name given)
-
-          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-112c3c2917/0006-no-name-given-e0ab3cb43a/translation.md>)
+          [T] [translation](<tree/src/questions/02-what-data.html.j2/0014-we-collect-data-from-we-collect-data-from-701d4df7dd/0005-no-name-given-01d1dfc8a2/translation.md>)
 
     - [ ] [wrapper] 0015-re-used-datasets-7672950d95 (0/1)
 
@@ -1420,53 +1432,53 @@
 
           [T] [translation](<tree/src/questions/04-quality-control.html.j2/0004-we-will-be-using-calibrating-measurements-as-part-384a1e6a2c/0001-we-will-be-using-calibrating-measurements-as-part-169f66ff97/translation.md>)
 
-    - [ ] [wrapper] 0005-we-will-be-using-repeat-samples-measurements-as-327142f608 (0/1)
+    - [ ] [wrapper] 0005-we-will-be-using-repeat-samples-measurements-as-0089a0dcf3 (0/1)
 
-      [W] `0005-we-will-be-using-repeat-samples-measurements-as-327142f608`
+      [W] `0005-we-will-be-using-repeat-samples-measurements-as-0089a0dcf3`
 
-        - [ ] [unit] 0001-we-will-be-using-repeat-samples-measurements-as-d46c63f4f9: We will be using repeat samples/measurements as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-repeat-samples-measurements-as-ccab6f1ad5: We will be using repeat samples/measurements as part of the quality process.
 
-          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0005-we-will-be-using-repeat-samples-measurements-as-327142f608/0001-we-will-be-using-repeat-samples-measurements-as-d46c63f4f9/translation.md>)
+          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0005-we-will-be-using-repeat-samples-measurements-as-0089a0dcf3/0001-we-will-be-using-repeat-samples-measurements-as-ccab6f1ad5/translation.md>)
 
-    - [ ] [wrapper] 0006-we-will-be-using-standardized-data-capture-recording-6e8db81e91 (0/1)
+    - [ ] [wrapper] 0006-we-will-be-using-standardized-data-capture-recording-9fba373f39 (0/1)
 
-      [W] `0006-we-will-be-using-standardized-data-capture-recording-6e8db81e91`
+      [W] `0006-we-will-be-using-standardized-data-capture-recording-9fba373f39`
 
-        - [ ] [unit] 0001-we-will-be-using-standardized-data-capture-recording-e06ac354a1: We will be using standardized data capture/recording as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-standardized-data-capture-recording-b86257cae2: We will be using standardized data capture/recording as part of the quality process.
 
-          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0006-we-will-be-using-standardized-data-capture-recording-6e8db81e91/0001-we-will-be-using-standardized-data-capture-recording-e06ac354a1/translation.md>)
+          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0006-we-will-be-using-standardized-data-capture-recording-9fba373f39/0001-we-will-be-using-standardized-data-capture-recording-b86257cae2/translation.md>)
 
-    - [ ] [wrapper] 0007-we-will-be-using-data-entry-validation-as-3d407b43f4 (0/1)
+    - [ ] [wrapper] 0007-we-will-be-using-data-entry-validation-as-002e105efc (0/1)
 
-      [W] `0007-we-will-be-using-data-entry-validation-as-3d407b43f4`
+      [W] `0007-we-will-be-using-data-entry-validation-as-002e105efc`
 
-        - [ ] [unit] 0001-we-will-be-using-data-entry-validation-as-e3c856c97c: We will be using Data Entry validation as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-data-entry-validation-as-36d1ec3a6d: We will be using Data Entry validation as part of the quality process.
 
-          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0007-we-will-be-using-data-entry-validation-as-3d407b43f4/0001-we-will-be-using-data-entry-validation-as-e3c856c97c/translation.md>)
+          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0007-we-will-be-using-data-entry-validation-as-002e105efc/0001-we-will-be-using-data-entry-validation-as-36d1ec3a6d/translation.md>)
 
-    - [ ] [wrapper] 0008-we-will-be-using-data-peer-review-as-e4bfb105d8 (0/1)
+    - [ ] [wrapper] 0008-we-will-be-using-data-peer-review-as-e5a25785f6 (0/1)
 
-      [W] `0008-we-will-be-using-data-peer-review-as-e4bfb105d8`
+      [W] `0008-we-will-be-using-data-peer-review-as-e5a25785f6`
 
-        - [ ] [unit] 0001-we-will-be-using-data-peer-review-as-1a9693eb89: We will be using data peer review as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-data-peer-review-as-86780e1916: We will be using data peer review as part of the quality process.
 
-          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0008-we-will-be-using-data-peer-review-as-e4bfb105d8/0001-we-will-be-using-data-peer-review-as-1a9693eb89/translation.md>)
+          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0008-we-will-be-using-data-peer-review-as-e5a25785f6/0001-we-will-be-using-data-peer-review-as-86780e1916/translation.md>)
 
-    - [ ] [wrapper] 0009-we-will-be-using-controlled-vocabularies-as-part-f0b22e8249 (0/1)
+    - [ ] [wrapper] 0009-we-will-be-using-controlled-vocabularies-as-part-6ce8a4de06 (0/1)
 
-      [W] `0009-we-will-be-using-controlled-vocabularies-as-part-f0b22e8249`
+      [W] `0009-we-will-be-using-controlled-vocabularies-as-part-6ce8a4de06`
 
-        - [ ] [unit] 0001-we-will-be-using-controlled-vocabularies-as-part-ad413abb3c: We will be using controlled vocabularies as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-controlled-vocabularies-as-part-78f11c43fc: We will be using controlled vocabularies as part of the quality process.
 
-          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0009-we-will-be-using-controlled-vocabularies-as-part-f0b22e8249/0001-we-will-be-using-controlled-vocabularies-as-part-ad413abb3c/translation.md>)
+          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0009-we-will-be-using-controlled-vocabularies-as-part-6ce8a4de06/0001-we-will-be-using-controlled-vocabularies-as-part-78f11c43fc/translation.md>)
 
-    - [ ] [wrapper] 0010-we-will-be-using-measuring-samples-for-which-e40df5f7d0 (0/1)
+    - [ ] [wrapper] 0010-we-will-be-using-measuring-samples-for-which-d7f36a69a8 (0/1)
 
-      [W] `0010-we-will-be-using-measuring-samples-for-which-e40df5f7d0`
+      [W] `0010-we-will-be-using-measuring-samples-for-which-d7f36a69a8`
 
-        - [ ] [unit] 0001-we-will-be-using-measuring-samples-for-which-abbb065ffe: We will be using measuring samples for which the outcome is known in order to monitor consistency as part of the quality process.
+        - [ ] [unit] 0001-we-will-be-using-measuring-samples-for-which-b72c675149: We will be using measuring samples for which the outcome is known in order to monitor consistency as part of the quality process.
 
-          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0010-we-will-be-using-measuring-samples-for-which-e40df5f7d0/0001-we-will-be-using-measuring-samples-for-which-abbb065ffe/translation.md>)
+          [T] [translation](<tree/src/questions/04-quality-control.html.j2/0010-we-will-be-using-measuring-samples-for-which-d7f36a69a8/0001-we-will-be-using-measuring-samples-for-which-b72c675149/translation.md>)
 
     - [ ] [wrapper] 0011-we-will-be-using-the-following-quality-processes-e6725a8d0d (0/8)
 
@@ -3520,61 +3532,61 @@
 
           [T] [translation](<tree/src/questions/15-required-resources.html.j2/0012-following-resources-will-be-dedicated-to-data-management-c02f301e0f/0001-following-resources-will-be-dedicated-to-data-management-c8abaa1915/translation.md>)
 
-    - [ ] [wrapper] 0013-no-name-given-no-name-given-the-amount-1e748f1c90 (0/13)
+    - [ ] [wrapper] 0013-no-name-given-no-name-given-the-amount-9cfdb499c5 (0/13)
 
-      [W] `0013-no-name-given-no-name-given-the-amount-1e748f1c90`
+      [W] `0013-no-name-given-no-name-given-the-amount-9cfdb499c5`
 
         - [ ] [unit] 0001-no-name-given-3cb008624f: (no name given)
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0001-no-name-given-3cb008624f/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0001-no-name-given-3cb008624f/translation.md>)
 
         - [ ] [unit] 0002-no-name-given-3cb008624f-2: (no name given)
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0002-no-name-given-3cb008624f-2/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0002-no-name-given-3cb008624f-2/translation.md>)
 
         - [ ] [unit] 0003-the-amount-is-aefef92a46: The amount is {projectCostItemAmountReply} {projectCostItemCurrencyReply}.
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0003-the-amount-is-aefef92a46/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0003-the-amount-is-aefef92a46/translation.md>)
 
         - [ ] [unit] 0004-ensuring-findability-514a7c1e49: ensuring findability
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0004-ensuring-findability-514a7c1e49/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0004-ensuring-findability-514a7c1e49/translation.md>)
 
         - [ ] [unit] 0005-ensuring-accessibility-92cd575e03: ensuring accessibility
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0005-ensuring-accessibility-92cd575e03/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0005-ensuring-accessibility-92cd575e03/translation.md>)
 
         - [ ] [unit] 0006-ensuring-interoperability-ee7902541e: ensuring interoperability
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0006-ensuring-interoperability-ee7902541e/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0006-ensuring-interoperability-ee7902541e/translation.md>)
 
         - [ ] [unit] 0007-ensuring-reusability-bbccb26ba2: ensuring reusability
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0007-ensuring-reusability-bbccb26ba2/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0007-ensuring-reusability-bbccb26ba2/translation.md>)
 
         - [ ] [unit] 0008-supporting-management-557c83f9a1: supporting management
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0008-supporting-management-557c83f9a1/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0008-supporting-management-557c83f9a1/translation.md>)
 
-        - [ ] [unit] 0009-this-resource-is-allocated-for-and-of-data-9eb31dac63: This resource is allocated for {projectCostItemAllocations_0_minus_1}, and {projectCostItemAllocations_minus_1} of data.
+        - [ ] [unit] 0009-this-resource-is-allocated-for-and-of-data-d03f94db15: This resource is allocated for {projectCostItemAllocations_0_minus_1}, and {projectCostItemAllocations_minus_1} of data.
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0009-this-resource-is-allocated-for-and-of-data-9eb31dac63/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0009-this-resource-is-allocated-for-and-of-data-d03f94db15/translation.md>)
 
-        - [ ] [unit] 0010-this-resource-is-allocated-for-and-of-data-436b07d5d3: This resource is allocated for {projectCostItemAllocations_0} and {projectCostItemAllocations_1} of data.
+        - [ ] [unit] 0010-this-resource-is-allocated-for-and-of-data-6433af8c02: This resource is allocated for {projectCostItemAllocations_0} and {projectCostItemAllocations_1} of data.
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0010-this-resource-is-allocated-for-and-of-data-436b07d5d3/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0010-this-resource-is-allocated-for-and-of-data-6433af8c02/translation.md>)
 
-        - [ ] [unit] 0011-this-resource-is-allocated-for-of-data-158665590e: This resource is allocated for {projectCostItemAllocations_0} of data.
+        - [ ] [unit] 0011-this-resource-is-allocated-for-of-data-a22ba7d1d8: This resource is allocated for {projectCostItemAllocations_0} of data.
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0011-this-resource-is-allocated-for-of-data-158665590e/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0011-this-resource-is-allocated-for-of-data-a22ba7d1d8/translation.md>)
 
         - [ ] [unit] 0012-this-cost-will-be-covered-by-funding-grant-d005162882: This cost will be covered by funding grant
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0012-this-cost-will-be-covered-by-funding-grant-d005162882/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0012-this-cost-will-be-covered-by-funding-grant-d005162882/translation.md>)
 
         - [ ] [unit] 0013-grant-number-fccd6b8caf: (grant number: {costCoverGrantIdReply})
 
-          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-1e748f1c90/0013-grant-number-fccd6b8caf/translation.md>)
+          [T] [translation](<tree/src/questions/15-required-resources.html.j2/0013-no-name-given-no-name-given-the-amount-9cfdb499c5/0013-grant-number-fccd6b8caf/translation.md>)
 
 - [ ] [file] src/versions.html.j2 (0/5)
 

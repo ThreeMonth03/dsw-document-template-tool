@@ -532,11 +532,40 @@ def _rewrite_known_science_europe_fragments(source_text: str) -> str:
         ', but decided not to reuse it{{" "}}because its conditions of use do not allow us '
         "to use it"
     )
+    nref_no_reason_other_sentence = (
+        ', but decided not to reuse it{{" "}}because: "{{nrefDataUseNoOtherReasonReply}}"'
+    )
     nref_where_link = (
         '{{+" "}}available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">'
         "{{ nrefDataWhere }} </a>."
     )
+    nref_used_where_url_if = (
+        '{%- if nrefDataWhere.startswith("http://") or '
+        'nrefDataWhere.startswith("https://") or '
+        'nrefDataWhere.startswith("ftp://") -%}'
+    )
+    nref_used_where_link = (
+        '{{" "}} available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">'
+        "{{ nrefDataWhere }} </a>."
+    )
     replacements = (
+        (
+            f"""
+         {{{{" "}}}} available via:{{{{" "}}}}
+            {nref_used_where_url_if}
+              <a href="{{{{ nrefDataWhere }}}}" target="_blank">{{{{ nrefDataWhere }}}} </a>.
+            {{%- else -%}}
+              {{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+            f"""
+            {nref_used_where_url_if}
+         {nref_used_where_link}
+            {{%- else -%}}
+         {{{{" "}}}} available via:{{{{" "}}}}{{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+        ),
         (
             f"""
           {{{{+" "}}}}available via:{{{{" "}}}}
@@ -585,20 +614,21 @@ def _rewrite_known_science_europe_fragments(source_text: str) -> str:
             {nref_no_reason_other_elif}
               {{{{" "}}}}because: "{{{{nrefDataUseNoOtherReasonReply}}}}"
             {{%- endif -%}}
+            .
 """,
             f"""
             {{%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}}
-            , but decided not to reuse it{{{{" "}}}}because it misses data we need
+            , but decided not to reuse it{{{{" "}}}}because it misses data we need.
             {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}}
-            , but decided not to reuse it{{{{" "}}}}becauseit misses required aspects
+            , but decided not to reuse it{{{{" "}}}}becauseit misses required aspects.
             {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}}
-            , but decided not to reuse it{{{{" "}}}}becauseit is not sufficient quality
+            , but decided not to reuse it{{{{" "}}}}becauseit is not sufficient quality.
             {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}}
-            {nref_no_cond_sentence}
+            {nref_no_cond_sentence}.
             {nref_no_reason_other_elif}
-            , but decided not to reuse it{{{{" "}}}}because: "{{{{nrefDataUseNoOtherReasonReply}}}}"
+            {nref_no_reason_other_sentence}.
             {{%- else -%}}
-            , but decided not to reuse it
+            , but decided not to reuse it.
             {{%- endif -%}}
 """,
         ),
@@ -812,6 +842,8 @@ def _rewrite_single_alternative_branch_fragment(
     setup_prefix, visible_prefix = _split_rewrite_setup_blocks(prefix)
     prefix_has_text = _contains_translatable_text(prefix)
     suffix_has_words = bool(_visible_words(suffix))
+    if _contains_rewrite_unsafe_tail_control(suffix):
+        return None
     if not prefix_has_text and not suffix_has_words:
         return None
     if prefix_has_text and _visible_text_for_rewrite(prefix).rstrip().endswith(
@@ -829,26 +861,26 @@ def _rewrite_single_alternative_branch_fragment(
     )
     rewritten_parts: list[str] = [setup_prefix]
     for branch in group.branches:
-        branch_prefix = (
-            visible_prefix.rstrip()
-            if _jinja_block_trims_previous_whitespace(branch.opener_text)
-            else visible_prefix
-        )
         branch_body = source_text[branch.start : branch.end]
         if _jinja_block_trims_following_whitespace(branch.opener_text):
             branch_body = branch_body.lstrip()
         if branch.rstrip_body:
             branch_body = branch_body.rstrip()
+        branch_prefix = _branch_prefix_for_rewrite(
+            visible_prefix=visible_prefix,
+            branch_body=branch_body,
+            opener_text=branch.opener_text,
+        )
         rewritten_parts.append(branch.opener_text)
         rewritten_parts.append(branch_prefix)
         rewritten_parts.append(branch_body)
         rewritten_parts.append(suffix_after_group)
     if not any(_jinja_block_keyword(branch.opener_text) == "else" for branch in group.branches):
         fallback_opener = group.branches[0].opener_text
-        fallback_prefix = (
-            visible_prefix.rstrip()
-            if _jinja_block_trims_previous_whitespace(fallback_opener)
-            else visible_prefix
+        fallback_prefix = _branch_prefix_for_rewrite(
+            visible_prefix=visible_prefix,
+            branch_body=suffix_after_group,
+            opener_text=fallback_opener,
         )
         rewritten_parts.append("{% else %}")
         rewritten_parts.append(fallback_prefix)
@@ -871,6 +903,8 @@ def _rewrite_single_alternative_branch_group(
     setup_prefix, visible_prefix = _split_rewrite_setup_blocks(prefix)
     prefix_has_text = _contains_translatable_text(prefix)
     suffix_has_words = bool(_visible_words(suffix))
+    if _contains_rewrite_unsafe_tail_control(suffix):
+        return None
     if not prefix_has_text and not suffix_has_words:
         return None
     if prefix_has_text and _visible_text_for_rewrite(prefix).rstrip().endswith(
@@ -889,16 +923,16 @@ def _rewrite_single_alternative_branch_group(
     rewritten_parts: list[str] = []
     rewritten_parts.append(setup_prefix)
     for branch in group.branches:
-        branch_prefix = (
-            visible_prefix.rstrip()
-            if _jinja_block_trims_previous_whitespace(branch.opener_text)
-            else visible_prefix
-        )
         branch_body = inner_text[branch.start : branch.end]
         if _jinja_block_trims_following_whitespace(branch.opener_text):
             branch_body = branch_body.lstrip()
         if branch.rstrip_body:
             branch_body = branch_body.rstrip()
+        branch_prefix = _branch_prefix_for_rewrite(
+            visible_prefix=visible_prefix,
+            branch_body=branch_body,
+            opener_text=branch.opener_text,
+        )
         rewritten_parts.append(branch.opener_text)
         rewritten_parts.append(opening_tag)
         rewritten_parts.append(branch_prefix)
@@ -907,10 +941,10 @@ def _rewrite_single_alternative_branch_group(
         rewritten_parts.append(closing_tag)
     if not any(_jinja_block_keyword(branch.opener_text) == "else" for branch in group.branches):
         fallback_opener = group.branches[0].opener_text
-        fallback_prefix = (
-            visible_prefix.rstrip()
-            if _jinja_block_trims_previous_whitespace(fallback_opener)
-            else visible_prefix
+        fallback_prefix = _branch_prefix_for_rewrite(
+            visible_prefix=visible_prefix,
+            branch_body=suffix_after_group,
+            opener_text=fallback_opener,
         )
         rewritten_parts.append("{% else %}")
         rewritten_parts.append(opening_tag)
@@ -943,6 +977,8 @@ def _rewrite_single_choice_optional_branch_groups(
     prefix = inner_text[: groups[0].start]
     suffix = inner_text[groups[-1].end :]
     setup_prefix, visible_prefix = _split_rewrite_setup_blocks(prefix)
+    if _contains_rewrite_unsafe_tail_control(suffix):
+        return None
     if not _contains_translatable_text(prefix) or not _visible_words(suffix):
         return None
     if _visible_text_for_rewrite(prefix).rstrip().endswith((".", "!", "?", ":", ";")):
@@ -964,16 +1000,16 @@ def _rewrite_single_choice_optional_branch_groups(
     rewritten_parts.append(setup_prefix)
     for index, group in enumerate(groups):
         branch = group.branches[0]
-        branch_prefix = (
-            visible_prefix.rstrip()
-            if _jinja_block_trims_previous_whitespace(branch.opener_text)
-            else visible_prefix
-        )
         branch_body = inner_text[branch.start : branch.end]
         if _jinja_block_trims_following_whitespace(branch.opener_text):
             branch_body = branch_body.lstrip()
         if branch.rstrip_body:
             branch_body = branch_body.rstrip()
+        branch_prefix = _branch_prefix_for_rewrite(
+            visible_prefix=visible_prefix,
+            branch_body=branch_body,
+            opener_text=branch.opener_text,
+        )
         suffix_after_group = (
             suffix.lstrip() if _jinja_block_trims_following_whitespace(group.end_text) else suffix
         )
@@ -1018,6 +1054,35 @@ def _split_rewrite_setup_blocks(prefix: str) -> tuple[str, str]:
     return "".join(setup_parts), "".join(visible_parts)
 
 
+def _branch_prefix_for_rewrite(
+    *,
+    visible_prefix: str,
+    branch_body: str,
+    opener_text: str,
+) -> str:
+    if not _jinja_block_trims_previous_whitespace(opener_text):
+        return visible_prefix
+
+    trimmed_prefix = visible_prefix.rstrip()
+    if trimmed_prefix == visible_prefix:
+        return trimmed_prefix
+    if not _should_restore_single_trimmed_space(trimmed_prefix, branch_body):
+        return trimmed_prefix
+    return f'{trimmed_prefix}{{{{" "}}}}'
+
+
+def _should_restore_single_trimmed_space(prefix: str, branch_body: str) -> bool:
+    if not prefix or not branch_body:
+        return False
+    visible_prefix = _visible_text_for_rewrite(prefix)
+    visible_branch = _visible_text_for_rewrite(branch_body)
+    if not visible_prefix or not visible_branch:
+        return False
+    if visible_prefix.endswith((".", "!", "?", ";", "(", "[", "{", "/", "-", "–")):
+        return False
+    return True
+
+
 def _is_rewrite_setup_block(token_text: str) -> bool:
     inner = _jinja_block_inner(token_text)
     keyword = inner.split(None, 1)[0] if inner else ""
@@ -1026,6 +1091,16 @@ def _is_rewrite_setup_block(token_text: str) -> bool:
     if keyword == "set":
         return "=" in inner
     return False
+
+
+def _contains_rewrite_unsafe_tail_control(source_text: str) -> bool:
+    """Avoid moving branch tails that contain loop-scoped or setup-only code."""
+
+    unsafe_keywords = {"do", "for", "endfor", "set"}
+    return any(
+        token.kind == "jinja_block" and _jinja_block_keyword(token.text) in unsafe_keywords
+        for token in _lex_source_tokens(source_text)
+    )
 
 
 def _jinja_block_trims_following_whitespace(token_text: str) -> bool:

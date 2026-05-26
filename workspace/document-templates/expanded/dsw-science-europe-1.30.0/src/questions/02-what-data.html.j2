@@ -89,28 +89,23 @@
         {%- if typesCount > 0 -%}{% if typesCount == 1 -%}
           We collect data from
           {{ typesNames[0] }}.{%- elif typesCount == 2 -%}
-          We collect data from{{ typesNames[0] }} and {{ typesNames[1] }}.{%- else -%}
-          We collect data from{{ typesNames[0] }}, {{ typesNames[1] }}, and {{ typesNames[2] }}.{%- endif -%}{% endif %}
+          We collect data from{{" "}}{{ typesNames[0] }} and {{ typesNames[1] }}.{%- else -%}
+          We collect data from{{" "}}{{ typesNames[0] }}, {{ typesNames[1] }}, and {{ typesNames[2] }}.{%- endif -%}{% endif %}
         {# Datasets #}
-        {%- if neqDataSetsItems|length > 0 -%}{%- set pathPrefix = [neqDataSetsPath, neqDataSetItem]|reply_path -%}{%- set neqDataSetsName = repliesMap[[pathPrefix, uuids.neqDataSetsNameQUuid]|reply_path]|reply_str_value -%}{%- set neqDataSetsDesc = repliesMap[[pathPrefix, uuids.neqDataSetsDescQUuid]|reply_path]|reply_str_value -%}{% if neqDataSetsName %}
+        {%- if neqDataSetsItems|length > 0 -%}
           The non-equipment datasets are:
           <ul>
-          {%- for neqDataSetItem in neqDataSetsItems -%}<li>
-              <strong>{# __tr_inline_if_original:e3sgbmVxRGF0YVNldHNOYW1lIGlmIG5lcURhdGFTZXRzTmFtZSBlbHNlICIobm8gbmFtZSBnaXZlbikiIH19 #}{{ neqDataSetsName }}{# __tr_inline_if_original:end #}</strong>
+          {%- for neqDataSetItem in neqDataSetsItems -%}
+            {%- set pathPrefix = [neqDataSetsPath, neqDataSetItem]|reply_path -%}
+            {%- set neqDataSetsName = repliesMap[[pathPrefix, uuids.neqDataSetsNameQUuid]|reply_path]|reply_str_value -%}
+            {%- set neqDataSetsDesc = repliesMap[[pathPrefix, uuids.neqDataSetsDescQUuid]|reply_path]|reply_str_value -%}
+            <li>
+              <strong>{# __tr_inline_if_original:e3sgbmVxRGF0YVNldHNOYW1lIGlmIG5lcURhdGFTZXRzTmFtZSBlbHNlICIobm8gbmFtZSBnaXZlbikiIH19 #}{% if neqDataSetsName %}{{ neqDataSetsName }}{% else %}{{ "(no name given)" }}{% endif %}{# __tr_inline_if_original:end #}</strong>
               {% if neqDataSetsDesc -%}<span class="separator">&ndash;</span> {{ neqDataSetsDesc }}{%- endif -%}
             </li>
           {%- endfor -%}
           </ul>
-        {% else %}
-          The non-equipment datasets are:
-          <ul>
-          {%- for neqDataSetItem in neqDataSetsItems -%}<li>
-              <strong>{# __tr_inline_if_original:e3sgbmVxRGF0YVNldHNOYW1lIGlmIG5lcURhdGFTZXRzTmFtZSBlbHNlICIobm8gbmFtZSBnaXZlbikiIH19 #}{{ "(no name given)" }}{# __tr_inline_if_original:end #}</strong>
-              {% if neqDataSetsDesc -%}<span class="separator">&ndash;</span> {{ neqDataSetsDesc }}{%- endif -%}
-            </li>
-          {%- endfor -%}
-          </ul>
-        {% endif %}{%- endif -%}
+        {%- endif -%}
       </p>{# __tr_block_0013:end #}{# __tr_branch_sentence_original:end #}
       </div>
     {%- endif -%}

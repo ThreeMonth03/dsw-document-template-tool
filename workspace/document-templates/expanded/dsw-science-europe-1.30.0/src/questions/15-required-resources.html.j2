@@ -107,15 +107,15 @@
                         
                         {%- if projectCostItemAllocations|length > 0 -%}{%- if projectCostItemAllocations|length > 2 -%}
                           <p>
-                            This resource is allocated for{{+" "}}{{ projectCostItemAllocations[0:-1]|join(", ") }}, and {{ projectCostItemAllocations[-1] }} of data.
+                            This resource is allocated for{{+" "}}{{" "}}{{ projectCostItemAllocations[0:-1]|join(", ") }}, and {{ projectCostItemAllocations[-1] }} of data.
                           </p>
                         {%- elif projectCostItemAllocations|length == 2 -%}
                           <p>
-                            This resource is allocated for{{+" "}}{{ projectCostItemAllocations[0] }} and {{ projectCostItemAllocations[1] }} of data.
+                            This resource is allocated for{{+" "}}{{" "}}{{ projectCostItemAllocations[0] }} and {{ projectCostItemAllocations[1] }} of data.
                           </p>
                         {%- else -%}
                           <p>
-                            This resource is allocated for{{+" "}}{{ projectCostItemAllocations[0] }} of data.
+                            This resource is allocated for{{+" "}}{{" "}}{{ projectCostItemAllocations[0] }} of data.
                           </p>
                         {%- endif %}{%- endif -%}
                        
