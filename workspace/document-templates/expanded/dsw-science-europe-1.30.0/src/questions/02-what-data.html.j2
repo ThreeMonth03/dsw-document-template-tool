@@ -85,33 +85,33 @@
       {%- if caseReport -%}{# __tr_block_0011:start #}{%- do typesNames.append("case report forms") -%}{# __tr_block_0011:end #}{%- endif -%}
       {%- if eRecords -%}{# __tr_block_0012:start #}{%- do typesNames.append("electronic patient records") -%}{# __tr_block_0012:end #}{%- endif -%}
       {%- set typesCount = typesNames|length -%}
-      {# __tr_block_0013:start #}<p>
-        {%- if typesCount > 0 -%}
+      {# __tr_branch_sentence_original:PHA-CiAgICAgICAgeyUtIGlmIHR5cGVzQ291bnQgPiAwIC0lfQogICAgICAgICAgV2UgY29sbGVjdCBkYXRhIGZyb20KICAgICAgICAgIHslIGlmIHR5cGVzQ291bnQgPT0gMSAtJX0KICAgICAgICAgICAgICB7eyB0eXBlc05hbWVzWzBdIH19LgogICAgICAgICAgeyUtIGVsaWYgdHlwZXNDb3VudCA9PSAyIC0lfQogICAgICAgICAgICAgIHt7IHR5cGVzTmFtZXNbMF0gfX0gYW5kIHt7IHR5cGVzTmFtZXNbMV0gfX0uCiAgICAgICAgICB7JS0gZWxzZSAtJX0KICAgICAgICAgICAgICB7eyB0eXBlc05hbWVzWzBdIH19LCB7eyB0eXBlc05hbWVzWzFdIH19LCBhbmQge3sgdHlwZXNOYW1lc1syXSB9fS4KICAgICAgICAgIHslLSBlbmRpZiAtJX0KICAgICAgICB7JSBlbmRpZiAlfQogICAgICAgIHsjIERhdGFzZXRzICN9CiAgICAgICAgeyUtIGlmIG5lcURhdGFTZXRzSXRlbXN8bGVuZ3RoID4gMCAtJX0KICAgICAgICAgIFRoZSBub24tZXF1aXBtZW50IGRhdGFzZXRzIGFyZToKICAgICAgICAgIDx1bD4KICAgICAgICAgIHslLSBmb3IgbmVxRGF0YVNldEl0ZW0gaW4gbmVxRGF0YVNldHNJdGVtcyAtJX0KICAgICAgICAgICAgeyUtIHNldCBwYXRoUHJlZml4ID0gW25lcURhdGFTZXRzUGF0aCwgbmVxRGF0YVNldEl0ZW1dfHJlcGx5X3BhdGggLSV9CiAgICAgICAgICAgIHslLSBzZXQgbmVxRGF0YVNldHNOYW1lID0gcmVwbGllc01hcFtbcGF0aFByZWZpeCwgdXVpZHMubmVxRGF0YVNldHNOYW1lUVV1aWRdfHJlcGx5X3BhdGhdfHJlcGx5X3N0cl92YWx1ZSAtJX0KICAgICAgICAgICAgeyUtIHNldCBuZXFEYXRhU2V0c0Rlc2MgPSByZXBsaWVzTWFwW1twYXRoUHJlZml4LCB1dWlkcy5uZXFEYXRhU2V0c0Rlc2NRVXVpZF18cmVwbHlfcGF0aF18cmVwbHlfc3RyX3ZhbHVlIC0lfQogICAgICAgICAgICA8bGk-CiAgICAgICAgICAgICAgPHN0cm9uZz57IyBfX3RyX2lubGluZV9pZl9vcmlnaW5hbDplM3NnYm1WeFJHRjBZVk5sZEhOT1lXMWxJR2xtSUc1bGNVUmhkR0ZUWlhSelRtRnRaU0JsYkhObElDSW9ibThnYm1GdFpTQm5hWFpsYmlraUlIMTkgI317JSBpZiBuZXFEYXRhU2V0c05hbWUgJX17eyBuZXFEYXRhU2V0c05hbWUgfX17JSBlbHNlICV9e3sgIihubyBuYW1lIGdpdmVuKSIgfX17JSBlbmRpZiAlfXsjIF9fdHJfaW5saW5lX2lmX29yaWdpbmFsOmVuZCAjfTwvc3Ryb25nPgogICAgICAgICAgICAgIHslIGlmIG5lcURhdGFTZXRzRGVzYyAtJX08c3BhbiBjbGFzcz0ic2VwYXJhdG9yIj4mbmRhc2g7PC9zcGFuPiB7eyBuZXFEYXRhU2V0c0Rlc2MgfX17JS0gZW5kaWYgLSV9CiAgICAgICAgICAgIDwvbGk-CiAgICAgICAgICB7JS0gZW5kZm9yIC0lfQogICAgICAgICAgPC91bD4KICAgICAgICB7JS0gZW5kaWYgLSV9CiAgICAgIDwvcD4= #}{# __tr_block_0013:start #}<p>
+        {%- if typesCount > 0 -%}{% if typesCount == 1 -%}
           We collect data from
-          {% if typesCount == 1 -%}
-              {{ typesNames[0] }}.
-          {%- elif typesCount == 2 -%}
-              {{ typesNames[0] }} and {{ typesNames[1] }}.
-          {%- else -%}
-              {{ typesNames[0] }}, {{ typesNames[1] }}, and {{ typesNames[2] }}.
-          {%- endif -%}
-        {% endif %}
+          {{ typesNames[0] }}.{%- elif typesCount == 2 -%}
+          We collect data from{{ typesNames[0] }} and {{ typesNames[1] }}.{%- else -%}
+          We collect data from{{ typesNames[0] }}, {{ typesNames[1] }}, and {{ typesNames[2] }}.{%- endif -%}{% endif %}
         {# Datasets #}
-        {%- if neqDataSetsItems|length > 0 -%}
+        {%- if neqDataSetsItems|length > 0 -%}{%- set pathPrefix = [neqDataSetsPath, neqDataSetItem]|reply_path -%}{%- set neqDataSetsName = repliesMap[[pathPrefix, uuids.neqDataSetsNameQUuid]|reply_path]|reply_str_value -%}{%- set neqDataSetsDesc = repliesMap[[pathPrefix, uuids.neqDataSetsDescQUuid]|reply_path]|reply_str_value -%}{% if neqDataSetsName %}
           The non-equipment datasets are:
           <ul>
-          {%- for neqDataSetItem in neqDataSetsItems -%}
-            {%- set pathPrefix = [neqDataSetsPath, neqDataSetItem]|reply_path -%}
-            {%- set neqDataSetsName = repliesMap[[pathPrefix, uuids.neqDataSetsNameQUuid]|reply_path]|reply_str_value -%}
-            {%- set neqDataSetsDesc = repliesMap[[pathPrefix, uuids.neqDataSetsDescQUuid]|reply_path]|reply_str_value -%}
-            <li>
-              <strong>{# __tr_inline_if_original:e3sgbmVxRGF0YVNldHNOYW1lIGlmIG5lcURhdGFTZXRzTmFtZSBlbHNlICIobm8gbmFtZSBnaXZlbikiIH19 #}{% if neqDataSetsName %}{{ neqDataSetsName }}{% else %}{{ "(no name given)" }}{% endif %}{# __tr_inline_if_original:end #}</strong>
+          {%- for neqDataSetItem in neqDataSetsItems -%}<li>
+              <strong>{# __tr_inline_if_original:e3sgbmVxRGF0YVNldHNOYW1lIGlmIG5lcURhdGFTZXRzTmFtZSBlbHNlICIobm8gbmFtZSBnaXZlbikiIH19 #}{{ neqDataSetsName }}{# __tr_inline_if_original:end #}</strong>
               {% if neqDataSetsDesc -%}<span class="separator">&ndash;</span> {{ neqDataSetsDesc }}{%- endif -%}
             </li>
           {%- endfor -%}
           </ul>
-        {%- endif -%}
-      </p>{# __tr_block_0013:end #}
+        {% else %}
+          The non-equipment datasets are:
+          <ul>
+          {%- for neqDataSetItem in neqDataSetsItems -%}<li>
+              <strong>{# __tr_inline_if_original:e3sgbmVxRGF0YVNldHNOYW1lIGlmIG5lcURhdGFTZXRzTmFtZSBlbHNlICIobm8gbmFtZSBnaXZlbikiIH19 #}{{ "(no name given)" }}{# __tr_inline_if_original:end #}</strong>
+              {% if neqDataSetsDesc -%}<span class="separator">&ndash;</span> {{ neqDataSetsDesc }}{%- endif -%}
+            </li>
+          {%- endfor -%}
+          </ul>
+        {% endif %}{%- endif -%}
+      </p>{# __tr_block_0013:end #}{# __tr_branch_sentence_original:end #}
       </div>
     {%- endif -%}
   {%- endif -%}

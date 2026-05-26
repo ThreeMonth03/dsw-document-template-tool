@@ -441,6 +441,117 @@ def test_export_translation_tree_splits_single_choice_optional_fragments(
     )
 
 
+def test_export_translation_tree_keeps_nested_optional_link_with_label(
+    tmp_path: Path,
+) -> None:
+    """Nested URL/non-URL branches should not expose `available via:` alone."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>
+  We will re-use this data
+  {%- if where -%}
+    {{" "}}available via:{{" "}}
+    {%- if where.startswith("http://") or where.startswith("https://") -%}
+      <a href="{{ where }}">{{ where }}</a>.
+    {%- else -%}
+      {{ where }}
+    {%- endif -%}
+  {%- endif -%}
+  .
+</p>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "available via:" not in sentences
+    assert any("available via: {where}" in sentence for sentence in sentences)
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
+def test_export_translation_tree_keeps_nested_restriction_with_label(
+    tmp_path: Path,
+) -> None:
+    """Nested restriction branches should not expose `available with` alone."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>
+  This data are
+  {%- if condition == "other" -%}
+    {%- set restriction = other -%}
+    available with
+    {%- if restriction -%}
+      following restrictions: "{{ restriction }}".
+    {%- else -%}
+      {{" "}}restrictions, that will be specified.
+    {%- endif -%}
+  {%- endif -%}
+</p>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "available with" not in sentences
+    assert any("available with following restrictions" in sentence for sentence in sentences)
+    assert any("available with restrictions" in sentence for sentence in sentences)
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
+def test_export_translation_tree_keeps_reason_prefix_with_branch_reason(
+    tmp_path: Path,
+) -> None:
+    """Reason branches should include their shared decision prefix."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>
+  We considered reusing this data
+  {%- if reason -%}
+    , but decided not to reuse it
+    {%- if reason == "data" -%}
+      {{" "}}because it misses data we need
+    {%- elif reason == "quality" -%}
+      {{" "}}becauseit is not sufficient quality
+    {%- endif -%}
+    .
+  {%- endif -%}
+</p>
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "because it misses data we need" not in sentences
+    assert "because it is not sufficient quality" not in sentences
+    assert any(
+        "but decided not to reuse it because it misses data we need" in sentence
+        for sentence in sentences
+    )
+    assert any(
+        "but decided not to reuse it because it is not sufficient quality" in sentence
+        for sentence in sentences
+    )
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
 def test_export_translation_tree_splits_complete_if_elif_else_sentences(
     tmp_path: Path,
 ) -> None:
@@ -547,8 +658,9 @@ def test_export_translation_tree_excludes_html_entity_punctuation_units(
     docs = _read_translation_docs(tree_dir)
     joined_docs = "\n".join(docs)
     sentence_sections = _extract_sentence_sections(docs)
+    sentences = _extract_sentence_list(docs)
     assert "Created in" in joined_docs
-    assert "»" not in sentence_sections
+    assert "»" not in [sentence.strip() for sentence in sentences]
     assert "–" not in sentence_sections
     assert "raquo" not in joined_docs
     assert "ndash" not in joined_docs

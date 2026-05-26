@@ -493,6 +493,7 @@ def _repo_root() -> Path:
 def _expand_template_text(*, source_text: str) -> str:
     source_text = _rewrite_inline_conditional_expressions(source_text)
     source_text = _rewrite_common_prefix_branch_sentences(source_text)
+    source_text = _rewrite_known_science_europe_fragments(source_text)
     tokens = _lex_source_tokens(source_text)
     regions = _collect_annotation_regions(tokens=tokens, source_text=source_text)
 
@@ -507,6 +508,124 @@ def _expand_template_text(*, source_text: str) -> str:
         cursor = region.end
     expanded_parts.append(source_text[cursor:])
     return "".join(expanded_parts)
+
+
+def _rewrite_known_science_europe_fragments(source_text: str) -> str:
+    """Patch upstream Science Europe sentence fragments that generic HTML cannot see.
+
+    A few upstream fragments live inside large, unbalanced list-item wrappers, so
+    the generic paragraph rewriter cannot safely discover their `<p>` boundaries.
+    These replacements are still reversible: compacting restores the exact
+    upstream text stored in the marker payload.
+    """
+
+    nref_where_url_if = (
+        '{%- if nrefDataWhere.startswith("http://") or '
+        'nrefDataWhere.startswith("https://") or '
+        'nrefDataWhere.startswith("ftp://") -%}'
+    )
+    nref_no_reason_other_elif = (
+        "{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid "
+        "and nrefDataUseNoOtherReasonReply -%}"
+    )
+    nref_no_cond_sentence = (
+        ', but decided not to reuse it{{" "}}because its conditions of use do not allow us '
+        "to use it"
+    )
+    nref_where_link = (
+        '{{+" "}}available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">'
+        "{{ nrefDataWhere }} </a>."
+    )
+    replacements = (
+        (
+            f"""
+          {{{{+" "}}}}available via:{{{{" "}}}}
+            {nref_where_url_if}
+              <a href="{{{{ rnefDataWhere }}}}" target="_blank">{{{{ nrefDataWhere }}}} </a>.
+            {{%- else -%}}
+              {{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+            f"""
+            {nref_where_url_if}
+          {nref_where_link}
+            {{%- else -%}}
+          {{{{+" "}}}}available via:{{{{" "}}}}{{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+        ),
+        (
+            """
+                available with{{" "}}
+                  {%- if nrefDataConditionsOtherReply -%}
+                   following restrictions: "{{nrefDataConditionsOtherReply}}".
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+""",
+            """
+                  {%- if nrefDataConditionsOtherReply -%}
+                available with{{" "}}following restrictions: "{{nrefDataConditionsOtherReply}}".
+                  {%- else -%}
+                available with{{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+""",
+        ),
+        (
+            f"""
+            , but decided not to reuse it
+            {{%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}}
+              {{{{" "}}}}because it misses data we need
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}}
+              {{{{" "}}}}becauseit misses required aspects
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}}
+              {{{{" "}}}}becauseit is not sufficient quality
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}}
+              {{{{" "}}}}because its conditions of use do not allow us to use it
+            {nref_no_reason_other_elif}
+              {{{{" "}}}}because: "{{{{nrefDataUseNoOtherReasonReply}}}}"
+            {{%- endif -%}}
+""",
+            f"""
+            {{%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}}
+            , but decided not to reuse it{{{{" "}}}}because it misses data we need
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}}
+            , but decided not to reuse it{{{{" "}}}}becauseit misses required aspects
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}}
+            , but decided not to reuse it{{{{" "}}}}becauseit is not sufficient quality
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}}
+            {nref_no_cond_sentence}
+            {nref_no_reason_other_elif}
+            , but decided not to reuse it{{{{" "}}}}because: "{{{{nrefDataUseNoOtherReasonReply}}}}"
+            {{%- else -%}}
+            , but decided not to reuse it
+            {{%- endif -%}}
+""",
+        ),
+    )
+
+    rewritten_text = source_text
+    for original, replacement in replacements:
+        if original not in rewritten_text:
+            continue
+        rewritten_text = rewritten_text.replace(
+            original,
+            _wrap_reversible_branch_sentence_rewrite(
+                original=original,
+                replacement=replacement,
+            ),
+            1,
+        )
+    return rewritten_text
+
+
+def _wrap_reversible_branch_sentence_rewrite(*, original: str, replacement: str) -> str:
+    encoded_original = base64.urlsafe_b64encode(original.encode("utf-8")).decode("ascii")
+    return (
+        f"{{# __tr_branch_sentence_original:{encoded_original} #}}"
+        f"{replacement}"
+        "{# __tr_branch_sentence_original:end #}"
+    )
 
 
 def _wrap_translatable_block(block_name: str, source_text: str) -> str:
@@ -625,12 +744,117 @@ def _rewrite_inner_common_prefix_branch(
             group=optional_groups[0],
         )
 
-    return _rewrite_single_choice_optional_branch_groups(
+    rewritten_single_choice = _rewrite_single_choice_optional_branch_groups(
         inner_text=inner_text,
         opening_tag=opening_tag,
         closing_tag=closing_tag,
         active_conditions=active_conditions,
     )
+    if rewritten_single_choice is not None:
+        return rewritten_single_choice
+
+    rewritten_nested_fragments = _rewrite_nested_common_prefix_branch_fragments(inner_text)
+    if rewritten_nested_fragments is not None:
+        return f"{opening_tag}{rewritten_nested_fragments}{closing_tag}"
+
+    return None
+
+
+def _rewrite_nested_common_prefix_branch_fragments(inner_text: str) -> str | None:
+    """Rewrite nested branch fragments inside a larger sentence-preserving element.
+
+    Some templates have a paragraph-level optional fragment followed by a nested
+    if/elif reason, for example `available with {% if reason %}...`.  The outer
+    paragraph cannot be fully expanded without a Cartesian explosion, but the
+    nested branch can still duplicate its immediate visible prefix so translators
+    do not receive `available with` or `because ...` as disconnected units.
+    """
+
+    rewritten = _rewrite_common_prefix_branch_fragments(inner_text)
+    if rewritten == inner_text:
+        return None
+    return rewritten
+
+
+def _rewrite_common_prefix_branch_fragments(source_text: str) -> str:
+    tokens = _lex_source_tokens(source_text)
+    groups = _collect_top_level_branch_rewrite_groups(tokens=tokens)
+    if len(groups) == 1:
+        rewritten = _rewrite_single_alternative_branch_fragment(
+            source_text=source_text,
+            group=groups[0],
+        )
+        if rewritten is not None:
+            return rewritten
+
+    replacements: list[tuple[int, int, str]] = []
+    for group in _collect_top_level_optional_rewrite_groups(tokens=tokens):
+        for branch in group.branches:
+            branch_text = source_text[branch.start : branch.end]
+            rewritten_branch = _rewrite_common_prefix_branch_fragments(branch_text)
+            if rewritten_branch != branch_text:
+                replacements.append((branch.start, branch.end, rewritten_branch))
+
+    if not replacements:
+        return source_text
+    return _replace_non_overlapping_regions(source_text, replacements)
+
+
+def _rewrite_single_alternative_branch_fragment(
+    *,
+    source_text: str,
+    group: BranchRewriteGroup,
+) -> str | None:
+    """Rewrite one nested if/elif/else group without adding HTML wrappers."""
+
+    prefix = source_text[: group.start]
+    suffix = source_text[group.end :]
+    setup_prefix, visible_prefix = _split_rewrite_setup_blocks(prefix)
+    prefix_has_text = _contains_translatable_text(prefix)
+    suffix_has_words = bool(_visible_words(suffix))
+    if not prefix_has_text and not suffix_has_words:
+        return None
+    if prefix_has_text and _visible_text_for_rewrite(prefix).rstrip().endswith(
+        (".", "!", "?", ";")
+    ):
+        return None
+    if not all(
+        _is_simple_branch_sentence_fragment(source_text[branch.start : branch.end])
+        for branch in group.branches
+    ):
+        return None
+
+    suffix_after_group = (
+        suffix.lstrip() if _jinja_block_trims_following_whitespace(group.end_text) else suffix
+    )
+    rewritten_parts: list[str] = [setup_prefix]
+    for branch in group.branches:
+        branch_prefix = (
+            visible_prefix.rstrip()
+            if _jinja_block_trims_previous_whitespace(branch.opener_text)
+            else visible_prefix
+        )
+        branch_body = source_text[branch.start : branch.end]
+        if _jinja_block_trims_following_whitespace(branch.opener_text):
+            branch_body = branch_body.lstrip()
+        if branch.rstrip_body:
+            branch_body = branch_body.rstrip()
+        rewritten_parts.append(branch.opener_text)
+        rewritten_parts.append(branch_prefix)
+        rewritten_parts.append(branch_body)
+        rewritten_parts.append(suffix_after_group)
+    if not any(_jinja_block_keyword(branch.opener_text) == "else" for branch in group.branches):
+        fallback_opener = group.branches[0].opener_text
+        fallback_prefix = (
+            visible_prefix.rstrip()
+            if _jinja_block_trims_previous_whitespace(fallback_opener)
+            else visible_prefix
+        )
+        rewritten_parts.append("{% else %}")
+        rewritten_parts.append(fallback_prefix)
+        rewritten_parts.append(suffix_after_group)
+    rewritten_parts.append(group.end_text)
+    return "".join(rewritten_parts)
 
 
 def _rewrite_single_alternative_branch_group(
@@ -650,7 +874,7 @@ def _rewrite_single_alternative_branch_group(
     if not prefix_has_text and not suffix_has_words:
         return None
     if prefix_has_text and _visible_text_for_rewrite(prefix).rstrip().endswith(
-        (".", "!", "?", ":", ";")
+        (".", "!", "?", ";")
     ):
         return None
     if not all(

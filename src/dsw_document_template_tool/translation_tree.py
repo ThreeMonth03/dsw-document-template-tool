@@ -59,6 +59,7 @@ HTML_CONTEXT_BOUNDARY_PATTERN = re.compile(
     r"</(?:p|li|h[1-6]|dt|dd|th|td|caption|div|ul|ol|table|tr)>|<br\s*/?>",
     re.IGNORECASE,
 )
+INLINE_TRANSLATOR_TAGS = {"a", "em", "small", "span", "strong"}
 TRANSLATOR_PLACEHOLDER_PATTERN = re.compile(r"(?<!\{)\{(?P<name>[A-Za-z_][A-Za-z0-9_.]*)\}(?!\})")
 RAW_JINJA_IN_TRANSLATION_PATTERN = re.compile(r"\{[#%{]")
 VISIBLE_TEXT_PATTERN = re.compile(r"[A-Za-z0-9]+")
@@ -77,6 +78,19 @@ CONNECTOR_ONLY_WORDS = {
     "to",
     "with",
 }
+HARD_FRAGMENT_SENTENCES = {
+    "available via:",
+    "available with",
+}
+SENTENCE_TEXT_REPLACEMENTS = (
+    (re.compile(r"\bbecauseit\b", re.IGNORECASE), "because it"),
+    (re.compile(r"\blegaly\b", re.IGNORECASE), "legally"),
+    (re.compile(r"\bdataare\b", re.IGNORECASE), "data are"),
+    (re.compile(r"\bdatamay\b", re.IGNORECASE), "data may"),
+    (re.compile(r"\busethe\b", re.IGNORECASE), "use the"),
+    (re.compile(r"\buseonly\b", re.IGNORECASE), "use only"),
+    (re.compile(r"\bwithfollowing\b", re.IGNORECASE), "with following"),
+)
 
 
 @dataclass(frozen=True)
@@ -539,6 +553,16 @@ def _audit_manifest_unit(
                         "Source unit contains raw Jinja block/comment syntax. "
                         "Expand/export must split this before translators edit it."
                     ),
+                )
+            )
+
+        hard_fragment_message = _hard_fragment_sentence_message(source_unit_text)
+        if hard_fragment_message is not None:
+            issues.append(
+                TranslationTreeAuditIssue(
+                    code="hard-to-translate-source-fragment",
+                    location=location,
+                    message=hard_fragment_message,
                 )
             )
 
@@ -1121,6 +1145,10 @@ def _collect_jinja_literal_regions(
             continue
         if _is_inside_region(token=token, regions=covered_regions):
             continue
+        if token.kind == "jinja_block" and not _extract_translatable_jinja_block_literals(
+            token.text[2:-2]
+        ):
+            continue
         for match in JINJA_STRING_LITERAL_PATTERN.finditer(token.text):
             literal = match.group("literal")
             if _is_subscript_literal(expr=token.text, start=match.start(), end=match.end()):
@@ -1213,9 +1241,11 @@ def _collect_inline_text_regions(
         # Raw Jinja control blocks are executable template code, not translator text.
         # Expanded rewrites should duplicate safe branch sentences instead of asking
         # translators to preserve `{% ... %}` manually.
-        if token.kind in {"text", "jinja_expr", "jinja_comment"} or (
-            include_control_tokens and token.kind == "jinja_block"
-        ):
+        if (
+            token.kind == "html_tag"
+            and token.tag_name in INLINE_TRANSLATOR_TAGS
+            or token.kind in {"text", "jinja_expr", "jinja_comment"}
+        ) or (include_control_tokens and token.kind == "jinja_block"):
             pending_tokens.append(token)
             continue
         flush_pending()
@@ -1610,6 +1640,16 @@ def _is_connector_only_translation_unit(source_text: str) -> bool:
     return all(word.lower() in CONNECTOR_ONLY_WORDS for word in words)
 
 
+def _hard_fragment_sentence_message(source_text: str) -> str | None:
+    sentence = _extract_sentence_text(source_text).strip()
+    if sentence.lower() in HARD_FRAGMENT_SENTENCES:
+        return (
+            f"`{sentence}` is only a sentence fragment. Expand/export should keep "
+            "the surrounding phrase and any placeholders in the same translation unit."
+        )
+    return None
+
+
 def _replace_expr_with_visible_literals(match: re.Match[str]) -> str:
     return " ".join(_extract_translatable_jinja_literals(match.group("expr")))
 
@@ -1909,7 +1949,15 @@ def _extract_sentence_text(source_text: str) -> str:
     sentence = re.sub(r"(?<![/.])([.!?])\.", r"\1", sentence)
     sentence = re.sub(r"\s+\.", ".", sentence)
     sentence = sentence.strip()
+    sentence = _repair_sentence_text_glue(sentence)
     return sentence or "(no visible sentence)"
+
+
+def _repair_sentence_text_glue(sentence: str) -> str:
+    repaired = sentence
+    for pattern, replacement in SENTENCE_TEXT_REPLACEMENTS:
+        repaired = pattern.sub(replacement, repaired)
+    return repaired
 
 
 def _jinja_expr_to_placeholder(expr: str) -> str:

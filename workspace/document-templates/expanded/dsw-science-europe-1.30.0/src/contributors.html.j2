@@ -33,7 +33,7 @@
   {%- if contributors|length > 0 -%}
   <ul>
   {% for contributor in contributors %}
-    {# __tr_block_0002:start #}<li class="contributor">
+    {# __tr_branch_sentence_original:PGxpIGNsYXNzPSJjb250cmlidXRvciI-CiAgICAgIDxzcGFuIGNsYXNzPSJuYW1lIj48c3Ryb25nPnt7IGNvbnRyaWJ1dG9yLm5hbWUgfX08L3N0cm9uZz48L3NwYW4-CiAgICAgIHslLSBpZiBjb250cmlidXRvci5lbWFpbCBhbmQgY29udHJpYnV0b3Iub3JjaWQgJX0KICAgICAgICA8YnI-e3sgbWFjcm9zLmZvcm1hdEVtYWlsKGNvbnRyaWJ1dG9yLmVtYWlsKSB9fSwge3sgbWFjcm9zLmZvcm1hdE9yY2lkKGNvbnRyaWJ1dG9yLm9yY2lkKSB9fQogICAgICB7JS0gZWxpZiBjb250cmlidXRvci5lbWFpbCAlfQogICAgICAgIDxicj57eyBtYWNyb3MuZm9ybWF0RW1haWwoY29udHJpYnV0b3IuZW1haWwpIH19CiAgICAgIHslLSBlbGlmIGNvbnRyaWJ1dG9yLm9yY2lkICV9CiAgICAgICAgPGJyPnt7IG1hY3Jvcy5mb3JtYXRPcmNpZChjb250cmlidXRvci5vcmNpZCkgfX0KICAgICAgeyUtIGVuZGlmIC0lfQogICAgICB7JS0gaWYgY29udHJpYnV0b3Iucm9sZXN8bGVuZ3RoID4gMCAlfQogICAgICAgIDxicj57JSBpZiBjb250cmlidXRvci5yb2xlc3xsZW5ndGggPT0gMCAlfVJvbGV7JSBlbHNlICV9Um9sZXN7JSBlbmRpZiAlfTogeyUgZm9yIHJvbGUgaW4gY29udHJpYnV0b3Iucm9sZXMgJX08c3BhbiBjbGFzcz0icm9sZSI-e3sgcm9sZSB9fTwvc3Bhbj57JSBpZiBub3QgbG9vcC5sYXN0ICV9LCB7JSBlbmRpZiAlfXslIGVuZGZvciAlfQogICAgICB7JS0gZW5kaWYgJX0KICAgICAgeyUtIGlmIGNvbnRyaWJ1dG9yLmFmZmlsaWF0aW9uICV9CiAgICAgICAgPGJyPkFmZmlsaWF0aW9uOiA8c3BhbiBjbGFzcz0iYWZmaWxpYXRpb24iPnt7IG1hY3Jvcy5pbnRlZ3JhdGlvblJPUihjb250cmlidXRvci5hZmZpbGlhdGlvbikgfX08L3NwYW4-CiAgICAgIHslLSBlbmRpZiAlfQogICAgPC9saT4= #}{# __tr_block_0002:start #}<li class="contributor">
       <span class="name"><strong>{{ contributor.name }}</strong></span>
       {%- if contributor.email and contributor.orcid %}
         <br>{{ macros.formatEmail(contributor.email) }}, {{ macros.formatOrcid(contributor.orcid) }}
@@ -42,13 +42,15 @@
       {%- elif contributor.orcid %}
         <br>{{ macros.formatOrcid(contributor.orcid) }}
       {%- endif -%}
-      {%- if contributor.roles|length > 0 %}
-        <br>{% if contributor.roles|length == 0 %}Role{% else %}Roles{% endif %}: {% for role in contributor.roles %}<span class="role">{{ role }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
-      {%- endif %}
+      {%- if contributor.roles|length > 0 %}{% if contributor.roles|length == 0 %}
+        <br>Role: {% for role in contributor.roles %}<span class="role">{{ role }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+      {% else %}
+        <br>Roles: {% for role in contributor.roles %}<span class="role">{{ role }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+      {% endif %}{%- endif %}
       {%- if contributor.affiliation %}
         <br>Affiliation: <span class="affiliation">{{ macros.integrationROR(contributor.affiliation) }}</span>
       {%- endif %}
-    </li>{# __tr_block_0002:end #}
+    </li>{# __tr_block_0002:end #}{# __tr_branch_sentence_original:end #}
   {% endfor %}
   </ul>
   {%- elif dc.project.created_by -%}
