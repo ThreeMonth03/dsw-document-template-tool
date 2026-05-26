@@ -141,13 +141,13 @@
     {%- set sharedWorkspacePrefix = [uuids.processingCUuid, uuids.sharedWorkspaceQUuid, uuids.sharedWorkspaceYesAUuid]|reply_path -%}
     {%- set sharedWorkspaceReliableAUuid = [sharedWorkspacePrefix, uuids.sharedReliableQUuid, uuids.sharedReliableExploreAUuid ]|reply_path  -%}
     {%- set sharedWorkspaceReliablePreventLossQUuid = [sharedWorkspaceReliableAUuid, uuids.sharedReliablePreventLossQUuid]|reply_path  -%}
-    {%- set sharedWorkspaceReliablePreventLossReply = repliesMap[sharedWorkspaceReliablePreventLossQUuid]|reply_str_value -%}
+    {%- set sharedWorkspaceReliablePreventLossReply = repliesMap[sharedWorkspaceReliablePreventLossQUuid]|reply_str_value -%}{# __tr_branch_sentence_original:CiAgICB7JS0gaWYgc2hhcmVkV29ya3NwYWNlUmVwbHkgPT0gdXVpZHMuc2hhcmVkV29ya3NwYWNlWWVzQVV1aWQgYW5kIHNoYXJlZFdvcmtzcGFjZVJlbGlhYmxlUHJldmVudExvc3NSZXBseSAtJX0KICAgICA8cD5EdXJpbmcgdGhlIHByb2plY3Qgd2Ugd2lsbCB1c2Ugc2hhcmVkIHdvcmtpbmcgc3BhY2UgdG8gd29yayB3aXRoIG91ciBkYXRhe3srIiAifX0KICAgICAgeyUtIGlmIHNoYXJlZFdvcmtzcGFjZVJlbGlhYmxlUHJldmVudExvc3NSZXBseSA9PSB1dWlkcy5zaGFyZWRSZWxpYWJsZVByZXZlbnRMb3NzU3VmZmljaWVudEFVdWlkICAtJX0KICAgICAgICB0aGF0IGVuc3VyZXMgdGhlIHByZXZlbnRpb24gb2YgY29tcGxldGUgZGF0YSBsb3NzLgogICAgICB7JS0gZWxpZiBzaGFyZWRXb3Jrc3BhY2VSZWxpYWJsZVByZXZlbnRMb3NzUmVwbHkgPT0gdXVpZHMuc2hhcmVkUmVsaWFibGVQcmV2ZW50TG9zc1N0b3JlZEFVdWlkIC0lfQogICAgICAgIGJ1dCB3ZSB3aWxsIHN0b3JlIGFsbCBlc3NlbnRpYWwgZGF0YSBlbHNld2hlcmUuCiAgICAgIHslLSBlbmRpZiAtJX0KCiAgICAgIHslLSBzZXQgc2hhcmVkV29ya3NwYWNlUmVsaWFibGVCYWNrdXBRVXVpZCA9IFtzaGFyZWRXb3Jrc3BhY2VSZWxpYWJsZUFVdWlkLCB1dWlkcy5zaGFyZWRSZWxpYWJsZUJhY2t1cFFVdWlkXXxyZXBseV9wYXRoIC0lfQogICAgICB7JS0gc2V0IHNoYXJlZFdvcmtzcGFjZVJlbGlhYmxlQmFja3VwUmVwbHkgPSByZXBsaWVzTWFwW3NoYXJlZFdvcmtzcGFjZVJlbGlhYmxlQmFja3VwUVV1aWRdfHJlcGx5X3N0cl92YWx1ZSAgLSV9CiAgICAgIHslLSBpZiBzaGFyZWRXb3Jrc3BhY2VSZWxpYWJsZUJhY2t1cFJlcGx5ID09IHV1aWRzLnNoYXJlZFJlbGlhYmxlQmFja3VwQ29weUFsbFNvbWV3aGVyZUFVdWlkIC0lfQogICAgICAgIHt7KyIgIn19QW5kIGFsbCB0aGUgZGF0YSB0aGF0IGFyZSBzdG9yZXMgZWxzZXdoZXJlIGlzIGFkZXF1YXRlbHkgYmFja2VkIHVwLgogICAgICB7JS0gZWxpZiBzaGFyZWRXb3Jrc3BhY2VSZWxpYWJsZUJhY2t1cFJlcGx5ID09IHV1aWRzLnNoYXJlZFJlbGlhYmxlQmFja3VwQ29weUJhY2t1cHNBVXVpZCAtJX0KICAgICAgICB7eysiICJ9fVdlIG1ha2UgKGF1dG9tYXRlZCkgYmFja3VwcyBvZiBhbGwgZGF0YSBzdG9yZWQgb3V0c2lkZSBvZiB0aGUgd29ya2luZyBhcmVhLgogICAgICB7JS0gZW5kaWYgLSV9CiAgICAgPC9wPgoKICAgIHslLSBlbmRpZiAtJX0K #}
     {%- if sharedWorkspaceReply == uuids.sharedWorkspaceYesAUuid and sharedWorkspaceReliablePreventLossReply -%}
-     {# __tr_block_0009:start #}<p>During the project we will use shared working space to work with our data{{+" "}}
+     {# __tr_block_0009:start #}<p>
       {%- if sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossSufficientAUuid  -%}
-        that ensures the prevention of complete data loss.
+        During the project we will use shared working space to work with our data{{+" "}}that ensures the prevention of complete data loss.
       {%- elif sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossStoredAUuid -%}
-        but we will store all essential data elsewhere.
+        During the project we will use shared working space to work with our data{{+" "}}but we will store all essential data elsewhere.
       {%- endif -%}
 
       {%- set sharedWorkspaceReliableBackupQUuid = [sharedWorkspaceReliableAUuid, uuids.sharedReliableBackupQUuid]|reply_path -%}
@@ -160,7 +160,7 @@
      </p>{# __tr_block_0009:end #}
 
     {%- endif -%}
-
+{# __tr_branch_sentence_original:end #}
     {# Long term preservation and recovery #}
     {%- set preservingArchivedDuringQUuid = [uuids.preservingCUuid, uuids.archivedDuringQUuid]|reply_path -%}
     {%- set preservingArchivedDuringReply = repliesMap[preservingArchivedDuringQUuid]|reply_str_value -%}

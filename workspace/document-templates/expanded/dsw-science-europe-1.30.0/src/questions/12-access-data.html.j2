@@ -24,20 +24,24 @@
                     {%- set isPublishedSwItems = repliesMap[isPublishedSWPath]|reply_items -%}
                     {%- if isPublishedSwItems|length > 0 -%}
                             <br>In order to use this dataset following software will be needed:
-                            <ul>
+                            <ul>{# __tr_branch_sentence_original:CiAgICAgICAgICAgICAgICAgICAgICAgICAgICB7JS0gZm9yIHN3SXRlbSBpbiBpc1B1Ymxpc2hlZFN3SXRlbXMgLSV9CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgeyUtIHNldCBzd05hbWVVdWlkID0gW2lzUHVibGlzaGVkU1dQYXRoLCBzd0l0ZW0sIHV1aWRzLnB1Ymxpc2hlZFNwZWNTd1VzZVdoYXROYW1lUVV1aWRdfHJlcGx5X3BhdGggLSV9CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgeyUtIHNldCBzd05hbWVSZXBseSA9IHJlcGxpZXNNYXBbc3dOYW1lVXVpZF18cmVwbHlfc3RyX3ZhbHVlIC0lfQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHslLSBzZXQgc3dQSURVdWlkID0gW2lzUHVibGlzaGVkU1dQYXRoLCBzd0l0ZW0sIHV1aWRzLnB1Ymxpc2hlZFNwZWNTd1VzZVdoYXRQSURRVXVpZF18cmVwbHlfcGF0aCAtJX0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB7JS0gc2V0IHN3UElEUmVwbHkgPSByZXBsaWVzTWFwW3N3UElEVXVpZF18cmVwbHlfc3RyX3ZhbHVlIC0lfQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxwPjxzdHJvbmc-e3sgc3dOYW1lUmVwbHkgaWYgc3dOYW1lUmVwbHkgZWxzZSAiKG5vIG5hbWUgZ2l2ZW4pIiB9fTwvc3Ryb25nPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHslLSBpZiBzd1BJRFJlcGx5IC0lfQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICwgYXZhaWxhYmxlIGF0IHt7c3dQSURSZXBseXxkb3R9fTwvcD4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB7JS0gZWxzZSAtJX0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAuCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICAgICAgICAgICAgICAgICAgICAgICAgeyUtIGVuZGZvciAtJX0K #}
                             {%- for swItem in isPublishedSwItems -%}
                                 {%- set swNameUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatNameQUuid]|reply_path -%}
                                 {%- set swNameReply = repliesMap[swNameUuid]|reply_str_value -%}
                                 {%- set swPIDUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatPIDQUuid]|reply_path -%}
                                 {%- set swPIDReply = repliesMap[swPIDUuid]|reply_str_value -%}
-                                <p><strong>{# __tr_inline_if_original:e3sgc3dOYW1lUmVwbHkgaWYgc3dOYW1lUmVwbHkgZWxzZSAiKG5vIG5hbWUgZ2l2ZW4pIiB9fQ== #}{% if swNameReply %}{{ swNameReply }}{% else %}{{ "(no name given)" }}{% endif %}{# __tr_inline_if_original:end #}</strong>
-                                {%- if swPIDReply -%}
-                                , available at {{swPIDReply|dot}}</p>
+                                {%- if swNameReply -%}
+                                  {%- set swDisplayName = swNameReply -%}
                                 {%- else -%}
-                                .
+                                  {%- set swDisplayName = "(no name given)" -%}
+                                {%- endif -%}
+                                {%- if swPIDReply -%}
+                                <p><strong>{{ swDisplayName }}</strong>, available at {{swPIDReply|dot}}</p>
+                                {%- else -%}
+                                <p><strong>{{ swDisplayName }}</strong>.</p>
                                 {%- endif -%}
                             {%- endfor -%}
-                            </ul>
+{# __tr_branch_sentence_original:end #}                            </ul>
                     {%- else -%}
                         <p>There are no tools needed to access or use this data.</p>
                     {%- endif -%}

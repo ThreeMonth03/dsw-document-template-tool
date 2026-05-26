@@ -676,6 +676,85 @@ def test_export_translation_tree_keeps_inline_reason_suffix_with_prefix(
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
 
+def test_export_translation_tree_keeps_shared_workspace_branches_complete(
+    tmp_path: Path,
+) -> None:
+    """The Science Europe shared-workspace prefix should stay attached to branches."""
+
+    compact_dir = _write_compact_template_raw(
+        tmp_path,
+        """
+    {%- if sharedWorkspaceReply == uuids.sharedWorkspaceYesAUuid and sharedWorkspaceReliablePreventLossReply -%}
+     <p>During the project we will use shared working space to work with our data{{+" "}}
+      {%- if sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossSufficientAUuid  -%}
+        that ensures the prevention of complete data loss.
+      {%- elif sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossStoredAUuid -%}
+        but we will store all essential data elsewhere.
+      {%- endif -%}
+
+      {%- set sharedWorkspaceReliableBackupQUuid = [sharedWorkspaceReliableAUuid, uuids.sharedReliableBackupQUuid]|reply_path -%}
+      {%- set sharedWorkspaceReliableBackupReply = repliesMap[sharedWorkspaceReliableBackupQUuid]|reply_str_value  -%}
+      {%- if sharedWorkspaceReliableBackupReply == uuids.sharedReliableBackupCopyAllSomewhereAUuid -%}
+        {{+" "}}And all the data that are stores elsewhere is adequately backed up.
+      {%- elif sharedWorkspaceReliableBackupReply == uuids.sharedReliableBackupCopyBackupsAUuid -%}
+        {{+" "}}We make (automated) backups of all data stored outside of the working area.
+      {%- endif -%}
+     </p>
+
+    {%- endif -%}
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "but we will store all essential data elsewhere." not in sentences
+    assert any(
+        "During the project we will use shared working space to work with our data "
+        "but we will store all essential data elsewhere." in sentence
+        for sentence in sentences
+    )
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
+def test_export_translation_tree_keeps_software_pid_with_name(
+    tmp_path: Path,
+) -> None:
+    """The Science Europe software PID suffix should keep the software name placeholder."""
+
+    compact_dir = _write_compact_template_raw(
+        tmp_path,
+        """
+                            {%- for swItem in isPublishedSwItems -%}
+                                {%- set swNameUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatNameQUuid]|reply_path -%}
+                                {%- set swNameReply = repliesMap[swNameUuid]|reply_str_value -%}
+                                {%- set swPIDUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatPIDQUuid]|reply_path -%}
+                                {%- set swPIDReply = repliesMap[swPIDUuid]|reply_str_value -%}
+                                <p><strong>{{ swNameReply if swNameReply else "(no name given)" }}</strong>
+                                {%- if swPIDReply -%}
+                                , available at {{swPIDReply|dot}}</p>
+                                {%- else -%}
+                                .
+                                {%- endif -%}
+                            {%- endfor -%}
+""",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "{swDisplayName}, available at {swPIDReply}" in sentences
+    assert "available at {swPIDReply}" not in sentences
+    assert "(no name given)" not in sentences
+    assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
+
+
 def test_export_translation_tree_keeps_legal_basis_prefix_with_other_branch(
     tmp_path: Path,
 ) -> None:

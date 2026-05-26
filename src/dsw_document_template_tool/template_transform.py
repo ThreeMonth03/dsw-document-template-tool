@@ -499,8 +499,8 @@ def _repo_root() -> Path:
 
 def _expand_template_text(*, source_text: str) -> str:
     source_text = _rewrite_append_sentence_literals(source_text)
-    source_text = _rewrite_inline_conditional_expressions(source_text)
     source_text = _rewrite_known_science_europe_source_fragments(source_text)
+    source_text = _rewrite_inline_conditional_expressions(source_text)
     source_text = _rewrite_common_prefix_branch_sentences(source_text)
     source_text = _rewrite_known_science_europe_fragments(source_text)
     tokens = _lex_source_tokens(source_text)
@@ -1014,6 +1014,80 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
           </p>
 """
 
+    shared_workspace_original = """
+    {%- if sharedWorkspaceReply == uuids.sharedWorkspaceYesAUuid and sharedWorkspaceReliablePreventLossReply -%}
+     <p>During the project we will use shared working space to work with our data{{+" "}}
+      {%- if sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossSufficientAUuid  -%}
+        that ensures the prevention of complete data loss.
+      {%- elif sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossStoredAUuid -%}
+        but we will store all essential data elsewhere.
+      {%- endif -%}
+
+      {%- set sharedWorkspaceReliableBackupQUuid = [sharedWorkspaceReliableAUuid, uuids.sharedReliableBackupQUuid]|reply_path -%}
+      {%- set sharedWorkspaceReliableBackupReply = repliesMap[sharedWorkspaceReliableBackupQUuid]|reply_str_value  -%}
+      {%- if sharedWorkspaceReliableBackupReply == uuids.sharedReliableBackupCopyAllSomewhereAUuid -%}
+        {{+" "}}And all the data that are stores elsewhere is adequately backed up.
+      {%- elif sharedWorkspaceReliableBackupReply == uuids.sharedReliableBackupCopyBackupsAUuid -%}
+        {{+" "}}We make (automated) backups of all data stored outside of the working area.
+      {%- endif -%}
+     </p>
+
+    {%- endif -%}
+"""
+    shared_workspace_replacement = """
+    {%- if sharedWorkspaceReply == uuids.sharedWorkspaceYesAUuid and sharedWorkspaceReliablePreventLossReply -%}
+     <p>
+      {%- if sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossSufficientAUuid  -%}
+        During the project we will use shared working space to work with our data{{+" "}}that ensures the prevention of complete data loss.
+      {%- elif sharedWorkspaceReliablePreventLossReply == uuids.sharedReliablePreventLossStoredAUuid -%}
+        During the project we will use shared working space to work with our data{{+" "}}but we will store all essential data elsewhere.
+      {%- endif -%}
+
+      {%- set sharedWorkspaceReliableBackupQUuid = [sharedWorkspaceReliableAUuid, uuids.sharedReliableBackupQUuid]|reply_path -%}
+      {%- set sharedWorkspaceReliableBackupReply = repliesMap[sharedWorkspaceReliableBackupQUuid]|reply_str_value  -%}
+      {%- if sharedWorkspaceReliableBackupReply == uuids.sharedReliableBackupCopyAllSomewhereAUuid -%}
+        {{+" "}}And all the data that are stores elsewhere is adequately backed up.
+      {%- elif sharedWorkspaceReliableBackupReply == uuids.sharedReliableBackupCopyBackupsAUuid -%}
+        {{+" "}}We make (automated) backups of all data stored outside of the working area.
+      {%- endif -%}
+     </p>
+
+    {%- endif -%}
+"""
+
+    published_software_original = """
+                            {%- for swItem in isPublishedSwItems -%}
+                                {%- set swNameUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatNameQUuid]|reply_path -%}
+                                {%- set swNameReply = repliesMap[swNameUuid]|reply_str_value -%}
+                                {%- set swPIDUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatPIDQUuid]|reply_path -%}
+                                {%- set swPIDReply = repliesMap[swPIDUuid]|reply_str_value -%}
+                                <p><strong>{{ swNameReply if swNameReply else "(no name given)" }}</strong>
+                                {%- if swPIDReply -%}
+                                , available at {{swPIDReply|dot}}</p>
+                                {%- else -%}
+                                .
+                                {%- endif -%}
+                            {%- endfor -%}
+"""
+    published_software_replacement = """
+                            {%- for swItem in isPublishedSwItems -%}
+                                {%- set swNameUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatNameQUuid]|reply_path -%}
+                                {%- set swNameReply = repliesMap[swNameUuid]|reply_str_value -%}
+                                {%- set swPIDUuid = [isPublishedSWPath, swItem, uuids.publishedSpecSwUseWhatPIDQUuid]|reply_path -%}
+                                {%- set swPIDReply = repliesMap[swPIDUuid]|reply_str_value -%}
+                                {%- if swNameReply -%}
+                                  {%- set swDisplayName = swNameReply -%}
+                                {%- else -%}
+                                  {%- set swDisplayName = "(no name given)" -%}
+                                {%- endif -%}
+                                {%- if swPIDReply -%}
+                                <p><strong>{{ swDisplayName }}</strong>, available at {{swPIDReply|dot}}</p>
+                                {%- else -%}
+                                <p><strong>{{ swDisplayName }}</strong>.</p>
+                                {%- endif -%}
+                            {%- endfor -%}
+"""
+
     return _apply_reversible_replacements(
         source_text,
         (
@@ -1031,6 +1105,8 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
                 nref_data_not_used_identification_original,
                 nref_data_not_used_identification_replacement,
             ),
+            (shared_workspace_original, shared_workspace_replacement),
+            (published_software_original, published_software_replacement),
         ),
     )
 
