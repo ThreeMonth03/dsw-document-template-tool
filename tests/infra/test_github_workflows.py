@@ -111,13 +111,16 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert 'git add "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR"' in workflow_text
     assert 'git push origin "HEAD:$TARGET_REF"' in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
+    assert 'src/translation_tree.py" audit-output' in workflow_text
     assert "--template-organization-id" in workflow_text
     assert "--template-id" in workflow_text
     assert "--template-name" in workflow_text
     assert "--template-version" in workflow_text
     assert "Translation sync failed" in workflow_text
+    assert "Translated output structure audit failed" in workflow_text
     assert "GITHUB_STEP_SUMMARY" in workflow_text
     assert "::error title=Translation sync failed::" in workflow_text
+    assert "::error title=Translated output structure audit failed::" in workflow_text
     assert 'dsw-tdk" package' in workflow_text
     assert "make start-ci-dsw" in workflow_text
     assert "src/render_project.py" in workflow_text

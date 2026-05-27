@@ -27,7 +27,7 @@ PROJECT_RENDER_TEMPLATE_DIR ?= $(TRANSLATED_EXPANDED_TEMPLATE_DIR)
 PROJECT_RENDER_FORMAT_UUID ?= 68c26e34-5e77-4e15-9bf7-06ff92582257
 PROJECT_RENDER_OUTPUT ?= outputs/project-render/test-project.pdf
 
-.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree audit-translation-tree sync-translation-tree start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
+.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree audit-translation-tree sync-translation-tree audit-translated-template start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
 venv: $(VENV_PYTHON)
 
@@ -55,6 +55,7 @@ help:
 	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
 	'  audit-translation-tree Check translation blocks for unsafe Jinja/control syntax' \
 	'  sync-translation-tree Apply translations and package $(TRANSLATED_TEMPLATE_PACKAGE)' \
+	'  audit-translated-template Check translated output kept expanded template structure' \
 	'  compact-template  Rebuild $(EXPANDED_TEMPLATE_DIR) into $(REBUILT_TEMPLATE_DIR)' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
@@ -120,7 +121,15 @@ sync-translation-tree: audit-translation-tree
 		--template-id "$(TRANSLATED_TEMPLATE_ID)" \
 		--template-name "$(TRANSLATED_TEMPLATE_NAME)" \
 		--template-version "$(TRANSLATED_TEMPLATE_VERSION)"
+	$(PYTHON) src/translation_tree.py audit-output \
+		--source "$(EXPANDED_TEMPLATE_DIR)" \
+		--output "$(TRANSLATED_EXPANDED_TEMPLATE_DIR)"
 	$(DSW_TDK) package $(TRANSLATED_EXPANDED_TEMPLATE_DIR) --output $(TRANSLATED_TEMPLATE_PACKAGE) --force
+
+audit-translated-template: venv
+	$(PYTHON) src/translation_tree.py audit-output \
+		--source "$(EXPANDED_TEMPLATE_DIR)" \
+		--output "$(TRANSLATED_EXPANDED_TEMPLATE_DIR)"
 
 compact-template: venv
 	$(PYTHON) src/transform_template.py compact --source $(EXPANDED_TEMPLATE_DIR) --output $(REBUILT_TEMPLATE_DIR)

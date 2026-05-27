@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,7 @@ import pytest
 from dsw_document_template_tool.template_transform import expand_template_dir
 from dsw_document_template_tool.translation_tree import (
     TranslationTreeError,
+    audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
     sync_translation_tree,
@@ -1292,6 +1294,74 @@ def test_sync_translation_tree_accepts_text_only_translation_for_html_unit(
     assert "<p>為了 {{ usage }}，可透過 {{ pid }} 取得。</p>" in translated_text
 
 
+def test_sync_translation_tree_preserves_single_inner_inline_markup(
+    tmp_path: Path,
+) -> None:
+    """Text-only translations should not drop simple emphasis inside a block tag."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p><em>There are no named versions.</em></p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    translated_expanded_dir = tmp_path / "translated-expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = next(tree_dir.rglob("translation.md"))
+    _write_translation_block(document_path, "沒有命名版本。")
+
+    sync_translation_tree(
+        tree_dir=tree_dir,
+        source_dir=expanded_dir,
+        output_dir=translated_expanded_dir,
+    )
+
+    translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
+    assert "<p><em>沒有命名版本。</em></p>" in translated_text
+
+
+def test_sync_translation_tree_preserves_standalone_inline_markup(
+    tmp_path: Path,
+) -> None:
+    """Standalone inline structural wrappers such as status spans should survive."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<span class="empty-value">There is no contact person specified yet</span>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    translated_expanded_dir = tmp_path / "translated-expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = next(tree_dir.rglob("translation.md"))
+    _write_translation_block(document_path, "尚未指定聯絡人")
+
+    sync_translation_tree(
+        tree_dir=tree_dir,
+        source_dir=expanded_dir,
+        output_dir=translated_expanded_dir,
+    )
+
+    translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
+    assert '<span class="empty-value">' in translated_text
+    assert "尚未指定聯絡人" in translated_text
+    assert "</span>" in translated_text
+
+
 def test_translation_placeholder_validation_ignores_html_attribute_only_duplicates(
     tmp_path: Path,
 ) -> None:
@@ -1501,6 +1571,179 @@ def test_sync_translation_tree_rejects_unexpected_raw_jinja_placeholder(
             source_dir=expanded_dir,
             output_dir=translated_expanded_dir,
         )
+
+
+def test_sync_translation_tree_translates_jinja_expression_literals_in_place(
+    tmp_path: Path,
+) -> None:
+    """Function-call expressions must survive when only their literal is translated."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+{{ renderResponsibility("responsible for maintaining the finished resource.") }}
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    translated_expanded_dir = tmp_path / "translated-expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    docs = list(tree_dir.rglob("translation.md"))
+    assert len(docs) == 1
+    assert "renderResponsibility" not in docs[0].read_text(encoding="utf-8")
+    _write_translation_block(docs[0], "負責維護已完成的資源。")
+
+    sync_translation_tree(
+        tree_dir=tree_dir,
+        source_dir=expanded_dir,
+        output_dir=translated_expanded_dir,
+    )
+
+    translated_text = (translated_expanded_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
+    assert '{{ renderResponsibility("負責維護已完成的資源。") }}' in translated_text
+
+
+def test_audit_translated_template_structure_allows_text_and_literal_translation(
+    tmp_path: Path,
+) -> None:
+    """Output audit should permit prose translation while keeping machine shape."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+{% set types = [] %}
+{%- do types.append("questionnaires") -%}
+{% if enabled %}
+<p>Available via <a href="{{ pid }}" target="_blank">{{ pid }}</a>.</p>
+{% else %}
+<p>{{ "(no name given)" }}</p>
+{% endif %}
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    translated_dir = tmp_path / "translated"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    shutil.copytree(expanded_dir, translated_dir)
+
+    translated_file = translated_dir / "src" / "index.html.j2"
+    translated_file.write_text(
+        translated_file.read_text(encoding="utf-8")
+        .replace('"questionnaires"', '"問卷"')
+        .replace("Available via ", "可透過 ")
+        .replace('{{ "(no name given)" }}', "（未提供名稱）"),
+        encoding="utf-8",
+    )
+
+    assert (
+        audit_translated_template_structure(
+            source_dir=expanded_dir,
+            output_dir=translated_dir,
+        )
+        == []
+    )
+
+
+def test_audit_translated_template_structure_reports_lost_link_attribute(
+    tmp_path: Path,
+) -> None:
+    """Dropping href/src wiring is a structural regression, not translation."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Available via <a href="{{ pid }}" target="_blank">{{ pid }}</a>.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    translated_dir = tmp_path / "translated"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    shutil.copytree(expanded_dir, translated_dir)
+
+    translated_file = translated_dir / "src" / "index.html.j2"
+    translated_file.write_text(
+        translated_file.read_text(encoding="utf-8").replace('href="{{ pid }}" ', ""),
+        encoding="utf-8",
+    )
+
+    issues = audit_translated_template_structure(
+        source_dir=expanded_dir,
+        output_dir=translated_dir,
+    )
+
+    assert "changed-html-structure" in {issue.code for issue in issues}
+    html_issue = next(issue for issue in issues if issue.code == "changed-html-structure")
+    assert "HTML tag structure changed" in html_issue.message
+
+
+def test_audit_translated_template_structure_reports_changed_placeholder(
+    tmp_path: Path,
+) -> None:
+    """Manual output edits must not silently swap Jinja variables."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Available via {{ pid }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    translated_dir = tmp_path / "translated"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    shutil.copytree(expanded_dir, translated_dir)
+
+    translated_file = translated_dir / "src" / "index.html.j2"
+    translated_file.write_text(
+        translated_file.read_text(encoding="utf-8").replace("{{ pid }}", "{{ pdi }}"),
+        encoding="utf-8",
+    )
+
+    issues = audit_translated_template_structure(
+        source_dir=expanded_dir,
+        output_dir=translated_dir,
+    )
+
+    assert [issue.code for issue in issues] == ["changed-jinja-expression-structure"]
+    assert "pid" in issues[0].message
+
+
+def test_audit_translated_template_structure_reports_protected_literal_change(
+    tmp_path: Path,
+) -> None:
+    """Machine literals such as lookup keys are protected even inside Jinja."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+{% set answer = repliesMap["machineKey"] %}
+<p>{{ answer }}</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    translated_dir = tmp_path / "translated"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    shutil.copytree(expanded_dir, translated_dir)
+
+    translated_file = translated_dir / "src" / "index.html.j2"
+    translated_file.write_text(
+        translated_file.read_text(encoding="utf-8").replace('"machineKey"', '"機器鍵"'),
+        encoding="utf-8",
+    )
+
+    issues = audit_translated_template_structure(
+        source_dir=expanded_dir,
+        output_dir=translated_dir,
+    )
+
+    assert "changed-protected-jinja-literal" in {issue.code for issue in issues}
+    literal_issue = next(
+        issue for issue in issues if issue.code == "changed-protected-jinja-literal"
+    )
+    assert "machineKey" in literal_issue.message
 
 
 def test_export_translation_tree_preserves_existing_translation_text(tmp_path: Path) -> None:

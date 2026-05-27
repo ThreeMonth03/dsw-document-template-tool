@@ -14,6 +14,8 @@ from .template_transform import (
 )
 from .translation_tree import (
     TranslationTreeError,
+    audit_translated_template_structure,
+    audit_translation_tree,
     export_translation_tree,
     sync_translation_tree,
 )
@@ -26,6 +28,8 @@ __all__ = [
     "DocumentTemplateWorkflowService",
     "TemplateTransformError",
     "TranslationTreeError",
+    "audit_translated_template_structure",
+    "audit_translation_tree",
     "compact_template_dir",
     "expand_template_dir",
     "export_translation_tree",

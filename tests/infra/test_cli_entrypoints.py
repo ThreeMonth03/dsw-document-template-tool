@@ -64,6 +64,7 @@ def test_translation_tree_help(repo_root) -> None:
     assert "translator-facing trees" in result.stdout
     assert "export" in result.stdout
     assert "audit" in result.stdout
+    assert "audit-output" in result.stdout
     assert "sync" in result.stdout
 
     result = subprocess.run(
@@ -84,6 +85,21 @@ def test_translation_tree_help(repo_root) -> None:
     assert result.returncode == 0
     assert "--tree" in result.stdout
     assert "--source" in result.stdout
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "src" / "translation_tree.py"),
+            "audit-output",
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "--source" in result.stdout
+    assert "--output" in result.stdout
 
 
 def test_checked_in_compact_and_expanded_templates_verify(repo_root: Path) -> None:

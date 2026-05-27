@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 
 from dsw_document_template_tool.translation_tree import (
+    audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
     sync_translation_tree,
@@ -57,6 +58,21 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     audit_parser.add_argument("--tree", required=True, help="Translation tree directory.")
     audit_parser.add_argument("--source", required=True, help="Expanded workspace directory.")
+
+    audit_output_parser = subparsers.add_parser(
+        "audit-output",
+        help="Check that translated output kept the expanded template structure.",
+    )
+    audit_output_parser.add_argument(
+        "--source",
+        required=True,
+        help="Expanded workspace directory used as the structural baseline.",
+    )
+    audit_output_parser.add_argument(
+        "--output",
+        required=True,
+        help="Translated expanded template output directory.",
+    )
     return parser
 
 
@@ -80,6 +96,20 @@ def main() -> None:
                 print(f"  {issue.message}")
             raise SystemExit(1)
         print("SUCCESS: Translation tree is safe for translator edits")
+        return
+
+    if args.command == "audit-output":
+        issues = audit_translated_template_structure(
+            source_dir=args.source,
+            output_dir=args.output,
+        )
+        if issues:
+            print(f"FAILURE: Found {len(issues)} translated output structure issue(s)")
+            for issue in issues:
+                print(f"- {issue.code}: {issue.location}")
+                print(f"  {issue.message}")
+            raise SystemExit(1)
+        print("SUCCESS: Translated output keeps the expanded template structure")
         return
 
     output_dir = sync_translation_tree(
