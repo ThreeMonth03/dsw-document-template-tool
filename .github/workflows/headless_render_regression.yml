@@ -11,10 +11,15 @@ on:
         description: "Space-separated upstream Science Europe refs for smoke testing. Use v1.30.0+ for all supported released tags."
         required: false
         default: "latest main v1.30.0+"
+      upstream_template_artifact_refs:
+        description: "Space-separated released upstream refs to package as clean scaffold artifacts."
+        required: false
+        default: "v1.30.0+"
 
 env:
   UPSTREAM_TEMPLATE_REPOSITORY: ds-wizard/science-europe-template
   UPSTREAM_TEMPLATE_TEST_REFS: ${{ github.event.inputs.upstream_template_test_refs || 'latest main v1.30.0+' }}
+  UPSTREAM_TEMPLATE_ARTIFACT_REFS: ${{ github.event.inputs.upstream_template_artifact_refs || 'v1.30.0+' }}
 
 jobs:
   offline-checks:
@@ -56,10 +61,10 @@ jobs:
       - name: Validate translation tree sync
         run: make sync-translation-tree
 
-      - name: Upload translated template package
+      - name: Upload active fallback template package
         uses: actions/upload-artifact@v4
         with:
-          name: translated-document-template
+          name: active-fallback-document-template
           path: |
             outputs/document-templates/
 
@@ -98,6 +103,12 @@ jobs:
       - name: Build translated template package
         run: make sync-translation-tree
 
+      - name: Build clean upstream version artifacts
+        run: |
+          make build-upstream-artifacts \
+            UPSTREAM_TEMPLATE_REPOSITORY="$UPSTREAM_TEMPLATE_REPOSITORY" \
+            UPSTREAM_TEMPLATE_ARTIFACT_REFS="$UPSTREAM_TEMPLATE_ARTIFACT_REFS"
+
       - name: Start local DSW stack
         run: make start-ci-dsw
 
@@ -112,6 +123,14 @@ jobs:
           DSW_DOWNLOAD_HOST_ALIAS: host.docker.internal=localhost
         run: make render-project
 
+      - name: Render clean upstream version previews
+        env:
+          DSW_API_URL: http://localhost:3000/wizard-api
+          DSW_EMAIL: albert.einstein@example.com
+          DSW_PASSWORD: password
+          DSW_DOWNLOAD_HOST_ALIAS: host.docker.internal=localhost
+        run: make render-upstream-artifact-previews
+
       - name: Collect DSW logs
         if: always()
         run: make ci-dsw-logs
@@ -122,6 +141,16 @@ jobs:
         with:
           name: regression-artifacts
           path: outputs/
+
+      - name: Upload clean upstream version artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-upstream-version-artifacts
+          path: |
+            outputs/upstream-workspaces/
+            outputs/document-templates/dsw-science-europe/**/scaffold/
+            outputs/project-render/dsw-science-europe/**/scaffold/
 
       - name: Stop local DSW stack
         if: always()

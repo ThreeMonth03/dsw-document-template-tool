@@ -102,6 +102,31 @@ def test_translation_tree_help(repo_root) -> None:
     assert "--output" in result.stdout
 
 
+def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path) -> None:
+    """The CI helper should resolve semantic version ranges from an upstream remote."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "resolve_upstream_refs.py"),
+            "--remote",
+            "https://github.com/ds-wizard/science-europe-template.git",
+            "latest",
+            "v1.30.0+",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    refs = result.stdout.strip().split()
+    assert refs[0] == "latest"
+    assert "v1.30.0" in refs
+    assert "v1.30.1" in refs
+    assert "v1.29.1" not in refs
+
+
 def test_checked_in_compact_and_expanded_templates_verify(repo_root: Path) -> None:
     """Both checked-in template forms should be accepted by dsw-tdk."""
 

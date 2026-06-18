@@ -26,6 +26,8 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "make install-dev" in workflow_text
     assert "v1.30.0+" in workflow_text
     assert "make test-upstream-tags" in workflow_text
+    assert "make build-upstream-artifacts" in workflow_text
+    assert "make render-upstream-artifact-previews" in workflow_text
     assert "make transform" in workflow_text
     assert "make export-translation-tree" in workflow_text
     assert "make sync-translation-tree" in workflow_text
@@ -42,6 +44,11 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "secrets.DSW_API_URL" not in workflow_text
     assert "secrets.DSW_API_KEY" not in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
+    assert "active-fallback-document-template" in workflow_text
+    assert "clean-upstream-version-artifacts" in workflow_text
+    assert "outputs/upstream-workspaces/" in workflow_text
+    assert "outputs/document-templates/dsw-science-europe/**/scaffold/" in workflow_text
+    assert "outputs/project-render/dsw-science-europe/**/scaffold/" in workflow_text
 
 
 def test_ephemeral_dsw_compose_stack_is_checked_in(repo_root: Path) -> None:

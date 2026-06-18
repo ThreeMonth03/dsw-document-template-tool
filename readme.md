@@ -61,6 +61,18 @@ upstream template ID, upstream version tag, and locale:
 - `outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip`
 - `outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf`
 
+The tooling repository can also produce clean multi-version scaffold artifacts
+from upstream Science Europe tags:
+
+- `outputs/upstream-workspaces/dsw-science-europe/v1.30.0/`
+- `outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/scaffold/`
+- `outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/scaffold/test-project.pdf`
+
+These scaffold artifacts intentionally contain blank `Translation (zh_Hant)`
+blocks and fall back to English source text. They are for migration, testing, and
+downstream translation repositories to consume; they are not completed
+translations.
+
 The `expand` and `export translation tree` steps in that example are guards for
 repositories that commit generated translation inputs. If your repository only
 wants to build output from already-committed translations, the minimal path is:
@@ -210,6 +222,18 @@ This writes a translated expanded workspace under:
 
 Blank translation sections fall back to the exported English source unit, so an
 untranslated tree still syncs back to the original expanded template.
+
+For CI or migration previews across supported upstream tags, run:
+
+```shell
+make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS='v1.30.0+'
+make render-upstream-artifact-previews
+```
+
+`build-upstream-artifacts` fetches matching upstream tags, exports clean
+`compact`, `expanded`, and `translation` workspaces, syncs a scaffold output
+template, and packages it. `render-upstream-artifact-previews` expects a running
+DSW API and renders the checked-in sample project once per scaffold package.
 
 #### 6. Rebuild The Pre-Translation Compact Candidate For Regression
 

@@ -6,7 +6,7 @@ BOOTSTRAP_PYTHON ?= python3
 PYTHON ?= $(VENV_PYTHON)
 PIP := $(PYTHON) -m pip
 DSW_TDK ?= $(VENV_DIR)/bin/dsw-tdk
-PYTHON_LINT_PATHS ?= src tests scripts/ci/filter_version_tags.py
+PYTHON_LINT_PATHS ?= src tests scripts/ci/*.py
 
 CONFIG ?= config/regression.preview.yml
 CI_CONFIG ?= config/regression.ci.yml
@@ -22,6 +22,8 @@ TRANSLATED_TEMPLATE_ID ?= science-europe-zh-hant
 TRANSLATED_TEMPLATE_VERSION ?= $(SOURCE_TEMPLATE_VERSION)
 TRANSLATED_TEMPLATE_NAME ?= Science Europe DMP Template (zh-Hant)
 TRANSLATED_WORKSPACE_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(TRANSLATED_TEMPLATE_ID)-$(TRANSLATED_TEMPLATE_VERSION)
+SCAFFOLD_TEMPLATE_ID ?= $(TRANSLATED_TEMPLATE_ID)-scaffold
+SCAFFOLD_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_NAME) Scaffold
 COMPACT_TEMPLATE_DIR ?= workspace/document-templates/compact/$(WORKSPACE_TEMPLATE_NAME)
 EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPLATE_NAME)
 TRANSLATION_TREE_DIR ?= workspace/document-templates/translation/$(WORKSPACE_TEMPLATE_NAME)
@@ -42,8 +44,11 @@ UPSTREAM_TEMPLATE_CACHE ?= .cache/upstream/science-europe-template
 UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF ?= v1.30.0
 UPSTREAM_TEMPLATE_TEST_REFS ?= latest main $(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)+
 UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
+UPSTREAM_TEMPLATE_ARTIFACT_REFS ?= $(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)+
+UPSTREAM_TEMPLATE_ARTIFACT_CACHE_ROOT ?= .cache/upstream-artifacts
+UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT ?= outputs/upstream-workspaces/$(SOURCE_TEMPLATE_ID)
 
-.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
+.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags build-upstream-artifacts render-upstream-artifact-previews start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
 venv: $(VENV_PYTHON)
 
@@ -76,6 +81,8 @@ help:
 	'  list-upstream-template-tags Show available upstream Science Europe version tags' \
 	'  fetch-upstream-template Fetch upstream template into $(UPSTREAM_TEMPLATE_CACHE)' \
 	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
+	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
+	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
@@ -187,20 +194,9 @@ fetch-upstream-template:
 
 test-upstream-tags: venv
 	@set -euo pipefail; \
-	raw_refs="$(UPSTREAM_TEMPLATE_TEST_REFS)"; \
-	expanded_refs=""; \
-	for raw_ref in $$raw_refs; do \
-		if [ "$$raw_ref" = "$(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)+" ]; then \
-			echo "INFO: Expanding upstream ref range $$raw_ref"; \
-			range_refs="$$(git ls-remote --tags --refs "$(UPSTREAM_TEMPLATE_REMOTE)" "v*" \
-				| awk '{ sub("refs/tags/", "", $$2); print $$2 }' \
-				| python3 scripts/ci/filter_version_tags.py "$(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)")"; \
-			expanded_refs="$$expanded_refs $$range_refs"; \
-		else \
-			expanded_refs="$$expanded_refs $$raw_ref"; \
-		fi; \
-	done; \
-	refs="$$(printf '%s\n' $$expanded_refs | awk '!seen[$$0]++' | xargs)"; \
+	refs="$$(python3 scripts/ci/resolve_upstream_refs.py \
+		--remote "$(UPSTREAM_TEMPLATE_REMOTE)" \
+		$(UPSTREAM_TEMPLATE_TEST_REFS))"; \
 	echo "INFO: Smoke-testing upstream refs: $$refs"; \
 	for ref in $$refs; do \
 		safe_ref="$$(printf '%s' "$$ref" | tr -c 'A-Za-z0-9._-' '-')"; \
@@ -240,6 +236,89 @@ test-upstream-tags: venv
 		$(DSW_TDK) verify "$$output_dir"; \
 		$(DSW_TDK) package "$$output_dir" --output "$$package_path" --force; \
 		echo "INFO: [$$ref] passed"; \
+	done
+
+build-upstream-artifacts: venv
+	@set -euo pipefail; \
+	refs="$$(python3 scripts/ci/resolve_upstream_refs.py \
+		--remote "$(UPSTREAM_TEMPLATE_REMOTE)" \
+		$(UPSTREAM_TEMPLATE_ARTIFACT_REFS))"; \
+	echo "INFO: Building clean upstream artifacts for refs: $$refs"; \
+	for ref in $$refs; do \
+		safe_ref="$$(printf '%s' "$$ref" | tr -c 'A-Za-z0-9._-' '-')"; \
+		cache_dir="$(UPSTREAM_TEMPLATE_ARTIFACT_CACHE_ROOT)/$$safe_ref/upstream"; \
+		echo "INFO: [$$ref] fetching upstream"; \
+		$(MAKE) --no-print-directory fetch-upstream-template \
+			UPSTREAM_TEMPLATE_REF="$$ref" \
+			UPSTREAM_TEMPLATE_CACHE="$$cache_dir"; \
+		version="$$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["version"])' "$$cache_dir/template.json")"; \
+		version_tag="v$$version"; \
+		workspace_root="$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)/$$version_tag"; \
+		workspace_template_name="$(SOURCE_TEMPLATE_ID)-$$version"; \
+		compact_dir="$$workspace_root/compact/$$workspace_template_name"; \
+		expanded_dir="$$workspace_root/expanded/$$workspace_template_name"; \
+		tree_dir="$$workspace_root/translation/$$workspace_template_name"; \
+		output_root="outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$$version_tag/$(TRANSLATION_LOCALE)/scaffold"; \
+		output_dir="$$output_root/$(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(SCAFFOLD_TEMPLATE_ID)-$$version"; \
+		package_path="$$output_root/$(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(SCAFFOLD_TEMPLATE_ID)-$$version.zip"; \
+		case "$$workspace_root" in outputs/*) rm -rf "$$workspace_root" ;; *) echo "ERROR: Refusing to clean unsafe workspace root $$workspace_root" >&2; exit 1 ;; esac; \
+		case "$$output_root" in outputs/*) rm -rf "$$output_root" ;; *) echo "ERROR: Refusing to clean unsafe output root $$output_root" >&2; exit 1 ;; esac; \
+		mkdir -p "$$(dirname "$$compact_dir")" "$$output_root"; \
+		cp -a "$$cache_dir" "$$compact_dir"; \
+		rm -rf "$$compact_dir/.git"; \
+		commit_sha="$$(git -C "$$cache_dir" rev-parse HEAD)"; \
+		python3 -c 'import json, sys; from pathlib import Path; Path(sys.argv[1]).write_text(json.dumps({"repository": sys.argv[2], "requested_ref": sys.argv[3], "commit_sha": sys.argv[4], "template_id": sys.argv[5], "template_version": sys.argv[6]}, indent=2) + "\n", encoding="utf-8")' \
+			"$$workspace_root/upstream.json" \
+			"$(UPSTREAM_TEMPLATE_REMOTE)" \
+			"$$ref" \
+			"$$commit_sha" \
+			"$(SOURCE_TEMPLATE_ID)" \
+			"$$version"; \
+		echo "INFO: [$$ref] transform/export/sync/package version $$version"; \
+		$(PYTHON) src/transform_template.py expand \
+			--source "$$compact_dir" \
+			--output "$$expanded_dir"; \
+		$(PYTHON) src/translation_tree.py export \
+			--source "$$expanded_dir" \
+			--output "$$tree_dir"; \
+		$(PYTHON) src/translation_tree.py sync \
+			--tree "$$tree_dir" \
+			--source "$$expanded_dir" \
+			--output "$$output_dir" \
+			--template-organization-id "$(TRANSLATED_TEMPLATE_ORGANIZATION_ID)" \
+			--template-id "$(SCAFFOLD_TEMPLATE_ID)" \
+			--template-name "$(SCAFFOLD_TEMPLATE_NAME)" \
+			--template-version "$$version"; \
+		$(PYTHON) src/translation_tree.py audit-output \
+			--source "$$expanded_dir" \
+			--output "$$output_dir"; \
+		$(DSW_TDK) verify "$$output_dir"; \
+		$(DSW_TDK) package "$$output_dir" --output "$$package_path" --force; \
+		echo "INFO: [$$ref] artifact package written to $$package_path"; \
+	done
+
+render-upstream-artifact-previews: venv
+	@set -euo pipefail; \
+	shopt -s nullglob; \
+	template_dirs=(outputs/document-templates/$(SOURCE_TEMPLATE_ID)/v*/$(TRANSLATION_LOCALE)/scaffold/$(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(SCAFFOLD_TEMPLATE_ID)-*); \
+	if [ "$${#template_dirs[@]}" -eq 0 ]; then \
+		echo "ERROR: No scaffold template directories found. Run make build-upstream-artifacts first." >&2; \
+		exit 1; \
+	fi; \
+	for template_dir in "$${template_dirs[@]}"; do \
+		if [ ! -d "$$template_dir" ]; then \
+			continue; \
+		fi; \
+		version="$$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["version"])' "$$template_dir/template.json")"; \
+		version_tag="v$$version"; \
+		output_path="outputs/project-render/$(SOURCE_TEMPLATE_ID)/$$version_tag/$(TRANSLATION_LOCALE)/scaffold/test-project.pdf"; \
+		echo "INFO: Rendering scaffold demo for $$version_tag to $$output_path"; \
+		$(PYTHON) src/render_project.py \
+			--project-ref "$(PROJECT_REF)" \
+			--template-dir "$$template_dir" \
+			--format-uuid "$(PROJECT_RENDER_FORMAT_UUID)" \
+			--output "$$output_path" \
+			--tdk-executable "$(DSW_TDK)"; \
 	done
 
 start-ci-dsw:
