@@ -24,6 +24,8 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert workflow["on"]["push"]["branches"] == ["**"]
     assert workflow["on"]["pull_request"]["branches"] == ["**"]
     assert "make install-dev" in workflow_text
+    assert "v1.30.0+" in workflow_text
+    assert "make test-upstream-tags" in workflow_text
     assert "make transform" in workflow_text
     assert "make export-translation-tree" in workflow_text
     assert "make sync-translation-tree" in workflow_text
@@ -34,6 +36,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "make verify-workspace" in workflow_text
     assert "make start-ci-dsw" in workflow_text
     assert "make render-regression-ci" in workflow_text
+    assert "make render-project" in workflow_text
     assert "make ci-dsw-logs" in workflow_text
     assert "make stop-ci-dsw" in workflow_text
     assert "secrets.DSW_API_URL" not in workflow_text
@@ -91,14 +94,16 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
         "workspace/document-templates/translation/"
     )
     assert workflow["env"]["TRANSLATED_TEMPLATE_DIR"].startswith(
-        "outputs/document-templates/translated-expanded/"
+        "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
     )
     assert workflow["env"]["TRANSLATED_TEMPLATE_ORGANIZATION_ID"] == "dsw"
     assert workflow["env"]["TRANSLATED_TEMPLATE_ID"] == "science-europe-zh-hant"
     assert workflow["env"]["TRANSLATED_TEMPLATE_VERSION"] == "1.30.0"
     assert "science-europe-zh-hant-1.30.0.zip" in workflow["env"]["TRANSLATED_TEMPLATE_PACKAGE"]
     assert workflow["env"]["PROJECT_REF"] == "workspace/projects/test-project.json"
-    assert workflow["env"]["PROJECT_RENDER_OUTPUT"].startswith("outputs/project-render/")
+    assert workflow["env"]["PROJECT_RENDER_OUTPUT"].startswith(
+        "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/"
+    )
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
     assert "github.event.pull_request.head.ref" in workflow_text
@@ -126,16 +131,14 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "src/render_project.py" in workflow_text
     assert "make ci-dsw-logs" in workflow_text
     assert "make stop-ci-dsw" in workflow_text
-    assert "Auto-commit generated outputs" in workflow_text
-    assert "chore(sync): refresh generated document outputs" in workflow_text
-    assert "content_paths=" in workflow_text
-    assert 'git add "${output_paths[@]}"' in workflow_text
-    assert "zip/PDF-only churn" in workflow_text
+    assert "Auto-commit generated outputs" not in workflow_text
+    assert "chore(sync): refresh generated document outputs" not in workflow_text
+    assert 'git add "${output_paths[@]}"' not in workflow_text
     assert '"$TRANSLATION_TREE_DIR/.translation-tree"' in workflow_text
     assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
     assert "outline.md" in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
-    assert "generated document outputs" in workflow_text
+    assert "translated-document-template-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
 
     project_ref_path = repo_root / workflow["env"]["PROJECT_REF"]
     assert project_ref_path.is_file()

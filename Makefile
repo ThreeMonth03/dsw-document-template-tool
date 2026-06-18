@@ -6,38 +6,41 @@ BOOTSTRAP_PYTHON ?= python3
 PYTHON ?= $(VENV_PYTHON)
 PIP := $(PYTHON) -m pip
 DSW_TDK ?= $(VENV_DIR)/bin/dsw-tdk
+PYTHON_LINT_PATHS ?= src tests scripts/ci/filter_version_tags.py
 
 CONFIG ?= config/regression.preview.yml
 CI_CONFIG ?= config/regression.ci.yml
 TEMPLATE_DIR ?=
 PACKAGE_OUT ?= template.zip
-WORKSPACE_TEMPLATE_NAME ?= dsw-science-europe-1.30.0
+SOURCE_TEMPLATE_ID ?= dsw-science-europe
+SOURCE_TEMPLATE_VERSION ?= 1.30.0
+SOURCE_TEMPLATE_VERSION_TAG ?= v$(SOURCE_TEMPLATE_VERSION)
+TRANSLATION_LOCALE ?= zh-Hant
+WORKSPACE_TEMPLATE_NAME ?= $(SOURCE_TEMPLATE_ID)-$(SOURCE_TEMPLATE_VERSION)
 TRANSLATED_TEMPLATE_ORGANIZATION_ID ?= dsw
 TRANSLATED_TEMPLATE_ID ?= science-europe-zh-hant
-TRANSLATED_TEMPLATE_VERSION ?= 1.30.0
+TRANSLATED_TEMPLATE_VERSION ?= $(SOURCE_TEMPLATE_VERSION)
 TRANSLATED_TEMPLATE_NAME ?= Science Europe DMP Template (zh-Hant)
 TRANSLATED_WORKSPACE_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(TRANSLATED_TEMPLATE_ID)-$(TRANSLATED_TEMPLATE_VERSION)
 COMPACT_TEMPLATE_DIR ?= workspace/document-templates/compact/$(WORKSPACE_TEMPLATE_NAME)
 EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPLATE_NAME)
 TRANSLATION_TREE_DIR ?= workspace/document-templates/translation/$(WORKSPACE_TEMPLATE_NAME)
-REBUILT_TEMPLATE_DIR ?= outputs/document-templates/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
-TRANSLATED_EXPANDED_TEMPLATE_DIR ?= outputs/document-templates/translated-expanded/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
-TRANSLATED_TEMPLATE_PACKAGE ?= outputs/document-templates/translated-expanded/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME).zip
+REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
+TRANSLATED_OUTPUT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
+TRANSLATED_EXPANDED_TEMPLATE_DIR ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
+TRANSLATED_TEMPLATE_PACKAGE ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME).zip
 PROJECT_REF ?= workspace/projects/test-project.json
 PROJECT_UUID ?= $(DSW_PROJECT_UUID)
 PROJECT_RENDER_TEMPLATE_DIR ?= $(TRANSLATED_EXPANDED_TEMPLATE_DIR)
 PROJECT_RENDER_FORMAT_UUID ?= 68c26e34-5e77-4e15-9bf7-06ff92582257
-PROJECT_RENDER_OUTPUT ?= outputs/project-render/test-project.pdf
+PROJECT_RENDER_OUTPUT ?= outputs/project-render/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/test-project.pdf
 UPSTREAM_TEMPLATE_REPOSITORY ?= https://github.com/ds-wizard/science-europe-template.git
 UPSTREAM_TEMPLATE_REMOTE ?= $(if $(filter http% git@% ssh://% git://% file://%,$(UPSTREAM_TEMPLATE_REPOSITORY)),$(UPSTREAM_TEMPLATE_REPOSITORY),https://github.com/$(UPSTREAM_TEMPLATE_REPOSITORY).git)
 UPSTREAM_TEMPLATE_REF ?= latest
 UPSTREAM_TEMPLATE_CACHE ?= .cache/upstream/science-europe-template
 # v1.0.0-v1.15.2 use the legacy parts/ layout; src/ layout starts at v1.16.0.
-UPSTREAM_TEMPLATE_TEST_REFS ?= latest main \
-	v1.16.0 v1.16.1 v1.17.0 v1.18.0 v1.18.1 \
-	v1.19.0 v1.19.1 v1.20.0 v1.21.0 v1.22.0 \
-	v1.23.0 v1.24.0 v1.25.0 v1.26.0 v1.27.0 \
-	v1.28.0 v1.29.0 v1.29.1 v1.30.0 v1.30.1
+UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF ?= v1.30.0
+UPSTREAM_TEMPLATE_TEST_REFS ?= latest main $(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)+
 UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
 
 .PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
@@ -87,17 +90,17 @@ install-hooks: venv
 	$(PYTHON) -m pre_commit install
 
 compile: venv
-	$(PYTHON) -m compileall -q src tests
+	$(PYTHON) -m compileall -q $(PYTHON_LINT_PATHS)
 
 format: venv
-	$(PYTHON) -m ruff check --config config/ruff.toml --fix src tests
-	$(PYTHON) -m ruff format --config config/ruff.toml src tests
+	$(PYTHON) -m ruff check --config config/ruff.toml --fix $(PYTHON_LINT_PATHS)
+	$(PYTHON) -m ruff format --config config/ruff.toml $(PYTHON_LINT_PATHS)
 
 format-check: venv
-	$(PYTHON) -m ruff format --check --config config/ruff.toml src tests
+	$(PYTHON) -m ruff format --check --config config/ruff.toml $(PYTHON_LINT_PATHS)
 
 lint: venv
-	$(PYTHON) -m ruff check --config config/ruff.toml src tests
+	$(PYTHON) -m ruff check --config config/ruff.toml $(PYTHON_LINT_PATHS)
 
 test: test-infra test-unit
 
@@ -184,8 +187,22 @@ fetch-upstream-template:
 
 test-upstream-tags: venv
 	@set -euo pipefail; \
-	echo "INFO: Smoke-testing upstream refs: $(UPSTREAM_TEMPLATE_TEST_REFS)"; \
-	for ref in $(UPSTREAM_TEMPLATE_TEST_REFS); do \
+	raw_refs="$(UPSTREAM_TEMPLATE_TEST_REFS)"; \
+	expanded_refs=""; \
+	for raw_ref in $$raw_refs; do \
+		if [ "$$raw_ref" = "$(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)+" ]; then \
+			echo "INFO: Expanding upstream ref range $$raw_ref"; \
+			range_refs="$$(git ls-remote --tags --refs "$(UPSTREAM_TEMPLATE_REMOTE)" "v*" \
+				| awk '{ sub("refs/tags/", "", $$2); print $$2 }' \
+				| python3 scripts/ci/filter_version_tags.py "$(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)")"; \
+			expanded_refs="$$expanded_refs $$range_refs"; \
+		else \
+			expanded_refs="$$expanded_refs $$raw_ref"; \
+		fi; \
+	done; \
+	refs="$$(printf '%s\n' $$expanded_refs | awk '!seen[$$0]++' | xargs)"; \
+	echo "INFO: Smoke-testing upstream refs: $$refs"; \
+	for ref in $$refs; do \
 		safe_ref="$$(printf '%s' "$$ref" | tr -c 'A-Za-z0-9._-' '-')"; \
 		case_root="$(UPSTREAM_TEMPLATE_TEST_ROOT)/$$safe_ref"; \
 		case "$$case_root" in \

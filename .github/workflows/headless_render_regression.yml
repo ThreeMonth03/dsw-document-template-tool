@@ -8,13 +8,13 @@ on:
   workflow_dispatch:
     inputs:
       upstream_template_test_refs:
-        description: "Space-separated upstream Science Europe refs for smoke testing; defaults to all src-layout tags."
+        description: "Space-separated upstream Science Europe refs for smoke testing. Use v1.30.0+ for all supported released tags."
         required: false
-        default: "latest main v1.16.0 v1.16.1 v1.17.0 v1.18.0 v1.18.1 v1.19.0 v1.19.1 v1.20.0 v1.21.0 v1.22.0 v1.23.0 v1.24.0 v1.25.0 v1.26.0 v1.27.0 v1.28.0 v1.29.0 v1.29.1 v1.30.0 v1.30.1"
+        default: "latest main v1.30.0+"
 
 env:
   UPSTREAM_TEMPLATE_REPOSITORY: ds-wizard/science-europe-template
-  UPSTREAM_TEMPLATE_TEST_REFS: ${{ github.event.inputs.upstream_template_test_refs || 'latest main v1.16.0 v1.16.1 v1.17.0 v1.18.0 v1.18.1 v1.19.0 v1.19.1 v1.20.0 v1.21.0 v1.22.0 v1.23.0 v1.24.0 v1.25.0 v1.26.0 v1.27.0 v1.28.0 v1.29.0 v1.29.1 v1.30.0 v1.30.1' }}
+  UPSTREAM_TEMPLATE_TEST_REFS: ${{ github.event.inputs.upstream_template_test_refs || 'latest main v1.30.0+' }}
 
 jobs:
   offline-checks:
@@ -56,6 +56,13 @@ jobs:
       - name: Validate translation tree sync
         run: make sync-translation-tree
 
+      - name: Upload translated template package
+        uses: actions/upload-artifact@v4
+        with:
+          name: translated-document-template
+          path: |
+            outputs/document-templates/
+
       - name: Verify checked-in template workspaces
         run: make verify-workspace
 
@@ -88,11 +95,22 @@ jobs:
       - name: Install dependencies
         run: make install-dev
 
+      - name: Build translated template package
+        run: make sync-translation-tree
+
       - name: Start local DSW stack
         run: make start-ci-dsw
 
       - name: Run preview regression
         run: make render-regression-ci
+
+      - name: Render sample project preview
+        env:
+          DSW_API_URL: http://localhost:3000/wizard-api
+          DSW_EMAIL: albert.einstein@example.com
+          DSW_PASSWORD: password
+          DSW_DOWNLOAD_HOST_ALIAS: host.docker.internal=localhost
+        run: make render-project
 
       - name: Collect DSW logs
         if: always()

@@ -49,9 +49,17 @@ For external repositories, copy the workflow template from:
 - `examples/github-actions/document_template_translation_sync.yml`
 
 That example checks out this tooling repo separately, refreshes the host repo's
-`expanded` and `translation` paths, syncs translations into an `outputs/` template
-directory, packages it with `dsw-tdk`, and uploads the translated template as a
-GitHub Actions artifact.
+`expanded` and `translation` paths, syncs translations into an ignored `outputs/`
+template directory, packages it with `dsw-tdk`, and uploads the translated
+template as a GitHub Actions artifact.
+
+Generated files under `outputs/` are intentionally build artifacts, not source
+files. Keep them out of `master`; download them from GitHub Actions artifacts or
+attach selected packages to a release. The default artifact layout includes the
+upstream template ID, upstream version tag, and locale:
+
+- `outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip`
+- `outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf`
 
 The `expand` and `export translation tree` steps in that example are guards for
 repositories that commit generated translation inputs. If your repository only
@@ -198,7 +206,7 @@ make sync-translation-tree
 
 This writes a translated expanded workspace under:
 
-- `outputs/document-templates/translated-expanded/`
+- `outputs/document-templates/<template-id>/<version-tag>/<locale>/`
 
 Blank translation sections fall back to the exported English source unit, so an
 untranslated tree still syncs back to the original expanded template.

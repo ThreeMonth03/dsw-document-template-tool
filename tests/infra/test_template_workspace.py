@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 from dsw_document_template_tool.config import load_workflow_config
@@ -15,6 +16,20 @@ from dsw_document_template_tool.template_transform import (
 from dsw_document_template_tool.translation_tree import export_translation_tree
 
 JINJA_BLOCK_PATTERN = re.compile(r"\{%\s*(?P<body>.*?)\s*%\}", re.DOTALL)
+
+
+def test_generated_outputs_are_not_checked_in(repo_root: Path) -> None:
+    """Generated build/render outputs should stay as CI artifacts, not source files."""
+
+    result = subprocess.run(
+        ["git", "ls-files", "outputs"],
+        cwd=repo_root,
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+
+    assert result.stdout == ""
 
 
 def test_workspace_assets_exist(repo_root: Path) -> None:

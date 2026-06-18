@@ -29,10 +29,10 @@ env:
   TRANSLATED_TEMPLATE_ID: science-europe-zh-hant
   TRANSLATED_TEMPLATE_VERSION: 1.30.0
   TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)
-  TRANSLATED_TEMPLATE_DIR: outputs/document-templates/translated-expanded/dsw-science-europe-zh-hant-1.30.0
-  TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/translated-expanded/dsw-science-europe-zh-hant-1.30.0.zip
+  TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0
+  TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip
   PROJECT_REF: workspace/projects/test-project.json
-  PROJECT_RENDER_OUTPUT: outputs/project-render/test-project.pdf
+  PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf
   PROJECT_RENDER_FORMAT_UUID: 68c26e34-5e77-4e15-9bf7-06ff92582257
 
 jobs:
@@ -268,111 +268,10 @@ jobs:
         working-directory: tooling-repo
         run: make stop-ci-dsw
 
-      - name: Auto-commit generated outputs
-        working-directory: template-repo
-        env:
-          TARGET_REF: >-
-            ${{ github.event_name == 'pull_request' &&
-            github.event.pull_request.head.ref || 'master' }}
-        run: |
-          set -euo pipefail
-          content_paths=("$TRANSLATED_TEMPLATE_DIR")
-          output_paths=("$TRANSLATED_TEMPLATE_DIR" "$TRANSLATED_TEMPLATE_PACKAGE")
-          render_paths=()
-          if [ -n "$PROJECT_RENDER_OUTPUT" ]; then
-            render_paths=("$PROJECT_RENDER_OUTPUT" "$PROJECT_RENDER_OUTPUT.json")
-            output_paths+=("${render_paths[@]}")
-          fi
-
-          # `dsw-tdk package` embeds UUID/timestamp metadata in the zip. Avoid
-          # committing zip/PDF-only churn when the translated template directory
-          # did not actually change. Keep those fresh files in the workspace so
-          # the artifact upload still contains the latest package/render preview.
-          committed_render_is_current() {
-            if [ -z "$PROJECT_RENDER_OUTPUT" ]; then
-              return 0
-            fi
-
-            EXPECTED_SOURCE_TEMPLATE_ID="${TRANSLATED_TEMPLATE_ORGANIZATION_ID}:${TRANSLATED_TEMPLATE_ID}:${TRANSLATED_TEMPLATE_VERSION}" \
-            EXPECTED_STAGED_TEMPLATE_ID="${TRANSLATED_TEMPLATE_ORGANIZATION_ID}:${TRANSLATED_TEMPLATE_ID}-project-render:${TRANSLATED_TEMPLATE_VERSION}" \
-            PROJECT_RENDER_OUTPUT="$PROJECT_RENDER_OUTPUT" python3 - <<'PY'
-          import json
-          import os
-          import subprocess
-          import sys
-
-          render_output = os.environ["PROJECT_RENDER_OUTPUT"]
-          expected_source = os.environ["EXPECTED_SOURCE_TEMPLATE_ID"]
-          expected_staged = os.environ["EXPECTED_STAGED_TEMPLATE_ID"]
-
-          result = subprocess.run(
-              ["git", "show", f"HEAD:{render_output}.json"],
-              check=False,
-              stdout=subprocess.PIPE,
-              stderr=subprocess.DEVNULL,
-              text=True,
-          )
-          if result.returncode != 0:
-              sys.exit(1)
-
-          try:
-              metadata = json.loads(result.stdout)
-          except json.JSONDecodeError:
-              sys.exit(1)
-
-          if metadata.get("source_template_id") != expected_source:
-              sys.exit(1)
-          if metadata.get("staged_template_id") != expected_staged:
-              sys.exit(1)
-
-          pdf_exists = subprocess.run(
-              ["git", "cat-file", "-e", f"HEAD:{render_output}"],
-              check=False,
-              stdout=subprocess.DEVNULL,
-              stderr=subprocess.DEVNULL,
-          )
-          sys.exit(0 if pdf_exists.returncode == 0 else 1)
-          PY
-          }
-
-          if [ -z "$(git status --short -- "${content_paths[@]}")" ]; then
-            if [ "${#render_paths[@]}" -gt 0 ] && ! committed_render_is_current; then
-              git config user.name "github-actions[bot]"
-              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-              git add "${render_paths[@]}"
-              git commit -m "chore(sync): refresh sample project render"
-              git push origin "HEAD:$TARGET_REF"
-
-              {
-                echo "## Auto-committed sample project render"
-                echo
-                echo "The translated template content was already committed, but the"
-                echo "checked-in demo project render was stale and has been refreshed."
-              } >> "$GITHUB_STEP_SUMMARY"
-              exit 0
-            fi
-
-            echo "No translated template content changes to commit."
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "${output_paths[@]}"
-          git commit -m "chore(sync): refresh generated document outputs"
-          git push origin "HEAD:$TARGET_REF"
-
-          {
-            echo "## Auto-committed generated outputs"
-            echo
-            echo "The workflow refreshed the translated document template and demo"
-            echo "project render, then pushed the output commit back to \`$TARGET_REF\`."
-          } >> "$GITHUB_STEP_SUMMARY"
-
       - name: Upload translated template package
         uses: actions/upload-artifact@v4
         with:
-          name: translated-document-template
+          name: translated-document-template-${{ env.TRANSLATED_TEMPLATE_VERSION }}
           path: |
             template-repo/${{ env.TRANSLATED_TEMPLATE_DIR }}
             template-repo/${{ env.TRANSLATED_TEMPLATE_PACKAGE }}
