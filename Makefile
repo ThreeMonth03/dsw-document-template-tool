@@ -1,3 +1,5 @@
+SHELL := bash
+
 VENV_DIR ?= .venv
 VENV_PYTHON := $(VENV_DIR)/bin/python
 BOOTSTRAP_PYTHON ?= python3
