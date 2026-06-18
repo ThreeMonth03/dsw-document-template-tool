@@ -32,7 +32,12 @@ UPSTREAM_TEMPLATE_REPOSITORY ?= https://github.com/ds-wizard/science-europe-temp
 UPSTREAM_TEMPLATE_REMOTE ?= $(if $(filter http% git@% ssh://% git://% file://%,$(UPSTREAM_TEMPLATE_REPOSITORY)),$(UPSTREAM_TEMPLATE_REPOSITORY),https://github.com/$(UPSTREAM_TEMPLATE_REPOSITORY).git)
 UPSTREAM_TEMPLATE_REF ?= latest
 UPSTREAM_TEMPLATE_CACHE ?= .cache/upstream/science-europe-template
-UPSTREAM_TEMPLATE_TEST_REFS ?= latest v1.30.1 v1.30.0 v1.29.1 main
+# v1.0.0-v1.15.2 use the legacy parts/ layout; src/ layout starts at v1.16.0.
+UPSTREAM_TEMPLATE_TEST_REFS ?= latest main \
+	v1.16.0 v1.16.1 v1.17.0 v1.18.0 v1.18.1 \
+	v1.19.0 v1.19.1 v1.20.0 v1.21.0 v1.22.0 \
+	v1.23.0 v1.24.0 v1.25.0 v1.26.0 v1.27.0 \
+	v1.28.0 v1.29.0 v1.29.1 v1.30.0 v1.30.1
 UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
 
 .PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
