@@ -70,7 +70,7 @@ help:
 	'  test-unit         Run unit/regression helper pytest suites' \
 	'  clean             Remove generated outputs and local test/lint caches' \
 	'  verify-template   Run dsw-tdk verify for TEMPLATE_DIR=/path/to/template' \
-	'  verify-workspace  Run dsw-tdk verify for checked-in compact and expanded templates' \
+	'  verify-workspace  Run dsw-tdk verify for the local compact and expanded workspace' \
 	'  package-template  Run dsw-tdk package for TEMPLATE_DIR=/path/to/template' \
  	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
 	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
@@ -338,10 +338,10 @@ render-project: venv
 		--format-uuid "$(PROJECT_RENDER_FORMAT_UUID)" \
 		--output "$(PROJECT_RENDER_OUTPUT)"
 
-render-regression: transform venv
+render-regression: venv
 	$(PYTHON) src/render_regression.py --config $(CONFIG)
 
-render-regression-ci: transform venv
+render-regression-ci: venv
 	DSW_API_URL=$${DSW_API_URL:-http://localhost:$${DSW_CI_API_PORT:-3000}/wizard-api} \
 	DSW_EMAIL=$${DSW_EMAIL:-albert.einstein@example.com} \
 	DSW_PASSWORD=$${DSW_PASSWORD:-password} \

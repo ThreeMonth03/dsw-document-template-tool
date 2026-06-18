@@ -5,6 +5,7 @@
 __pycache__/
 *.pyc
 outputs/
+workspace/document-templates/
 dist/
 build/
 .github/dsw/config/application.yml

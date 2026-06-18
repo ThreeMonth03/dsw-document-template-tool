@@ -9,11 +9,11 @@ tdk:
 subjects:
   baseline:
     kind: local_dir
-    value: ../workspace/document-templates/compact/dsw-science-europe-1.30.0
+    value: ../outputs/upstream-workspaces/dsw-science-europe/v1.30.0/compact/dsw-science-europe-1.30.0
     stage_id: ci:science-europe-compact:1.30.0
   candidate:
     kind: local_dir
-    value: ../workspace/document-templates/expanded/dsw-science-europe-1.30.0
+    value: ../outputs/upstream-workspaces/dsw-science-europe/v1.30.0/expanded/dsw-science-europe-1.30.0
     stage_id: ci:science-europe-expanded:1.30.0
 
 regression:

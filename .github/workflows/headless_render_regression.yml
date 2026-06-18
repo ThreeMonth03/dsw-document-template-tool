@@ -42,35 +42,6 @@ jobs:
             UPSTREAM_TEMPLATE_REPOSITORY="$UPSTREAM_TEMPLATE_REPOSITORY" \
             UPSTREAM_TEMPLATE_TEST_REFS="$UPSTREAM_TEMPLATE_TEST_REFS"
 
-      - name: Refresh expanded translation workspace
-        run: make transform
-
-      - name: Check expanded workspace is committed
-        run: |
-          git diff --exit-code -- workspace/document-templates/expanded
-          test -z "$(git status --short -- workspace/document-templates/expanded)"
-
-      - name: Refresh translator-facing translation tree
-        run: make export-translation-tree
-
-      - name: Check translation tree is committed
-        run: |
-          git diff --exit-code -- workspace/document-templates/translation
-          test -z "$(git status --short -- workspace/document-templates/translation)"
-
-      - name: Validate translation tree sync
-        run: make sync-translation-tree
-
-      - name: Upload active fallback template package
-        uses: actions/upload-artifact@v4
-        with:
-          name: active-fallback-document-template
-          path: |
-            outputs/document-templates/
-
-      - name: Verify checked-in template workspaces
-        run: make verify-workspace
-
       - name: Check formatting
         run: make format-check
 
@@ -100,9 +71,6 @@ jobs:
       - name: Install dependencies
         run: make install-dev
 
-      - name: Build translated template package
-        run: make sync-translation-tree
-
       - name: Build clean upstream version artifacts
         run: |
           make build-upstream-artifacts \
@@ -114,14 +82,6 @@ jobs:
 
       - name: Run preview regression
         run: make render-regression-ci
-
-      - name: Render sample project preview
-        env:
-          DSW_API_URL: http://localhost:3000/wizard-api
-          DSW_EMAIL: albert.einstein@example.com
-          DSW_PASSWORD: password
-          DSW_DOWNLOAD_HOST_ALIAS: host.docker.internal=localhost
-        run: make render-project
 
       - name: Render clean upstream version previews
         env:
