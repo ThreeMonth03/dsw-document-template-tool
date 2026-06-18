@@ -4,8 +4,8 @@
 - Wrapper Name: `__tr_block_0007`
 - Wrapper Order: `8`
 - Wrapper Key: `responsible-for-all-issues-relating-to-the-protection-e772815697`
-- Unit Key: `responsible-for-all-issues-relating-to-the-protection-183819cf8d`
-- Source Hash: `82f92be418ac60daa2f3a5d2a1a1c4e74e66c20a`
+- Unit Key: `responsible-for-all-issues-relating-to-the-protection-3427ec1382`
+- Source Hash: `2f2ecbb10eb977b2fc4f355beea55e7ce3074086`
 - Edit only the `Translation (zh_Hant)` block below.
 
 ### Sentence (en)

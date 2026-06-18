@@ -8441,12 +8441,12 @@
       "wrapper_folder_name": "0003-responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-3d68df0e36",
       "wrapper_source_hash": "26463b19487df72da7bea037525bba2aaf327b5c",
       "unit_order": 1,
-      "unit_key": "responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-cc00048409",
-      "unit_folder_name": "0001-responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-cc00048409",
-      "unit_source_hash": "1ff8ba11296b8b55e80529e53523cbd1f8dbaaab",
-      "unit_start": 7,
-      "unit_end": 277,
-      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0003-responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-3d68df0e36/0001-responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-cc00048409/translation.md"
+      "unit_key": "responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-ad3b7d2fcb",
+      "unit_folder_name": "0001-responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-ad3b7d2fcb",
+      "unit_source_hash": "319014c0b56f4d116e231cf333638c5d40f82831",
+      "unit_start": 96,
+      "unit_end": 272,
+      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0003-responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-3d68df0e36/0001-responsible-for-reviewing-enhancing-cleaning-or-standardizing-metadata-ad3b7d2fcb/translation.md"
     },
     {
       "source_file": "src/questions/14-dm-responsible.html.j2",
@@ -8456,12 +8456,12 @@
       "wrapper_folder_name": "0004-responsible-for-finding-gathering-and-collecting-data-facd1d95bd",
       "wrapper_source_hash": "1e7b4b470f8b31af80259e55bfc667f8b55b5fa3",
       "unit_order": 1,
-      "unit_key": "responsible-for-finding-gathering-and-collecting-data-0fd1968d86",
-      "unit_folder_name": "0001-responsible-for-finding-gathering-and-collecting-data-0fd1968d86",
-      "unit_source_hash": "6b4ee3eade692d7ada7bc1ea612f29d55ae88395",
-      "unit_start": 7,
-      "unit_end": 159,
-      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0004-responsible-for-finding-gathering-and-collecting-data-facd1d95bd/0001-responsible-for-finding-gathering-and-collecting-data-0fd1968d86/translation.md"
+      "unit_key": "responsible-for-finding-gathering-and-collecting-data-b8572d5220",
+      "unit_folder_name": "0001-responsible-for-finding-gathering-and-collecting-data-b8572d5220",
+      "unit_source_hash": "b126de5bd55ae3287b3c835dcc8d97fc045f9f1b",
+      "unit_start": 98,
+      "unit_end": 154,
+      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0004-responsible-for-finding-gathering-and-collecting-data-facd1d95bd/0001-responsible-for-finding-gathering-and-collecting-data-b8572d5220/translation.md"
     },
     {
       "source_file": "src/questions/14-dm-responsible.html.j2",
@@ -8471,12 +8471,12 @@
       "wrapper_folder_name": "0005-responsible-for-maintaining-the-finished-resource-4ec9907d07",
       "wrapper_source_hash": "56d89cc061b50e2547144a59acbe6d67223a7985",
       "unit_order": 1,
-      "unit_key": "responsible-for-maintaining-the-finished-resource-9e25821ebe",
-      "unit_folder_name": "0001-responsible-for-maintaining-the-finished-resource-9e25821ebe",
-      "unit_source_hash": "416423b415f82b0871f6efca442f654ed3ca2097",
-      "unit_start": 7,
-      "unit_end": 151,
-      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0005-responsible-for-maintaining-the-finished-resource-4ec9907d07/0001-responsible-for-maintaining-the-finished-resource-9e25821ebe/translation.md"
+      "unit_key": "responsible-for-maintaining-the-finished-resource-aa333d61d2",
+      "unit_folder_name": "0001-responsible-for-maintaining-the-finished-resource-aa333d61d2",
+      "unit_source_hash": "85bfae76d2b48c94925774ddbb0d38c4e7916f26",
+      "unit_start": 96,
+      "unit_end": 146,
+      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0005-responsible-for-maintaining-the-finished-resource-4ec9907d07/0001-responsible-for-maintaining-the-finished-resource-aa333d61d2/translation.md"
     },
     {
       "source_file": "src/questions/14-dm-responsible.html.j2",
@@ -8486,12 +8486,12 @@
       "wrapper_folder_name": "0006-responsible-for-the-management-and-proficiency-of-data-ddfedcdeff",
       "wrapper_source_hash": "b71fb25748ae45386da4030716ed819083b39f00",
       "unit_order": 1,
-      "unit_key": "responsible-for-the-management-and-proficiency-of-data-7c5a79986f",
-      "unit_folder_name": "0001-responsible-for-the-management-and-proficiency-of-data-7c5a79986f",
-      "unit_source_hash": "e0a12edf29595af3c4405d58ddf73d7af56a8bcb",
-      "unit_start": 7,
-      "unit_end": 237,
-      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0006-responsible-for-the-management-and-proficiency-of-data-ddfedcdeff/0001-responsible-for-the-management-and-proficiency-of-data-7c5a79986f/translation.md"
+      "unit_key": "responsible-for-the-management-and-proficiency-of-data-6916e1e91e",
+      "unit_folder_name": "0001-responsible-for-the-management-and-proficiency-of-data-6916e1e91e",
+      "unit_source_hash": "9f5229babbaba47f7a7121af4c0680972c53b4da",
+      "unit_start": 96,
+      "unit_end": 232,
+      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0006-responsible-for-the-management-and-proficiency-of-data-ddfedcdeff/0001-responsible-for-the-management-and-proficiency-of-data-6916e1e91e/translation.md"
     },
     {
       "source_file": "src/questions/14-dm-responsible.html.j2",
@@ -8501,12 +8501,12 @@
       "wrapper_folder_name": "0007-responsible-for-generating-and-disseminating-copies-of-the-ba494d9e3b",
       "wrapper_source_hash": "05b6435bbad243774c406a083524a33f8565da9a",
       "unit_order": 1,
-      "unit_key": "responsible-for-generating-and-disseminating-copies-of-the-82d1ae59a5",
-      "unit_folder_name": "0001-responsible-for-generating-and-disseminating-copies-of-the-82d1ae59a5",
-      "unit_source_hash": "b2c41348c0a8a60a487225a02da8b262e9c6c955",
-      "unit_start": 7,
-      "unit_end": 204,
-      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0007-responsible-for-generating-and-disseminating-copies-of-the-ba494d9e3b/0001-responsible-for-generating-and-disseminating-copies-of-the-82d1ae59a5/translation.md"
+      "unit_key": "responsible-for-generating-and-disseminating-copies-of-the-3b347d728c",
+      "unit_folder_name": "0001-responsible-for-generating-and-disseminating-copies-of-the-3b347d728c",
+      "unit_source_hash": "c2f5ed46e161f93a1a63a1501be96b64469b3b08",
+      "unit_start": 96,
+      "unit_end": 199,
+      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0007-responsible-for-generating-and-disseminating-copies-of-the-ba494d9e3b/0001-responsible-for-generating-and-disseminating-copies-of-the-3b347d728c/translation.md"
     },
     {
       "source_file": "src/questions/14-dm-responsible.html.j2",
@@ -8516,12 +8516,12 @@
       "wrapper_folder_name": "0008-responsible-for-all-issues-relating-to-the-protection-e772815697",
       "wrapper_source_hash": "e4209258ce409ef0625c61ef998d90434dfda9b8",
       "unit_order": 1,
-      "unit_key": "responsible-for-all-issues-relating-to-the-protection-183819cf8d",
-      "unit_folder_name": "0001-responsible-for-all-issues-relating-to-the-protection-183819cf8d",
-      "unit_source_hash": "82f92be418ac60daa2f3a5d2a1a1c4e74e66c20a",
-      "unit_start": 7,
-      "unit_end": 214,
-      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0008-responsible-for-all-issues-relating-to-the-protection-e772815697/0001-responsible-for-all-issues-relating-to-the-protection-183819cf8d/translation.md"
+      "unit_key": "responsible-for-all-issues-relating-to-the-protection-3427ec1382",
+      "unit_folder_name": "0001-responsible-for-all-issues-relating-to-the-protection-3427ec1382",
+      "unit_source_hash": "2f2ecbb10eb977b2fc4f355beea55e7ce3074086",
+      "unit_start": 98,
+      "unit_end": 209,
+      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0008-responsible-for-all-issues-relating-to-the-protection-e772815697/0001-responsible-for-all-issues-relating-to-the-protection-3427ec1382/translation.md"
     },
     {
       "source_file": "src/questions/14-dm-responsible.html.j2",
@@ -8531,12 +8531,12 @@
       "wrapper_folder_name": "0009-responsible-for-implementing-the-dmp-and-ensuring-it-4db7bf660a",
       "wrapper_source_hash": "a25236bbc81dc81c3475c37731a02214cfad62a7",
       "unit_order": 1,
-      "unit_key": "responsible-for-implementing-the-dmp-and-ensuring-it-f1ba4e54d5",
-      "unit_folder_name": "0001-responsible-for-implementing-the-dmp-and-ensuring-it-f1ba4e54d5",
-      "unit_source_hash": "56d21e2b7c194a899f7a49e00474d99041d4c45a",
-      "unit_start": 7,
-      "unit_end": 180,
-      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0009-responsible-for-implementing-the-dmp-and-ensuring-it-4db7bf660a/0001-responsible-for-implementing-the-dmp-and-ensuring-it-f1ba4e54d5/translation.md"
+      "unit_key": "responsible-for-implementing-the-dmp-and-ensuring-it-d581cfd50c",
+      "unit_folder_name": "0001-responsible-for-implementing-the-dmp-and-ensuring-it-d581cfd50c",
+      "unit_source_hash": "cbc216e5481fc628c88160575e9306d4643c6502",
+      "unit_start": 97,
+      "unit_end": 175,
+      "document_path": "tree/src/questions/14-dm-responsible.html.j2/0009-responsible-for-implementing-the-dmp-and-ensuring-it-4db7bf660a/0001-responsible-for-implementing-the-dmp-and-ensuring-it-d581cfd50c/translation.md"
     },
     {
       "source_file": "src/questions/15-required-resources.html.j2",

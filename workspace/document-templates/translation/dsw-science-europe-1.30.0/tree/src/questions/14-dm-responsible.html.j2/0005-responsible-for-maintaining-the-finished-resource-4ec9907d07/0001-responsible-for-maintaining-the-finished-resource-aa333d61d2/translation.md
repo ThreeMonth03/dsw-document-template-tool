@@ -4,8 +4,8 @@
 - Wrapper Name: `__tr_block_0004`
 - Wrapper Order: `5`
 - Wrapper Key: `responsible-for-maintaining-the-finished-resource-4ec9907d07`
-- Unit Key: `responsible-for-maintaining-the-finished-resource-9e25821ebe`
-- Source Hash: `416423b415f82b0871f6efca442f654ed3ca2097`
+- Unit Key: `responsible-for-maintaining-the-finished-resource-aa333d61d2`
+- Source Hash: `85bfae76d2b48c94925774ddbb0d38c4e7916f26`
 - Edit only the `Translation (zh_Hant)` block below.
 
 ### Sentence (en)
