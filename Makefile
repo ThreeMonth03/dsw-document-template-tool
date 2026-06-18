@@ -70,9 +70,9 @@ help:
 	'  test-unit         Run unit/regression helper pytest suites' \
 	'  clean             Remove generated outputs and local test/lint caches' \
 	'  verify-template   Run dsw-tdk verify for TEMPLATE_DIR=/path/to/template' \
-	'  verify-workspace  Run dsw-tdk verify for the local compact and expanded workspace' \
+	'  verify-workspace  Run dsw-tdk verify for generated compact and expanded workspaces' \
 	'  package-template  Run dsw-tdk package for TEMPLATE_DIR=/path/to/template' \
- 	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
+	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
 	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
 	'  audit-translation-tree Check translation blocks for unsafe Jinja/control syntax' \
 	'  sync-translation-tree Apply translations and package $(TRANSLATED_TEMPLATE_PACKAGE)' \

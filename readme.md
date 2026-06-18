@@ -235,7 +235,7 @@ make render-upstream-artifact-previews
 `build-upstream-artifacts` fetches matching upstream tags, exports clean
 `compact`, `expanded`, and `translation` workspaces, syncs a scaffold output
 template, and packages it. `render-upstream-artifact-previews` expects a running
-DSW API and renders the checked-in sample project once per scaffold package.
+DSW API and renders the checked-in fixture project once per scaffold package.
 
 #### 6. Rebuild The Pre-Translation Compact Candidate For Regression
 
@@ -354,8 +354,8 @@ export DSW_PASSWORD=password
 
 In the shipped setup, preview regression compares:
 
-- baseline = checked-in `compact` template
-- candidate = checked-in `expanded` template
+- baseline = generated upstream `compact` template under `outputs/upstream-workspaces/...`
+- candidate = generated upstream `expanded` template under `outputs/upstream-workspaces/...`
 - fixtures = one empty project plus 80 fixed-seed random questionnaire projects
 
 ### GitHub Actions Workflow

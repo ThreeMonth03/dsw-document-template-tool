@@ -2432,13 +2432,13 @@ def _expr_has_translatable_literal(expr: str) -> bool:
 
 
 def generated_block_name(match: re.Match[str]) -> str:
-    """Return the generated block id for marker and legacy set-capture wrappers."""
+    """Return the generated block id for current markers or earlier set-capture wrappers."""
 
     return match.group("marker_name") or match.group("set_name")
 
 
 def generated_block_body(match: re.Match[str]) -> str:
-    """Return the wrapped source body for marker and legacy set-capture wrappers."""
+    """Return the wrapped source body for current markers or earlier set-capture wrappers."""
 
     return match.group("marker_body") if match.group("marker_name") else match.group("set_body")
 
