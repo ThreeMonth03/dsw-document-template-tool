@@ -1,22 +1,19 @@
 ## Workspace
 
-This folder keeps the translation workflow assets in one place:
+This directory keeps small, checked-in fixture assets used by local regression
+runs and GitHub Actions:
 
 - `knowledge-models/`
   stores KM bundles used by fixture projects and CI regression
-- `document-templates/compact/`
-  stores the original DSW-uploadable template trees
-- `document-templates/expanded/`
-  stores translation-friendly expanded Jinja workspaces generated from the
-  compact templates, with sentence-preserving generated Jinja comment markers
-- `document-templates/translation/`
-  stores translator-facing unit trees exported from `expanded/`, with one
-  `translation.md` file per preserved translation unit
+- `projects/`
+  stores portable project references and exported project events used for demo
+  rendering
 
-Run `make transform` to refresh the expanded workspace from the compact source.
-Run `make export-translation-tree` to refresh the translator-facing tree from
-the expanded workspace.
-Run `make sync-translation-tree` to apply translator edits back into a generated
-expanded template copy.
-Run `make compact-template` when you need to rebuild an uploadable compact tree
-from the expanded workspace.
+Document template workspaces are intentionally not committed in this tooling
+repository. The path `workspace/document-templates/` is ignored by Git and is
+reserved for generated local workspaces or downstream translation repositories.
+
+In this repo, clean upstream template workspaces are generated under `outputs/`
+and uploaded as GitHub Actions artifacts. Downstream translation repos can keep
+their own `workspace/document-templates/compact`, `expanded`, and `translation`
+trees when translators need editable files.

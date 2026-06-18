@@ -390,7 +390,8 @@ make clean
 ```
 
 This removes generated artifacts such as `outputs/`, pytest/Ruff caches, and
-`__pycache__` directories without touching the checked-in `workspace/` trees.
+`__pycache__` directories without touching checked-in fixture files under
+`workspace/`.
 
 #### Install Dev Tools
 
