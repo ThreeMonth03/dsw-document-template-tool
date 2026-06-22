@@ -22,6 +22,11 @@ from .._template_transform.jinja_literals import (
 from .._template_transform.jinja_literals import (
     is_translatable_jinja_literal as _is_translatable_jinja_literal,
 )
+from .._template_transform.markers import (
+    GENERATED_BLOCK_PATTERN,
+    generated_block_body,
+    generated_block_name,
+)
 from .._template_transform.scanner import (
     ANNOTATABLE_HTML_TAGS,
     JINJA_STRING_LITERAL_PATTERN,
@@ -33,11 +38,6 @@ from .._template_transform.scanner import (
 )
 from .._template_transform.scanner import (
     lex_source_tokens as _lex_source_tokens,
-)
-from ..template_transform import (
-    GENERATED_BLOCK_PATTERN,
-    generated_block_body,
-    generated_block_name,
 )
 from .html_structure import INLINE_TRANSLATOR_TAGS, find_single_outer_element_inner_bounds
 from .ids import hash_text

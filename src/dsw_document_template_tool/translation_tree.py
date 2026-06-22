@@ -6,6 +6,11 @@ import json
 import shutil
 from pathlib import Path
 
+from ._template_transform.markers import (
+    GENERATED_BLOCK_PATTERN,
+    generated_block_body,
+    generated_block_name,
+)
 from ._translation_tree.apply import apply_unit_translations
 from ._translation_tree.document import (
     TRANSLATION_DOC_NAME,
@@ -47,11 +52,6 @@ from ._translation_tree.structure_audit import (
 )
 from ._translation_tree.tree_audit import audit_translation_tree as audit_translation_tree
 from ._translation_tree.workspace import validate_expanded_workspace
-from .template_transform import (
-    GENERATED_BLOCK_PATTERN,
-    generated_block_body,
-    generated_block_name,
-)
 
 TREE_ROOT_NAME = "tree"
 DEFAULT_SOURCE_LANG = "en"

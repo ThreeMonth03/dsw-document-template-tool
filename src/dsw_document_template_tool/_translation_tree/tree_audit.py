@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..template_transform import GENERATED_BLOCK_PATTERN, generated_block_body
+from .._template_transform.markers import GENERATED_BLOCK_PATTERN, generated_block_body
 from .document import parse_translation_document
 from .manifest import TREE_MANIFEST_PATH, load_tree_manifest
 from .models import TranslationTreeAuditIssue, TranslationTreeError

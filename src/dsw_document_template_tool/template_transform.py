@@ -32,6 +32,11 @@ from ._template_transform.localization import (
 from ._template_transform.localization import (
     revert_post_expand_patches as _revert_post_expand_patches,
 )
+from ._template_transform.markers import (
+    GENERATED_BLOCK_PATTERN,
+    GENERATED_BLOCK_PREFIX,
+    generated_block_body,
+)
 from ._template_transform.models import TemplateTransformError
 from ._template_transform.scanner import (
     ANNOTATABLE_HTML_TAGS,
@@ -69,16 +74,6 @@ from ._template_transform.workspace import (
     validate_template_dir as _validate_template_dir,
 )
 
-GENERATED_BLOCK_PATTERN = re.compile(
-    r"\{# (?P<marker_name>__tr_block_\d{4}):start #\}"
-    r"(?P<marker_body>.*?)"
-    r"\{# (?P=marker_name):end #\}"
-    r"|"
-    r"\{% set (?P<set_name>__tr_block_\d{4}) %\}"
-    r"(?P<set_body>.*?)"
-    r"\{% endset %\}\{\{ (?P=set_name) \}\}",
-    re.DOTALL,
-)
 INLINE_CONDITIONAL_REWRITE_PATTERN = re.compile(
     r"\{# __tr_inline_if_original:(?P<payload>[A-Za-z0-9_-]+=*) #\}"
     r".*?"
@@ -98,7 +93,6 @@ APPEND_SENTENCE_REWRITE_PATTERN = re.compile(
     re.DOTALL,
 )
 MANIFEST_VERSION = 2
-GENERATED_BLOCK_PREFIX = "__tr_block_"
 
 
 @dataclass(frozen=True)
@@ -1158,18 +1152,6 @@ def _should_rewrite_inline_conditional(*, true_expr: str, false_expr: str) -> bo
 
 def _expr_has_translatable_literal(expr: str) -> bool:
     return bool(_extract_translatable_jinja_literals(expr))
-
-
-def generated_block_name(match: re.Match[str]) -> str:
-    """Return the generated block id for current markers or earlier set-capture wrappers."""
-
-    return match.group("marker_name") or match.group("set_name")
-
-
-def generated_block_body(match: re.Match[str]) -> str:
-    """Return the wrapped source body for current markers or earlier set-capture wrappers."""
-
-    return match.group("marker_body") if match.group("marker_name") else match.group("set_body")
 
 
 def _collect_annotation_regions(

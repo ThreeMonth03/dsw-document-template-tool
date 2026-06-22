@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from ..template_transform import (
+from .._template_transform.scanner import (
     ANNOTATABLE_HTML_TAGS,
     SourceToken,
-    _find_matching_tag_end,
+)
+from .._template_transform.scanner import (
+    find_matching_tag_end as _find_matching_tag_end,
 )
 
 INLINE_TRANSLATOR_TAGS = {"a", "em", "small", "span", "strong"}
