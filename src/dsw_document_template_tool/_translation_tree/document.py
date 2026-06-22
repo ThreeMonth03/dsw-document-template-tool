@@ -83,6 +83,45 @@ def parse_translation_document(
     return translation_match.group("translation_text")
 
 
+def parse_sentence_text(*, document_path: Path, source_lang: str) -> str:
+    """Read the plain source sentence from one translator-facing Markdown file."""
+
+    markdown_text = document_path.read_text(encoding="utf-8")
+    sentence_match = SENTENCE_SECTION_PATTERN.search(markdown_text)
+    if sentence_match is None:
+        raise TranslationTreeError(f"Invalid translation document at {document_path}")
+    if sentence_match.group("source_lang") != source_lang:
+        raise TranslationTreeError(
+            "Unexpected source language heading in translation document at "
+            f"{document_path}: expected {source_lang}"
+        )
+    return sentence_match.group("sentence_text")
+
+
+def replace_translation_text(
+    *,
+    document_path: Path,
+    target_lang: str,
+    translation_text: str,
+) -> None:
+    """Replace only the editable translation block in a translation document."""
+
+    markdown_text = document_path.read_text(encoding="utf-8")
+    match = TRANSLATION_SECTION_PATTERN.search(markdown_text)
+    if match is None:
+        raise TranslationTreeError(f"Invalid translation document at {document_path}")
+    if match.group("target_lang") != target_lang:
+        raise TranslationTreeError(
+            "Unexpected target language heading in translation document at "
+            f"{document_path}: expected {target_lang}"
+        )
+    replacement = f"### Translation ({target_lang})\n\n{SOURCE_FENCE}\n{translation_text}\n~~~\n"
+    document_path.write_text(
+        markdown_text[: match.start()] + replacement,
+        encoding="utf-8",
+    )
+
+
 def render_tree_readme(*, source_lang: str, target_lang: str) -> str:
     return "\n".join(
         [

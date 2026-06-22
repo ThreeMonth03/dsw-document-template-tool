@@ -9,6 +9,7 @@ from dsw_document_template_tool.translation_tree import (
     audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
+    merge_translation_tree,
     sync_translation_tree,
 )
 
@@ -73,6 +74,26 @@ def build_argument_parser() -> argparse.ArgumentParser:
         required=True,
         help="Translated expanded template output directory.",
     )
+
+    merge_parser = subparsers.add_parser(
+        "merge",
+        help="Merge existing translator edits into a regenerated translation tree.",
+    )
+    merge_parser.add_argument(
+        "--old-tree",
+        required=True,
+        help="Existing translation tree containing reusable translator edits.",
+    )
+    merge_parser.add_argument(
+        "--new-tree",
+        required=True,
+        help="Freshly exported translation tree skeleton.",
+    )
+    merge_parser.add_argument(
+        "--output",
+        required=True,
+        help="Merged translation tree directory.",
+    )
     return parser
 
 
@@ -110,6 +131,22 @@ def main() -> None:
                 print(f"  {issue.message}")
             raise SystemExit(1)
         print("SUCCESS: Translated output keeps the expanded template structure")
+        return
+
+    if args.command == "merge":
+        report = merge_translation_tree(
+            old_tree_dir=args.old_tree,
+            new_tree_dir=args.new_tree,
+            output_dir=args.output,
+            source_lang="en",
+            target_lang="zh_Hant",
+        )
+        print(
+            "SUCCESS: Merged translation tree "
+            f"({report.migrated_units} migrated, "
+            f"{report.preserved_units} preserved, "
+            f"{report.untranslated_units} untranslated)"
+        )
         return
 
     output_dir = sync_translation_tree(

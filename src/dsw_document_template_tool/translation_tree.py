@@ -25,6 +25,10 @@ from ._translation_tree.manifest import (
     TREE_VERSION,
     load_tree_manifest,
 )
+from ._translation_tree.merge import (
+    TranslationMergeReport,
+    merge_translation_tree,
+)
 from ._translation_tree.metadata import patch_template_metadata
 from ._translation_tree.models import (
     OutlineUnit,
@@ -52,6 +56,18 @@ from .template_transform import (
 TREE_ROOT_NAME = "tree"
 DEFAULT_SOURCE_LANG = "en"
 DEFAULT_TARGET_LANG = "zh_Hant"
+__all__ = [
+    "DEFAULT_SOURCE_LANG",
+    "DEFAULT_TARGET_LANG",
+    "TREE_ROOT_NAME",
+    "TranslationMergeReport",
+    "TranslationTreeError",
+    "audit_translated_template_structure",
+    "audit_translation_tree",
+    "export_translation_tree",
+    "merge_translation_tree",
+    "sync_translation_tree",
+]
 
 
 def export_translation_tree(

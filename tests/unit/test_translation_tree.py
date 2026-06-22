@@ -14,6 +14,7 @@ from dsw_document_template_tool.translation_tree import (
     audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
+    merge_translation_tree,
     sync_translation_tree,
 )
 
@@ -77,6 +78,37 @@ def _write_translation_block(document_path: Path, translation_text: str) -> None
     )
 
 
+def _find_translation_doc(tree_dir: Path, sentence_text: str) -> Path:
+    for document_path in sorted(tree_dir.rglob("translation.md")):
+        if sentence_text in document_path.read_text(encoding="utf-8"):
+            return document_path
+    raise AssertionError(f"Could not find translation document for {sentence_text!r}")
+
+
+def _write_compact_template_file(
+    *,
+    root_dir: Path,
+    relative_path: str,
+    source_text: str,
+) -> Path:
+    compact_dir = root_dir
+    file_path = compact_dir / "src" / relative_path
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    (compact_dir / "template.json").write_text(
+        """
+{
+  "organizationId": "demo",
+  "templateId": "sample",
+  "version": "1.0.0"
+}
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    file_path.write_text(source_text.lstrip(), encoding="utf-8")
+    return compact_dir
+
+
 def test_export_translation_tree_creates_one_document_per_unit(tmp_path: Path) -> None:
     """Expanded wrapper units should become standalone translation documents."""
 
@@ -116,6 +148,129 @@ def test_export_translation_tree_creates_one_document_per_unit(tmp_path: Path) -
     assert "Hello" in first_doc or "World." in first_doc
     assert "- [ ] [file] src/index.html.j2 (0/2)" in outline
     assert "[T] [translation](<tree/src/index.html.j2/" in outline
+
+
+def test_merge_translation_tree_reuses_exact_unit_key_matches(tmp_path: Path) -> None:
+    """Regenerated trees should recover translations for unchanged units."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Hello {{ name }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=new_tree_dir)
+
+    _write_translation_block(_find_translation_doc(old_tree_dir, "Hello {name}."), "你好 {name}。")
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.migrated_units == 1
+    assert report.exact_key_matches == 1
+    assert "你好 {name}。" in _find_translation_doc(
+        output_tree_dir,
+        "Hello {name}.",
+    ).read_text(encoding="utf-8")
+
+
+def test_merge_translation_tree_reuses_unique_source_hash_matches(tmp_path: Path) -> None:
+    """Moved source files can still reuse translations when the unit text is identical."""
+
+    old_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "old-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Moved sentence.</p>\n",
+    )
+    new_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "new-compact",
+        relative_path="nested/page.html.j2",
+        source_text="<p>Moved sentence.</p>\n",
+    )
+    old_expanded_dir = tmp_path / "old-expanded"
+    new_expanded_dir = tmp_path / "new-expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=old_compact_dir, output_dir=old_expanded_dir)
+    expand_template_dir(source_dir=new_compact_dir, output_dir=new_expanded_dir)
+    export_translation_tree(source_dir=old_expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=new_expanded_dir, output_dir=new_tree_dir)
+
+    _write_translation_block(
+        _find_translation_doc(old_tree_dir, "Moved sentence."), "已搬移的句子。"
+    )
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.migrated_units == 1
+    assert report.source_hash_matches == 1
+    assert report.exact_key_matches == 0
+    assert "已搬移的句子。" in _find_translation_doc(
+        output_tree_dir,
+        "Moved sentence.",
+    ).read_text(encoding="utf-8")
+
+
+def test_merge_translation_tree_skips_ambiguous_fuzzy_matches(tmp_path: Path) -> None:
+    """Ambiguous old candidates should stay untranslated rather than guessed."""
+
+    old_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "old-compact",
+        relative_path="index.html.j2",
+        source_text="""
+<p>Repeat.</p>
+<p>Repeat.</p>
+""",
+    )
+    new_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "new-compact",
+        relative_path="moved.html.j2",
+        source_text="<p>Repeat.</p>\n",
+    )
+    old_expanded_dir = tmp_path / "old-expanded"
+    new_expanded_dir = tmp_path / "new-expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=old_compact_dir, output_dir=old_expanded_dir)
+    expand_template_dir(source_dir=new_compact_dir, output_dir=new_expanded_dir)
+    export_translation_tree(source_dir=old_expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=new_expanded_dir, output_dir=new_tree_dir)
+    for index, document_path in enumerate(sorted(old_tree_dir.rglob("translation.md")), start=1):
+        _write_translation_block(document_path, f"重複翻譯 {index}。")
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.migrated_units == 0
+    assert report.untranslated_units == 1
+    assert "重複翻譯" not in _find_translation_doc(
+        output_tree_dir,
+        "Repeat.",
+    ).read_text(encoding="utf-8")
 
 
 def test_export_translation_tree_splits_nested_wrapper_into_multiple_units(

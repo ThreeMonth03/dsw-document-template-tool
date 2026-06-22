@@ -66,6 +66,7 @@ def test_translation_tree_help(repo_root) -> None:
     assert "audit" in result.stdout
     assert "audit-output" in result.stdout
     assert "sync" in result.stdout
+    assert "merge" in result.stdout
 
     result = subprocess.run(
         [sys.executable, str(repo_root / "src" / "translation_tree.py"), "sync", "--help"],
@@ -99,6 +100,22 @@ def test_translation_tree_help(repo_root) -> None:
     )
     assert result.returncode == 0
     assert "--source" in result.stdout
+    assert "--output" in result.stdout
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "src" / "translation_tree.py"),
+            "merge",
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "--old-tree" in result.stdout
+    assert "--new-tree" in result.stdout
     assert "--output" in result.stdout
 
 
