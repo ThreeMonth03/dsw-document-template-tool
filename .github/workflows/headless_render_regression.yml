@@ -178,6 +178,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: regression-artifacts-metamodel-${{ matrix.metamodel_key }}
+          include-hidden-files: true
           path: outputs/
 
       - name: Upload clean upstream version artifacts
@@ -185,6 +186,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}
+          include-hidden-files: true
           path: |
             outputs/upstream-workspaces/
             outputs/document-templates/dsw-science-europe/**/scaffold/

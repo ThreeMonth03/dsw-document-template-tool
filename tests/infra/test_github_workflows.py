@@ -86,6 +86,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "secrets.DSW_API_URL" not in workflow_text
     assert "secrets.DSW_API_KEY" not in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
+    assert workflow_text.count("include-hidden-files: true") == 2
     assert "active-fallback-document-template" not in workflow_text
     assert "upstream-compat-smoke" in workflow["jobs"]
     assert "Compatibility refs are advisory" in workflow_text
