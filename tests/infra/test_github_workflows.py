@@ -135,6 +135,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["on"]["schedule"][0]["cron"] == "0 20 * * *"
     assert "workflow_dispatch" not in workflow["on"]
     assert workflow["permissions"]["contents"] == "write"
+    assert workflow["permissions"]["statuses"] == "write"
     assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "github.event.pull_request.head.repo.full_name == github.repository" in workflow_text
     assert "github.actor != 'github-actions[bot]' &&" not in workflow_text
@@ -176,7 +177,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert 'src/translation_tree.py" audit' in workflow_text
     assert "Translation block audit failed" in workflow_text
     assert "Auto-commit repaired translation inputs" in workflow_text
+    assert "id: auto_commit" in workflow_text
     assert "chore(sync): refresh document template translations" in workflow_text
+    assert 'echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"' in workflow_text
     assert 'git add "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR"' in workflow_text
     assert 'git push origin "HEAD:$TARGET_REF"' in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
@@ -188,6 +191,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "Translation sync failed" in workflow_text
     assert "Translated output structure audit failed" in workflow_text
     assert "GITHUB_STEP_SUMMARY" in workflow_text
+    assert "Mark auto-repaired head as validated" in workflow_text
+    assert "translation-sync / repaired head" in workflow_text
+    assert "statuses/$REPAIRED_SHA" in workflow_text
     assert "::error title=Translation sync failed::" in workflow_text
     assert "::error title=Translated output structure audit failed::" in workflow_text
     assert 'dsw-tdk" package' in workflow_text

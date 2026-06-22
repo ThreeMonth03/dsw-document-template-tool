@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  statuses: write
 
 concurrency:
   group: >-
@@ -108,6 +109,7 @@ jobs:
           cp -a "$MERGED_TRANSLATION_TREE/." "$HOST_ROOT/$TRANSLATION_TREE_DIR/"
 
       - name: Auto-commit repaired translation inputs
+        id: auto_commit
         if: ${{ github.actor != 'github-actions[bot]' }}
         working-directory: template-repo
         env:
@@ -131,6 +133,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR"
           git commit -m "chore(sync): refresh document template translations"
+          echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           git push origin "HEAD:$TARGET_REF"
 
           {
@@ -297,6 +300,19 @@ jobs:
             template-repo/${{ env.PROJECT_RENDER_OUTPUT }}
             template-repo/${{ env.PROJECT_RENDER_OUTPUT }}.json
             tooling-repo/outputs/ci-dsw/
+
+      - name: Mark auto-repaired head as validated
+        if: ${{ steps.auto_commit.outputs.repaired_sha != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPAIRED_SHA: ${{ steps.auto_commit.outputs.repaired_sha }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$REPAIRED_SHA" \
+            -f state=success \
+            -f context="translation-sync / repaired head" \
+            -f description="Auto-repaired translation inputs were validated." \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
   skip-fork-pr:
     if: >-
