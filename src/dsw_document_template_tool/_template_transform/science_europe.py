@@ -61,6 +61,48 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             {%- endif -%}
 """
 
+    ref_data_conditions_markdown_original = """
+            {%- set refDataConditions = [refDataUsedPrefix, uuids.refDataConditionsQUuid]|reply_path -%}
+            {%- set refDataConditionsReply = repliesMap[refDataConditions]|reply_str_value -%}
+            {%- set refDataConditionsOther = [refDataConditions, uuids.refDataConditionsOtherAUuid, uuids.refDataConditionsOtherQUuid]|reply_path -%}
+            {%- set refDataConditionsOtherReply = repliesMap[refDataConditionsOther]|reply_str_value -%}
+            {%- if refDataConditionsReply %}
+             <p>This standard reference data are{{+" "}}
+              {%- if refDataConditionsReply == uuids.refDataConditionsCC0AUuid -%}
+                freely available for any use.
+              {%- elif refDataConditionsReply == uuids.refDataConditionsCCBYAUuid -%}
+                freely available with obligation to quote the source.
+              {%- elif refDataConditionsReply == uuids.refDataConditionsOtherAUuid -%}
+                available with {{" "}}
+                  {%- if refDataConditionsOtherReply -%}
+                    following restrictions: {{refDataConditionsOtherReply|markdown}}
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+              {%- endif -%}
+             </p>
+            {%- endif -%}
+"""
+    ref_data_conditions_markdown_replacement = """
+            {%- set refDataConditions = [refDataUsedPrefix, uuids.refDataConditionsQUuid]|reply_path -%}
+            {%- set refDataConditionsReply = repliesMap[refDataConditions]|reply_str_value -%}
+            {%- set refDataConditionsOther = [refDataConditions, uuids.refDataConditionsOtherAUuid, uuids.refDataConditionsOtherQUuid]|reply_path -%}
+            {%- set refDataConditionsOtherReply = repliesMap[refDataConditionsOther]|reply_str_value -%}
+            {%- if refDataConditionsReply %}
+              {%- if refDataConditionsReply == uuids.refDataConditionsCC0AUuid -%}
+                <p>This standard reference data are{{+" "}}freely available for any use.</p>
+              {%- elif refDataConditionsReply == uuids.refDataConditionsCCBYAUuid -%}
+                <p>This standard reference data are{{+" "}}freely available with obligation to quote the source.</p>
+              {%- elif refDataConditionsReply == uuids.refDataConditionsOtherAUuid -%}
+                {%- if refDataConditionsOtherReply -%}
+                  <p>This standard reference data are{{+" "}}available with following restrictions: {{refDataConditionsOtherReply|markdown}}</p>
+                {%- else -%}
+                  <p>This standard reference data are{{+" "}}available with restrictions, that will be specified.</p>
+                {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+"""
+
     nref_data_conditions_original = """
           {%- if nrefDataConditionsReply %}
             <p>This data are{{+" "}}
@@ -332,6 +374,54 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             {%- endif -%}
 """
 
+    ref_data_used_identification_markdown_original = (
+        """
+            <p>We will re-use this standard reference data
+            {%- if refDataWhere -%}
+              {{" "}}available via:{{" "}}
+              {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
+                <a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.
+              {%- else -%}
+                {{ refDataWhere }}
+             {%- endif -%}
+            {%- endif -%}
+"""
+        "    \n"
+        """            {# usage #}
+            {%- set refDataUsageQ = [ refDataUsedPrefix, uuids.refDataUsageQUuid]|reply_path -%}
+            {%- set refDataUsageReply = repliesMap[refDataUsageQ]|reply_str_value  -%}
+            {%- if refDataUsageReply -%}
+                {{+" "}}in order to {{ refDataUsageReply|markdown }}
+            {%- else -%}.
+            {%- endif -%}
+            </p>
+"""
+    )
+    ref_data_used_identification_markdown_replacement = """
+            {# usage #}
+            {%- set refDataUsageQ = [ refDataUsedPrefix, uuids.refDataUsageQUuid]|reply_path -%}
+            {%- set refDataUsageReply = repliesMap[refDataUsageQ]|reply_str_value  -%}
+            {%- if refDataWhere -%}
+              {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
+                {%- if refDataUsageReply -%}
+                  <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>{{+" "}}in order to {{ refDataUsageReply|markdown }}</p>
+                {%- else -%}
+                  <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.</p>
+                {%- endif -%}
+              {%- else -%}
+                {%- if refDataUsageReply -%}
+                  <p>We will re-use this standard reference data available via:{{" "}}{{ refDataWhere }}{{+" "}}in order to {{ refDataUsageReply|markdown }}</p>
+                {%- else -%}
+                  <p>We will re-use this standard reference data available via:{{" "}}{{ refDataWhere }}.</p>
+                {%- endif -%}
+              {%- endif -%}
+            {%- elif refDataUsageReply -%}
+              <p>We will re-use this standard reference data in order to {{ refDataUsageReply|markdown }}</p>
+            {%- else -%}
+              <p>We will re-use this standard reference data.</p>
+            {%- endif -%}
+"""
+
     nref_data_used_identification_original = """
           <p>We will re-use this non-referece data 
           {%- if nrefDataWhere -%}
@@ -371,6 +461,54 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             {%- endif -%}
           {%- elif nrefDataUsageReply -%}
             <p>We will re-use this non-referece data in order to "{{ nrefDataUsageReply}}".</p>
+          {%- else -%}
+            <p>We will re-use this non-referece data.</p>
+          {%- endif -%}
+"""
+
+    nref_data_used_identification_markdown_original = (
+        """
+          <p>We will re-use this non-referece data"""
+        " \n"
+        """          {%- if nrefDataWhere -%}
+         {{" "}} available via:{{" "}}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              <a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+"""
+        "    \n"
+        """          {# usage #}
+          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
+          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
+          {%- if nrefDataUsageReply -%}
+            {{+" "}}in order to {{ nrefDataUsageReply|markdown }}
+          {%- endif -%}
+          .</p>
+"""
+    )
+    nref_data_used_identification_markdown_replacement = """
+          {# usage #}
+          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
+          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
+          {%- if nrefDataWhere -%}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              {%- if nrefDataUsageReply -%}
+                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>{{+" "}}in order to {{ nrefDataUsageReply|markdown }}.</p>
+              {%- else -%}
+                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.</p>
+              {%- endif -%}
+            {%- else -%}
+              {%- if nrefDataUsageReply -%}
+                <p>We will re-use this non-referece data available via:{{" "}}{{ nrefDataWhere }}{{+" "}}in order to {{ nrefDataUsageReply|markdown }}.</p>
+              {%- else -%}
+                <p>We will re-use this non-referece data available via:{{" "}}{{ nrefDataWhere }}.</p>
+              {%- endif -%}
+            {%- endif -%}
+          {%- elif nrefDataUsageReply -%}
+            <p>We will re-use this non-referece data in order to {{ nrefDataUsageReply|markdown }}.</p>
           {%- else -%}
             <p>We will re-use this non-referece data.</p>
           {%- endif -%}
@@ -1075,6 +1213,7 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
         source_text,
         (
             (ref_data_conditions_original, ref_data_conditions_replacement),
+            (ref_data_conditions_markdown_original, ref_data_conditions_markdown_replacement),
             (nref_data_conditions_original, nref_data_conditions_replacement),
             (measured_external_ownership_original, measured_external_ownership_replacement),
             (nref_personal_legal_basis_original, nref_personal_legal_basis_replacement),
@@ -1088,7 +1227,15 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
                 computer_readable_standardized_list_replacement,
             ),
             (ref_data_used_identification_original, ref_data_used_identification_replacement),
+            (
+                ref_data_used_identification_markdown_original,
+                ref_data_used_identification_markdown_replacement,
+            ),
             (nref_data_used_identification_original, nref_data_used_identification_replacement),
+            (
+                nref_data_used_identification_markdown_original,
+                nref_data_used_identification_markdown_replacement,
+            ),
             (
                 nref_data_used_identification_rnef_link_original,
                 nref_data_used_identification_rnef_link_replacement,

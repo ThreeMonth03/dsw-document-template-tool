@@ -877,6 +877,132 @@ def test_export_translation_tree_keeps_nested_restriction_with_label(
     ]
 
 
+def test_export_translation_tree_keeps_science_europe_markdown_variants_complete(
+    tmp_path: Path,
+) -> None:
+    """Science Europe v1.30.1 markdown variants should not fragment labels."""
+
+    compact_dir = _write_compact_template_raw(
+        tmp_path,
+        (
+            """
+            <p>We will re-use this standard reference data
+            {%- if refDataWhere -%}
+              {{" "}}available via:{{" "}}
+              {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
+                <a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.
+              {%- else -%}
+                {{ refDataWhere }}
+             {%- endif -%}
+            {%- endif -%}
+"""
+            "    \n"
+            """            {# usage #}
+            {%- set refDataUsageQ = [ refDataUsedPrefix, uuids.refDataUsageQUuid]|reply_path -%}
+            {%- set refDataUsageReply = repliesMap[refDataUsageQ]|reply_str_value  -%}
+            {%- if refDataUsageReply -%}
+                {{+" "}}in order to {{ refDataUsageReply|markdown }}
+            {%- else -%}.
+            {%- endif -%}
+            </p>
+
+            {%- set refDataConditions = [refDataUsedPrefix, uuids.refDataConditionsQUuid]|reply_path -%}
+            {%- set refDataConditionsReply = repliesMap[refDataConditions]|reply_str_value -%}
+            {%- set refDataConditionsOther = [refDataConditions, uuids.refDataConditionsOtherAUuid, uuids.refDataConditionsOtherQUuid]|reply_path -%}
+            {%- set refDataConditionsOtherReply = repliesMap[refDataConditionsOther]|reply_str_value -%}
+            {%- if refDataConditionsReply %}
+             <p>This standard reference data are{{+" "}}
+              {%- if refDataConditionsReply == uuids.refDataConditionsCC0AUuid -%}
+                freely available for any use.
+              {%- elif refDataConditionsReply == uuids.refDataConditionsCCBYAUuid -%}
+                freely available with obligation to quote the source.
+              {%- elif refDataConditionsReply == uuids.refDataConditionsOtherAUuid -%}
+                available with {{" "}}
+                  {%- if refDataConditionsOtherReply -%}
+                    following restrictions: {{refDataConditionsOtherReply|markdown}}
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+              {%- endif -%}
+             </p>
+            {%- endif -%}
+
+          <p>We will re-use this non-referece data"""
+            " \n"
+            """          {%- if nrefDataWhere -%}
+         {{" "}} available via:{{" "}}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              <a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+"""
+            "    \n"
+            """          {# usage #}
+          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
+          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
+          {%- if nrefDataUsageReply -%}
+            {{+" "}}in order to {{ nrefDataUsageReply|markdown }}
+          {%- endif -%}
+          .</p>
+
+          {%- if nrefDataConditionsReply %}
+            <p>This data are{{+" "}}
+            {%- if nrefDataConditionsReply == uuids.nrefDataConditionsCC0AUuid -%}
+              freely available for any use.
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsCCBYAUuid -%}
+              freely available with obligation to quote the source.
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsOtherAUuid  -%}
+              {%- set nrefDataConditionsOther = [nrefDataConditions, uuids.nrefDataConditionsOtherAUuid, uuids.nrefDataConditionsOtherQUuid]|reply_path -%}
+              {%- set nrefDataConditionsOtherReply = repliesMap[nrefDataConditionsOther]|reply_str_value -%}
+              {%- if nrefDataConditionsOtherReply -%}
+                available with{{" "}}
+                  {%- if nrefDataConditionsOtherReply -%}
+                   following restrictions: {{nrefDataConditionsOtherReply|markdown}}
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+            </p>
+          {%- endif -%}
+"""
+        ),
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    sentences = _extract_sentence_list(_read_translation_docs(tree_dir))
+    assert "available via:" not in sentences
+    assert "We will re-use this standard reference data" not in sentences
+    assert "We will re-use this non-referece data" not in sentences
+    assert "This standard reference data are" not in sentences
+    assert "This data are" not in sentences
+    assert any(
+        sentence.startswith(
+            "We will re-use this standard reference data available via: {refDataWhere}"
+        )
+        and "in order to {refDataUsageReply}" in sentence
+        for sentence in sentences
+    )
+    assert any(
+        sentence.startswith("We will re-use this non-referece data available via: {nrefDataWhere}")
+        and "in order to {nrefDataUsageReply}" in sentence
+        for sentence in sentences
+    )
+    assert (
+        "This standard reference data are available with following restrictions: "
+        "{refDataConditionsOtherReply}"
+    ) in sentences
+    assert (
+        "This data are available with following restrictions: {nrefDataConditionsOtherReply}"
+    ) in sentences
+
+
 def test_audit_translation_tree_reports_unmerged_reason_prefix_fragments(
     tmp_path: Path,
 ) -> None:
