@@ -1,0 +1,109 @@
+"""Parser and renderer for translator-editable ``translation.md`` files."""
+
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+from .models import TranslationTreeError, TranslationUnit
+
+SOURCE_FENCE = "~~~jinja"
+TRANSLATION_DOC_NAME = "translation.md"
+TRANSLATION_SECTION_PATTERN = re.compile(
+    r"### Translation \((?P<target_lang>[^)]+)\)\n\n~~~jinja\n"
+    r"(?P<translation_text>.*?)\n~~~\n?\Z",
+    re.DOTALL,
+)
+SENTENCE_SECTION_PATTERN = re.compile(
+    r"### Sentence \((?P<source_lang>[^)]+)\)\n\n```text\n"
+    r"(?P<sentence_text>.*?)\n```",
+    re.DOTALL,
+)
+
+
+def render_translation_document(
+    *,
+    unit: TranslationUnit,
+    source_lang: str,
+    target_lang: str,
+    sentence_text: str,
+    translation_text: str,
+) -> str:
+    """Render one translator-facing Markdown document."""
+
+    return "\n".join(
+        [
+            "# Translation Unit",
+            "",
+            f"- Source File: `{unit.source_file}`",
+            f"- Wrapper Name: `{unit.wrapper_name}`",
+            f"- Wrapper Order: `{unit.wrapper_order}`",
+            f"- Wrapper Key: `{unit.wrapper_key}`",
+            f"- Unit Key: `{unit.unit_key}`",
+            f"- Source Hash: `{unit.unit_source_hash}`",
+            f"- Edit only the `Translation ({target_lang})` block below.",
+            "",
+            f"### Sentence ({source_lang})",
+            "",
+            "```text",
+            sentence_text,
+            "```",
+            "",
+            f"### Translation ({target_lang})",
+            "",
+            SOURCE_FENCE,
+            translation_text,
+            "~~~",
+            "",
+        ]
+    )
+
+
+def parse_translation_document(
+    *,
+    document_path: Path,
+    source_lang: str,
+    target_lang: str,
+) -> str:
+    """Read the translation block from one translator-facing Markdown file."""
+
+    markdown_text = document_path.read_text(encoding="utf-8")
+    sentence_match = SENTENCE_SECTION_PATTERN.search(markdown_text)
+    translation_match = TRANSLATION_SECTION_PATTERN.search(markdown_text)
+    if sentence_match is None or translation_match is None:
+        raise TranslationTreeError(f"Invalid translation document at {document_path}")
+    if (
+        sentence_match.group("source_lang") != source_lang
+        or translation_match.group("target_lang") != target_lang
+    ):
+        raise TranslationTreeError(
+            "Unexpected language headings in translation document at "
+            f"{document_path}: expected {source_lang}/{target_lang}"
+        )
+    return translation_match.group("translation_text")
+
+
+def render_tree_readme(*, source_lang: str, target_lang: str) -> str:
+    return "\n".join(
+        [
+            "# Translation Tree",
+            "",
+            "This folder is the translator-facing tree exported from the expanded",
+            "template workspace.",
+            "",
+            f"- Each translation unit has its own `{TRANSLATION_DOC_NAME}` file.",
+            f"- Each file starts with a plain `Sentence ({source_lang})` section for",
+            "  translator review.",
+            "- Wrapper-level blocks from the expanded workspace are split into smaller",
+            "  translator-facing units whenever the source structure allows it.",
+            f"- Edit only `Translation ({target_lang})` sections.",
+            "- Keep every `{placeholder}` shown in the sentence. You may reorder",
+            "  placeholders for grammar; sync converts them back to Jinja variables.",
+            "- Source hashes in the metadata are machine guards; do not edit them.",
+            "- If a translation file is deleted or its markdown block is broken, run",
+            "  `make export-translation-tree` to rebuild the file skeleton.",
+            "- Run `make sync-translation-tree` to apply translator edits back into a",
+            "  generated template copy.",
+            "",
+        ]
+    )
