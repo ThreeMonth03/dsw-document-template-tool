@@ -34,6 +34,41 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "make test-upstream-compat-tags" in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
     assert "make render-upstream-artifact-previews" in workflow_text
+    render_job = workflow["jobs"]["render-regression"]
+    matrix_include = render_job["strategy"]["matrix"]["include"]
+    assert matrix_include == [
+        {
+            "metamodel_key": "16",
+            "metamodel_version": "16",
+            "dsw_version": "4.13",
+            "upstream_template_artifact_refs": "v1.21.0 v1.22.0 v1.23.0 v1.24.0",
+            "run_preview_regression": "false",
+        },
+        {
+            "metamodel_key": "17-0",
+            "metamodel_version": "17.0",
+            "dsw_version": "4.22",
+            "upstream_template_artifact_refs": "v1.25.0 v1.26.0 v1.27.0 v1.28.0 v1.29.0",
+            "run_preview_regression": "false",
+        },
+        {
+            "metamodel_key": "17-1",
+            "metamodel_version": "17.1",
+            "dsw_version": "4.26",
+            "upstream_template_artifact_refs": "v1.29.1",
+            "run_preview_regression": "false",
+        },
+        {
+            "metamodel_key": "18-0",
+            "metamodel_version": "18.0",
+            "dsw_version": "4.30",
+            "upstream_template_artifact_refs": "v1.30.0+",
+            "run_preview_regression": "true",
+        },
+    ]
+    assert "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" in workflow_text
+    assert "regression-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
+    assert "clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
     assert "git diff --exit-code -- workspace/document-templates/expanded" not in workflow_text
     assert "git status --short -- workspace/document-templates/expanded" not in workflow_text
     assert "git diff --exit-code -- workspace/document-templates/translation" not in workflow_text

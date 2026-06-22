@@ -105,10 +105,36 @@ jobs:
     runs-on: ubuntu-latest
     needs: offline-checks
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - metamodel_key: "16"
+            metamodel_version: "16"
+            dsw_version: "4.13"
+            upstream_template_artifact_refs: "v1.21.0 v1.22.0 v1.23.0 v1.24.0"
+            run_preview_regression: "false"
+          - metamodel_key: "17-0"
+            metamodel_version: "17.0"
+            dsw_version: "4.22"
+            upstream_template_artifact_refs: "v1.25.0 v1.26.0 v1.27.0 v1.28.0 v1.29.0"
+            run_preview_regression: "false"
+          - metamodel_key: "17-1"
+            metamodel_version: "17.1"
+            dsw_version: "4.26"
+            upstream_template_artifact_refs: "v1.29.1"
+            run_preview_regression: "false"
+          - metamodel_key: "18-0"
+            metamodel_version: "18.0"
+            dsw_version: "4.30"
+            upstream_template_artifact_refs: "v1.30.0+"
+            run_preview_regression: "true"
     env:
       DSW_API_URL: http://localhost:3000/wizard-api
       DSW_EMAIL: albert.einstein@example.com
       DSW_PASSWORD: password
+      DSW_VERSION: ${{ matrix.dsw_version }}
+      UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: ${{ matrix.metamodel_version }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -125,12 +151,13 @@ jobs:
         run: |
           make build-upstream-artifacts \
             UPSTREAM_TEMPLATE_REPOSITORY="$UPSTREAM_TEMPLATE_REPOSITORY" \
-            UPSTREAM_TEMPLATE_ARTIFACT_REFS="$UPSTREAM_TEMPLATE_ARTIFACT_REFS"
+            UPSTREAM_TEMPLATE_ARTIFACT_REFS="${{ github.event.inputs.upstream_template_artifact_refs || matrix.upstream_template_artifact_refs }}"
 
       - name: Start local DSW stack
         run: make start-ci-dsw
 
       - name: Run preview regression
+        if: matrix.run_preview_regression == 'true'
         run: make render-regression-ci
 
       - name: Render clean upstream version previews
@@ -149,14 +176,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: regression-artifacts
+          name: regression-artifacts-metamodel-${{ matrix.metamodel_key }}
           path: outputs/
 
       - name: Upload clean upstream version artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: clean-upstream-version-artifacts
+          name: clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}
           path: |
             outputs/upstream-workspaces/
             outputs/document-templates/dsw-science-europe/**/scaffold/
