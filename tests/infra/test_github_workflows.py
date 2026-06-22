@@ -23,6 +23,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
 
     assert workflow["on"]["push"]["branches"] == ["**"]
     assert workflow["on"]["pull_request"]["branches"] == ["**"]
+    assert workflow["on"]["schedule"][0]["cron"] == "30 18 * * *"
     assert "make install-dev" in workflow_text
     assert "v1.30.0+" in workflow_text
     assert "v1.21.0+" in workflow_text
@@ -31,7 +32,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
         == "v1.21.0+"
     )
     assert "make test-upstream-tags" in workflow_text
-    assert "make test-upstream-compat-tags" in workflow_text
+    assert "make test-upstream-compat-tags" not in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
     assert "make render-upstream-artifact-previews" in workflow_text
     render_job = workflow["jobs"]["render-regression"]
@@ -88,8 +89,8 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "actions/upload-artifact@v4" in workflow_text
     assert workflow_text.count("include-hidden-files: true") == 2
     assert "active-fallback-document-template" not in workflow_text
-    assert "upstream-compat-smoke" in workflow["jobs"]
-    assert "Compatibility refs are advisory" in workflow_text
+    assert "upstream-compat-smoke" not in workflow["jobs"]
+    assert "Compatibility refs are advisory" not in workflow_text
     assert "clean-upstream-version-artifacts" in workflow_text
     assert "outputs/upstream-workspaces/" in workflow_text
     assert "outputs/document-templates/dsw-science-europe/**/scaffold/" in workflow_text

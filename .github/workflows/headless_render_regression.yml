@@ -5,6 +5,9 @@ on:
     branches: ["**"]
   pull_request:
     branches: ["**"]
+  schedule:
+    # 02:30 Asia/Taipei every day, before downstream translation sync.
+    - cron: "30 18 * * *"
   workflow_dispatch:
     inputs:
       upstream_template_test_refs:
@@ -15,16 +18,11 @@ on:
         description: "Space-separated released upstream refs to package as clean scaffold artifacts."
         required: false
         default: "v1.21.0+"
-      upstream_template_compat_refs:
-        description: "Space-separated older upstream refs for non-blocking compatibility smoke tests."
-        required: false
-        default: "v1.21.0+"
 
 env:
   UPSTREAM_TEMPLATE_REPOSITORY: ds-wizard/science-europe-template
   UPSTREAM_TEMPLATE_TEST_REFS: ${{ github.event.inputs.upstream_template_test_refs || 'latest main v1.30.0+' }}
   UPSTREAM_TEMPLATE_ARTIFACT_REFS: ${{ github.event.inputs.upstream_template_artifact_refs || 'v1.21.0+' }}
-  UPSTREAM_TEMPLATE_COMPAT_REFS: ${{ github.event.inputs.upstream_template_compat_refs || 'v1.21.0+' }}
 
 jobs:
   offline-checks:
@@ -55,51 +53,6 @@ jobs:
 
       - name: Run tests
         run: make test
-
-  upstream-compat-smoke:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: make install-dev
-
-      - name: Non-blocking smoke-test older upstream refs
-        run: |
-          set +e
-          make test-upstream-compat-tags \
-            UPSTREAM_TEMPLATE_REPOSITORY="$UPSTREAM_TEMPLATE_REPOSITORY" \
-            UPSTREAM_TEMPLATE_COMPAT_REFS="$UPSTREAM_TEMPLATE_COMPAT_REFS"
-          status=$?
-          set -e
-
-          if [ "$status" -ne 0 ]; then
-            echo "::warning title=Older upstream compatibility smoke failed::Compatibility refs are advisory and do not block supported-version CI."
-            {
-              echo "## Older upstream compatibility smoke"
-              echo
-              echo "Compatibility refs are advisory and do not represent translated support."
-              echo
-              echo "- Refs: \`$UPSTREAM_TEMPLATE_COMPAT_REFS\`"
-              echo "- Status: failed with exit code \`$status\`"
-            } >> "$GITHUB_STEP_SUMMARY"
-          else
-            {
-              echo "## Older upstream compatibility smoke"
-              echo
-              echo "- Refs: \`$UPSTREAM_TEMPLATE_COMPAT_REFS\`"
-              echo "- Status: passed"
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-          exit 0
 
   render-regression:
     runs-on: ubuntu-latest
