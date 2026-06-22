@@ -26,6 +26,10 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "make install-dev" in workflow_text
     assert "v1.30.0+" in workflow_text
     assert "v1.21.0+" in workflow_text
+    assert (
+        workflow["on"]["workflow_dispatch"]["inputs"]["upstream_template_artifact_refs"]["default"]
+        == "v1.21.0+"
+    )
     assert "make test-upstream-tags" in workflow_text
     assert "make test-upstream-compat-tags" in workflow_text
     assert "make build-upstream-artifacts" in workflow_text

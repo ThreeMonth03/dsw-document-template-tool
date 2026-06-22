@@ -14,7 +14,7 @@ on:
       upstream_template_artifact_refs:
         description: "Space-separated released upstream refs to package as clean scaffold artifacts."
         required: false
-        default: "v1.30.0+"
+        default: "v1.21.0+"
       upstream_template_compat_refs:
         description: "Space-separated older upstream refs for non-blocking compatibility smoke tests."
         required: false
@@ -23,7 +23,7 @@ on:
 env:
   UPSTREAM_TEMPLATE_REPOSITORY: ds-wizard/science-europe-template
   UPSTREAM_TEMPLATE_TEST_REFS: ${{ github.event.inputs.upstream_template_test_refs || 'latest main v1.30.0+' }}
-  UPSTREAM_TEMPLATE_ARTIFACT_REFS: ${{ github.event.inputs.upstream_template_artifact_refs || 'v1.30.0+' }}
+  UPSTREAM_TEMPLATE_ARTIFACT_REFS: ${{ github.event.inputs.upstream_template_artifact_refs || 'v1.21.0+' }}
   UPSTREAM_TEMPLATE_COMPAT_REFS: ${{ github.event.inputs.upstream_template_compat_refs || 'v1.21.0+' }}
 
 jobs:
