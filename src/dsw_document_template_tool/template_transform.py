@@ -23,6 +23,7 @@ from ._template_transform.localization import (
 from ._template_transform.localization import (
     revert_post_expand_patches as _revert_post_expand_patches,
 )
+from ._template_transform.models import TemplateTransformError
 from ._template_transform.scanner import (
     ANNOTATABLE_HTML_TAGS,
     HTML_TAG_PATTERN,
@@ -43,6 +44,21 @@ from ._template_transform.scanner import (
 from ._template_transform.science_europe import (
     _rewrite_known_science_europe_fragments,
     _rewrite_known_science_europe_source_fragments,
+)
+from ._template_transform.workspace import (
+    UPSTREAM_README_NAME,
+)
+from ._template_transform.workspace import (
+    reset_dir as _reset_dir,
+)
+from ._template_transform.workspace import (
+    rewrite_workspace_readme as _rewrite_workspace_readme,
+)
+from ._template_transform.workspace import (
+    snapshot_tree as snapshot_tree,
+)
+from ._template_transform.workspace import (
+    validate_template_dir as _validate_template_dir,
 )
 
 GENERATED_BLOCK_PATTERN = re.compile(
@@ -75,7 +91,6 @@ APPEND_SENTENCE_REWRITE_PATTERN = re.compile(
 )
 MANIFEST_PATH = Path(".transform") / "manifest.json"
 MANIFEST_VERSION = 2
-UPSTREAM_README_NAME = "UPSTREAM-README.md"
 GENERATED_BLOCK_PREFIX = "__tr_block_"
 
 
@@ -97,10 +112,6 @@ class BranchRewriteGroup:
     end: int
     end_text: str
     branches: tuple[BranchRewriteBranch, ...]
-
-
-class TemplateTransformError(RuntimeError):
-    """Raised when a template cannot be expanded or compacted safely."""
 
 
 def expand_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
@@ -202,18 +213,6 @@ def compact_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
         patch_state=payload.get("post_expand_patch_state"),
     )
     return output_dir
-
-
-def snapshot_tree(root_dir: Path) -> dict[str, bytes]:
-    """Return one deterministic file snapshot for content comparisons."""
-
-    snapshot: dict[str, bytes] = {}
-    for path in sorted(root_dir.rglob("*")):
-        if not path.is_file():
-            continue
-        relative_path = path.relative_to(root_dir).as_posix()
-        snapshot[relative_path] = path.read_bytes()
-    return snapshot
 
 
 def _expand_template_text(*, source_text: str) -> str:
@@ -1333,47 +1332,3 @@ def _is_translatable_jinja_literal(value: str) -> bool:
     if re.search(r"%[A-Za-z]", stripped):
         return False
     return re.search(r"[A-Za-z]", stripped) is not None
-
-
-def _rewrite_workspace_readme(*, source_dir: Path, output_dir: Path) -> None:
-    source_readme = source_dir / "README.md"
-    output_readme = output_dir / "README.md"
-    upstream_readme = output_dir / UPSTREAM_README_NAME
-    if source_readme.is_file():
-        upstream_readme.write_text(source_readme.read_text(encoding="utf-8"), encoding="utf-8")
-
-    output_readme.write_text(
-        "\n".join(
-            [
-                "# Translation Workspace",
-                "",
-                "This folder is the sentence-preserving workspace generated from the",
-                "compact DSW template.",
-                "",
-                "- Edit `src/**/*.j2` in place.",
-                "- Generated `__tr_block_####` comment markers keep whole headings,",
-                "  paragraphs, and list items together so later string extraction can work",
-                "  on complete units without changing Jinja scope.",
-                "- The older `src/_segments/...` split-file layout is obsolete and should not",
-                "  exist in this workspace anymore.",
-                "- Run `make compact-template` to rebuild a DSW-uploadable template.",
-                "- Do not edit `.transform/manifest.json` manually.",
-                "",
-                f"The original upstream README is preserved in `{UPSTREAM_README_NAME}`.",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-
-def _reset_dir(path: Path) -> None:
-    if path.exists():
-        shutil.rmtree(path)
-    path.mkdir(parents=True, exist_ok=True)
-
-
-def _validate_template_dir(source_dir: Path) -> None:
-    template_json = source_dir / "template.json"
-    if not template_json.is_file():
-        raise TemplateTransformError(f"Missing template.json in {source_dir}")
