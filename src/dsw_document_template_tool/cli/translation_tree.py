@@ -104,6 +104,14 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default="zh_Hant",
         help="Target language code used by translation documents.",
     )
+    merge_parser.add_argument(
+        "--allow-sentence-matches",
+        action="store_true",
+        help=(
+            "Also migrate unique visible sentence matches. Disabled by default because "
+            "same text does not prove the same Jinja/HTML structure."
+        ),
+    )
     return parser
 
 
@@ -150,6 +158,7 @@ def main() -> None:
             output_dir=args.output,
             source_lang=args.source_lang,
             target_lang=args.target_lang,
+            allow_sentence_matches=args.allow_sentence_matches,
         )
         print(
             "SUCCESS: Merged translation tree "

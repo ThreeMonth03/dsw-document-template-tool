@@ -229,6 +229,126 @@ def test_merge_translation_tree_reuses_unique_source_hash_matches(tmp_path: Path
     ).read_text(encoding="utf-8")
 
 
+def test_merge_translation_tree_does_not_reuse_sentence_matches_by_default(
+    tmp_path: Path,
+) -> None:
+    """Same visible sentence text is not enough proof for automatic migration."""
+
+    old_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "old-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello <strong>team</strong>.</p>\n",
+    )
+    new_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "new-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello team.</p>\n",
+    )
+    old_expanded_dir = tmp_path / "old-expanded"
+    new_expanded_dir = tmp_path / "new-expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=old_compact_dir, output_dir=old_expanded_dir)
+    expand_template_dir(source_dir=new_compact_dir, output_dir=new_expanded_dir)
+    export_translation_tree(source_dir=old_expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=new_expanded_dir, output_dir=new_tree_dir)
+
+    _write_translation_block(_find_translation_doc(old_tree_dir, "Hello team."), "哈囉團隊。")
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.migrated_units == 0
+    assert report.sentence_matches == 0
+    assert "哈囉團隊。" not in _find_translation_doc(
+        output_tree_dir,
+        "Hello team.",
+    ).read_text(encoding="utf-8")
+
+
+def test_merge_translation_tree_can_opt_into_sentence_matches(tmp_path: Path) -> None:
+    """Riskier visible-sentence matches must be explicitly enabled."""
+
+    old_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "old-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello <strong>team</strong>.</p>\n",
+    )
+    new_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "new-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello team.</p>\n",
+    )
+    old_expanded_dir = tmp_path / "old-expanded"
+    new_expanded_dir = tmp_path / "new-expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=old_compact_dir, output_dir=old_expanded_dir)
+    expand_template_dir(source_dir=new_compact_dir, output_dir=new_expanded_dir)
+    export_translation_tree(source_dir=old_expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=new_expanded_dir, output_dir=new_tree_dir)
+
+    _write_translation_block(_find_translation_doc(old_tree_dir, "Hello team."), "哈囉團隊。")
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+        allow_sentence_matches=True,
+    )
+
+    assert report.migrated_units == 1
+    assert report.sentence_matches == 1
+    assert "哈囉團隊。" in _find_translation_doc(
+        output_tree_dir,
+        "Hello team.",
+    ).read_text(encoding="utf-8")
+
+
+def test_merge_translation_tree_skips_unsafe_old_placeholder_edits(
+    tmp_path: Path,
+) -> None:
+    """Broken old translations should be repaired as blank units, not migrated."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Hello {{ name }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=new_tree_dir)
+
+    _write_translation_block(_find_translation_doc(old_tree_dir, "Hello {name}."), "你好。")
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    output_doc = _find_translation_doc(output_tree_dir, "Hello {name}.").read_text(encoding="utf-8")
+    assert report.migrated_units == 0
+    assert report.skipped_unsafe_old_units == 1
+    assert "你好。" not in output_doc
+
+
 def test_merge_translation_tree_skips_ambiguous_fuzzy_matches(tmp_path: Path) -> None:
     """Ambiguous old candidates should stay untranslated rather than guessed."""
 

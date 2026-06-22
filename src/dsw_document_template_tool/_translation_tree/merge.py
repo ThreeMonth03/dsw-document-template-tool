@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import shutil
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -16,6 +16,11 @@ from .document import (
 from .filesystem import reset_dir
 from .manifest import TREE_MANIFEST_PATH, load_tree_manifest
 from .models import TranslationTreeError
+from .placeholders import (
+    contains_raw_jinja_in_translation,
+    extract_translator_placeholder_names,
+    translation_placeholder_counts,
+)
 
 MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
 
@@ -40,6 +45,7 @@ class TranslationMergeReport:
     preserved_units: int
     migrated_units: int
     untranslated_units: int
+    skipped_unsafe_old_units: int
     exact_key_matches: int
     source_hash_matches: int
     sentence_matches: int
@@ -52,12 +58,14 @@ def merge_translation_tree(
     output_dir: Path,
     source_lang: str,
     target_lang: str,
+    allow_sentence_matches: bool = False,
 ) -> TranslationMergeReport:
     """Copy a regenerated tree and fill blank translations from an older tree.
 
     Matching is intentionally conservative. Exact `(source_file, unit_key)` wins,
-    then unique source hash, then unique visible source sentence. Ambiguous
-    hash/sentence matches are ignored rather than guessed.
+    then unique source hash. Visible sentence matches are intentionally disabled
+    by default because they cannot prove that the underlying Jinja/HTML structure
+    is still equivalent.
     """
 
     old_tree_dir = Path(old_tree_dir).resolve()
@@ -83,19 +91,28 @@ def merge_translation_tree(
         forgiving=False,
     )
 
+    reusable_old_candidates = [
+        candidate for candidate in old_candidates if _is_reusable_translation(candidate)
+    ]
+    translated_old_units = [
+        candidate for candidate in old_candidates if candidate.translation_text.strip()
+    ]
+    skipped_unsafe_old_units = len(translated_old_units) - len(reusable_old_candidates)
+
     by_key = {
         (candidate.source_file, candidate.unit_key): candidate
-        for candidate in old_candidates
-        if candidate.translation_text.strip()
+        for candidate in reusable_old_candidates
     }
     by_hash = _unique_index(
-        old_candidates,
+        reusable_old_candidates,
         key=lambda candidate: candidate.unit_source_hash,
     )
-    by_sentence = _unique_index(
-        old_candidates,
-        key=lambda candidate: _normalize_sentence(candidate.sentence_text),
-    )
+    by_sentence: dict[str, TranslationCandidate] = {}
+    if allow_sentence_matches:
+        by_sentence = _unique_index(
+            reusable_old_candidates,
+            key=lambda candidate: _normalize_sentence(candidate.sentence_text),
+        )
 
     preserved = 0
     migrated = 0
@@ -113,7 +130,7 @@ def merge_translation_tree(
         if match is None:
             match = by_hash.get(candidate.unit_source_hash)
             match_kind = "source-hash" if match is not None else ""
-        if match is None:
+        if match is None and allow_sentence_matches:
             match = by_sentence.get(_normalize_sentence(candidate.sentence_text))
             match_kind = "sentence" if match is not None else ""
         if match is None or not match.translation_text.strip():
@@ -137,6 +154,7 @@ def merge_translation_tree(
         preserved_units=preserved,
         migrated_units=migrated,
         untranslated_units=len(new_candidates) - preserved - migrated,
+        skipped_unsafe_old_units=skipped_unsafe_old_units,
         exact_key_matches=exact_key_matches,
         source_hash_matches=source_hash_matches,
         sentence_matches=sentence_matches,
@@ -245,6 +263,22 @@ def _unique_index(
         for index_key, grouped_candidates in grouped.items()
         if index_key and len(grouped_candidates) == 1
     }
+
+
+def _is_reusable_translation(candidate: TranslationCandidate) -> bool:
+    """Return whether an old translation can be migrated without repair."""
+
+    translation_text = candidate.translation_text
+    if not translation_text.strip():
+        return False
+    if contains_raw_jinja_in_translation(translation_text):
+        return False
+
+    required_placeholders = Counter(extract_translator_placeholder_names(candidate.sentence_text))
+    if required_placeholders != translation_placeholder_counts(translation_text):
+        return False
+
+    return True
 
 
 def _normalize_sentence(sentence_text: str) -> str:
