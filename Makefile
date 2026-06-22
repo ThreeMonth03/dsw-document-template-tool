@@ -53,6 +53,7 @@ UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
 UPSTREAM_TEMPLATE_ARTIFACT_REFS ?= $(UPSTREAM_TEMPLATE_MIN_COMPAT_REF)+
 UPSTREAM_TEMPLATE_ARTIFACT_CACHE_ROOT ?= .cache/upstream-artifacts
 UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT ?= outputs/upstream-workspaces/$(SOURCE_TEMPLATE_ID)
+UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION ?= 18.0
 
 .PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags test-upstream-compat-tags build-upstream-artifacts render-upstream-artifact-previews start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
@@ -335,8 +336,19 @@ render-upstream-artifact-previews: venv
 			continue; \
 		fi; \
 		version="$$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["version"])' "$$template_dir/template.json")"; \
+		metamodel_version="$$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("metamodelVersion", ""))' "$$template_dir/template.json")"; \
 		version_tag="v$$version"; \
 		output_path="outputs/project-render/$(SOURCE_TEMPLATE_ID)/$$version_tag/$(TRANSLATION_LOCALE)/scaffold/test-project.pdf"; \
+		if [ "$$metamodel_version" != "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" ]; then \
+			skip_path="$$(dirname "$$output_path")/skipped.json"; \
+			mkdir -p "$$(dirname "$$skip_path")"; \
+			python3 -c 'import json, sys; from pathlib import Path; Path(sys.argv[1]).write_text(json.dumps({"status": "skipped", "reason": "unsupported_metamodel_version", "template_metamodel_version": sys.argv[2], "preview_metamodel_version": sys.argv[3]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")' \
+				"$$skip_path" \
+				"$$metamodel_version" \
+				"$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)"; \
+			echo "INFO: Skipping scaffold demo for $$version_tag: metamodel $$metamodel_version is not supported by preview DSW metamodel $(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)"; \
+			continue; \
+		fi; \
 		echo "INFO: Rendering scaffold demo for $$version_tag to $$output_path"; \
 		$(PYTHON) src/render_project.py \
 			--project-ref "$(PROJECT_REF)" \
