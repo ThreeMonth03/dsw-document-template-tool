@@ -19,6 +19,7 @@ class TemplateConfig:
     organization_id: str
     template_id: str
     upstream_repository: str
+    supported_ref_spec: str
     supported_versions: tuple[str, ...]
 
 
@@ -119,6 +120,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         organization_id=_required_str(template_payload, "organization_id"),
         template_id=_required_str(template_payload, "template_id"),
         upstream_repository=_required_str(template_payload, "upstream_repository"),
+        supported_ref_spec=str(template_payload.get("supported_ref_spec", "")),
         supported_versions=tuple(_required_str_list(template_payload, "supported_versions")),
     )
     translation = TranslationConfig(
@@ -261,6 +263,41 @@ def clean_artifact_version_paths(
         expanded_template_dir=workspace_root / "expanded" / paths.workspace_template_name,
         translation_tree_dir=workspace_root / "translation" / paths.workspace_template_name,
     )
+
+
+def clean_artifact_versions(
+    *,
+    config: TranslationRepositoryConfig,
+    artifact_root: Path,
+) -> list[str]:
+    """Return template versions available in a downloaded clean scaffold artifact."""
+
+    source_template_id = f"{config.template.organization_id}-{config.template.template_id}"
+    workspace_root = Path(artifact_root) / "upstream-workspaces" / source_template_id
+    if not workspace_root.is_dir():
+        return []
+    versions = [
+        path.name
+        for path in workspace_root.iterdir()
+        if path.is_dir() and path.name.startswith("v")
+    ]
+    return sorted_versions(versions)
+
+
+def sorted_versions(versions: list[str] | tuple[str, ...]) -> list[str]:
+    """Sort version tags using numeric semantic version ordering."""
+
+    return sorted(versions, key=version_sort_key)
+
+
+def version_sort_key(version: str) -> tuple[int, ...]:
+    """Return a sortable key for version tags such as ``v1.30.1``."""
+
+    version_number = version_to_number(version)
+    parts = version_number.split(".")
+    if not parts or not all(part.isdigit() for part in parts):
+        raise TranslationMigrationError(f"Expected numeric version tag, got {version!r}")
+    return tuple(int(part) for part in parts)
 
 
 def version_to_number(version: str) -> str:

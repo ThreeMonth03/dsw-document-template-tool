@@ -9,8 +9,10 @@ import pytest
 from dsw_document_template_tool.translation_migration import (
     TranslationMigrationError,
     clean_artifact_version_paths,
+    clean_artifact_versions,
     load_translation_repository_config,
     migration_branch,
+    sorted_versions,
     target_versions,
     version_branch,
     version_paths,
@@ -28,6 +30,7 @@ template:
   organization_id: dsw
   template_id: science-europe
   upstream_repository: https://github.com/ds-wizard/science-europe-template.git
+  supported_ref_spec: v1.21.0+
   supported_versions:
     - v1.30.0
     - v1.30.1
@@ -65,6 +68,7 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     config = load_translation_repository_config(_write_config(tmp_path))
     paths = version_paths(config, "v1.30.1")
 
+    assert config.template.supported_ref_spec == "v1.21.0+"
     assert config.template.supported_versions == ("v1.30.0", "v1.30.1")
     assert version_branch(config, "v1.30.1") == "translation/v1.30.1"
     assert migration_branch(config, "v1.30.0", "v1.30.1") == (
@@ -102,6 +106,21 @@ def test_clean_artifact_version_paths_follow_ci_artifact_layout(tmp_path: Path) 
     )
 
 
+def test_clean_artifact_versions_are_semver_sorted(tmp_path: Path) -> None:
+    """Clean artifact discovery should not use lexicographic version ordering."""
+
+    config = load_translation_repository_config(_write_config(tmp_path))
+    workspace_root = tmp_path / "artifact" / "upstream-workspaces" / "dsw-science-europe"
+    for version in ("v1.30.10", "v1.30.2", "v1.30.1", "not-a-version"):
+        (workspace_root / version).mkdir(parents=True)
+
+    assert clean_artifact_versions(config=config, artifact_root=tmp_path / "artifact") == [
+        "v1.30.1",
+        "v1.30.2",
+        "v1.30.10",
+    ]
+
+
 def test_target_versions_excludes_source_and_validates_targets(tmp_path: Path) -> None:
     """Migration targets should be explicit supported versions, excluding the source."""
 
@@ -117,5 +136,10 @@ def test_version_to_number_requires_v_prefix() -> None:
     """Version branch tags should stay unambiguous."""
 
     assert version_to_number("v1.30.1") == "1.30.1"
+    assert sorted_versions(["v1.30.10", "v1.30.2", "v1.30.1"]) == [
+        "v1.30.1",
+        "v1.30.2",
+        "v1.30.10",
+    ]
     with pytest.raises(TranslationMigrationError):
         version_to_number("1.30.1")

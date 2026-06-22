@@ -171,6 +171,26 @@ def test_create_translation_migration_prs_help(repo_root: Path) -> None:
     assert "--clean-artifact-root" in result.stdout
 
 
+def test_sync_translation_version_branches_help(repo_root: Path) -> None:
+    """The version-branch sync helper should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "sync_translation_version_branches.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "translation version branches" in result.stdout
+    assert "--clean-artifact-root" in result.stdout
+    assert "--github-output" in result.stdout
+
+
 def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Path) -> None:
     """The scaffold-preview status helper should create machine-readable artifacts."""
 
