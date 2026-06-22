@@ -455,6 +455,85 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             </p>
 """
 
+    ref_data_not_used_identification_markdown_original = """
+            <p> We considered reusing this standard reference data
+            {%- if refDataWhere -%}
+            {{" "}}available via:{{" "}}
+              {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
+                <a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.
+              {%- else -%}
+                {{ refDataWhere}}
+              {%- endif -%}
+            {%- endif -%}
+
+            {# no usage reason #}
+            {%- if refDataUseNoReply -%}
+              , but decided not to re-use it
+              {%- if refDataUseNoReply == uuids.refDataUseNoDataAUuid -%}
+                {{" "}}because it misses data we need.
+              {%- elif refDataUseNoReply == uuids.refDataUseNoAspectAUuid -%}
+                {{" "}}because it misses required aspects.
+              {%- elif refDataUseNoReply == uuids.refDataUseNoQualityAUuid -%}
+                {{" "}}because it is not sufficient quality.
+              {%- elif refDataUseNoReply == uuids.refDataUseNoCondAUuid -%}
+                {{" "}}because its conditions of use do not allow us to use it.
+              {%- elif refDataUseNoReply == uuids.refDataUseNoReasonAUuid and refDataUseNoOtherReasonReply -%}
+                {{" "}}because: {{refDataUseNoOtherReasonReply|markdown}}
+              {%- else -%}.
+              {%- endif -%}
+            {%- else -%}
+            . </p>
+            {%- endif -%}
+"""
+    ref_data_not_used_identification_markdown_replacement = """
+            <p>
+            {# no usage reason #}
+            {%- if refDataWhere and (refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://")) and refDataUseNoReply == uuids.refDataUseNoDataAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>, but decided not to re-use it because it misses data we need.
+            {%- elif refDataWhere and (refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://")) and refDataUseNoReply == uuids.refDataUseNoAspectAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>, but decided not to re-use it because it misses required aspects.
+            {%- elif refDataWhere and (refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://")) and refDataUseNoReply == uuids.refDataUseNoQualityAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>, but decided not to re-use it because it is not sufficient quality.
+            {%- elif refDataWhere and (refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://")) and refDataUseNoReply == uuids.refDataUseNoCondAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>, but decided not to re-use it because its conditions of use do not allow us to use it.
+            {%- elif refDataWhere and (refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://")) and refDataUseNoReply == uuids.refDataUseNoReasonAUuid and refDataUseNoOtherReasonReply -%}
+              We considered reusing this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>, but decided not to re-use it because: {{refDataUseNoOtherReasonReply|markdown}}
+            {%- elif refDataWhere and (refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://")) and refDataUseNoReply -%}
+              We considered reusing this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>, but decided not to re-use it.
+            {%- elif refDataWhere and (refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://")) -%}
+              We considered reusing this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.
+            {%- elif refDataWhere and refDataUseNoReply == uuids.refDataUseNoDataAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}{{ refDataWhere}}, but decided not to re-use it because it misses data we need.
+            {%- elif refDataWhere and refDataUseNoReply == uuids.refDataUseNoAspectAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}{{ refDataWhere}}, but decided not to re-use it because it misses required aspects.
+            {%- elif refDataWhere and refDataUseNoReply == uuids.refDataUseNoQualityAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}{{ refDataWhere}}, but decided not to re-use it because it is not sufficient quality.
+            {%- elif refDataWhere and refDataUseNoReply == uuids.refDataUseNoCondAUuid -%}
+              We considered reusing this standard reference data available via:{{" "}}{{ refDataWhere}}, but decided not to re-use it because its conditions of use do not allow us to use it.
+            {%- elif refDataWhere and refDataUseNoReply == uuids.refDataUseNoReasonAUuid and refDataUseNoOtherReasonReply -%}
+              We considered reusing this standard reference data available via:{{" "}}{{ refDataWhere}}, but decided not to re-use it because: {{refDataUseNoOtherReasonReply|markdown}}
+            {%- elif refDataWhere and refDataUseNoReply -%}
+              We considered reusing this standard reference data available via:{{" "}}{{ refDataWhere}}, but decided not to re-use it.
+            {%- elif refDataWhere -%}
+              We considered reusing this standard reference data available via:{{" "}}{{ refDataWhere}}.
+            {%- elif refDataUseNoReply == uuids.refDataUseNoDataAUuid -%}
+              We considered reusing this standard reference data, but decided not to re-use it because it misses data we need.
+            {%- elif refDataUseNoReply == uuids.refDataUseNoAspectAUuid -%}
+              We considered reusing this standard reference data, but decided not to re-use it because it misses required aspects.
+            {%- elif refDataUseNoReply == uuids.refDataUseNoQualityAUuid -%}
+              We considered reusing this standard reference data, but decided not to re-use it because it is not sufficient quality.
+            {%- elif refDataUseNoReply == uuids.refDataUseNoCondAUuid -%}
+              We considered reusing this standard reference data, but decided not to re-use it because its conditions of use do not allow us to use it.
+            {%- elif refDataUseNoReply == uuids.refDataUseNoReasonAUuid and refDataUseNoOtherReasonReply -%}
+              We considered reusing this standard reference data, but decided not to re-use it because: {{refDataUseNoOtherReasonReply|markdown}}
+            {%- elif refDataUseNoReply -%}
+              We considered reusing this standard reference data, but decided not to re-use it.
+            {%- else -%}
+              We considered reusing this standard reference data.
+            {%- endif -%}
+            </p>
+"""
+
     nref_data_not_used_identification_original = """
           <p>We considered reusing this non-reference data 
           {%- if nrefDataWhere -%}
@@ -526,6 +605,127 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             We considered reusing this non-reference data, but decided not to reuse it{{" "}}because its conditions of use do not allow us to use it.
           {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid and nrefDataUseNoOtherReasonReply -%}
             We considered reusing this non-reference data, but decided not to reuse it{{" "}}because: "{{nrefDataUseNoOtherReasonReply}}".
+          {%- elif nrefDataUseNoReply -%}
+            We considered reusing this non-reference data, but decided not to reuse it.
+          {%- else -%}
+            We considered reusing this non-reference data.
+          {%- endif -%}
+          </p>
+"""
+
+    nref_data_conditions_markdown_original = """
+          {%- if nrefDataConditionsReply %}
+            <p>This data are{{+" "}}
+            {%- if nrefDataConditionsReply == uuids.nrefDataConditionsCC0AUuid -%}
+              freely available for any use.
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsCCBYAUuid -%}
+              freely available with obligation to quote the source.
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsOtherAUuid  -%}
+              {%- set nrefDataConditionsOther = [nrefDataConditions, uuids.nrefDataConditionsOtherAUuid, uuids.nrefDataConditionsOtherQUuid]|reply_path -%}
+              {%- set nrefDataConditionsOtherReply = repliesMap[nrefDataConditionsOther]|reply_str_value -%}
+              {%- if nrefDataConditionsOtherReply -%}
+                available with{{" "}}
+                  {%- if nrefDataConditionsOtherReply -%}
+                   following restrictions: {{nrefDataConditionsOtherReply|markdown}}
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+            </p>
+          {%- endif -%}
+"""
+    nref_data_conditions_markdown_replacement = """
+          {%- if nrefDataConditionsReply %}
+            {%- if nrefDataConditionsReply == uuids.nrefDataConditionsCC0AUuid -%}
+              <p>This data are{{+" "}}freely available for any use.</p>
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsCCBYAUuid -%}
+              <p>This data are{{+" "}}freely available with obligation to quote the source.</p>
+            {%- elif nrefDataConditionsReply == uuids.nrefDataConditionsOtherAUuid  -%}
+              {%- set nrefDataConditionsOther = [nrefDataConditions, uuids.nrefDataConditionsOtherAUuid, uuids.nrefDataConditionsOtherQUuid]|reply_path -%}
+              {%- set nrefDataConditionsOtherReply = repliesMap[nrefDataConditionsOther]|reply_str_value -%}
+              {%- if nrefDataConditionsOtherReply -%}
+                <p>This data are{{+" "}}available with following restrictions: {{nrefDataConditionsOtherReply|markdown}}</p>
+              {%- else -%}
+                <p>This data are{{+" "}}available with restrictions, that will be specified.</p>
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+"""
+
+    nref_data_not_used_identification_markdown_original = """
+          <p>We considered reusing this non-reference data 
+          {%- if nrefDataWhere -%}
+          {{+" "}}available via:{{" "}}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              <a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+
+          {# no usage reason #}
+          {%- if nrefDataUseNoReply -%}
+            , but decided not to reuse it
+            {%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}
+              {{" "}}because it misses data we need
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}
+              {{" "}}becauseit misses required aspects
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}
+              {{" "}}becauseit is not sufficient quality
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}
+              {{" "}}because its conditions of use do not allow us to use it
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid and nrefDataUseNoOtherReasonReply -%}
+              {{" "}}because: {{nrefDataUseNoOtherReasonReply|markdown}}
+            {%- else -%}
+             .
+            {%- endif -%}
+
+          {%- else -%}
+          .</p>
+          {%- endif -%}
+"""
+    nref_data_not_used_identification_markdown_replacement = """
+          <p>
+          {# no usage reason #}
+          {%- if nrefDataWhere and (nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://")) and nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>, but decided not to reuse it because it misses data we need.
+          {%- elif nrefDataWhere and (nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://")) and nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>, but decided not to reuse it becauseit misses required aspects.
+          {%- elif nrefDataWhere and (nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://")) and nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>, but decided not to reuse it becauseit is not sufficient quality.
+          {%- elif nrefDataWhere and (nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://")) and nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>, but decided not to reuse it because its conditions of use do not allow us to use it.
+          {%- elif nrefDataWhere and (nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://")) and nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid and nrefDataUseNoOtherReasonReply -%}
+            We considered reusing this non-reference data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>, but decided not to reuse it because: {{nrefDataUseNoOtherReasonReply|markdown}}
+          {%- elif nrefDataWhere and (nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://")) and nrefDataUseNoReply -%}
+            We considered reusing this non-reference data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>, but decided not to reuse it.
+          {%- elif nrefDataWhere and (nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://")) -%}
+            We considered reusing this non-reference data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+          {%- elif nrefDataWhere and nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}{{ nrefDataWhere }}, but decided not to reuse it because it misses data we need.
+          {%- elif nrefDataWhere and nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}{{ nrefDataWhere }}, but decided not to reuse it becauseit misses required aspects.
+          {%- elif nrefDataWhere and nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}{{ nrefDataWhere }}, but decided not to reuse it becauseit is not sufficient quality.
+          {%- elif nrefDataWhere and nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}
+            We considered reusing this non-reference data available via:{{" "}}{{ nrefDataWhere }}, but decided not to reuse it because its conditions of use do not allow us to use it.
+          {%- elif nrefDataWhere and nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid and nrefDataUseNoOtherReasonReply -%}
+            We considered reusing this non-reference data available via:{{" "}}{{ nrefDataWhere }}, but decided not to reuse it because: {{nrefDataUseNoOtherReasonReply|markdown}}
+          {%- elif nrefDataWhere and nrefDataUseNoReply -%}
+            We considered reusing this non-reference data available via:{{" "}}{{ nrefDataWhere }}, but decided not to reuse it.
+          {%- elif nrefDataWhere -%}
+            We considered reusing this non-reference data available via:{{" "}}{{ nrefDataWhere }}.
+          {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}
+            We considered reusing this non-reference data, but decided not to reuse it because it misses data we need.
+          {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}
+            We considered reusing this non-reference data, but decided not to reuse it becauseit misses required aspects.
+          {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}
+            We considered reusing this non-reference data, but decided not to reuse it becauseit is not sufficient quality.
+          {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}
+            We considered reusing this non-reference data, but decided not to reuse it because its conditions of use do not allow us to use it.
+          {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid and nrefDataUseNoOtherReasonReply -%}
+            We considered reusing this non-reference data, but decided not to reuse it because: {{nrefDataUseNoOtherReasonReply|markdown}}
           {%- elif nrefDataUseNoReply -%}
             We considered reusing this non-reference data, but decided not to reuse it.
           {%- else -%}
@@ -706,8 +906,20 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
                 ref_data_not_used_identification_replacement,
             ),
             (
+                ref_data_not_used_identification_markdown_original,
+                ref_data_not_used_identification_markdown_replacement,
+            ),
+            (
+                nref_data_conditions_markdown_original,
+                nref_data_conditions_markdown_replacement,
+            ),
+            (
                 nref_data_not_used_identification_original,
                 nref_data_not_used_identification_replacement,
+            ),
+            (
+                nref_data_not_used_identification_markdown_original,
+                nref_data_not_used_identification_markdown_replacement,
             ),
             (shared_workspace_original, shared_workspace_replacement),
             (published_software_original, published_software_replacement),
