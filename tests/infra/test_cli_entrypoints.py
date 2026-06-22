@@ -147,6 +147,27 @@ def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path) -> None:
     assert "v1.29.1" not in refs
 
 
+def test_create_translation_migration_prs_help(repo_root: Path) -> None:
+    """The migration PR helper should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "create_translation_migration_prs.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "cross-version translation migration PRs" in result.stdout
+    assert "--source-version" in result.stdout
+    assert "--target-version" in result.stdout
+    assert "--create-pr" in result.stdout
+
+
 def test_resolve_upstream_refs_expands_compatibility_ranges(repo_root: Path) -> None:
     """The older compatibility smoke range should include all tags since v1.21.0."""
 
