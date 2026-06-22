@@ -137,6 +137,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["permissions"]["contents"] == "write"
     assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "github.event.pull_request.head.repo.full_name == github.repository" in workflow_text
+    assert "github.actor != 'github-actions[bot]' &&" not in workflow_text
+    assert "if: ${{ github.actor != 'github-actions[bot]' }}" in workflow_text
     assert "skip-fork-pr" in workflow["jobs"]
     assert workflow["env"]["TOOLING_REPOSITORY"] == "ThreeMonth03/DSW-document-template-tool"
     assert workflow["env"]["TOOLING_REF"] == "master"

@@ -40,7 +40,6 @@ env:
 jobs:
   translation-sync:
     if: >-
-      github.actor != 'github-actions[bot]' &&
       (github.event_name == 'schedule' ||
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
@@ -109,6 +108,7 @@ jobs:
           cp -a "$MERGED_TRANSLATION_TREE/." "$HOST_ROOT/$TRANSLATION_TREE_DIR/"
 
       - name: Auto-commit repaired translation inputs
+        if: ${{ github.actor != 'github-actions[bot]' }}
         working-directory: template-repo
         env:
           TARGET_REF: >-
