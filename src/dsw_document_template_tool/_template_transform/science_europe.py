@@ -376,6 +376,176 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
           {%- endif -%}
 """
 
+    nref_data_used_identification_rnef_link_original = """
+          <p>We will re-use this non-referece data 
+          {%- if nrefDataWhere -%}
+         {{" "}} available via:{{" "}}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              <a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+    
+          {# usage #}
+          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
+          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
+          {%- if nrefDataUsageReply -%}
+            {{+" "}}in order to "{{ nrefDataUsageReply}}"
+          {%- endif -%}
+          .</p>
+"""
+    nref_data_used_identification_rnef_link_replacement = """
+          {# usage #}
+          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
+          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
+          {%- if nrefDataWhere -%}
+            {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
+              {%- if nrefDataUsageReply -%}
+                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>{{+" "}}in order to "{{ nrefDataUsageReply}}".</p>
+              {%- else -%}
+                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.</p>
+              {%- endif -%}
+            {%- else -%}
+              {%- if nrefDataUsageReply -%}
+                <p>We will re-use this non-referece data available via:{{" "}}{{ nrefDataWhere }}{{+" "}}in order to "{{ nrefDataUsageReply}}".</p>
+              {%- else -%}
+                <p>We will re-use this non-referece data available via:{{" "}}{{ nrefDataWhere }}.</p>
+              {%- endif -%}
+            {%- endif -%}
+          {%- elif nrefDataUsageReply -%}
+            <p>We will re-use this non-referece data in order to "{{ nrefDataUsageReply}}".</p>
+          {%- else -%}
+            <p>We will re-use this non-referece data.</p>
+          {%- endif -%}
+"""
+
+    nref_data_complete_original = """
+          {%- if nrefDataCompleteReply -%}
+            <p>We will use{{+" "}}
+            {%- if nrefDataCompleteReply == uuids.nrefDataCompleteUseAUuid -%}
+              the complete data set. 
+            {%- elif nrefDataCompleteReply == uuids.nrefDataCompleteDocumentAUuid -%}
+              only subset of data and we will select it by filtering and/or selection (which will be documented).
+            {%- elif nrefDataCompleteReply == uuids.nrefDataCompleteSubsetAUuid -%}
+              only selected subset of data, which will be available together with our results.
+            {%- endif -%}
+            </p>
+          {%- endif -%}
+"""
+    nref_data_complete_replacement = """
+          {%- if nrefDataCompleteReply == uuids.nrefDataCompleteUseAUuid -%}
+            <p>We will use{{+" "}}the complete data set.</p>
+          {%- elif nrefDataCompleteReply == uuids.nrefDataCompleteDocumentAUuid -%}
+            <p>We will use{{+" "}}only subset of data and we will select it by filtering and/or selection (which will be documented).</p>
+          {%- elif nrefDataCompleteReply == uuids.nrefDataCompleteSubsetAUuid -%}
+            <p>We will use{{+" "}}only selected subset of data, which will be available together with our results.</p>
+          {%- endif -%}
+"""
+
+    nref_data_fixed_original = """
+          {%- if nrefDataFixedReply %}
+            <p>This data{{+" "}}
+            {%- if nrefDataFixedReply == uuids.nrefDataFixedFixedAUuid -%}
+              are fixed, therefore will not influence reproducibility of our results.
+            {%- elif nrefDataFixedReply == uuids.nrefDataFixedChangeAUuid -%}
+              may change in the future, which might influence reproducibility of our results.
+            {%- endif -%}
+            </p>
+          {%- endif -%}
+"""
+    nref_data_fixed_replacement = """
+          {%- if nrefDataFixedReply == uuids.nrefDataFixedFixedAUuid %}
+            <p>This data{{+" "}}are fixed, therefore will not influence reproducibility of our results.</p>
+          {%- elif nrefDataFixedReply == uuids.nrefDataFixedChangeAUuid -%}
+            <p>This data{{+" "}}may change in the future, which might influence reproducibility of our results.</p>
+          {%- endif -%}
+"""
+
+    computer_readable_standardised_list_original = """
+    {%- if dataCompReadReply == uuids.dataCompReadYesAUuid -%}
+      <p>We will need to (re-)made the data into computer readable form before their using
+
+      {%- set dataCompReadItself = [dataCompRead, uuids.dataCompReadYesAUuid, uuids.dataCompReadItselfQUuid]|reply_path -%}
+      {%- set dataCompReadItselfReply = repliesMap[dataCompReadItself]|reply_str_value -%}
+      {%- set dataCompReadOthers = [dataCompRead, uuids.dataCompReadYesAUuid, uuids.dataCompReadOthersQUuid]|reply_path  -%}
+      {%- set dataCompReadOthersReply = repliesMap[dataCompReadOthers]|reply_str_value -%}
+
+      {%- if dataCompReadItselfReply -%}
+        {%- if dataCompReadItselfReply == uuids.dataCompReadItselfYesAUuid -%}
+          {{+" "}}and we will make this computer readable form available to others throught a standard repository
+        {%- elif dataCompReadItselfReply == uuids.dataCompReadItselfYesOtherAUuid -%} 
+          {{+" "}}and we will make this computer readable form available to others
+        {%- elif dataCompReadItselfReply == uuids.dataCompReadItselfNoAUuid -%}
+          {{+" "}}but we won't make this computer readable form available to others
+        {%- endif -%}
+      {%- endif -%}
+      .
+
+      {%- if dataCompReadOthersReply -%}
+        {%- if dataCompReadOthersReply == uuids.dataCompReadOthersYesAUuid %}
+            We will provide machine readable, standardised metadata to others
+            {%- set dataCompReadWhichMetadataStandardPath = [dataCompReadOthers, uuids.dataCompReadOthersYesAUuid, uuids.dataCompReadOthersYesStandardsQUuid]|reply_path -%}
+            {%- set dataCompReadMetadataStandardItems =  repliesMap[dataCompReadWhichMetadataStandardPath]|reply_items -%}
+            {%- if dataCompReadMetadataStandardItems|length  > 0 -%}
+              {{+" "}}and we will use following Metadata Standards:
+              <ul>
+                {%- for dataCompReadMetadataStandardItem in dataCompReadMetadataStandardItems -%}
+                  {%- set  dataCompReadMetadataStandardPrefix = [dataCompReadWhichMetadataStandardPath,dataCompReadMetadataStandardItem ]|reply_path -%}
+                  {%- set dataCompReadMetadataStandard = [dataCompReadMetadataStandardPrefix, uuids.dataCompReadOthersYesStandardQUuid]|reply_path -%}
+                  {%- set dataCompReadMetadataStandardReply = repliesMap[dataCompReadMetadataStandard] -%}
+                  {{macros.integrationValue(dataCompReadMetadataStandardReply)}}
+                {%- endfor -%}
+              </ul>
+            {%- else -%}
+            .
+            {%- endif -%}
+
+        {%- endif -%}
+          
+      {%- endif -%}
+      </p>
+    {%- endif -%}
+"""
+    computer_readable_standardised_list_replacement = """
+    {%- if dataCompReadReply == uuids.dataCompReadYesAUuid -%}
+      <p>
+      {%- set dataCompReadItself = [dataCompRead, uuids.dataCompReadYesAUuid, uuids.dataCompReadItselfQUuid]|reply_path -%}
+      {%- set dataCompReadItselfReply = repliesMap[dataCompReadItself]|reply_str_value -%}
+      {%- set dataCompReadOthers = [dataCompRead, uuids.dataCompReadYesAUuid, uuids.dataCompReadOthersQUuid]|reply_path  -%}
+      {%- set dataCompReadOthersReply = repliesMap[dataCompReadOthers]|reply_str_value -%}
+
+      {%- if dataCompReadItselfReply == uuids.dataCompReadItselfYesAUuid -%}
+        We will need to (re-)made the data into computer readable form before their using{{+" "}}and we will make this computer readable form available to others throught a standard repository.
+      {%- elif dataCompReadItselfReply == uuids.dataCompReadItselfYesOtherAUuid -%}
+        We will need to (re-)made the data into computer readable form before their using{{+" "}}and we will make this computer readable form available to others.
+      {%- elif dataCompReadItselfReply == uuids.dataCompReadItselfNoAUuid -%}
+        We will need to (re-)made the data into computer readable form before their using{{+" "}}but we won't make this computer readable form available to others.
+      {%- else -%}
+        We will need to (re-)made the data into computer readable form before their using.
+      {%- endif -%}
+
+      {%- if dataCompReadOthersReply == uuids.dataCompReadOthersYesAUuid %}
+        {%- set dataCompReadWhichMetadataStandardPath = [dataCompReadOthers, uuids.dataCompReadOthersYesAUuid, uuids.dataCompReadOthersYesStandardsQUuid]|reply_path -%}
+        {%- set dataCompReadMetadataStandardItems =  repliesMap[dataCompReadWhichMetadataStandardPath]|reply_items -%}
+        {%- if dataCompReadMetadataStandardItems|length  > 0 -%}
+          {{+" "}}We will provide machine readable, standardised metadata to others{{+" "}}and we will use following Metadata Standards:
+          <ul>
+            {%- for dataCompReadMetadataStandardItem in dataCompReadMetadataStandardItems -%}
+              {%- set  dataCompReadMetadataStandardPrefix = [dataCompReadWhichMetadataStandardPath,dataCompReadMetadataStandardItem ]|reply_path -%}
+              {%- set dataCompReadMetadataStandard = [dataCompReadMetadataStandardPrefix, uuids.dataCompReadOthersYesStandardQUuid]|reply_path -%}
+              {%- set dataCompReadMetadataStandardReply = repliesMap[dataCompReadMetadataStandard] -%}
+              {{macros.integrationValue(dataCompReadMetadataStandardReply)}}
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          {{+" "}}We will provide machine readable, standardised metadata to others.
+        {%- endif -%}
+      {%- endif -%}
+      </p>
+    {%- endif -%}
+"""
+
     ref_data_not_used_identification_original = """
             <p> We considered reusing this standard reference data
             {%- if refDataWhere -%}
@@ -899,8 +1069,18 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             (measured_external_ownership_original, measured_external_ownership_replacement),
             (nref_personal_legal_basis_original, nref_personal_legal_basis_replacement),
             (computer_readable_original, computer_readable_replacement),
+            (
+                computer_readable_standardised_list_original,
+                computer_readable_standardised_list_replacement,
+            ),
             (ref_data_used_identification_original, ref_data_used_identification_replacement),
             (nref_data_used_identification_original, nref_data_used_identification_replacement),
+            (
+                nref_data_used_identification_rnef_link_original,
+                nref_data_used_identification_rnef_link_replacement,
+            ),
+            (nref_data_complete_original, nref_data_complete_replacement),
+            (nref_data_fixed_original, nref_data_fixed_replacement),
             (
                 ref_data_not_used_identification_original,
                 ref_data_not_used_identification_replacement,
