@@ -25,7 +25,9 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert workflow["on"]["pull_request"]["branches"] == ["**"]
     assert "make install-dev" in workflow_text
     assert "v1.30.0+" in workflow_text
+    assert "v1.21.0+" in workflow_text
     assert "make test-upstream-tags" in workflow_text
+    assert "make test-upstream-compat-tags" in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
     assert "make render-upstream-artifact-previews" in workflow_text
     assert "git diff --exit-code -- workspace/document-templates/expanded" not in workflow_text
@@ -42,6 +44,8 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "secrets.DSW_API_KEY" not in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
     assert "active-fallback-document-template" not in workflow_text
+    assert "upstream-compat-smoke" in workflow["jobs"]
+    assert "Compatibility refs are advisory" in workflow_text
     assert "clean-upstream-version-artifacts" in workflow_text
     assert "outputs/upstream-workspaces/" in workflow_text
     assert "outputs/document-templates/dsw-science-europe/**/scaffold/" in workflow_text

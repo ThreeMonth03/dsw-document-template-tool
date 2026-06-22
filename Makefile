@@ -47,12 +47,14 @@ UPSTREAM_TEMPLATE_CACHE ?= .cache/upstream/science-europe-template
 # v1.0.0-v1.15.2 use the legacy parts/ layout; src/ layout starts at v1.16.0.
 UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF ?= v1.30.0
 UPSTREAM_TEMPLATE_TEST_REFS ?= latest main $(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)+
+UPSTREAM_TEMPLATE_MIN_COMPAT_REF ?= v1.21.0
+UPSTREAM_TEMPLATE_COMPAT_REFS ?= $(UPSTREAM_TEMPLATE_MIN_COMPAT_REF)+
 UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
 UPSTREAM_TEMPLATE_ARTIFACT_REFS ?= $(UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF)+
 UPSTREAM_TEMPLATE_ARTIFACT_CACHE_ROOT ?= .cache/upstream-artifacts
 UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT ?= outputs/upstream-workspaces/$(SOURCE_TEMPLATE_ID)
 
-.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags build-upstream-artifacts render-upstream-artifact-previews start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
+.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags test-upstream-compat-tags build-upstream-artifacts render-upstream-artifact-previews start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
 venv: $(VENV_PYTHON)
 
@@ -87,6 +89,7 @@ help:
 	'  list-upstream-template-tags Show available upstream Science Europe version tags' \
 	'  fetch-upstream-template Fetch upstream template into $(UPSTREAM_TEMPLATE_CACHE)' \
 	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
+	'  test-upstream-compat-tags Non-blocking smoke test for older compatible upstream refs' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
@@ -254,6 +257,11 @@ test-upstream-tags: venv
 		$(DSW_TDK) package "$$output_dir" --output "$$package_path" --force; \
 		echo "INFO: [$$ref] passed"; \
 	done
+
+test-upstream-compat-tags:
+	$(MAKE) --no-print-directory test-upstream-tags \
+		UPSTREAM_TEMPLATE_TEST_REFS="$(UPSTREAM_TEMPLATE_COMPAT_REFS)" \
+		UPSTREAM_TEMPLATE_TEST_ROOT="$(UPSTREAM_TEMPLATE_TEST_ROOT)/compat"
 
 build-upstream-artifacts: venv
 	@set -euo pipefail; \
