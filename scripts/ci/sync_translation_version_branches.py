@@ -37,6 +37,7 @@ class SyncResult:
     current_latest_version: str
     added_versions: tuple[str, ...]
     created_branches: tuple[str, ...]
+    refreshed_branches: tuple[str, ...]
     config_changed: bool
 
 
@@ -81,6 +82,14 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="Report changes without committing, pushing, or creating branches.",
     )
     parser.add_argument(
+        "--refresh-existing",
+        action="store_true",
+        help=(
+            "Refresh existing translation version branches from clean artifacts, "
+            "preserving exact-match translations."
+        ),
+    )
+    parser.add_argument(
         "--github-output",
         help="Optional GitHub Actions output file to write sync metadata to.",
     )
@@ -109,6 +118,7 @@ def main() -> None:
         tdk_executable=tdk_executable,
         push=args.push,
         dry_run=args.dry_run,
+        refresh_existing=args.refresh_existing,
     )
     print_summary(result)
     if args.github_output:
@@ -124,8 +134,9 @@ def sync_translation_versions(
     tdk_executable: Path,
     push: bool,
     dry_run: bool,
+    refresh_existing: bool = False,
 ) -> SyncResult:
-    """Update supported versions and create missing version branches."""
+    """Update supported versions and synchronize version branches."""
 
     config = load_translation_repository_config(config_path)
     existing_versions = tuple(config.template.supported_versions)
@@ -174,11 +185,31 @@ def sync_translation_versions(
 
     _run(["git", "fetch", "--prune", "origin"], cwd=repo)
     created_branches: list[str] = []
+    refreshed_branches: list[str] = []
     with tempfile.TemporaryDirectory(prefix="dsw-version-branch-sync-") as temp_raw:
         temp_root = Path(temp_raw)
         for version in supported_versions:
             branch = version_branch(config, version)
-            if remote_branch_exists(repo, branch):
+            branch_exists = remote_branch_exists(repo, branch)
+            if branch_exists and refresh_existing:
+                if dry_run:
+                    print(f"INFO: dry-run would refresh {branch}")
+                    refreshed_branches.append(branch)
+                    continue
+                if refresh_version_branch(
+                    repo=repo,
+                    tooling_root=tooling_root,
+                    tdk_executable=tdk_executable,
+                    config=config,
+                    version=version,
+                    branch=branch,
+                    clean_artifact_root=clean_artifact_root,
+                    temp_root=temp_root,
+                    push=push,
+                ):
+                    refreshed_branches.append(branch)
+                continue
+            if branch_exists:
                 continue
             created_branches.append(branch)
             if dry_run:
@@ -201,8 +232,85 @@ def sync_translation_versions(
         current_latest_version=current_latest,
         added_versions=added_versions,
         created_branches=tuple(created_branches),
+        refreshed_branches=tuple(refreshed_branches),
         config_changed=config_changed,
     )
+
+
+def refresh_version_branch(
+    *,
+    repo: Path,
+    tooling_root: Path,
+    tdk_executable: Path,
+    config: TranslationRepositoryConfig,
+    version: str,
+    branch: str,
+    clean_artifact_root: Path,
+    temp_root: Path,
+    push: bool,
+) -> bool:
+    """Refresh one existing translation branch from the latest clean artifact."""
+
+    checkout = temp_root / branch.replace("/", "-")
+    preserved_tree = temp_root / f"{branch.replace('/', '-')}-preserved-tree"
+    merged_tree = temp_root / f"{branch.replace('/', '-')}-merged-tree"
+    if checkout.exists():
+        shutil.rmtree(checkout)
+    if preserved_tree.exists():
+        shutil.rmtree(preserved_tree)
+    if merged_tree.exists():
+        shutil.rmtree(merged_tree)
+
+    _run(["git", "worktree", "add", "-B", branch, str(checkout), f"origin/{branch}"], cwd=repo)
+    try:
+        paths = version_paths(config, version)
+        existing_translation_tree = checkout / paths.translation_tree_dir
+        had_existing_translation_tree = existing_translation_tree.is_dir()
+        if had_existing_translation_tree:
+            shutil.copytree(existing_translation_tree, preserved_tree)
+
+        restore_clean_workspace(
+            checkout=checkout,
+            config=config,
+            version=version,
+            clean_artifact_root=clean_artifact_root,
+        )
+        if had_existing_translation_tree:
+            merge_preserved_translations(
+                checkout=checkout,
+                tooling_root=tooling_root,
+                config=config,
+                version=version,
+                preserved_tree=preserved_tree,
+                merged_tree=merged_tree,
+            )
+        sync_blank_translation_output(
+            checkout=checkout,
+            tooling_root=tooling_root,
+            tdk_executable=tdk_executable,
+            config=config,
+            version=version,
+        )
+        ensure_git_identity(checkout)
+        _run(["git", "add", "."], cwd=checkout)
+        staged_paths = tuple(staged_changed_paths(checkout))
+        package_path = paths.translated_template_package.as_posix()
+        if staged_paths == (package_path,):
+            _run(["git", "restore", "--staged", "--worktree", "--", package_path], cwd=checkout)
+            print(f"INFO: [{branch}] only package metadata changed; skipping commit.")
+            return False
+        if not staged_paths:
+            print(f"INFO: [{branch}] no changes after refresh.")
+            return False
+        _run(
+            ["git", "commit", "-m", f"chore: refresh {version} translation scaffold"],
+            cwd=checkout,
+        )
+        if push:
+            _run(["git", "push", "origin", f"HEAD:{branch}"], cwd=checkout)
+        return True
+    finally:
+        _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
 
 
 def create_version_branch(
@@ -349,6 +457,37 @@ def sync_blank_translation_output(
     )
 
 
+def merge_preserved_translations(
+    *,
+    checkout: Path,
+    tooling_root: Path,
+    config: TranslationRepositoryConfig,
+    version: str,
+    preserved_tree: Path,
+    merged_tree: Path,
+) -> None:
+    """Merge exact-match translations from a preserved tree into a fresh tree."""
+
+    paths = version_paths(config, version)
+    fresh_tree = checkout / paths.translation_tree_dir
+    _run_tool(
+        tooling_root,
+        "src/translation_tree.py",
+        "merge",
+        "--old-tree",
+        preserved_tree,
+        "--new-tree",
+        fresh_tree,
+        "--output",
+        merged_tree,
+        "--source-lang",
+        config.translation.source_language,
+        "--target-lang",
+        config.translation.target_language,
+    )
+    replace_tree(merged_tree, fresh_tree)
+
+
 def write_supported_versions(config_path: Path, versions: tuple[str, ...]) -> None:
     """Update the configured supported version list."""
 
@@ -368,6 +507,7 @@ def write_github_output(path: Path, result: SyncResult) -> None:
         handle.write(f"current_latest_version={result.current_latest_version}\n")
         handle.write(f"added_versions={' '.join(result.added_versions)}\n")
         handle.write(f"created_branches={' '.join(result.created_branches)}\n")
+        handle.write(f"refreshed_branches={' '.join(result.refreshed_branches)}\n")
         handle.write(f"config_changed={str(result.config_changed).lower()}\n")
 
 
@@ -379,6 +519,7 @@ def print_summary(result: SyncResult) -> None:
     print(f"INFO: current latest version: {result.current_latest_version}")
     print(f"INFO: added versions: {', '.join(result.added_versions) or '(none)'}")
     print(f"INFO: created branches: {', '.join(result.created_branches) or '(none)'}")
+    print(f"INFO: refreshed branches: {', '.join(result.refreshed_branches) or '(none)'}")
     print(f"INFO: config changed: {result.config_changed}")
 
 
@@ -428,6 +569,19 @@ def has_staged_changes(repo: Path) -> bool:
         check=False,
     )
     return result.returncode != 0
+
+
+def staged_changed_paths(repo: Path) -> list[str]:
+    """Return staged paths relative to ``repo``."""
+
+    result = subprocess.run(
+        ["git", "diff", "--cached", "--name-only"],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return [line for line in result.stdout.splitlines() if line]
 
 
 def _run_tool(tooling_root: Path, script: str, *args: object) -> None:

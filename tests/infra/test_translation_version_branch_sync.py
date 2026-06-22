@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -107,6 +108,135 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
             ),
         )
         == "fake package\n"
+    )
+
+
+def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """An existing version branch should be refreshable without dropping translations."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "config", "user.name", "Test User")
+    _run_git(translation_repo, "config", "user.email", "test@example.invalid")
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(translation_repo / "translation-config.yml")
+    (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initial control plane")
+    _run_git(translation_repo, "push", "-u", "origin", "master")
+
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    old_compact = (
+        translation_repo
+        / "workspace/document-templates/compact/dsw-science-europe-1.30.1/artifact.txt"
+    )
+    old_translation_marker = (
+        translation_repo
+        / "workspace/document-templates/translation/dsw-science-europe-1.30.1/translator.txt"
+    )
+    old_compact.parent.mkdir(parents=True, exist_ok=True)
+    old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
+    old_compact.write_text("old compact\n", encoding="utf-8")
+    old_translation_marker.write_text("manual translation\n", encoding="utf-8")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "master")
+
+    _write_clean_artifact(artifact_root, version="v1.30.1")
+
+    def fake_merge_preserved_translations(
+        *,
+        checkout: Path,
+        config,
+        version: str,
+        preserved_tree: Path,
+        merged_tree: Path,
+        **_: object,
+    ) -> None:
+        paths = sync_module.version_paths(config, version)
+        shutil.copytree(checkout / paths.translation_tree_dir, merged_tree)
+        preserved_marker = preserved_tree / "translator.txt"
+        if preserved_marker.exists():
+            shutil.copy2(preserved_marker, merged_tree / "translator.txt")
+        sync_module.replace_tree(merged_tree, checkout / paths.translation_tree_dir)
+
+    def fake_sync_blank_translation_output(
+        *,
+        checkout: Path,
+        config,
+        version: str,
+        **_: object,
+    ) -> None:
+        paths = sync_module.version_paths(config, version)
+        template_dir = checkout / paths.translated_template_dir
+        template_dir.mkdir(parents=True, exist_ok=True)
+        (template_dir / "template.json").write_text(
+            '{"id":"science-europe-zh-hant"}\n',
+            encoding="utf-8",
+        )
+        package_path = checkout / paths.translated_template_package
+        package_path.parent.mkdir(parents=True, exist_ok=True)
+        package_path.write_text("fake package\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        sync_module,
+        "merge_preserved_translations",
+        fake_merge_preserved_translations,
+    )
+    monkeypatch.setattr(
+        sync_module,
+        "sync_blank_translation_output",
+        fake_sync_blank_translation_output,
+    )
+
+    result = sync_module.sync_translation_versions(
+        repo=translation_repo,
+        tooling_root=repo_root,
+        config_path=translation_repo / "translation-config.yml",
+        clean_artifact_root=artifact_root,
+        tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+        push=False,
+        dry_run=False,
+        refresh_existing=True,
+    )
+
+    assert result.previous_latest_version == "v1.30.1"
+    assert result.current_latest_version == "v1.30.1"
+    assert result.added_versions == ()
+    assert result.created_branches == ()
+    assert result.refreshed_branches == ("translation/v1.30.1",)
+    assert result.config_changed is False
+    assert (
+        _git_show(
+            translation_repo,
+            (
+                "translation/v1.30.1:"
+                "workspace/document-templates/compact/dsw-science-europe-1.30.1/"
+                "artifact.txt"
+            ),
+        )
+        == "compact v1.30.1\n"
+    )
+    assert (
+        _git_show(
+            translation_repo,
+            (
+                "translation/v1.30.1:"
+                "workspace/document-templates/translation/dsw-science-europe-1.30.1/"
+                "translator.txt"
+            ),
+        )
+        == "manual translation\n"
     )
 
 
