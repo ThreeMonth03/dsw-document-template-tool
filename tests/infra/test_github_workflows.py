@@ -103,6 +103,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["TRANSLATED_TEMPLATE_ORGANIZATION_ID"] == "dsw"
     assert workflow["env"]["TRANSLATED_TEMPLATE_ID"] == "science-europe-zh-hant"
     assert workflow["env"]["TRANSLATED_TEMPLATE_VERSION"] == "1.30.0"
+    assert workflow["env"]["TRANSLATION_SOURCE_LANG"] == "en"
+    assert workflow["env"]["TRANSLATION_TARGET_LANG"] == "zh_Hant"
     assert "science-europe-zh-hant-1.30.0.zip" in workflow["env"]["TRANSLATED_TEMPLATE_PACKAGE"]
     assert workflow["env"]["PROJECT_REF"] == "workspace/projects/test-project.json"
     assert workflow["env"]["PROJECT_RENDER_OUTPUT"].startswith(
@@ -113,6 +115,13 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "github.event.pull_request.head.ref" in workflow_text
     assert 'src/transform_template.py" expand' in workflow_text
     assert 'src/translation_tree.py" export' in workflow_text
+    assert 'src/translation_tree.py" merge' in workflow_text
+    assert "--old-tree" in workflow_text
+    assert "--new-tree" in workflow_text
+    assert "--source-lang" in workflow_text
+    assert "--target-lang" in workflow_text
+    assert "FRESH_TRANSLATION_TREE=" in workflow_text
+    assert "MERGED_TRANSLATION_TREE=" in workflow_text
     assert 'src/translation_tree.py" audit' in workflow_text
     assert "Translation block audit failed" in workflow_text
     assert "Auto-commit repaired translation inputs" in workflow_text

@@ -117,6 +117,8 @@ def test_translation_tree_help(repo_root) -> None:
     assert "--old-tree" in result.stdout
     assert "--new-tree" in result.stdout
     assert "--output" in result.stdout
+    assert "--source-lang" in result.stdout
+    assert "--target-lang" in result.stdout
 
 
 def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path) -> None:

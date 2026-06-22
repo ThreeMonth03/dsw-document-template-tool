@@ -157,7 +157,12 @@ def _load_candidates(
     target_lang: str,
     forgiving: bool,
 ) -> list[TranslationCandidate]:
-    manifest = load_tree_manifest(tree_dir)
+    try:
+        manifest = load_tree_manifest(tree_dir)
+    except TranslationTreeError:
+        if forgiving:
+            return []
+        raise
     units = manifest.get("units")
     if not isinstance(units, list):
         raise TranslationTreeError(

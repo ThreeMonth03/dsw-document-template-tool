@@ -273,6 +273,40 @@ def test_merge_translation_tree_skips_ambiguous_fuzzy_matches(tmp_path: Path) ->
     ).read_text(encoding="utf-8")
 
 
+def test_merge_translation_tree_recovers_from_broken_old_manifest(tmp_path: Path) -> None:
+    """A corrupted old tree should not block regenerating a clean new tree."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Fresh sentence.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=new_tree_dir)
+    (old_tree_dir / ".translation-tree" / "manifest.json").write_text(
+        "{not valid json",
+        encoding="utf-8",
+    )
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.migrated_units == 0
+    assert report.untranslated_units == 1
+    assert _find_translation_doc(output_tree_dir, "Fresh sentence.").is_file()
+
+
 def test_export_translation_tree_splits_nested_wrapper_into_multiple_units(
     tmp_path: Path,
 ) -> None:

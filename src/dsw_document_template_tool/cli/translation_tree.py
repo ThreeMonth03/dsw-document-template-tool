@@ -94,6 +94,16 @@ def build_argument_parser() -> argparse.ArgumentParser:
         required=True,
         help="Merged translation tree directory.",
     )
+    merge_parser.add_argument(
+        "--source-lang",
+        default="en",
+        help="Source language code used by translation documents.",
+    )
+    merge_parser.add_argument(
+        "--target-lang",
+        default="zh_Hant",
+        help="Target language code used by translation documents.",
+    )
     return parser
 
 
@@ -138,8 +148,8 @@ def main() -> None:
             old_tree_dir=args.old_tree,
             new_tree_dir=args.new_tree,
             output_dir=args.output,
-            source_lang="en",
-            target_lang="zh_Hant",
+            source_lang=args.source_lang,
+            target_lang=args.target_lang,
         )
         print(
             "SUCCESS: Merged translation tree "

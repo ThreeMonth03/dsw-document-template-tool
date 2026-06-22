@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from json import JSONDecodeError
 from pathlib import Path
 
 from .models import TranslationTreeError
@@ -17,4 +18,9 @@ def load_tree_manifest(tree_dir: Path) -> dict:
     manifest_path = tree_dir / TREE_MANIFEST_PATH
     if not manifest_path.is_file():
         raise TranslationTreeError(f"Missing translation-tree manifest at {manifest_path}")
-    return json.loads(manifest_path.read_text(encoding="utf-8"))
+    try:
+        return json.loads(manifest_path.read_text(encoding="utf-8"))
+    except JSONDecodeError as exc:
+        raise TranslationTreeError(
+            f"Invalid translation-tree manifest at {manifest_path}: {exc}"
+        ) from exc
