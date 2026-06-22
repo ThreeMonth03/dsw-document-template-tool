@@ -11,7 +11,9 @@ import ast
 import re
 from collections import Counter
 
-from dsw_document_template_tool.template_transform import _extract_translatable_jinja_literals
+from dsw_document_template_tool._template_transform.jinja_literals import (
+    extract_translatable_jinja_literals as _extract_translatable_jinja_literals,
+)
 
 from .models import TranslationTreeError
 from .syntax import HTML_TAG_PATTERN, JINJA_EXPR_PATTERN

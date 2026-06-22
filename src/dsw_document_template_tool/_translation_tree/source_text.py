@@ -5,9 +5,11 @@ from __future__ import annotations
 import html
 import re
 
-from ..template_transform import (
-    _extract_translatable_jinja_block_literals,
-    _extract_translatable_jinja_literals,
+from .._template_transform.jinja_literals import (
+    extract_translatable_jinja_block_literals as _extract_translatable_jinja_block_literals,
+)
+from .._template_transform.jinja_literals import (
+    extract_translatable_jinja_literals as _extract_translatable_jinja_literals,
 )
 from .ids import hash_text
 from .placeholders import jinja_expr_to_placeholder

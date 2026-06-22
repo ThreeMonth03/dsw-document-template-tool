@@ -11,6 +11,15 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
+from ._template_transform.jinja_literals import (
+    extract_translatable_jinja_block_literals as _extract_translatable_jinja_block_literals,
+)
+from ._template_transform.jinja_literals import (
+    extract_translatable_jinja_literals as _extract_translatable_jinja_literals,
+)
+from ._template_transform.jinja_literals import (
+    is_translatable_jinja_literal as _is_translatable_jinja_literal,
+)
 from ._template_transform.localization import (
     LocalizationPatchError,
 )
@@ -29,8 +38,6 @@ from ._template_transform.scanner import (
     HTML_TAG_PATTERN,
     JINJA_BLOCK_PATTERN,
     JINJA_EXPR_PATTERN,
-    JINJA_STRING_LITERAL_PATTERN,
-    UUID_LITERAL_PATTERN,
     VISIBLE_TEXT_PATTERN,
     AnnotationRegion,
     SourceToken,
@@ -1266,69 +1273,3 @@ def _replace_block_with_visible_literals(match: re.Match[str]) -> str:
 def _is_translatable_jinja_block(token_text: str) -> bool:
     match = JINJA_BLOCK_PATTERN.fullmatch(token_text)
     return bool(match and _extract_translatable_jinja_block_literals(match.group("body")))
-
-
-def _extract_translatable_jinja_block_literals(block_body: str) -> list[str]:
-    """Return user-facing literals from Jinja statements that feed rendered output."""
-
-    inner = block_body.strip().strip("-").strip()
-    if ".append(" not in inner:
-        return []
-    return _extract_translatable_jinja_literals(inner)
-
-
-def _extract_translatable_jinja_literals(expr: str) -> list[str]:
-    """Return user-facing string literals from a Jinja output expression."""
-
-    literals: list[str] = []
-    for match in JINJA_STRING_LITERAL_PATTERN.finditer(expr):
-        if _is_subscript_literal(expr=expr, start=match.start(), end=match.end()):
-            continue
-        if _is_dict_key_literal(expr=expr, end=match.end()):
-            continue
-        try:
-            value = ast.literal_eval(match.group("literal"))
-        except (SyntaxError, ValueError):
-            continue
-        if isinstance(value, str) and _is_translatable_jinja_literal(value):
-            literals.append(value.strip())
-    return literals
-
-
-def _is_subscript_literal(*, expr: str, start: int, end: int) -> bool:
-    previous_index = start - 1
-    while previous_index >= 0 and expr[previous_index].isspace():
-        previous_index -= 1
-
-    next_index = end
-    while next_index < len(expr) and expr[next_index].isspace():
-        next_index += 1
-
-    return (
-        previous_index >= 0
-        and expr[previous_index] == "["
-        and next_index < len(expr)
-        and expr[next_index] == "]"
-    )
-
-
-def _is_dict_key_literal(*, expr: str, end: int) -> bool:
-    next_index = end
-    while next_index < len(expr) and expr[next_index].isspace():
-        next_index += 1
-    return next_index < len(expr) and expr[next_index] == ":"
-
-
-def _is_translatable_jinja_literal(value: str) -> bool:
-    stripped = value.strip()
-    if not stripped:
-        return False
-    if UUID_LITERAL_PATTERN.fullmatch(stripped):
-        return False
-    if stripped.startswith(("http://", "https://", "mailto:", "ftp://")):
-        return False
-    if stripped.startswith("<") and stripped.endswith(">"):
-        return False
-    if re.search(r"%[A-Za-z]", stripped):
-        return False
-    return re.search(r"[A-Za-z]", stripped) is not None

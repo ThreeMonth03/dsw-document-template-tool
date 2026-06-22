@@ -8,10 +8,14 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from ..template_transform import (
+from .._template_transform.jinja_literals import (
+    is_dict_key_literal as _is_dict_key_literal,
+)
+from .._template_transform.jinja_literals import (
+    is_subscript_literal as _is_subscript_literal,
+)
+from .._template_transform.scanner import (
     JINJA_STRING_LITERAL_PATTERN,
-    _is_dict_key_literal,
-    _is_subscript_literal,
 )
 from .models import TranslationTreeAuditIssue, TranslationTreeError
 from .placeholders import literal_expr_to_text

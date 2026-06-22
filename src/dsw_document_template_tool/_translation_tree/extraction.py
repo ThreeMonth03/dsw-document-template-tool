@@ -7,19 +7,35 @@ import html
 import re
 from dataclasses import dataclass
 
-from ..template_transform import (
+from .._template_transform.jinja_literals import (
+    extract_translatable_jinja_block_literals as _extract_translatable_jinja_block_literals,
+)
+from .._template_transform.jinja_literals import (
+    extract_translatable_jinja_literals as _extract_translatable_jinja_literals,
+)
+from .._template_transform.jinja_literals import (
+    is_dict_key_literal as _is_dict_key_literal,
+)
+from .._template_transform.jinja_literals import (
+    is_subscript_literal as _is_subscript_literal,
+)
+from .._template_transform.jinja_literals import (
+    is_translatable_jinja_literal as _is_translatable_jinja_literal,
+)
+from .._template_transform.scanner import (
     ANNOTATABLE_HTML_TAGS,
-    GENERATED_BLOCK_PATTERN,
     JINJA_STRING_LITERAL_PATTERN,
     AnnotationRegion,
     SourceToken,
-    _extract_translatable_jinja_block_literals,
-    _extract_translatable_jinja_literals,
-    _find_matching_tag_end,
-    _is_dict_key_literal,
-    _is_subscript_literal,
-    _is_translatable_jinja_literal,
-    _lex_source_tokens,
+)
+from .._template_transform.scanner import (
+    find_matching_tag_end as _find_matching_tag_end,
+)
+from .._template_transform.scanner import (
+    lex_source_tokens as _lex_source_tokens,
+)
+from ..template_transform import (
+    GENERATED_BLOCK_PATTERN,
     generated_block_body,
     generated_block_name,
 )
