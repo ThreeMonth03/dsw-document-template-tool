@@ -135,6 +135,7 @@ jobs:
       DSW_PASSWORD: password
       DSW_VERSION: ${{ matrix.dsw_version }}
       UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: ${{ matrix.metamodel_version }}
+      UPSTREAM_TEMPLATE_PREVIEW_STRICT: ${{ matrix.run_preview_regression }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

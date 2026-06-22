@@ -67,6 +67,10 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
         },
     ]
     assert "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" in workflow_text
+    assert (
+        render_job["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"]
+        == "${{ matrix.run_preview_regression }}"
+    )
     assert "regression-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
     assert "clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
     assert "git diff --exit-code -- workspace/document-templates/expanded" not in workflow_text

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -166,6 +168,49 @@ def test_create_translation_migration_prs_help(repo_root: Path) -> None:
     assert "--source-version" in result.stdout
     assert "--target-version" in result.stdout
     assert "--create-pr" in result.stdout
+
+
+def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Path) -> None:
+    """The scaffold-preview status helper should create machine-readable artifacts."""
+
+    output_path = tmp_path / "failed.json"
+    env = os.environ.copy()
+    env["DSW_VERSION"] = "4.22"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "write_preview_status.py"),
+            "--output",
+            str(output_path),
+            "--status",
+            "failed",
+            "--reason",
+            "render_failed",
+            "--template-version",
+            "v1.25.0",
+            "--template-metamodel-version",
+            "17.0",
+            "--preview-metamodel-version",
+            "17.0",
+            "--exit-code",
+            "2",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(output_path.read_text(encoding="utf-8")) == {
+        "status": "failed",
+        "reason": "render_failed",
+        "template_metamodel_version": "17.0",
+        "preview_metamodel_version": "17.0",
+        "template_version": "v1.25.0",
+        "exit_code": 2,
+        "dsw_version": "4.22",
+    }
 
 
 def test_resolve_upstream_refs_expands_compatibility_ranges(repo_root: Path) -> None:
