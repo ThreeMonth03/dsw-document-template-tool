@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -26,6 +27,14 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
 )
 
 MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
+
+
+@dataclass(frozen=True)
+class MigrationResult:
+    """Result of applying one source version to one target branch."""
+
+    summary_path: Path
+    source_merge_report: dict[str, object]
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
@@ -173,7 +182,7 @@ def migrate_one_target(
     )
 
     try:
-        summary = refresh_target_with_source(
+        migration_result = refresh_target_with_source(
             source_checkout=source_checkout,
             target_checkout=target_checkout,
             tooling_root=tooling_root,
@@ -183,6 +192,13 @@ def migrate_one_target(
             target_version=target_version,
             temp_root=case_root,
         )
+        migrated_units = int(migration_result.source_merge_report.get("migrated_units", 0))
+        if migrated_units == 0:
+            print(
+                f"INFO: [{source_version} -> {target_version}] no source translations "
+                "were migrated; skipping PR."
+            )
+            return
 
         changed_paths = _changed_paths(target_checkout)
         if not changed_paths:
@@ -233,7 +249,7 @@ def migrate_one_target(
                 target_branch=target_branch,
                 source_version=source_version,
                 target_version=target_version,
-                summary_path=summary,
+                summary_path=migration_result.summary_path,
             )
     finally:
         _run(["git", "worktree", "remove", "--force", str(source_checkout)], cwd=repo, check=False)
@@ -250,7 +266,7 @@ def refresh_target_with_source(
     source_version: str,
     target_version: str,
     temp_root: Path,
-) -> Path:
+) -> MigrationResult:
     """Refresh target workspace and fill blanks from the source tree."""
 
     source_paths = version_paths(config, source_version)
@@ -358,7 +374,7 @@ def refresh_target_with_source(
         ]
     )
 
-    report = _read_json(merged_tree / MERGE_REPORT_PATH)
+    source_merge_report = _read_json(merged_tree / MERGE_REPORT_PATH)
     summary_path = (
         target_checkout
         / target_paths.migration_report_dir
@@ -371,11 +387,14 @@ def refresh_target_with_source(
             target_version=target_version,
             source_branch=version_branch(config, source_version),
             target_branch=version_branch(config, target_version),
-            report=report,
+            report=source_merge_report,
         ),
         encoding="utf-8",
     )
-    return summary_path
+    return MigrationResult(
+        summary_path=summary_path,
+        source_merge_report=source_merge_report,
+    )
 
 
 def _merge_or_copy(
