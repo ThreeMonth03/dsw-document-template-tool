@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import yaml
@@ -150,6 +150,10 @@ def sync_translation_versions(
         if dry_run:
             print(
                 "INFO: dry-run would update supported_versions to: " + ", ".join(supported_versions)
+            )
+            config = replace(
+                config,
+                template=replace(config.template, supported_versions=supported_versions),
             )
         else:
             write_supported_versions(config_path, supported_versions)
