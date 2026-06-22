@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .models import TemplateTransformError
 
+MANIFEST_PATH = Path(".transform") / "manifest.json"
 UPSTREAM_README_NAME = "UPSTREAM-README.md"
 
 

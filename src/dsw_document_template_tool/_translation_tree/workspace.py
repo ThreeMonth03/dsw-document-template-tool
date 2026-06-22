@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..template_transform import MANIFEST_PATH
+from .._template_transform.workspace import MANIFEST_PATH
 from .models import TranslationTreeError
 
 

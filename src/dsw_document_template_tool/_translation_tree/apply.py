@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from ..template_transform import _lex_source_tokens
+from .._template_transform.scanner import lex_source_tokens as _lex_source_tokens
 from .html_structure import (
     INLINE_TRANSLATOR_TAGS,
     find_single_outer_element,

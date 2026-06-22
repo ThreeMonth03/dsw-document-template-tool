@@ -53,6 +53,7 @@ from ._template_transform.science_europe import (
     _rewrite_known_science_europe_source_fragments,
 )
 from ._template_transform.workspace import (
+    MANIFEST_PATH,
     UPSTREAM_README_NAME,
 )
 from ._template_transform.workspace import (
@@ -96,7 +97,6 @@ APPEND_SENTENCE_REWRITE_PATTERN = re.compile(
     r"\{# __tr_append_sentence_original:end -?#\}",
     re.DOTALL,
 )
-MANIFEST_PATH = Path(".transform") / "manifest.json"
 MANIFEST_VERSION = 2
 GENERATED_BLOCK_PREFIX = "__tr_block_"
 
