@@ -6,7 +6,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from render_project import _load_project_events, _resolve_or_create_project
+from dsw_document_template_tool.render_project import (
+    _load_project_events,
+    _resolve_or_create_project,
+)
 
 
 class FakeDSWClient:
