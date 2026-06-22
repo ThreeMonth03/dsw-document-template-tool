@@ -214,8 +214,8 @@ def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Pat
     }
 
 
-def test_resolve_upstream_refs_expands_compatibility_ranges(repo_root: Path) -> None:
-    """The older compatibility smoke range should include all tags since v1.21.0."""
+def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
+    """The clean scaffold artifact range should include all tags since v1.21.0."""
 
     result = subprocess.run(
         [
