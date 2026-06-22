@@ -545,6 +545,16 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
       </p>
     {%- endif -%}
 """
+    computer_readable_standardized_list_original = (
+        computer_readable_standardised_list_original.replace(
+            "standardised", "standardized"
+        ).replace("throught", "through")
+    )
+    computer_readable_standardized_list_replacement = (
+        computer_readable_standardised_list_replacement.replace(
+            "standardised", "standardized"
+        ).replace("throught", "through")
+    )
 
     ref_data_not_used_identification_original = """
             <p> We considered reusing this standard reference data
@@ -1072,6 +1082,10 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             (
                 computer_readable_standardised_list_original,
                 computer_readable_standardised_list_replacement,
+            ),
+            (
+                computer_readable_standardized_list_original,
+                computer_readable_standardized_list_replacement,
             ),
             (ref_data_used_identification_original, ref_data_used_identification_replacement),
             (nref_data_used_identification_original, nref_data_used_identification_replacement),
