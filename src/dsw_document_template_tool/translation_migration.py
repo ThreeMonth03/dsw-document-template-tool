@@ -87,6 +87,16 @@ class VersionWorkspacePaths:
     migration_report_dir: Path
 
 
+@dataclass(frozen=True)
+class CleanArtifactVersionPaths:
+    """Conventional paths for one clean upstream scaffold artifact."""
+
+    version: str
+    compact_template_dir: Path
+    expanded_template_dir: Path
+    translation_tree_dir: Path
+
+
 def load_translation_repository_config(path: Path) -> TranslationRepositoryConfig:
     """Load and validate ``translation-config.yml``."""
 
@@ -231,6 +241,25 @@ def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionW
         translated_template_dir=output_root / translated_workspace_name,
         translated_template_package=output_root / f"{translated_workspace_name}.zip",
         migration_report_dir=Path("migration-reports"),
+    )
+
+
+def clean_artifact_version_paths(
+    config: TranslationRepositoryConfig,
+    version: str,
+    artifact_root: Path,
+) -> CleanArtifactVersionPaths:
+    """Return clean scaffold paths for one version inside a downloaded artifact."""
+
+    paths = version_paths(config, version)
+    workspace_root = (
+        Path(artifact_root) / "upstream-workspaces" / paths.source_template_id / version
+    )
+    return CleanArtifactVersionPaths(
+        version=version,
+        compact_template_dir=workspace_root / "compact" / paths.workspace_template_name,
+        expanded_template_dir=workspace_root / "expanded" / paths.workspace_template_name,
+        translation_tree_dir=workspace_root / "translation" / paths.workspace_template_name,
     )
 
 

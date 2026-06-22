@@ -168,6 +168,7 @@ def test_create_translation_migration_prs_help(repo_root: Path) -> None:
     assert "--source-version" in result.stdout
     assert "--target-version" in result.stdout
     assert "--create-pr" in result.stdout
+    assert "--clean-artifact-root" in result.stdout
 
 
 def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Path) -> None:

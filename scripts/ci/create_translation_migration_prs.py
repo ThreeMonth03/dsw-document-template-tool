@@ -19,6 +19,7 @@ if str(SRC_ROOT) not in sys.path:
 
 from dsw_document_template_tool.translation_migration import (  # noqa: E402
     TranslationRepositoryConfig,
+    clean_artifact_version_paths,
     load_translation_repository_config,
     migration_branch,
     target_versions,
@@ -88,6 +89,14 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--tdk-executable",
         help="Path to dsw-tdk. Defaults to <tooling-root>/.venv/bin/dsw-tdk.",
     )
+    parser.add_argument(
+        "--clean-artifact-root",
+        help=(
+            "Downloaded clean upstream scaffold artifact root. When provided, "
+            "target compact/expanded/fresh translation trees are copied from "
+            "the artifact instead of being regenerated from checked-in compact templates."
+        ),
+    )
     return parser
 
 
@@ -102,6 +111,9 @@ def main() -> None:
         Path(args.tdk_executable).resolve()
         if args.tdk_executable
         else tooling_root / ".venv" / "bin" / "dsw-tdk"
+    )
+    clean_artifact_root = (
+        Path(args.clean_artifact_root).resolve() if args.clean_artifact_root else None
     )
 
     _run(["git", "fetch", "--prune", "origin"], cwd=repo)
@@ -126,6 +138,7 @@ def main() -> None:
                 source_version=args.source_version,
                 target_version=target_version,
                 temp_root=temp_root,
+                clean_artifact_root=clean_artifact_root,
                 dry_run=args.dry_run,
                 push=args.push,
                 create_pr=args.create_pr,
@@ -141,6 +154,7 @@ def migrate_one_target(
     source_version: str,
     target_version: str,
     temp_root: Path,
+    clean_artifact_root: Path | None,
     dry_run: bool,
     push: bool,
     create_pr: bool,
@@ -191,6 +205,7 @@ def migrate_one_target(
             source_version=source_version,
             target_version=target_version,
             temp_root=case_root,
+            clean_artifact_root=clean_artifact_root,
         )
         migrated_units = int(migration_result.source_merge_report.get("migrated_units", 0))
         if migrated_units == 0:
@@ -266,6 +281,7 @@ def refresh_target_with_source(
     source_version: str,
     target_version: str,
     temp_root: Path,
+    clean_artifact_root: Path | None,
 ) -> MigrationResult:
     """Refresh target workspace and fill blanks from the source tree."""
 
@@ -277,24 +293,33 @@ def refresh_target_with_source(
     source_tree = source_checkout / source_paths.translation_tree_dir
     target_tree = target_checkout / target_paths.translation_tree_dir
 
-    _run_tool(
-        tooling_root,
-        "src/transform_template.py",
-        "expand",
-        "--source",
-        target_checkout / target_paths.compact_template_dir,
-        "--output",
-        target_checkout / target_paths.expanded_template_dir,
-    )
-    _run_tool(
-        tooling_root,
-        "src/translation_tree.py",
-        "export",
-        "--source",
-        target_checkout / target_paths.expanded_template_dir,
-        "--output",
-        fresh_tree,
-    )
+    if clean_artifact_root is not None:
+        restore_clean_target_workspace(
+            config=config,
+            target_checkout=target_checkout,
+            target_version=target_version,
+            fresh_tree=fresh_tree,
+            clean_artifact_root=clean_artifact_root,
+        )
+    else:
+        _run_tool(
+            tooling_root,
+            "src/transform_template.py",
+            "expand",
+            "--source",
+            target_checkout / target_paths.compact_template_dir,
+            "--output",
+            target_checkout / target_paths.expanded_template_dir,
+        )
+        _run_tool(
+            tooling_root,
+            "src/translation_tree.py",
+            "export",
+            "--source",
+            target_checkout / target_paths.expanded_template_dir,
+            "--output",
+            fresh_tree,
+        )
     _merge_or_copy(
         tooling_root=tooling_root,
         old_tree=target_tree,
@@ -395,6 +420,52 @@ def refresh_target_with_source(
         summary_path=summary_path,
         source_merge_report=source_merge_report,
     )
+
+
+def restore_clean_target_workspace(
+    *,
+    config: TranslationRepositoryConfig,
+    target_checkout: Path,
+    target_version: str,
+    fresh_tree: Path,
+    clean_artifact_root: Path,
+) -> None:
+    """Restore generated target workspace inputs from a clean scaffold artifact."""
+
+    target_paths = version_paths(config, target_version)
+    artifact_paths = clean_artifact_version_paths(
+        config=config,
+        version=target_version,
+        artifact_root=clean_artifact_root,
+    )
+    required_dirs = (
+        artifact_paths.compact_template_dir,
+        artifact_paths.expanded_template_dir,
+        artifact_paths.translation_tree_dir,
+    )
+    missing_dirs = [path for path in required_dirs if not path.is_dir()]
+    if missing_dirs:
+        missing = "\n".join(f"- {path}" for path in missing_dirs)
+        raise SystemExit(
+            f"Clean artifact root does not contain required {target_version} paths:\n{missing}"
+        )
+
+    _replace_tree(
+        artifact_paths.compact_template_dir,
+        target_checkout / target_paths.compact_template_dir,
+    )
+    _replace_tree(
+        artifact_paths.expanded_template_dir,
+        target_checkout / target_paths.expanded_template_dir,
+    )
+    _replace_tree(artifact_paths.translation_tree_dir, fresh_tree)
+
+
+def _replace_tree(source: Path, destination: Path) -> None:
+    if destination.exists():
+        shutil.rmtree(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source, destination)
 
 
 def _merge_or_copy(

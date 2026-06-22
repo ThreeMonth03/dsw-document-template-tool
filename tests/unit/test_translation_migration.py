@@ -8,6 +8,7 @@ import pytest
 
 from dsw_document_template_tool.translation_migration import (
     TranslationMigrationError,
+    clean_artifact_version_paths,
     load_translation_repository_config,
     migration_branch,
     target_versions,
@@ -80,6 +81,24 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     assert paths.translated_template_package.as_posix() == (
         "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/"
         "dsw-science-europe-zh-hant-1.30.1.zip"
+    )
+
+
+def test_clean_artifact_version_paths_follow_ci_artifact_layout(tmp_path: Path) -> None:
+    """Downloaded clean artifacts should expose generated workspace inputs by version."""
+
+    config = load_translation_repository_config(_write_config(tmp_path))
+    paths = clean_artifact_version_paths(config, "v1.30.1", tmp_path / "artifact")
+
+    assert paths.compact_template_dir.as_posix().endswith(
+        "artifact/upstream-workspaces/dsw-science-europe/v1.30.1/compact/dsw-science-europe-1.30.1"
+    )
+    assert paths.expanded_template_dir.as_posix().endswith(
+        "artifact/upstream-workspaces/dsw-science-europe/v1.30.1/expanded/dsw-science-europe-1.30.1"
+    )
+    assert paths.translation_tree_dir.as_posix().endswith(
+        "artifact/upstream-workspaces/dsw-science-europe/v1.30.1/"
+        "translation/dsw-science-europe-1.30.1"
     )
 
 
