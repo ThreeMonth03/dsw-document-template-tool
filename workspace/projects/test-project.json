@@ -1,19 +1,66 @@
 {
-  "name": "測試project",
+  "name": "研究資料管理實務資料集與教學資源（範例）",
   "knowledge_model_package_id": "../knowledge-models/root-zh-hant-2.7.0.km",
   "events_file": "test-project.events.json",
   "question_tag_uuids": [],
   "visibility": "PrivateProjectVisibility",
   "sharing": "RestrictedProjectSharing",
   "source_project": {
-    "project_uuid": "ae12e1c3-d7a9-4185-af97-1c310d7e6aad",
-    "api_url": "http://localhost:3000/wizard-api",
+    "organization_url": "https://data.depositar.io/organization/rdm-basics",
+    "organization_title": "研究資料管理實務 | Research Data Management Practice",
+    "datasets": [
+      {
+        "title": "資料管理方案 (2023/09/15 TaiBIF 生物多樣性資料發布與應用工作坊) | Data Management Plan (2023/09/15 TaiBIF Biodiversity Data Release and Application Workshop)",
+        "name": "20230915-rdm-course-dmps",
+        "url": "https://data.depositar.io/dataset/20230915-rdm-course-dmps",
+        "license": "CC-BY 4.0"
+      },
+      {
+        "title": "資料管理方案 (2023/05/13 TaiBIF 生物多樣性資料發布與應用工作坊) | Data Management Plan (2023/05/13 TaiBIF Biodiversity Data Release and Application Workshop)",
+        "name": "20230513-rdm-course-dmps",
+        "url": "https://data.depositar.io/dataset/20230513-rdm-course-dmps",
+        "license": "CC-BY 4.0"
+      },
+      {
+        "title": "2023 研究資料管理工作坊 - 會議資料",
+        "name": "2023-rdm-workshop",
+        "url": "https://data.depositar.io/dataset/2023-rdm-workshop",
+        "license": "CC-BY 4.0"
+      },
+      {
+        "title": "資料管理方案 (2022 TaiBIF 生物多樣性資料發布與應用工作坊) | Data Management Plan (2022 TaiBIF Biodiversity Data Release and Application Workshop)",
+        "name": "2022-rdm-course-dmps",
+        "url": "https://data.depositar.io/dataset/2022-rdm-course-dmps",
+        "license": "CC-BY 4.0"
+      },
+      {
+        "title": "Science Europe 研究資料管理指南 | RDM Guides from Science Europe",
+        "name": "se_rdm_guides",
+        "url": "https://data.depositar.io/dataset/se_rdm_guides",
+        "license": "CC-BY 4.0"
+      },
+      {
+        "title": "研究資料管理與研究資料寄存庫（科技部永續學門 109 年度計畫啟動會議上使用）",
+        "name": "rdm-for-most-2020",
+        "url": "https://data.depositar.io/dataset/rdm-for-most-2020",
+        "license": "CC-BY 4.0"
+      },
+      {
+        "title": "研究資料管理、資料管理方案以及研究資料儲存庫（科技部永續學門 111 年度複審委員第 1 次會議上使用）",
+        "name": "dmp-for-most-2022",
+        "url": "https://data.depositar.io/dataset/dmp-for-most-2022",
+        "license": "CC-BY 4.0"
+      }
+    ],
+    "local_api_url": "http://localhost:3000/wizard-api",
+    "local_project_uuid": "447decc1-558e-430c-a981-65793d96af8f",
     "knowledge_model_package": {
       "name": "Common DSW Knowledge Model (zh_Hant)",
       "version": "2.7.0",
-      "uuid": "6c2e6f82-0932-40fd-8095-bbf1611baebd"
+      "uuid": "6c2e6f82-0932-40fd-8095-bbf1611baebd",
+      "id": "dsw:root-zh-hant:2.7.0"
     },
-    "updated_at": "2026-05-25T07:33:34.334536Z"
+    "updated_at": "2026-06-23T04:37:19.423819Z"
   },
-  "note": "Portable project reference for CI: create a temporary local DSW project from test-project.events.json."
+  "note": "Portable sample project built from public depositar rdm-basics metadata. Create a temporary local DSW project from test-project.events.json when rendering or validating."
 }

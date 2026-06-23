@@ -133,7 +133,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["TRANSLATION_SOURCE_LANG"] == "en"
     assert workflow["env"]["TRANSLATION_TARGET_LANG"] == "zh_Hant"
     assert "science-europe-zh-hant-1.30.0.zip" in workflow["env"]["TRANSLATED_TEMPLATE_PACKAGE"]
-    assert workflow["env"]["PROJECT_REF"] == "workspace/projects/test-project.json"
+    assert workflow["env"]["PROJECT_REF"] == "tooling-repo/workspace/projects/test-project.json"
     assert workflow["env"]["PROJECT_RENDER_OUTPUT"].startswith(
         "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/"
     )
@@ -183,6 +183,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert 'dsw-tdk" package' in workflow_text
     assert "make start-ci-dsw" in workflow_text
     assert "src/render_project.py" in workflow_text
+    assert 'case "$PROJECT_REF" in' in workflow_text
+    assert 'project_ref_path="$GITHUB_WORKSPACE/$PROJECT_REF"' in workflow_text
+    assert '--project-ref "$project_ref_path"' in workflow_text
     assert "scripts/ci/write_preview_status.py" in workflow_text
     assert "--reason render_failed" in workflow_text
     assert 'if [ "$UPSTREAM_TEMPLATE_PREVIEW_STRICT" = "true" ]; then' in workflow_text
@@ -203,11 +206,23 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "template-repo/outputs/project-render/" in workflow_text
     assert "if-no-files-found: warn" in workflow_text
 
-    project_ref_path = repo_root / workflow["env"]["PROJECT_REF"]
+    project_ref = workflow["env"]["PROJECT_REF"]
+    assert project_ref.startswith("tooling-repo/")
+    project_ref_path = repo_root / project_ref.removeprefix("tooling-repo/")
     assert project_ref_path.is_file()
-    project_ref = yaml.safe_load(project_ref_path.read_text(encoding="utf-8"))
-    events_path = project_ref_path.parent / project_ref["events_file"]
-    km_path = project_ref_path.parent / project_ref["knowledge_model_package_id"]
+    project_ref_payload = yaml.safe_load(project_ref_path.read_text(encoding="utf-8"))
+    events_path = project_ref_path.parent / project_ref_payload["events_file"]
+    km_path = project_ref_path.parent / project_ref_payload["knowledge_model_package_id"]
     assert events_path.is_file()
     assert km_path.resolve().is_file()
-    assert project_ref["source_project"]["project_uuid"] == "ae12e1c3-d7a9-4185-af97-1c310d7e6aad"
+    assert (
+        project_ref_payload["source_project"]["organization_url"]
+        == "https://data.depositar.io/organization/rdm-basics"
+    )
+    assert (
+        project_ref_payload["source_project"]["local_project_uuid"]
+        == "447decc1-558e-430c-a981-65793d96af8f"
+    )
+    events = yaml.safe_load(events_path.read_text(encoding="utf-8"))
+    assert isinstance(events, list)
+    assert len(events) == 490

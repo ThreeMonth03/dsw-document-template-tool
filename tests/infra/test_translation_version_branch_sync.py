@@ -293,7 +293,7 @@ def test_version_branch_workflow_uses_version_specific_preview_runtime(
     assert sync_module.preview_runtime_for_version("v1.29.1").dsw_version == "4.26"
     assert sync_module.preview_runtime_for_version("v1.30.0").dsw_version == "4.30"
     assert 'branches: ["translation/v1.29.1"]' in workflow_text
-    assert "PROJECT_REF: workspace/projects/test-project.json" in workflow_text
+    assert "PROJECT_REF: tooling-repo/workspace/projects/test-project.json" in workflow_text
     assert 'DSW_VERSION: "4.26"' in workflow_text
     assert 'DSW_TDK_VERSION: "4.26.1"' in workflow_text
     assert 'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"' in workflow_text

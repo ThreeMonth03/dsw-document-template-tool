@@ -5,7 +5,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.d50477e9-70da-4b3d-a69d-4f82e60ccbc2.6155ad47-3d1e-4488-9f2a-742de1e56580",
     "value": {
       "type": "StringReply",
-      "value": "dsw參與者"
+      "value": "研究資料寄存所團隊"
     }
   },
   {
@@ -14,7 +14,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.d50477e9-70da-4b3d-a69d-4f82e60ccbc2.3a2ffc13-6a0e-4976-bb34-14ab6d938348",
     "value": {
       "type": "StringReply",
-      "value": "dsw@gmail.com"
+      "value": "rdm-example@depositar.io"
     }
   },
   {
@@ -25,7 +25,7 @@
       "type": "IntegrationReply",
       "value": {
         "type": "PlainType",
-        "value": "111222"
+        "value": "0000-0002-1825-0097"
       }
     }
   },
@@ -37,7 +37,7 @@
       "type": "IntegrationReply",
       "value": {
         "type": "PlainType",
-        "value": "中研院"
+        "value": "中央研究院資訊科學研究所／研究資料寄存所團隊"
       }
     }
   },
@@ -62,7 +62,9 @@
     "value": {
       "type": "ItemListReply",
       "value": [
-        "d50477e9-70da-4b3d-a69d-4f82e60ccbc2"
+        "d50477e9-70da-4b3d-a69d-4f82e60ccbc2",
+        "bb42ea92-37db-5e55-9a19-8f047a3f7868",
+        "f16a9040-e248-5835-a071-8f7112e4729b"
       ]
     }
   },
@@ -83,7 +85,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.f0ef08fd-d733-465c-bc66-5de0b826c41b",
     "value": {
       "type": "StringReply",
-      "value": "dsw測試"
+      "value": "研究資料管理實務資料集與教學資源"
     }
   },
   {
@@ -92,7 +94,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.56163eb0-0101-40b4-b1c1-580875196b5c",
     "value": {
       "type": "StringReply",
-      "value": "1231444"
+      "value": "depositar-rdm-basics"
     }
   },
   {
@@ -101,7 +103,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.22583d74-3c98-4e0a-b363-26d767c88212",
     "value": {
       "type": "StringReply",
-      "value": "測試模板用"
+      "value": "本範例以 depositar「研究資料管理實務」專案為情境，整理研究資料管理工作坊、TaiBIF 生物多樣性資料發布與應用工作坊，以及 Science Europe 研究資料管理指南等公開教學資源。資料包含學員同意公開的資料管理方案、簡報、課程連結與指南 PDF/ODT，供研究人員參考資料管理方案撰寫與資料共享實務。"
     }
   },
   {
@@ -110,7 +112,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.de84b9b5-bcd0-4954-8370-72ea83916b8c",
     "value": {
       "type": "StringReply",
-      "value": "2026-05-21"
+      "value": "2022-09-01"
     }
   },
   {
@@ -119,7 +121,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.cabc6f07-6015-454e-b97a-c34db4ec0c60",
     "value": {
       "type": "StringReply",
-      "value": "2026-05-22"
+      "value": "2023-12-31"
     }
   },
   {
@@ -140,41 +142,8 @@
     "value": {
       "type": "IntegrationReply",
       "value": {
-        "raw": {
-          "alt-names": [
-            "U.S. National Science Foundation",
-            "USA NSF",
-            "US National Science Foundation",
-            "US NSF",
-            "NSF"
-          ],
-          "id": "100000001",
-          "location": "United States",
-          "name": "National Science Foundation",
-          "replaced-by": [],
-          "replaces": [],
-          "tokens": [
-            "national",
-            "science",
-            "foundation",
-            "us",
-            "national",
-            "science",
-            "foundation",
-            "usa",
-            "nsf",
-            "us",
-            "national",
-            "science",
-            "foundation",
-            "us",
-            "nsf",
-            "nsf"
-          ],
-          "uri": "https://doi.org/10.13039/100000001"
-        },
-        "type": "IntegrationType",
-        "value": "[**National Science Foundation**](https://doi.org/10.13039/100000001) (United States)"
+        "type": "PlainType",
+        "value": "研究資料寄存所團隊、TaiBIF 生物多樣性資料發布與應用工作坊與相關公開課程資源"
       }
     }
   },
@@ -193,7 +162,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.36a87eac-402d-43fb-a0df-ac5963bdf87d.dd9365f3-1165-4410-85ac-d7bf723bc1b3.1ccbd0bb-4263-4240-9dc5-936ef09eef53",
     "value": {
       "type": "StringReply",
-      "value": "1231444"
+      "value": "RDM-BASICS-EXAMPLE"
     }
   },
   {
@@ -213,7 +182,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.353eeaca-45fa-4958-a33c-ec6de3075701.974a2bcb-29f1-4aad-9ebc-dd038bc537bb.7098b454-bc5e-4f83-a95d-970aa42e1479",
     "value": {
       "type": "StringReply",
-      "value": "補助"
+      "value": "資料整理、後設資料維護與長期保存"
     }
   },
   {
@@ -222,7 +191,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.353eeaca-45fa-4958-a33c-ec6de3075701.974a2bcb-29f1-4aad-9ebc-dd038bc537bb.b3d9b6ca-bd24-4fa3-a3bd-d15005b9ae8b",
     "value": {
       "type": "StringReply",
-      "value": "補助說明"
+      "value": "整理 DMP 範例、補充後設資料、檢查授權資訊並維護 depositar 資料集頁面所需的人力。"
     }
   },
   {
@@ -232,17 +201,8 @@
     "value": {
       "type": "IntegrationReply",
       "value": {
-        "raw": {
-          "code": "USD",
-          "decimal_digits": 2,
-          "name": "US Dollar",
-          "name_plural": "US dollars",
-          "rounding": 0,
-          "symbol": "$",
-          "symbol_native": "$"
-        },
-        "type": "IntegrationType",
-        "value": "US Dollar, USD"
+        "type": "PlainType",
+        "value": "New Taiwan Dollar, TWD"
       }
     }
   },
@@ -285,7 +245,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.353eeaca-45fa-4958-a33c-ec6de3075701.974a2bcb-29f1-4aad-9ebc-dd038bc537bb.46cd176a-138a-4f6c-8cd5-dfcb1f23f04a.8e7cd80f-9a32-48a6-a65c-0d3a0f0a6d3a.7a6f224d-b787-495f-8310-8a89d2f41774",
     "value": {
       "type": "StringReply",
-      "value": "3333"
+      "value": "RDM-BASICS-EXAMPLE"
     }
   },
   {
@@ -294,7 +254,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.dbb99f35-bdd9-4637-890e-23ba5bc19d6a",
     "value": {
       "type": "AnswerReply",
-      "value": "f301ae6e-5bbe-4fe9-a637-f2d5c5f05c73"
+      "value": "2eb83683-86bc-4615-86b7-1d9bf0e414cc"
     }
   },
   {
@@ -323,7 +283,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.dbb99f35-bdd9-4637-890e-23ba5bc19d6a.f301ae6e-5bbe-4fe9-a637-f2d5c5f05c73.40005844-f7bb-493a-af6d-76c17a2f7eeb.6fca4727-30f9-43ff-baa3-2ae62bd69e0c.bd0dd2d0-b3ef-410d-be1f-8f4bf0bbd9d5",
     "value": {
       "type": "StringReply",
-      "value": "223213"
+      "value": "不適用"
     }
   },
   {
@@ -341,7 +301,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.83c0d09d-e74c-4c81-a52c-aaa2e18415ac.d4b4c6e3-e5c6-4938-a08a-e51cb7cdebeb.13dcbcd7-73d8-4480-8739-0a58702ced75",
     "value": {
       "type": "StringReply",
-      "value": "實習"
+      "value": "資料策展、後設資料品質檢核、授權標示與長期保存實務"
     }
   },
   {
@@ -350,7 +310,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.09c7c989-6461-417f-b09e-228491c051c6",
     "value": {
       "type": "AnswerReply",
-      "value": "5d0b87a6-93d5-4b33-a13f-e8b5da23904f"
+      "value": "f4da7f1d-f3c6-42e2-a7b5-41c4845ba352"
     }
   },
   {
@@ -359,7 +319,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.09c7c989-6461-417f-b09e-228491c051c6.5d0b87a6-93d5-4b33-a13f-e8b5da23904f.89af6cc3-cdc5-4d3f-9082-e02c063e0635",
     "value": {
       "type": "StringReply",
-      "value": "網路線，為了架網站"
+      "value": "不需額外硬體或專用軟體；使用一般文件編輯器、PDF 閱讀器與 depositar 網站即可完成。"
     }
   },
   {
@@ -379,7 +339,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.87964502-4401-45e5-9084-d6c84a417acf.de07f2e2-88cd-4845-90e6-462aa2172e6c.34058487-d9e7-41af-be6a-aba67200b8d2",
     "value": {
       "type": "StringReply",
-      "value": "民法"
+      "value": "Science Europe 資料管理方案核心要求與 depositar 資料發布政策"
     }
   },
   {
@@ -388,7 +348,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.87964502-4401-45e5-9084-d6c84a417acf.de07f2e2-88cd-4845-90e6-462aa2172e6c.e13bf3cb-cf78-486e-b844-2c12320919c4",
     "value": {
       "type": "StringReply",
-      "value": "https://ref.com"
+      "value": "https://data.depositar.io/organization/rdm-basics"
     }
   },
   {
@@ -397,7 +357,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.87964502-4401-45e5-9084-d6c84a417acf.de07f2e2-88cd-4845-90e6-462aa2172e6c.c730b703-82cf-4a0e-a1dc-d910d73d1ed9",
     "value": {
       "type": "StringReply",
-      "value": "略"
+      "value": "以 Science Europe DMP 核心要求整理資料管理方案範例，並依 depositar 資料發布流程補齊後設資料、授權與引用資訊。"
     }
   },
   {
@@ -416,7 +376,8 @@
     "value": {
       "type": "ItemListReply",
       "value": [
-        "de0762d4-7416-4f47-b97f-f786e65c17fd"
+        "de0762d4-7416-4f47-b97f-f786e65c17fd",
+        "a4bd5dc1-703a-52d2-85df-8c119775ece7"
       ]
     }
   },
@@ -426,7 +387,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.3b769dce-a88f-4339-a0f3-641d0ba22932",
     "value": {
       "type": "StringReply",
-      "value": "mnist"
+      "value": "Science Europe 研究資料管理指南"
     }
   },
   {
@@ -435,7 +396,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.7801fe70-a2ac-432b-9470-e326646c249f",
     "value": {
       "type": "StringReply",
-      "value": "111333"
+      "value": "https://data.depositar.io/dataset/se_rdm_guides"
     }
   },
   {
@@ -453,7 +414,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.0d9fc7c6-f1eb-4b18-9e38-7e46c28aacb4",
     "value": {
       "type": "StringReply",
-      "value": "mnist author"
+      "value": "Science Europe；中文翻譯由研究資料寄存所團隊製作"
     }
   },
   {
@@ -462,7 +423,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.aee03da5-b399-4274-8db4-fac82c6210d3",
     "value": {
       "type": "AnswerReply",
-      "value": "85dcd5ee-002b-4db7-a0de-241a4b2f0688"
+      "value": "180bb426-9ebe-4210-b307-eaeb1be12c0e"
     }
   },
   {
@@ -471,7 +432,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.aee03da5-b399-4274-8db4-fac82c6210d3.85dcd5ee-002b-4db7-a0de-241a4b2f0688.dce3e924-717a-4b50-bdac-1b247e9ac18a",
     "value": {
       "type": "StringReply",
-      "value": "沒有"
+      "value": "依 CC BY 4.0 標示來源並保留授權資訊。"
     }
   },
   {
@@ -480,7 +441,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.7b8c75c0-8d5c-4fde-9898-ded8b91f7f1f",
     "value": {
       "type": "AnswerReply",
-      "value": "9de86d7b-9c60-47d6-8cb1-bfca13d6f619"
+      "value": "2c2a9b84-b140-4e17-8026-56d5372064d0"
     }
   },
   {
@@ -498,7 +459,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.10b6548c-21cd-44c8-a8de-47415e7b012e.842007ce-0951-4655-8acc-b0f582e82ea1.f00a28fb-ac77-4110-b285-c73c8bc62630",
     "value": {
       "type": "StringReply",
-      "value": "v1"
+      "value": "Practical Guide Extended Edition / 中文翻譯版"
     }
   },
   {
@@ -525,7 +486,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.de0762d4-7416-4f47-b97f-f786e65c17fd.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.bf02f456-0a60-4b50-ae86-5cd56d430b2e",
     "value": {
       "type": "StringReply",
-      "value": "測試"
+      "value": "作為資料管理方案撰寫與課程教材設計的參考架構。"
     }
   },
   {
@@ -535,7 +496,9 @@
     "value": {
       "type": "ItemListReply",
       "value": [
-        "a3bff370-4f7f-4b94-b439-3711f78a0946"
+        "a3bff370-4f7f-4b94-b439-3711f78a0946",
+        "9cbf2e50-0ae7-570a-9074-a675f458f56d",
+        "bbbc949c-a6b6-52c4-87ed-1f38d087270d"
       ]
     }
   },
@@ -545,7 +508,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.682da8d1-c109-4f62-8cf1-dadd8908af77",
     "value": {
       "type": "StringReply",
-      "value": "非參考資料集mnist"
+      "value": "資料管理方案實作成果集"
     }
   },
   {
@@ -554,7 +517,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.5f73797c-268a-4862-b48b-75719ff47709",
     "value": {
       "type": "StringReply",
-      "value": "13123"
+      "value": "https://data.depositar.io/dataset/20230915-rdm-course-dmps"
     }
   },
   {
@@ -572,7 +535,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.b141a560-a823-48a7-9ed2-933eee397ae2",
     "value": {
       "type": "StringReply",
-      "value": "非參考資料集mnist author"
+      "value": "工作坊學員與研究資料寄存所團隊；請參考 depositar 資料集頁面的聯絡資訊。"
     }
   },
   {
@@ -581,7 +544,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.69999c2c-2710-480e-b8ac-8a8fc6f582e5",
     "value": {
       "type": "AnswerReply",
-      "value": "97dc091d-8103-4119-87a2-c46a277ea303"
+      "value": "a278ac17-732d-4fa7-a194-683da6013401"
     }
   },
   {
@@ -590,7 +553,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.69999c2c-2710-480e-b8ac-8a8fc6f582e5.97dc091d-8103-4119-87a2-c46a277ea303.283abe36-207b-42c3-8d8e-ec9343d6f6fd",
     "value": {
       "type": "StringReply",
-      "value": "無"
+      "value": "依 CC BY 4.0 標示來源；僅使用已由作者同意公開的檔案。"
     }
   },
   {
@@ -608,7 +571,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.39e0cc7c-17fe-4991-88d8-1280c3fe7923.08fab0f9-20a7-4c22-9e7b-3a9fa81e49e9.f59d2d89-fe27-4a8a-b3e6-2782bcc2fb97",
     "value": {
       "type": "AnswerReply",
-      "value": "ef89ca6e-3059-4821-995a-034cdb3cf48d"
+      "value": "d719a2b4-08e7-427e-9a8e-e4c6d827c0d4"
     }
   },
   {
@@ -617,7 +580,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.50864250-7dad-421a-9f6c-303114fe6e6c",
     "value": {
       "type": "AnswerReply",
-      "value": "1bbafc04-e527-481b-ad1f-521cc48de186"
+      "value": "381058ff-8fed-40f5-928e-06e19e90dd1c"
     }
   },
   {
@@ -689,7 +652,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.a3bff370-4f7f-4b94-b439-3711f78a0946.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.eb711ea8-8ee7-40b1-a56d-1a374fe8b4c2",
     "value": {
       "type": "StringReply",
-      "value": "沒有目的"
+      "value": "作為 RDM 課程範例、DMP 撰寫教學與後設資料整理示範。"
     }
   },
   {
@@ -707,7 +670,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.8cedcf93-7676-4397-b3fc-a81167ff1853.a62a452b-dfed-478c-ad94-0e433277da94.1d1ac8bb-66c8-4b9e-bfc9-4c26f3598062",
     "value": {
       "type": "AnswerReply",
-      "value": "a0665f70-e1c1-4cd5-b079-2b270a3d3a4b"
+      "value": "ba788639-5816-4f1f-9e28-5bbc0c85401f"
     }
   },
   {
@@ -716,7 +679,7 @@
     "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.7e77ee02-ce26-4cd9-b07d-3eea03bc35c9",
     "value": {
       "type": "AnswerReply",
-      "value": "4a3e9d91-240b-4eae-bc90-02c12a2a4744"
+      "value": "d613ee29-a81b-44aa-83b5-2bf21ba43d22"
     }
   },
   {
@@ -756,7 +719,7 @@
       "type": "IntegrationReply",
       "value": {
         "type": "PlainType",
-        "value": "no"
+        "value": "Dublin Core；DataCite；depositar 資料集欄位"
       }
     }
   },
@@ -797,7 +760,7 @@
       "type": "IntegrationReply",
       "value": {
         "type": "PlainType",
-        "value": "csv"
+        "value": "PDF、ODT、CSV"
       }
     }
   },
@@ -807,7 +770,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.b08fe063-33f8-4380-b3a9-ba1e586dedf2.cf7aa02c-47bd-4eaf-ab5e-c4df7d9b705f.ecff019a-d4e6-44c6-a8fe-c84eb15ed8b7",
     "value": {
       "type": "AnswerReply",
-      "value": "52b7aba3-d809-4a30-b3f8-90caa7a32a10"
+      "value": "d4ce2c56-b3df-4013-9220-289b28f922de"
     }
   },
   {
@@ -825,7 +788,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.b08fe063-33f8-4380-b3a9-ba1e586dedf2.cf7aa02c-47bd-4eaf-ab5e-c4df7d9b705f.ecff019a-d4e6-44c6-a8fe-c84eb15ed8b7.52b7aba3-d809-4a30-b3f8-90caa7a32a10.8bd3d76a-4f69-4a1e-82dd-5416739720b3.ab19f42e-6204-409e-aa6d-6d87783cce44.ea7420ef-3de3-4ca8-9ff8-ac1cdb0e506f",
     "value": {
       "type": "StringReply",
-      "value": "無"
+      "value": "不適用，主要檔案均採用公開且常見的文件格式。"
     }
   },
   {
@@ -834,7 +797,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.b08fe063-33f8-4380-b3a9-ba1e586dedf2.cf7aa02c-47bd-4eaf-ab5e-c4df7d9b705f.ced5a7c2-4034-4763-a1d5-3cb815cdfddb",
     "value": {
       "type": "AnswerReply",
-      "value": "86e547b8-e3ae-44b2-89ad-3a0d67decc56"
+      "value": "985e488d-257f-479d-8113-5dcbe105a08e"
     }
   },
   {
@@ -843,7 +806,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.b08fe063-33f8-4380-b3a9-ba1e586dedf2.cf7aa02c-47bd-4eaf-ab5e-c4df7d9b705f.ced5a7c2-4034-4763-a1d5-3cb815cdfddb.86e547b8-e3ae-44b2-89ad-3a0d67decc56.bf32374c-b24e-4b03-9898-a753cff56fcf",
     "value": {
       "type": "AnswerReply",
-      "value": "7d8dc2f5-2699-4fb3-8bf6-e620868a0583"
+      "value": "3159d107-d322-4126-958f-900fc011eeae"
     }
   },
   {
@@ -861,7 +824,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.b08fe063-33f8-4380-b3a9-ba1e586dedf2.cf7aa02c-47bd-4eaf-ab5e-c4df7d9b705f.ba9e42fc-2bf5-413f-85de-003f981aaf81.c2bc3d0b-a11b-4831-bd2c-5235dbf868b7.4ae6452a-4ca6-434c-8453-7e3872e41847",
     "value": {
       "type": "StringReply",
-      "value": "-1"
+      "value": "0.2"
     }
   },
   {
@@ -888,7 +851,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.1440afd6-d516-44f6-9c02-6abb13900b66.aec37b0d-490d-4d75-8814-8ed78ea5b8dd.8d3b85e0-1683-48a5-a650-9f0d9bf8a1a4",
     "value": {
       "type": "AnswerReply",
-      "value": "45dba825-2fcf-4200-894b-aff2e41b331b"
+      "value": "d29ca8b4-0cb6-4678-90fa-e8c72de9073f"
     }
   },
   {
@@ -897,7 +860,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.1440afd6-d516-44f6-9c02-6abb13900b66.aec37b0d-490d-4d75-8814-8ed78ea5b8dd.035a37e5-1dda-44a1-8b66-d0612e99cd14",
     "value": {
       "type": "AnswerReply",
-      "value": "db10df40-e905-40d3-aa55-e5b1dab7b43a"
+      "value": "3a738380-58e6-422b-ae73-e570d44ea6ca"
     }
   },
   {
@@ -906,7 +869,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.1440afd6-d516-44f6-9c02-6abb13900b66.aec37b0d-490d-4d75-8814-8ed78ea5b8dd.9320bf04-824b-46b3-ae8b-55240e2d04b9",
     "value": {
       "type": "AnswerReply",
-      "value": "8f537593-c01d-4df0-bc68-fbc2f397d527"
+      "value": "f01c23ee-d3d9-4b18-8753-02619ba79c97"
     }
   },
   {
@@ -933,7 +896,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.948b5fd8-c1bd-457d-8f81-ea2fd093f541.ccdb5296-919c-44ac-89df-351fd2e564ae.b73b8310-3b4f-49c8-a5c0-4208883754ac",
     "value": {
       "type": "StringReply",
-      "value": "NO"
+      "value": "以 depositar 資料集頁面、資源描述、版本紀錄與文件修訂紀錄追蹤來源與處理歷程。"
     }
   },
   {
@@ -942,7 +905,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.106df534-f590-416b-8e4a-846edbdc4325",
     "value": {
       "type": "AnswerReply",
-      "value": "42502a61-5384-4611-a207-90cd02de022f"
+      "value": "ac02cdb6-5e2a-4f82-a22a-55aec0d065c5"
     }
   },
   {
@@ -951,7 +914,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab",
     "value": {
       "type": "AnswerReply",
-      "value": "e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76"
+      "value": "8d384c38-653a-476c-bda1-47ab7d38c9c2"
     }
   },
   {
@@ -971,7 +934,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.a077aec4-83d2-45c2-8d9f-75a391bdee20",
     "value": {
       "type": "StringReply",
-      "value": "DATA"
+      "value": "不適用"
     }
   },
   {
@@ -998,7 +961,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.ee59664e-4026-4796-a42a-e8003df6dadf.f2784b7e-b0ed-4973-9d68-954c5c24e8bb.aa27852a-00f4-44a4-a85c-0e0fd3ac20d1.399245d4-7988-461c-b940-ee813a1c99b1.227f056a-ada1-473b-af71-bb63d48b4940",
     "value": {
       "type": "StringReply",
-      "value": "NO"
+      "value": "由研究資料寄存所團隊負責整理與發布公開資料，原作者仍保留其作品權利。"
     }
   },
   {
@@ -1018,7 +981,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.e33ae210-62fe-4665-b836-e71660325a06.167f7aef-a24c-411f-a48a-523f75b02b13.2426addd-293b-4829-b87b-f3dd6b594516",
     "value": {
       "type": "StringReply",
-      "value": "溫度計"
+      "value": "不適用"
     }
   },
   {
@@ -1027,7 +990,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.e33ae210-62fe-4665-b836-e71660325a06.167f7aef-a24c-411f-a48a-523f75b02b13.45b61cd4-057a-40ff-873f-5558acf3568c",
     "value": {
       "type": "StringReply",
-      "value": "測溫度"
+      "value": "本專案不使用量測儀器取得資料。"
     }
   },
   {
@@ -1054,7 +1017,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.ba38b16d-2154-4372-b445-7854a6e90443.9a8dbe23-8fb2-4501-adde-3b6261dc1653.e458d2eb-ba1e-4c4c-8619-5f8f431715b4",
     "value": {
       "type": "AnswerReply",
-      "value": "7cd93213-e3da-45bc-be98-69304abbfaee"
+      "value": "55953e8e-f220-40c8-958a-5778985bd546"
     }
   },
   {
@@ -1063,7 +1026,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.ba38b16d-2154-4372-b445-7854a6e90443.9a8dbe23-8fb2-4501-adde-3b6261dc1653.d5ab8298-9382-455c-8241-f64d3cc54ffe",
     "value": {
       "type": "AnswerReply",
-      "value": "d79fc9ad-7ac3-4bcb-bd90-3340e9870dc6"
+      "value": "ba2aa9ee-2891-44df-be00-03175321ce56"
     }
   },
   {
@@ -1117,7 +1080,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.ba38b16d-2154-4372-b445-7854a6e90443.9a8dbe23-8fb2-4501-adde-3b6261dc1653.839ea5fc-9cc1-497e-91bf-c05b34847a5e.f1e2f788-0957-4111-b342-ab9797641e4d.e24167a2-14ec-445d-b205-fb6c7e24a7d1",
     "value": {
       "type": "StringReply",
-      "value": "無"
+      "value": "發布前逐筆檢查檔案可讀性、授權標示、資料集描述、關鍵字與引用連結。"
     }
   },
   {
@@ -1126,7 +1089,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.ba38b16d-2154-4372-b445-7854a6e90443.9a8dbe23-8fb2-4501-adde-3b6261dc1653.1b919e1e-a4fe-4be6-a976-862b82aab9b0",
     "value": {
       "type": "AnswerReply",
-      "value": "4f39e294-eed3-45b7-9d77-406268eda5a3"
+      "value": "6dbf4e18-d104-4ea2-96f0-fa6e0f158682"
     }
   },
   {
@@ -1144,7 +1107,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f87c331d-794a-42c8-a910-61a2a9110dab.e4ca2d31-137a-46d3-96cd-3e9e8c5e9a76.f5fef09d-ade5-4019-b089-f05bd89c34bc.2889cdbf-c5f1-4248-8d65-9a4a5db825d3.135aa977-ecc2-4bb8-aa55-2def9d9d6040.9270c716-f997-43e1-bc2a-55687e149dbd.1ca28160-8b73-48fe-8b74-18c0f5cb56df",
     "value": {
       "type": "StringReply",
-      "value": "下載使用"
+      "value": "研究人員可參考這些 DMP 範例設計自己的資料管理方案，也可用於 RDM 課程、工作坊與資料發布流程訓練。"
     }
   },
   {
@@ -1162,7 +1125,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.85079340-7b80-4dc7-86ae-cc5f599ec737",
     "value": {
       "type": "AnswerReply",
-      "value": "81baba8e-d43c-48f9-b39a-c0adfad08f64"
+      "value": "000f21de-fdf6-4c9d-9bfb-847db544613b"
     }
   },
   {
@@ -1171,7 +1134,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.36a5ed1e-ecd5-4b86-a719-f1196e376a52",
     "value": {
       "type": "AnswerReply",
-      "value": "7fcce8f6-e52b-444e-88f6-74ba3e4ee37b"
+      "value": "3e3d559c-5fbf-4c43-b1f5-763e84fc9c78"
     }
   },
   {
@@ -1200,7 +1163,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.b642c31d-a512-4ca7-8743-a2e0254006fa.c277adae-c0e2-4f98-a661-0a9c50b79dfb.d87a239f-9aee-4d6a-a5f6-fa83c73e67e1",
     "value": {
       "type": "StringReply",
-      "value": "資料集A"
+      "value": "研究資料管理工作坊會議資料與 DMP 範例整理表"
     }
   },
   {
@@ -1209,7 +1172,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.b642c31d-a512-4ca7-8743-a2e0254006fa.c277adae-c0e2-4f98-a661-0a9c50b79dfb.934f6592-a032-4ada-91b2-4448d740d157",
     "value": {
       "type": "StringReply",
-      "value": "沒有敘述"
+      "value": "彙整公開工作坊簡報、DMP 範例、資料集連結、授權資訊與後設資料欄位，用於展示 RDM 教學資源如何被描述與再次使用。"
     }
   },
   {
@@ -1218,7 +1181,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.ebcbf4c6-ce25-4a0b-9e82-039a88498203",
     "value": {
       "type": "AnswerReply",
-      "value": "9310b639-4cf7-4f94-8fbe-c1afc50afe4b"
+      "value": "579c0a9a-29f0-4ab8-991d-bc4f55f2e4b8"
     }
   },
   {
@@ -1227,7 +1190,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.ebcbf4c6-ce25-4a0b-9e82-039a88498203.9310b639-4cf7-4f94-8fbe-c1afc50afe4b.3782d32b-91b5-432f-8f93-92bb22868a22",
     "value": {
       "type": "AnswerReply",
-      "value": "04644b31-678c-45d5-807d-93d0d79f2221"
+      "value": "6480ac87-faaa-4b47-9a66-f338e95ace5a"
     }
   },
   {
@@ -1245,7 +1208,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe",
     "value": {
       "type": "AnswerReply",
-      "value": "1d6ba101-fd62-43c8-ab53-76bc31847f58"
+      "value": "e7324e1a-bfcb-4f2b-855a-35701dfb1ad5"
     }
   },
   {
@@ -1281,7 +1244,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.38ebf5d0-f7a3-4cf5-93eb-6ee3143c8a69.ec502175-376d-4bf3-a055-c4f7d7639103.974f3ad3-90b3-4e00-b751-8c5a5629b2cf",
     "value": {
       "type": "StringReply",
-      "value": "2"
+      "value": "1"
     }
   },
   {
@@ -1299,7 +1262,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.a12aa967-28a5-4a9b-8df8-f7c533205ea4.00ed33b9-ef1c-4de0-932b-bc6a29023e76.cc76bce4-f4df-40e0-b28b-dc64b95b7c7b",
     "value": {
       "type": "AnswerReply",
-      "value": "b1fdd89d-7493-4f02-9d9f-d9b28caa5c2a"
+      "value": "d8e75d4d-08b8-40d0-9894-becd7e282772"
     }
   },
   {
@@ -1308,7 +1271,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.a12aa967-28a5-4a9b-8df8-f7c533205ea4.00ed33b9-ef1c-4de0-932b-bc6a29023e76.cc76bce4-f4df-40e0-b28b-dc64b95b7c7b.b1fdd89d-7493-4f02-9d9f-d9b28caa5c2a.c9ed47c7-49f7-4ea5-895d-1d17c19c36e4",
     "value": {
       "type": "StringReply",
-      "value": "隨意命名"
+      "value": "依 dataset-slug/resource-type/date-version 命名，例如 rdm-basics/dmp-examples/2023-09-v1。"
     }
   },
   {
@@ -1326,7 +1289,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.a12aa967-28a5-4a9b-8df8-f7c533205ea4.00ed33b9-ef1c-4de0-932b-bc6a29023e76.f8eeb548-f5af-4fc8-a5fd-88fdf28b0de1.0493b207-9ed9-4437-aa3d-603632b600c1.ecb23397-d44d-4623-8233-481e753492ea",
     "value": {
       "type": "StringReply",
-      "value": "隨意命名"
+      "value": "依 processing-step/date 命名，例如 metadata-cleaning/2023-12。"
     }
   },
   {
@@ -1344,7 +1307,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.a12aa967-28a5-4a9b-8df8-f7c533205ea4.00ed33b9-ef1c-4de0-932b-bc6a29023e76.c39edad5-fc9a-4649-9c8f-dbebd6902578.420d249b-5586-41d1-98b3-01961190308c.dad8247a-3553-48dc-8518-d64057cded1e",
     "value": {
       "type": "StringReply",
-      "value": "隨意命名"
+      "value": "依 gather、normalize、review、publish 等處理步驟建立子資料夾。"
     }
   },
   {
@@ -1353,7 +1316,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.a12aa967-28a5-4a9b-8df8-f7c533205ea4.00ed33b9-ef1c-4de0-932b-bc6a29023e76.3d0e0a6e-24c0-421c-8656-fc7c1e6f79be",
     "value": {
       "type": "StringReply",
-      "value": "隨意命名"
+      "value": "檔名包含活動日期、資料類型、語言與版本，例如 20230915-dmp-example-zh-Hant-v1.pdf。"
     }
   },
   {
@@ -1362,7 +1325,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.a12aa967-28a5-4a9b-8df8-f7c533205ea4.00ed33b9-ef1c-4de0-932b-bc6a29023e76.a2e22a59-4747-4c29-84c0-3a9cbd859249",
     "value": {
       "type": "AnswerReply",
-      "value": "d23c7fe6-4b85-4a84-9253-0322f9a94756"
+      "value": "7df4eaa1-6779-473e-ab7d-44421d4e5f49"
     }
   },
   {
@@ -1380,7 +1343,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.dc39957e-688a-4f71-a6a8-57f52509e7cf.91c04284-9af5-425c-b288-1b7997885fcd.7dcf6059-b22c-44e9-8048-c8b8b90764ca",
     "value": {
       "type": "StringReply",
-      "value": "隨意命名"
+      "value": "物件名稱使用資料集 slug、資源類型與版本號，並避免空白與不穩定縮寫。"
     }
   },
   {
@@ -1389,7 +1352,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.4539a575-6bdd-4077-a2fd-71b8121e2e06",
     "value": {
       "type": "AnswerReply",
-      "value": "cb1a5c3b-9b63-449d-b722-a3e4f137dcb7"
+      "value": "6be266f0-1357-488a-92e4-382989d9fbf2"
     }
   },
   {
@@ -1416,7 +1379,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.90324a7b-f3c9-4ed8-b301-edc9869cb7b3",
     "value": {
       "type": "AnswerReply",
-      "value": "7134876a-bd96-44dd-b483-a0089bb1e5be"
+      "value": "17172079-ddce-40a7-b93a-f86dc6611452"
     }
   },
   {
@@ -1425,7 +1388,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.abaf4a70-17d4-449c-9b95-5b3bcfed7e9b",
     "value": {
       "type": "AnswerReply",
-      "value": "c9fc7d94-0f37-40af-9d12-7c828d1252fc"
+      "value": "3c8f999d-c962-42a4-a7c3-05b21a4029ab"
     }
   },
   {
@@ -1434,7 +1397,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.abaf4a70-17d4-449c-9b95-5b3bcfed7e9b.c9fc7d94-0f37-40af-9d12-7c828d1252fc.6aff9a57-acea-4f6d-ac98-9a067e03cc8e",
     "value": {
       "type": "AnswerReply",
-      "value": "546d6e41-80ea-417b-b0e3-a1d9d75a3794"
+      "value": "dda8513e-431d-474e-b00d-107ae995e0ee"
     }
   },
   {
@@ -1461,7 +1424,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.39d8dad9-7666-405c-b35c-9e430c9691ed",
     "value": {
       "type": "AnswerReply",
-      "value": "2b934f9d-d849-4e22-8e0c-65dbf7b9dbeb"
+      "value": "bb176104-3bf1-4bc8-b8e8-a4b09e14b88c"
     }
   },
   {
@@ -1470,7 +1433,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.dc327e53-cf4f-44e7-8e66-40ddf1b4ae0a",
     "value": {
       "type": "AnswerReply",
-      "value": "d802675e-f76b-4714-87ee-1b328da826ab"
+      "value": "4f86bb87-06f6-4d52-a9c0-52fc97bb441c"
     }
   },
   {
@@ -1506,7 +1469,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.d5990471-0618-42cd-92cb-bbbfd4f61532",
     "value": {
       "type": "AnswerReply",
-      "value": "75b86c10-4aeb-4f1a-89cd-8b380a2287b1"
+      "value": "5d518250-a5d3-47f1-ada8-aa64c9ce3370"
     }
   },
   {
@@ -1524,7 +1487,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.d5990471-0618-42cd-92cb-bbbfd4f61532.75b86c10-4aeb-4f1a-89cd-8b380a2287b1.59748a7b-f729-404d-babe-3147e2c6b247.c5bdfb9d-33a7-4d0b-82cf-cde1911ad5bc.eb876df3-5fb5-4885-9ab6-7dbfa6ba7427",
     "value": {
       "type": "StringReply",
-      "value": "認真做"
+      "value": "本範例僅使用公開資料；若來源檔案包含可識別個人資訊，發布前會移除或匿名化。"
     }
   },
   {
@@ -1533,7 +1496,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.49c009cb-a38c-4836-9780-8a8b3dd1cbac",
     "value": {
       "type": "AnswerReply",
-      "value": "421e2d3e-c95c-4244-9465-de8f1cb8aeba"
+      "value": "4bdc319d-282a-4a80-9cdd-78d2081e812b"
     }
   },
   {
@@ -1569,7 +1532,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.49c009cb-a38c-4836-9780-8a8b3dd1cbac.421e2d3e-c95c-4244-9465-de8f1cb8aeba.c8687abf-ac88-4bef-b1cc-7070bd039a07.d8ecede2-f952-4b08-8a68-20d97849733f.be4651c9-9a8c-4e10-a158-61b94ca0e139.73cd2dda-41ba-456b-9a4e-aa34c78f2fcf.61d21b4f-332b-4257-a345-bbf51b10d357",
     "value": {
       "type": "StringReply",
-      "value": "用摩司密碼"
+      "value": "課程與工作坊會在提交範例前說明公開發布範圍、授權條款與可撤回方式。"
     }
   },
   {
@@ -1587,7 +1550,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.49c009cb-a38c-4836-9780-8a8b3dd1cbac.421e2d3e-c95c-4244-9465-de8f1cb8aeba.c8687abf-ac88-4bef-b1cc-7070bd039a07.d8ecede2-f952-4b08-8a68-20d97849733f.be4651c9-9a8c-4e10-a158-61b94ca0e139.73cd2dda-41ba-456b-9a4e-aa34c78f2fcf.c6579da8-496a-4468-b567-9fb6ce472bf9",
     "value": {
       "type": "StringReply",
-      "value": "寄信"
+      "value": "僅發布作者明確同意公開的成果，並保留授權與來源資訊。"
     }
   },
   {
@@ -1596,7 +1559,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.49c009cb-a38c-4836-9780-8a8b3dd1cbac.421e2d3e-c95c-4244-9465-de8f1cb8aeba.c8687abf-ac88-4bef-b1cc-7070bd039a07.d8ecede2-f952-4b08-8a68-20d97849733f.c7496ece-4535-4f5d-bcf7-7845989906e9",
     "value": {
       "type": "StringReply",
-      "value": "沒有目的"
+      "value": "用於整理 RDM 教學資源、展示資料管理方案範例，以及改進資料發布流程。"
     }
   },
   {
@@ -1605,7 +1568,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.49c009cb-a38c-4836-9780-8a8b3dd1cbac.421e2d3e-c95c-4244-9465-de8f1cb8aeba.c8687abf-ac88-4bef-b1cc-7070bd039a07.d8ecede2-f952-4b08-8a68-20d97849733f.8915bd25-db22-4ed6-bcc8-b1bbdc52989e",
     "value": {
       "type": "AnswerReply",
-      "value": "c3914e43-cca1-4180-8960-228b7022bae6"
+      "value": "d0741ff3-370b-44e7-860d-00b1f01e6254"
     }
   },
   {
@@ -1632,7 +1595,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.49c009cb-a38c-4836-9780-8a8b3dd1cbac.421e2d3e-c95c-4244-9465-de8f1cb8aeba.c8687abf-ac88-4bef-b1cc-7070bd039a07.d8ecede2-f952-4b08-8a68-20d97849733f.a30f5047-33c1-45a7-8b3f-b1b90c364fc9.22e612e0-c72d-42fa-9a37-a55232e72c72.f646ba6e-21bc-4e66-8265-c8fdbe115c1f",
     "value": {
       "type": "StringReply",
-      "value": "沒有"
+      "value": "公開前檢查文件內容，移除不應公開的聯絡資訊、簽名或內部備註。"
     }
   },
   {
@@ -1641,7 +1604,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.49c009cb-a38c-4836-9780-8a8b3dd1cbac.421e2d3e-c95c-4244-9465-de8f1cb8aeba.c8687abf-ac88-4bef-b1cc-7070bd039a07.d8ecede2-f952-4b08-8a68-20d97849733f.a30f5047-33c1-45a7-8b3f-b1b90c364fc9.22e612e0-c72d-42fa-9a37-a55232e72c72.15ade1cb-af43-40be-b8b1-2b801812dab1",
     "value": {
       "type": "AnswerReply",
-      "value": "92b8a6ea-124f-43dd-95ab-13b8ce955bac"
+      "value": "ecbffd84-0d74-4a7d-8fbc-f34e6aecc6a4"
     }
   },
   {
@@ -1659,7 +1622,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.cb7d17a8-30c0-489d-a43c-702b27d97611.0fd3cd1c-e0e8-41d5-9beb-3f1faba0fb91.06655161-9a91-47f4-af3b-9d2a5e6db19b",
     "value": {
       "type": "StringReply",
-      "value": "沒有安排"
+      "value": "公開資料依各資料集標示的授權條款再使用，主要採 CC BY 4.0；原作者保留其作品權利。"
     }
   },
   {
@@ -1669,7 +1632,9 @@
     "value": {
       "type": "ItemListReply",
       "value": [
-        "0c56109a-9990-409d-9b51-562c6a26f2c1"
+        "0c56109a-9990-409d-9b51-562c6a26f2c1",
+        "df13edeb-395c-58ca-a835-2549e5ee66db",
+        "555f0620-d68c-512c-a9da-ccb7f712de39"
       ]
     }
   },
@@ -1679,7 +1644,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.b0949d09-d179-4491-9fb4-14b0deb9f862",
     "value": {
       "type": "StringReply",
-      "value": "DEPOSITAR資料集"
+      "value": "研究資料管理實務公開教材與 DMP 範例資料集"
     }
   },
   {
@@ -1688,7 +1653,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.205a886d-83d7-4359-ae63-7103e05357c3",
     "value": {
       "type": "StringReply",
-      "value": "DEPOSITAR做的資料集"
+      "value": "包含 RDM 工作坊簡報、Science Europe 指南翻譯、學員同意公開的 DMP 範例，以及描述這些資源的後設資料。"
     }
   },
   {
@@ -1708,7 +1673,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.e14cfabf-d1d8-4ea8-ad3b-ddd503851396.5c22cf59-89e3-43a1-af10-1af43a97bcb2",
     "value": {
       "type": "AnswerReply",
-      "value": "97236701-7b62-40f8-99a0-3b18d3fe3658"
+      "value": "7a1d3b28-5f85-48b8-b052-2448c276d9fc"
     }
   },
   {
@@ -1717,7 +1682,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.e14cfabf-d1d8-4ea8-ad3b-ddd503851396.5c22cf59-89e3-43a1-af10-1af43a97bcb2.97236701-7b62-40f8-99a0-3b18d3fe3658.636d2958-b8ef-47bb-ae11-10a890569ca2",
     "value": {
       "type": "StringReply",
-      "value": "type2"
+      "value": "URL"
     }
   },
   {
@@ -1726,7 +1691,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.e14cfabf-d1d8-4ea8-ad3b-ddd503851396.9e13b2d3-5f00-4e19-8a52-5c33c5b1cb07",
     "value": {
       "type": "StringReply",
-      "value": "3231"
+      "value": "https://data.depositar.io/organization/rdm-basics"
     }
   },
   {
@@ -1766,7 +1731,7 @@
       "type": "IntegrationReply",
       "value": {
         "type": "PlainType",
-        "value": "一個資料儲存庫"
+        "value": "研究資料寄存所（depositar）"
       }
     }
   },
@@ -1776,7 +1741,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.82fc0a41-8be0-407c-b2f8-95bf5b366187",
     "value": {
       "type": "AnswerReply",
-      "value": "a8adc972-a2b6-4f5b-837b-20f83a685ed6"
+      "value": "1fd3e838-f92a-4086-8308-de17f6fa9d73"
     }
   },
   {
@@ -1796,7 +1761,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.3d89e23d-ff5c-45da-97a8-169ad8c39be6.b4253d77-75d5-40ba-900d-f2afa4708219.ca0f9465-3116-4824-8651-b592151c5368",
     "value": {
       "type": "AnswerReply",
-      "value": "734d5f4e-91c0-4019-8164-8c70c2e0c8f2"
+      "value": "9186e183-e328-41f9-b012-149d0bbad9ea"
     }
   },
   {
@@ -1805,7 +1770,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.3d89e23d-ff5c-45da-97a8-169ad8c39be6.b4253d77-75d5-40ba-900d-f2afa4708219.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.30426255-b153-4f3e-bf20-f13573160a64",
     "value": {
       "type": "StringReply",
-      "value": "沒有條件"
+      "value": "依 CC BY 4.0 標示來源並保留授權資訊。"
     }
   },
   {
@@ -1814,7 +1779,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.3d89e23d-ff5c-45da-97a8-169ad8c39be6.b4253d77-75d5-40ba-900d-f2afa4708219.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.375792f1-d7c3-4c8d-bf9e-f15ffa38e2fb",
     "value": {
       "type": "StringReply",
-      "value": "https://license.com"
+      "value": "https://creativecommons.org/licenses/by/4.0/"
     }
   },
   {
@@ -1823,7 +1788,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.3d89e23d-ff5c-45da-97a8-169ad8c39be6.b4253d77-75d5-40ba-900d-f2afa4708219.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.f78fb7e9-2f26-493c-a19b-04e153c17274",
     "value": {
       "type": "AnswerReply",
-      "value": "e856687f-772c-462a-b0e1-071ffffaab8e"
+      "value": "15e7beff-1d71-4515-9517-26e222e672e5"
     }
   },
   {
@@ -1832,7 +1797,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.3d89e23d-ff5c-45da-97a8-169ad8c39be6.b4253d77-75d5-40ba-900d-f2afa4708219.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.f78fb7e9-2f26-493c-a19b-04e153c17274.e856687f-772c-462a-b0e1-071ffffaab8e.8a7e4cc0-8806-4c7a-a662-66e38376769c",
     "value": {
       "type": "StringReply",
-      "value": "程序a"
+      "value": "透過資料集頁面下載公開資源，若有疑問可由 depositar 頁面的聯絡資訊洽詢。"
     }
   },
   {
@@ -1850,7 +1815,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.3d89e23d-ff5c-45da-97a8-169ad8c39be6.b4253d77-75d5-40ba-900d-f2afa4708219.28d494ef-26c0-4632-956e-5cafcc498a32",
     "value": {
       "type": "StringReply",
-      "value": "2026-05-30"
+      "value": "2023-12-21"
     }
   },
   {
@@ -1868,7 +1833,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3bca0a15-fdfc-4883-ab6c-60cdf5aad839.d21fdb06-22bf-418e-aa40-dc5ef1485f56.1072923b-8330-4da1-9b5f-9880afa053a9.c928d464-4ae7-447c-82f6-bc525d2596a9",
     "value": {
       "type": "AnswerReply",
-      "value": "50eb4b5d-2455-48aa-b1f1-b4abca495e4d"
+      "value": "a31e0fc2-4bde-4482-8747-d250042a1589"
     }
   },
   {
@@ -1895,7 +1860,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a",
     "value": {
       "type": "AnswerReply",
-      "value": "371461b3-3758-443d-b06a-fa37514be4da"
+      "value": "5d7aa34b-2e26-485a-be2b-5de39f788c3e"
     }
   },
   {
@@ -1915,7 +1880,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818.217a84a9-a9b8-474f-9d70-e7d8abf9f07d.235b36a8-3df7-44b7-9d0f-2ced3e4281a3",
     "value": {
       "type": "StringReply",
-      "value": "windows"
+      "value": "PDF 閱讀器、LibreOffice 或相容的 ODT 文件編輯器"
     }
   },
   {
@@ -1924,7 +1889,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818.217a84a9-a9b8-474f-9d70-e7d8abf9f07d.f29e2dbd-8edc-4ac3-92ba-96a6d507789b",
     "value": {
       "type": "StringReply",
-      "value": "www.windows.com"
+      "value": "https://www.libreoffice.org/"
     }
   },
   {
@@ -1962,7 +1927,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd.595aa65b-e1e2-4606-a56a-f602d14047fa.abb6ac92-6508-4a24-b262-5d64db4ae731",
     "value": {
       "type": "StringReply",
-      "value": "123132"
+      "value": "https://data.depositar.io/dataset/se_rdm_guides"
     }
   },
   {
@@ -1971,7 +1936,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd.595aa65b-e1e2-4606-a56a-f602d14047fa.c70e49f9-09e4-456a-814b-bbaa8fde887c",
     "value": {
       "type": "StringReply",
-      "value": "沒有關係"
+      "value": "作為本資料集的教學參考與延伸閱讀來源。"
     }
   },
   {
@@ -1980,7 +1945,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.d4e6a244-07fb-4573-b93f-c20a9409ac7c",
     "value": {
       "type": "AnswerReply",
-      "value": "7b5f059a-ae7e-4f7f-92e8-119911e568b2"
+      "value": "59305ef2-2dd0-4553-8d7b-29186e0b8cd5"
     }
   },
   {
@@ -1989,7 +1954,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.d4e6a244-07fb-4573-b93f-c20a9409ac7c.7b5f059a-ae7e-4f7f-92e8-119911e568b2.346118ee-265f-4104-8409-161ea9a57f75",
     "value": {
       "type": "StringReply",
-      "value": "1 month"
+      "value": "至少 10 年；若 depositar 平台與授權條款允許，將盡可能長期保留。"
     }
   },
   {
@@ -2007,7 +1972,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a1d76760-053c-4706-80a2-cfb6c6a061f3",
     "value": {
       "type": "AnswerReply",
-      "value": "0cdc4817-7c54-4ec1-b2f4-5c007a85c7b8"
+      "value": "4b2a08c7-4942-41fc-8114-d3868c882624"
     }
   },
   {
@@ -2016,7 +1981,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.cc95b399-7d8d-4232-bccf-686f78c91bff",
     "value": {
       "type": "AnswerReply",
-      "value": "2686575d-cd74-4e2c-8524-eaca6f510425"
+      "value": "60de66a3-d303-4784-8931-bc58f8a3e747"
     }
   },
   {
@@ -2025,7 +1990,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.d5784d24-0e66-4821-bd62-a711fb6d7a40",
     "value": {
       "type": "AnswerReply",
-      "value": "e81599af-4519-4987-b74e-9545428ed0e3"
+      "value": "a547dc69-a3e8-46e4-bb4b-21fd104231f9"
     }
   },
   {
@@ -2034,7 +1999,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.de23bb94-b727-4907-9a5d-6f8c78c3e432",
     "value": {
       "type": "AnswerReply",
-      "value": "fe8ed36b-40e8-483b-ab31-061f6168d7ad"
+      "value": "172043dd-d911-4bc7-9ba6-841d38d5822c"
     }
   },
   {
@@ -2052,7 +2017,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.de23bb94-b727-4907-9a5d-6f8c78c3e432.fe8ed36b-40e8-483b-ab31-061f6168d7ad.edc9b6d9-c121-4e00-ba83-710330c2e18d.6fb69263-d2cb-4d90-babe-523136c29bc4.6e0704a2-cea3-4ae7-8ab5-5eb6db163639",
     "value": {
       "type": "StringReply",
-      "value": "面交"
+      "value": "不適用；本範例使用 depositar 既有公開服務。"
     }
   },
   {
@@ -2061,7 +2026,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.13a7eeae-09f5-42bf-8e62-b2c1fe1b86f7",
     "value": {
       "type": "AnswerReply",
-      "value": "f765ae2f-7d22-478c-bd53-1a388c4dbcc9"
+      "value": "db44d6ca-efc2-413e-8abc-d92f92ed1d1d"
     }
   },
   {
@@ -2079,7 +2044,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce",
     "value": {
       "type": "AnswerReply",
-      "value": "b3739ebd-2d8e-42d3-9425-a7d6d1b26c79"
+      "value": "8c33553c-9603-4156-82d7-85ab3d7de090"
     }
   },
   {
@@ -2088,7 +2053,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.c010e830-bd89-460d-9498-cb41e7ffeb87",
     "value": {
       "type": "AnswerReply",
-      "value": "aac95530-2978-4759-803b-64721533faf0"
+      "value": "31f2fcda-dbb2-40f6-871b-c3cc59797a6b"
     }
   },
   {
@@ -2097,7 +2062,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.c010e830-bd89-460d-9498-cb41e7ffeb87.aac95530-2978-4759-803b-64721533faf0.019db0b3-9067-4134-8bfd-76db3cfc572a",
     "value": {
       "type": "AnswerReply",
-      "value": "8a56768a-5c5a-44c0-b21c-46a231fbf6be"
+      "value": "b6dfc087-93d6-4dcf-b45c-3c6600395ec6"
     }
   },
   {
@@ -2106,7 +2071,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.c010e830-bd89-460d-9498-cb41e7ffeb87.aac95530-2978-4759-803b-64721533faf0.019db0b3-9067-4134-8bfd-76db3cfc572a.8a56768a-5c5a-44c0-b21c-46a231fbf6be.ecca7dd6-62f2-4714-a85a-8d79bbca402a",
     "value": {
       "type": "StringReply",
-      "value": "程序3"
+      "value": "不適用；資料將以公開授權於 depositar 發布。"
     }
   },
   {
@@ -2115,7 +2080,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.c010e830-bd89-460d-9498-cb41e7ffeb87.aac95530-2978-4759-803b-64721533faf0.55f03a4a-034b-422a-adf6-757416b7650a",
     "value": {
       "type": "AnswerReply",
-      "value": "18a46146-25f6-4e5c-90ae-c6b9be9cc3f0"
+      "value": "da8b25a9-8865-4ce8-a2ba-d592c42daa4c"
     }
   },
   {
@@ -2133,7 +2098,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.c010e830-bd89-460d-9498-cb41e7ffeb87.aac95530-2978-4759-803b-64721533faf0.55f03a4a-034b-422a-adf6-757416b7650a.18a46146-25f6-4e5c-90ae-c6b9be9cc3f0.23909308-55cf-4e94-a616-2a74c809aa48.d010e09e-8ce8-47c6-a1f9-f281519ba936.0de7232f-802d-4e1f-a84c-2895d08901ce",
     "value": {
       "type": "StringReply",
-      "value": "那個的資料取用委員會"
+      "value": "不適用"
     }
   },
   {
@@ -2142,7 +2107,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.85a9d872-3d41-4560-82c4-b850a6e2d5ac",
     "value": {
       "type": "AnswerReply",
-      "value": "0cfc22ec-5551-4a37-84ec-308c85440af5"
+      "value": "c87ef228-d9e5-4387-8ff6-5b6a05402a95"
     }
   },
   {
@@ -2151,7 +2116,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.85a9d872-3d41-4560-82c4-b850a6e2d5ac.0cfc22ec-5551-4a37-84ec-308c85440af5.43370b85-0ee0-4f0f-b7de-9b04a54a2480",
     "value": {
       "type": "StringReply",
-      "value": "沒有資料"
+      "value": "不適用；本範例以公開教材與公開 DMP 範例為主。"
     }
   },
   {
@@ -2160,7 +2125,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.c10f9098-5b1c-4abc-adaa-bdef2fb537ca",
     "value": {
       "type": "AnswerReply",
-      "value": "2b755a90-8a43-41c0-9020-5e2b9ca8f88e"
+      "value": "0eeabfdc-d62a-4868-bece-b696bccecc3a"
     }
   },
   {
@@ -2169,7 +2134,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.a549d10b-aa46-4c0c-863f-30219ac5ecce.b3739ebd-2d8e-42d3-9425-a7d6d1b26c79.c10f9098-5b1c-4abc-adaa-bdef2fb537ca.2b755a90-8a43-41c0-9020-5e2b9ca8f88e.b289fdcc-aedc-496e-8169-e0bbe2346d1f",
     "value": {
       "type": "StringReply",
-      "value": "沒有資料"
+      "value": "不適用；若後續發現不應公開的資料，會先移除或改以受限方式處理。"
     }
   },
   {
@@ -2178,7 +2143,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.f5c12fcf-15d0-44ba-a53c-49ea9d7f620f",
     "value": {
       "type": "AnswerReply",
-      "value": "1b120967-803b-458b-b565-dbee6a785509"
+      "value": "d7a60a9d-75f6-4d0a-8a3d-0661d30f9a93"
     }
   },
   {
@@ -2187,7 +2152,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.f5c12fcf-15d0-44ba-a53c-49ea9d7f620f.1b120967-803b-458b-b565-dbee6a785509.99a48a1a-5c27-4e15-9da0-515da815b4b8",
     "value": {
       "type": "StringReply",
-      "value": "永久封存"
+      "value": "不適用"
     }
   },
   {
@@ -2196,7 +2161,7 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.12baa8af-db59-43a5-8ec7-0941c58ff89a",
     "value": {
       "type": "AnswerReply",
-      "value": "1dc216a6-77df-4f75-8bab-8e4f082fdab2"
+      "value": "cb148cc8-f15f-494f-a197-f01e3111ec60"
     }
   },
   {
@@ -2205,7 +2170,2405 @@
     "path": "6be88f7c-f868-460f-bba7-91e1c659adfd.12baa8af-db59-43a5-8ec7-0941c58ff89a.1dc216a6-77df-4f75-8bab-8e4f082fdab2.6b5a6334-fbb3-4c88-995a-6d899e30da1e",
     "value": {
       "type": "StringReply",
-      "value": "機密"
+      "value": "不適用；後設資料將公開提供。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2059776d-97c2-579e-a75e-07785f66cdd9",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.bb42ea92-37db-5e55-9a19-8f047a3f7868.6155ad47-3d1e-4488-9f2a-742de1e56580",
+    "value": {
+      "type": "StringReply",
+      "value": "TaiBIF 生物多樣性資料工作坊教學團隊"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "aacbd71e-024a-507e-ad81-e7c0389889de",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.bb42ea92-37db-5e55-9a19-8f047a3f7868.3a2ffc13-6a0e-4976-bb34-14ab6d938348",
+    "value": {
+      "type": "StringReply",
+      "value": "taibif-rdm-example@depositar.io"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "625ff286-bed3-56b4-9fbf-f9d8874e9d60",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.bb42ea92-37db-5e55-9a19-8f047a3f7868.6295a55d-48d7-4f3c-961a-45b38eeea41f",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "不適用"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e4bb723b-a1e0-58ae-9e5a-d6aef0ae7f14",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.bb42ea92-37db-5e55-9a19-8f047a3f7868.68530470-1f1c-4448-8593-63a288713a66",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "TaiBIF／研究資料寄存所合作課程"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "afe7eebc-0c78-5440-80a2-4525cffff8fd",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.bb42ea92-37db-5e55-9a19-8f047a3f7868.829dcda6-db8a-40ac-819a-92b9b52490f5",
+    "value": {
+      "type": "MultiChoiceReply",
+      "value": [
+        "e957ecd5-baa2-4a3c-aaf1-735d416e5e11",
+        "627ab8dc-8026-498d-ba7a-3df122e29ede",
+        "618cb529-0c24-4762-a739-7983004d1b2b",
+        "2c6ee59d-4dc9-4dcb-ac13-d969c317a117"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5ea92f1e-b4f8-59c7-8542-ecc9ae9b7fe1",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.f16a9040-e248-5835-a071-8f7112e4729b.6155ad47-3d1e-4488-9f2a-742de1e56580",
+    "value": {
+      "type": "StringReply",
+      "value": "DMP 範例作者群"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "62edf52d-4011-57a6-a398-31631cdb1f9c",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.f16a9040-e248-5835-a071-8f7112e4729b.3a2ffc13-6a0e-4976-bb34-14ab6d938348",
+    "value": {
+      "type": "StringReply",
+      "value": "dmp-authors-example@depositar.io"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "6ce88d2c-5edd-5585-a64b-8eeb6b0a2012",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.f16a9040-e248-5835-a071-8f7112e4729b.6295a55d-48d7-4f3c-961a-45b38eeea41f",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "不適用"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "eb8407cd-eac1-5100-b4f1-c080b4a440dd",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.f16a9040-e248-5835-a071-8f7112e4729b.68530470-1f1c-4448-8593-63a288713a66",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "公開授權之工作坊學員成果"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "88b9deb6-ca90-5f90-b786-f1578e206417",
+    "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.73d686bd-7939-412e-8631-502ee6d9ea7b.f16a9040-e248-5835-a071-8f7112e4729b.829dcda6-db8a-40ac-819a-92b9b52490f5",
+    "value": {
+      "type": "MultiChoiceReply",
+      "value": [
+        "e957ecd5-baa2-4a3c-aaf1-735d416e5e11",
+        "627ab8dc-8026-498d-ba7a-3df122e29ede",
+        "618cb529-0c24-4762-a739-7983004d1b2b",
+        "2c6ee59d-4dc9-4dcb-ac13-d969c317a117"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "3ca51902-ab84-5ff6-b74d-a9b998af4b13",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.3b769dce-a88f-4339-a0f3-641d0ba22932",
+    "value": {
+      "type": "StringReply",
+      "value": "2023 研究資料管理工作坊會議資料"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c763eaac-a762-5487-bd00-407f22ba0544",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.7801fe70-a2ac-432b-9470-e326646c249f",
+    "value": {
+      "type": "StringReply",
+      "value": "https://data.depositar.io/dataset/2023-rdm-workshop"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "1604e91b-4046-51cc-8876-850921b4f203",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8a1937d8-39dc-4efd-a3f6-b62e789f225b"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ca2f5acd-8cb2-5247-a7b4-82261ff27b4b",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.0d9fc7c6-f1eb-4b18-9e38-7e46c28aacb4",
+    "value": {
+      "type": "StringReply",
+      "value": "研究資料寄存所團隊與工作坊講者"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "593ccdff-a56f-5803-967b-baa248aa4657",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.aee03da5-b399-4274-8db4-fac82c6210d3",
+    "value": {
+      "type": "AnswerReply",
+      "value": "180bb426-9ebe-4210-b307-eaeb1be12c0e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "91aaec3f-780a-58a4-aa42-adc9e7f7dbb5",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.aee03da5-b399-4274-8db4-fac82c6210d3.85dcd5ee-002b-4db7-a0de-241a4b2f0688.dce3e924-717a-4b50-bdac-1b247e9ac18a",
+    "value": {
+      "type": "StringReply",
+      "value": "依 CC BY 4.0 標示來源並保留授權資訊。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "652c51e2-08b7-52e0-a429-90ad7302c5b5",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.7b8c75c0-8d5c-4fde-9898-ded8b91f7f1f",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2c2a9b84-b140-4e17-8026-56d5372064d0"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b4e9de8b-716d-54ed-bc15-02d1f821e837",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.10b6548c-21cd-44c8-a8de-47415e7b012e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "842007ce-0951-4655-8acc-b0f582e82ea1"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "89b26c3a-4b36-50c2-ab7c-4f9f1933d910",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.10b6548c-21cd-44c8-a8de-47415e7b012e.842007ce-0951-4655-8acc-b0f582e82ea1.f00a28fb-ac77-4110-b285-c73c8bc62630",
+    "value": {
+      "type": "StringReply",
+      "value": "2023 公開發布版"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ac571e5a-d09a-58ee-b6e2-fe98a4316ce5",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.10b6548c-21cd-44c8-a8de-47415e7b012e.842007ce-0951-4655-8acc-b0f582e82ea1.481d0157-6d89-4f68-9f3b-cf1b05f8f15d",
+    "value": {
+      "type": "AnswerReply",
+      "value": "dc8dbe60-43e8-4ed4-ab11-13bb74aea820"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0c4adec6-ee9c-5e39-b447-7ccd06cc296c",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.12762d00-f02a-40f7-b175-c7e4c92f5f54",
+    "value": {
+      "type": "AnswerReply",
+      "value": "aee14c30-46a4-4a8f-8918-acc98a31043e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "940b7c42-6d96-5b90-9b48-c98350368d66",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.fcc51962-08df-4f4c-85ad-6bb932107010.a4bd5dc1-703a-52d2-85df-8c119775ece7.58401091-2d48-4231-983a-c972d11d9f6e.8a1937d8-39dc-4efd-a3f6-b62e789f225b.bf02f456-0a60-4b50-ae86-5cd56d430b2e",
+    "value": {
+      "type": "StringReply",
+      "value": "作為 RDM 課程內容、資料發布流程與範例專案說明的參考。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d4a099a2-8f98-5102-8fe1-86ae2b73f78f",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.682da8d1-c109-4f62-8cf1-dadd8908af77",
+    "value": {
+      "type": "StringReply",
+      "value": "資料管理方案實作成果集（2023/05/13 TaiBIF 工作坊）"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b98bbee1-5b3a-594d-a180-3b7786b1f7f9",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.5f73797c-268a-4862-b48b-75719ff47709",
+    "value": {
+      "type": "StringReply",
+      "value": "https://data.depositar.io/dataset/20230513-rdm-course-dmps"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c2e67360-047e-5586-8fce-5f1c453b806b",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811",
+    "value": {
+      "type": "AnswerReply",
+      "value": "7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0cf4b17b-cf2b-57ce-98ba-d62e682dc74e",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.b141a560-a823-48a7-9ed2-933eee397ae2",
+    "value": {
+      "type": "StringReply",
+      "value": "2023/05/13 TaiBIF 工作坊學員與研究資料寄存所團隊"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "06e157e0-b348-5639-a82f-63040eb84e37",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.69999c2c-2710-480e-b8ac-8a8fc6f582e5",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a278ac17-732d-4fa7-a194-683da6013401"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0ad03e15-cee0-533b-b349-1422fa6b6943",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.69999c2c-2710-480e-b8ac-8a8fc6f582e5.97dc091d-8103-4119-87a2-c46a277ea303.283abe36-207b-42c3-8d8e-ec9343d6f6fd",
+    "value": {
+      "type": "StringReply",
+      "value": "依 CC BY 4.0 標示來源；僅使用已由作者同意公開的檔案。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "966920b3-31d7-54ac-81f4-23b78ddf1889",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.39e0cc7c-17fe-4991-88d8-1280c3fe7923",
+    "value": {
+      "type": "AnswerReply",
+      "value": "08fab0f9-20a7-4c22-9e7b-3a9fa81e49e9"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "79abe65a-db5c-5278-94f0-8d09a38f4e2e",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.39e0cc7c-17fe-4991-88d8-1280c3fe7923.08fab0f9-20a7-4c22-9e7b-3a9fa81e49e9.f59d2d89-fe27-4a8a-b3e6-2782bcc2fb97",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d719a2b4-08e7-427e-9a8e-e4c6d827c0d4"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5a7175b2-0562-5f2c-8445-05afe2ea428c",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.50864250-7dad-421a-9f6c-303114fe6e6c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "381058ff-8fed-40f5-928e-06e19e90dd1c"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "3a81472a-e7ec-5a33-a8cf-3df47d1143c8",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.50864250-7dad-421a-9f6c-303114fe6e6c.1bbafc04-e527-481b-ad1f-521cc48de186.c2da0410-ede1-4b0a-a750-09e6e6bd38cf",
+    "value": {
+      "type": "AnswerReply",
+      "value": "eb17ff9a-c57e-4fd4-b3bd-89edb31c6568"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "24574266-2846-532f-9167-0085bddde31d",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.50864250-7dad-421a-9f6c-303114fe6e6c.1bbafc04-e527-481b-ad1f-521cc48de186.c2da0410-ede1-4b0a-a750-09e6e6bd38cf.eb17ff9a-c57e-4fd4-b3bd-89edb31c6568.28e7c4f7-7ade-42b2-a68e-63ab4f67b960",
+    "value": {
+      "type": "AnswerReply",
+      "value": "5374139c-f125-4d04-bce2-3ef6d4b34a2a"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "58105ea5-3cd1-5dc9-9089-9c411fae525b",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.c15710f6-1c7f-43a0-97e7-ab70f6b5a115",
+    "value": {
+      "type": "AnswerReply",
+      "value": "12ae8bdc-a6eb-4db9-9a1a-7e6fed7f9ace"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "1fbe61ea-d1af-5420-8b06-c251ef653e74",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.588e3c1f-e9fd-411f-954e-f7a9b1cff1de",
+    "value": {
+      "type": "AnswerReply",
+      "value": "4831f187-8660-4641-9a32-a6f4f569614f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "27d6285a-054d-53f8-aa62-80b7a5824bd7",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.62ddfc73-1680-4bbf-b198-6a7231875fb1",
+    "value": {
+      "type": "AnswerReply",
+      "value": "f5e1c4d3-79f7-4950-9b10-6a7738f21978"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "51a1e4a6-11d4-5efc-af66-0eaffe525b6d",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.3b088f38-81bd-46f9-8066-90513740b662",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d700715e-4ae0-45ed-a1d3-4d79bb32155f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4f39f106-87f9-538f-a544-751aed1576b3",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.2e7af465-4852-4411-8d8e-7f0ff64d8b25",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2076afb5-3c5c-4f42-8f77-9b78fec76a62"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "802524b7-2fa7-52c3-bef0-ccc60c4bce47",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.9cbf2e50-0ae7-570a-9074-a675f458f56d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.eb711ea8-8ee7-40b1-a56d-1a374fe8b4c2",
+    "value": {
+      "type": "StringReply",
+      "value": "比較不同工作坊梯次的 DMP 撰寫成果，作為教學範例與資料管理培訓素材。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e73d45f8-f833-5f9f-8e9d-cccf1d1b0dfb",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.7e77ee02-ce26-4cd9-b07d-3eea03bc35c9.4a3e9d91-240b-4eae-bc90-02c12a2a4744.44b0de3f-b580-4dd0-9e9a-24864c8fe9c8.69b0dc80-4b80-4fe6-b162-2a3eff9e133e.f09c417a-3b3d-4dc8-a1a2-93b1c4bcf8fd.fb398ab7-217c-5ca7-b3f1-5966241932c7.2e5b1f82-4836-4b49-a0bf-2a2624eeaafb",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "Dublin Core；DataCite；depositar 資料集欄位"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "60d7c051-0f5e-58fc-8ca7-e3bee13406b8",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.682da8d1-c109-4f62-8cf1-dadd8908af77",
+    "value": {
+      "type": "StringReply",
+      "value": "資料管理方案實作成果集（2022 TaiBIF 工作坊）"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "dcddf3e2-8b2e-5d85-87b7-31470a72a0b4",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.5f73797c-268a-4862-b48b-75719ff47709",
+    "value": {
+      "type": "StringReply",
+      "value": "https://data.depositar.io/dataset/2022-rdm-course-dmps"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ecf067a8-8feb-5a58-a698-7ed726a92d7a",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811",
+    "value": {
+      "type": "AnswerReply",
+      "value": "7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "33c30e44-217d-5b6e-9b84-b082e2dbcaab",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.b141a560-a823-48a7-9ed2-933eee397ae2",
+    "value": {
+      "type": "StringReply",
+      "value": "2022 TaiBIF 工作坊學員與研究資料寄存所團隊"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "722b50bc-2bf0-5a46-8574-d389713b3c6d",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.69999c2c-2710-480e-b8ac-8a8fc6f582e5",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a278ac17-732d-4fa7-a194-683da6013401"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0163ca98-0532-55d6-9554-c960cd3fdbb0",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.69999c2c-2710-480e-b8ac-8a8fc6f582e5.97dc091d-8103-4119-87a2-c46a277ea303.283abe36-207b-42c3-8d8e-ec9343d6f6fd",
+    "value": {
+      "type": "StringReply",
+      "value": "依 CC BY 4.0 標示來源；僅使用已由作者同意公開的檔案。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c6cf8417-52c9-5afa-a3e5-df1fe86c2063",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.39e0cc7c-17fe-4991-88d8-1280c3fe7923",
+    "value": {
+      "type": "AnswerReply",
+      "value": "08fab0f9-20a7-4c22-9e7b-3a9fa81e49e9"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e897e97c-ba60-5b70-a195-6bbdfa08ec79",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.39e0cc7c-17fe-4991-88d8-1280c3fe7923.08fab0f9-20a7-4c22-9e7b-3a9fa81e49e9.f59d2d89-fe27-4a8a-b3e6-2782bcc2fb97",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d719a2b4-08e7-427e-9a8e-e4c6d827c0d4"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "45a9aa25-47ed-5d3d-a8ee-c99d562944d7",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.50864250-7dad-421a-9f6c-303114fe6e6c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "381058ff-8fed-40f5-928e-06e19e90dd1c"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "28f13dac-1f14-5d03-9586-ea781614a793",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.50864250-7dad-421a-9f6c-303114fe6e6c.1bbafc04-e527-481b-ad1f-521cc48de186.c2da0410-ede1-4b0a-a750-09e6e6bd38cf",
+    "value": {
+      "type": "AnswerReply",
+      "value": "eb17ff9a-c57e-4fd4-b3bd-89edb31c6568"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a883ca7c-4d7b-5843-b20a-82fe724902e5",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.50864250-7dad-421a-9f6c-303114fe6e6c.1bbafc04-e527-481b-ad1f-521cc48de186.c2da0410-ede1-4b0a-a750-09e6e6bd38cf.eb17ff9a-c57e-4fd4-b3bd-89edb31c6568.28e7c4f7-7ade-42b2-a68e-63ab4f67b960",
+    "value": {
+      "type": "AnswerReply",
+      "value": "5374139c-f125-4d04-bce2-3ef6d4b34a2a"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d6d4cbd0-5f66-5d5d-b97e-f0384bf01bf1",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.c15710f6-1c7f-43a0-97e7-ab70f6b5a115",
+    "value": {
+      "type": "AnswerReply",
+      "value": "12ae8bdc-a6eb-4db9-9a1a-7e6fed7f9ace"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "002ebaf6-2388-5772-b841-ac172063b342",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.588e3c1f-e9fd-411f-954e-f7a9b1cff1de",
+    "value": {
+      "type": "AnswerReply",
+      "value": "4831f187-8660-4641-9a32-a6f4f569614f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9a698db6-1fde-583a-b6d8-6d8e0d7533a7",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.62ddfc73-1680-4bbf-b198-6a7231875fb1",
+    "value": {
+      "type": "AnswerReply",
+      "value": "f5e1c4d3-79f7-4950-9b10-6a7738f21978"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a3af5bc5-afba-5184-86c1-ec9429e35a75",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.3b088f38-81bd-46f9-8066-90513740b662",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d700715e-4ae0-45ed-a1d3-4d79bb32155f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "13600aac-dde6-5e40-8d0d-52876f899de2",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.2e7af465-4852-4411-8d8e-7f0ff64d8b25",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2076afb5-3c5c-4f42-8f77-9b78fec76a62"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a34c9ca9-77cd-5135-94e1-277d30705b70",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.be872000-cb98-442f-999c-ca3ef58dcfe8.bbbc949c-a6b6-52c4-87ed-1f38d087270d.f5e129dc-d59d-4352-a5ed-25efe1d83811.7fc8d3c9-a2d5-4d47-9df4-56af48ca85e1.eb711ea8-8ee7-40b1-a56d-1a374fe8b4c2",
+    "value": {
+      "type": "StringReply",
+      "value": "提供早期 RDM 工作坊 DMP 範例，支援課程回顧與教材更新。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "8cb1ec7f-f3ec-50f7-a3d4-ab344c5203ba",
+    "path": "82fd0cce-2b41-423f-92ad-636d0872045c.efc80cc8-8318-4f8c-acb7-dc1c60e491c1.2663b978-5125-4224-9930-0a50dbe895c9.7e77ee02-ce26-4cd9-b07d-3eea03bc35c9.4a3e9d91-240b-4eae-bc90-02c12a2a4744.44b0de3f-b580-4dd0-9e9a-24864c8fe9c8.69b0dc80-4b80-4fe6-b162-2a3eff9e133e.f09c417a-3b3d-4dc8-a1a2-93b1c4bcf8fd.e9c3f4a8-4a7d-5e0a-a068-f30d79350886.2e5b1f82-4836-4b49-a0bf-2a2624eeaafb",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "Dublin Core；DataCite；depositar 資料集欄位"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e7248b9d-0448-55a5-bd21-c82e06961248",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.b0949d09-d179-4491-9fb4-14b0deb9f862",
+    "value": {
+      "type": "StringReply",
+      "value": "Science Europe 研究資料管理指南中文翻譯資料集"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "6d533197-6778-5a91-88bc-5f4086fde98c",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.205a886d-83d7-4359-ae63-7103e05357c3",
+    "value": {
+      "type": "StringReply",
+      "value": "提供 Science Europe 研究資料管理指南與中文翻譯 PDF，支援 DMP 課程與研究資料管理推廣。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "157422a7-4c18-5243-abac-fc542e3d8ee9",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.cf727a0a-78c4-45a7-aa9b-cf7650ae873a",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "c5fd2008-e15b-55c3-8947-d535112d87ef"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "682df7f5-ff6f-5b1c-b335-aabf3a05f275",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.c5fd2008-e15b-55c3-8947-d535112d87ef.5c22cf59-89e3-43a1-af10-1af43a97bcb2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "7a1d3b28-5f85-48b8-b052-2448c276d9fc"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e774e07e-3ca8-51b6-b6ca-7d7691bcdb8d",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.c5fd2008-e15b-55c3-8947-d535112d87ef.5c22cf59-89e3-43a1-af10-1af43a97bcb2.97236701-7b62-40f8-99a0-3b18d3fe3658.636d2958-b8ef-47bb-ae11-10a890569ca2",
+    "value": {
+      "type": "StringReply",
+      "value": "URL"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b5b4a36b-8e50-501e-8142-b640b338395c",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.c5fd2008-e15b-55c3-8947-d535112d87ef.9e13b2d3-5f00-4e19-8a52-5c33c5b1cb07",
+    "value": {
+      "type": "StringReply",
+      "value": "https://data.depositar.io/dataset/se_rdm_guides"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "be517f57-a97d-5ec3-b775-be81cea25aa6",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8d1b07a7-f177-41f5-9532-05536223a8d6"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "aea2fdb9-a11a-5ac4-bfd1-3bd4004261ef",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "3142e2f0-3aee-5347-8bc6-a4e2e1377065"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "57ef0341-0fb4-5337-9602-81e78911af9a",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.80a682bd-8a5c-4a52-935d-680509838a4e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d3886c3e-6cf7-4b3e-8bc7-307b47719871"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "79c47fcb-b9c4-5078-8dce-6627cc24b7be",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.80a682bd-8a5c-4a52-935d-680509838a4e.d3886c3e-6cf7-4b3e-8bc7-307b47719871.371362c3-c2d1-419e-a7d6-b891a976a1fd",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "研究資料寄存所（depositar）"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "3fcc82c9-f055-5601-8f55-8c21a79cace8",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.82fc0a41-8be0-407c-b2f8-95bf5b366187",
+    "value": {
+      "type": "AnswerReply",
+      "value": "1fd3e838-f92a-4086-8308-de17f6fa9d73"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e64a8dcf-2bfa-5a88-ac9c-2a84295e0cd4",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "76755f09-a69b-57f3-a148-ad5c7fec313f"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2852628a-b527-5aef-9316-d548c56a9873",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6.76755f09-a69b-57f3-a148-ad5c7fec313f.ca0f9465-3116-4824-8651-b592151c5368",
+    "value": {
+      "type": "AnswerReply",
+      "value": "9186e183-e328-41f9-b012-149d0bbad9ea"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "36477574-bc10-5f45-8662-e6386407fff9",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6.76755f09-a69b-57f3-a148-ad5c7fec313f.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.30426255-b153-4f3e-bf20-f13573160a64",
+    "value": {
+      "type": "StringReply",
+      "value": "依 CC BY 4.0 標示來源並保留授權資訊。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e2413b1d-d4f5-545f-8662-34aabe5c8ba3",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6.76755f09-a69b-57f3-a148-ad5c7fec313f.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.375792f1-d7c3-4c8d-bf9e-f15ffa38e2fb",
+    "value": {
+      "type": "StringReply",
+      "value": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "fdbac36c-073b-5871-a5a4-11b549d5f861",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6.76755f09-a69b-57f3-a148-ad5c7fec313f.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.f78fb7e9-2f26-493c-a19b-04e153c17274",
+    "value": {
+      "type": "AnswerReply",
+      "value": "15e7beff-1d71-4515-9517-26e222e672e5"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ae5a38d3-5276-5134-9c6c-6402e5624e90",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6.76755f09-a69b-57f3-a148-ad5c7fec313f.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.f78fb7e9-2f26-493c-a19b-04e153c17274.e856687f-772c-462a-b0e1-071ffffaab8e.8a7e4cc0-8806-4c7a-a662-66e38376769c",
+    "value": {
+      "type": "StringReply",
+      "value": "透過資料集頁面下載公開資源，若有疑問可由 depositar 頁面的聯絡資訊洽詢。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "10a176f7-9b2c-5e40-8556-3bb5647f2793",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6.76755f09-a69b-57f3-a148-ad5c7fec313f.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.a572c436-5d57-4385-ac9a-d6f117881444",
+    "value": {
+      "type": "AnswerReply",
+      "value": "438aa606-da1d-49f7-8de0-e5fbe64feaa8"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b8387f87-70f1-50d2-a644-6aa1bba90638",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.3d89e23d-ff5c-45da-97a8-169ad8c39be6.76755f09-a69b-57f3-a148-ad5c7fec313f.28d494ef-26c0-4632-956e-5cafcc498a32",
+    "value": {
+      "type": "StringReply",
+      "value": "2022-09-28"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "bba8aad6-ff70-5eca-946a-7dc7a7f5fc0c",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.d21fdb06-22bf-418e-aa40-dc5ef1485f56",
+    "value": {
+      "type": "AnswerReply",
+      "value": "1072923b-8330-4da1-9b5f-9880afa053a9"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "1fb05bda-bd10-5b3f-b6df-af64106ad43d",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.d21fdb06-22bf-418e-aa40-dc5ef1485f56.1072923b-8330-4da1-9b5f-9880afa053a9.c928d464-4ae7-447c-82f6-bc525d2596a9",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a31e0fc2-4bde-4482-8747-d250042a1589"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c34687c0-d12c-5148-8700-05bb5afd963c",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.3142e2f0-3aee-5347-8bc6-a4e2e1377065.d21fdb06-22bf-418e-aa40-dc5ef1485f56.1072923b-8330-4da1-9b5f-9880afa053a9.7f55274c-a5f5-4f6a-94d8-531ea0077462",
+    "value": {
+      "type": "AnswerReply",
+      "value": "862e3a05-e5d7-4004-b6d9-79fc20192311"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a6df0f5a-b455-5be2-8218-0418466daa06",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.46039bea-87e6-4c61-8567-4e819404b4d0",
+    "value": {
+      "type": "AnswerReply",
+      "value": "aaae5c5b-0aa9-4619-bb68-de0cd27f14da"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "53b665e9-51af-53a9-96a4-5bf76c4bb046",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "5d7aa34b-2e26-485a-be2b-5de39f788c3e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9a142d3a-8651-5cbd-b09a-529ddeaa7479",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "3368d7ad-535d-581a-aeb4-96e7c4caa16c"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "073654ae-115b-50f3-a91f-349518cef44d",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818.3368d7ad-535d-581a-aeb4-96e7c4caa16c.235b36a8-3df7-44b7-9d0f-2ced3e4281a3",
+    "value": {
+      "type": "StringReply",
+      "value": "PDF 閱讀器、LibreOffice 或相容的 ODT 文件編輯器"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c9b094ad-e60f-59ab-9859-3f925a88c90c",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818.3368d7ad-535d-581a-aeb4-96e7c4caa16c.f29e2dbd-8edc-4ac3-92ba-96a6d507789b",
+    "value": {
+      "type": "StringReply",
+      "value": "https://www.libreoffice.org/"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4670a904-28d8-5632-8f2f-a607ed64ad3e",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.5f5cc5b6-a17c-4cf5-b6fc-ecfd655c0fe6",
+    "value": {
+      "type": "AnswerReply",
+      "value": "58468158-3e03-4f3d-a262-6fffb05bf08f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ecef8188-dc9d-548e-b90d-978cb88e33e6",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db",
+    "value": {
+      "type": "AnswerReply",
+      "value": "3699b746-00ca-487f-a301-8c5356e6039d"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a3130218-5540-52f6-a147-085990341a4f",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "d6b16594-f3f2-56c4-9014-083765e36399"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5841eb2a-a7ca-5b2b-ae47-e17f8cae8123",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd.d6b16594-f3f2-56c4-9014-083765e36399.abb6ac92-6508-4a24-b262-5d64db4ae731",
+    "value": {
+      "type": "StringReply",
+      "value": "https://www.scienceeurope.org/our-resources/practical-guide-to-the-international-alignment-of-research-data-management/"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "8305cffd-08d3-5000-8422-84198deb7f0d",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd.d6b16594-f3f2-56c4-9014-083765e36399.c70e49f9-09e4-456a-814b-bbaa8fde887c",
+    "value": {
+      "type": "StringReply",
+      "value": "原始英文指南來源與中文翻譯資料集之間的參照。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4bc8886d-6eaa-5b1a-8e1e-efd7ee2474c4",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.d4e6a244-07fb-4573-b93f-c20a9409ac7c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "59305ef2-2dd0-4553-8d7b-29186e0b8cd5"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "bd7f3060-8cd8-5735-837c-bafa16727e6b",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.d4e6a244-07fb-4573-b93f-c20a9409ac7c.7b5f059a-ae7e-4f7f-92e8-119911e568b2.346118ee-265f-4104-8409-161ea9a57f75",
+    "value": {
+      "type": "StringReply",
+      "value": "至少 10 年；若 depositar 平台與授權條款允許，將盡可能長期保留。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c0c1e02b-c10b-599a-a21b-6de4107626d6",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.3b3fbcc6-c405-4151-8dce-e11dbd46b1bd",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d21c32f1-c150-4c89-8472-2918d60dd547"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "960dc11e-4aa6-5f91-bdc5-30854853548f",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a1d76760-053c-4706-80a2-cfb6c6a061f3",
+    "value": {
+      "type": "AnswerReply",
+      "value": "4b2a08c7-4942-41fc-8114-d3868c882624"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5af5f2c3-58e5-5004-84fd-9c1320ece470",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.cc95b399-7d8d-4232-bccf-686f78c91bff",
+    "value": {
+      "type": "AnswerReply",
+      "value": "60de66a3-d303-4784-8931-bc58f8a3e747"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ffdc868b-744e-543c-a3cc-aefc4659b49c",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.b0949d09-d179-4491-9fb4-14b0deb9f862",
+    "value": {
+      "type": "StringReply",
+      "value": "2023 研究資料管理工作坊會議資料"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "44005f08-b373-5481-bd0b-48060c0cb1ba",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.205a886d-83d7-4359-ae63-7103e05357c3",
+    "value": {
+      "type": "StringReply",
+      "value": "包含公開簡報、課程連結與工作坊相關資料，可作為 RDM 教學與自學資源。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0eff030a-76e7-561e-8572-7eaf29f079a8",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.cf727a0a-78c4-45a7-aa9b-cf7650ae873a",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "4ecf112b-f45c-5aae-a504-cdcb31ac1762"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "fb97abd5-fced-53d5-9601-01d05b8137d0",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.4ecf112b-f45c-5aae-a504-cdcb31ac1762.5c22cf59-89e3-43a1-af10-1af43a97bcb2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "7a1d3b28-5f85-48b8-b052-2448c276d9fc"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9f3ef748-8c42-592a-b35b-2720188a933e",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.4ecf112b-f45c-5aae-a504-cdcb31ac1762.5c22cf59-89e3-43a1-af10-1af43a97bcb2.97236701-7b62-40f8-99a0-3b18d3fe3658.636d2958-b8ef-47bb-ae11-10a890569ca2",
+    "value": {
+      "type": "StringReply",
+      "value": "URL"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b3af19a0-c7be-5087-88cd-a9a874150f79",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.cf727a0a-78c4-45a7-aa9b-cf7650ae873a.4ecf112b-f45c-5aae-a504-cdcb31ac1762.9e13b2d3-5f00-4e19-8a52-5c33c5b1cb07",
+    "value": {
+      "type": "StringReply",
+      "value": "https://data.depositar.io/dataset/2023-rdm-workshop"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5e429870-6080-5195-975c-df480c753c66",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8d1b07a7-f177-41f5-9532-05536223a8d6"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5ee4c8d6-eb7e-5a81-be28-5492d1f0e1a1",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "983cc16e-d8e3-5441-944a-54ba20959379"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "651f5a6f-1857-5f39-83c8-3edc629c5654",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.80a682bd-8a5c-4a52-935d-680509838a4e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d3886c3e-6cf7-4b3e-8bc7-307b47719871"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5840f828-6788-5f1d-92fe-1dd89844fbb5",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.80a682bd-8a5c-4a52-935d-680509838a4e.d3886c3e-6cf7-4b3e-8bc7-307b47719871.371362c3-c2d1-419e-a7d6-b891a976a1fd",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "研究資料寄存所（depositar）"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "6f595069-54f0-5f35-8c71-c3b8e64ea5a1",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.82fc0a41-8be0-407c-b2f8-95bf5b366187",
+    "value": {
+      "type": "AnswerReply",
+      "value": "1fd3e838-f92a-4086-8308-de17f6fa9d73"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a3558578-9fba-50ad-9ad5-de5aa785bb10",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "f38cdec0-738f-5464-9f3d-37320159344a"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9cc1acdb-a31e-514b-a3e8-709af93989e0",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6.f38cdec0-738f-5464-9f3d-37320159344a.ca0f9465-3116-4824-8651-b592151c5368",
+    "value": {
+      "type": "AnswerReply",
+      "value": "9186e183-e328-41f9-b012-149d0bbad9ea"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ea44f182-ef47-5d70-bf6b-5db8b5fd4dbc",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6.f38cdec0-738f-5464-9f3d-37320159344a.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.30426255-b153-4f3e-bf20-f13573160a64",
+    "value": {
+      "type": "StringReply",
+      "value": "依 CC BY 4.0 標示來源並保留授權資訊。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9efeb456-5df0-50e6-a071-8f0a122f18b6",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6.f38cdec0-738f-5464-9f3d-37320159344a.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.375792f1-d7c3-4c8d-bf9e-f15ffa38e2fb",
+    "value": {
+      "type": "StringReply",
+      "value": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "1718f15e-26b2-5684-9b5a-a114d8da41ee",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6.f38cdec0-738f-5464-9f3d-37320159344a.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.f78fb7e9-2f26-493c-a19b-04e153c17274",
+    "value": {
+      "type": "AnswerReply",
+      "value": "15e7beff-1d71-4515-9517-26e222e672e5"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2906700a-8290-5db6-bc44-39e076d6f37b",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6.f38cdec0-738f-5464-9f3d-37320159344a.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.f78fb7e9-2f26-493c-a19b-04e153c17274.e856687f-772c-462a-b0e1-071ffffaab8e.8a7e4cc0-8806-4c7a-a662-66e38376769c",
+    "value": {
+      "type": "StringReply",
+      "value": "透過資料集頁面下載公開資源，若有疑問可由 depositar 頁面的聯絡資訊洽詢。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "1d2de930-2cae-5183-a1d2-79edb71a9f90",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6.f38cdec0-738f-5464-9f3d-37320159344a.ca0f9465-3116-4824-8651-b592151c5368.734d5f4e-91c0-4019-8164-8c70c2e0c8f2.a572c436-5d57-4385-ac9a-d6f117881444",
+    "value": {
+      "type": "AnswerReply",
+      "value": "438aa606-da1d-49f7-8de0-e5fbe64feaa8"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b15178cd-4e0a-585a-b69e-5515b15cdc61",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.3d89e23d-ff5c-45da-97a8-169ad8c39be6.f38cdec0-738f-5464-9f3d-37320159344a.28d494ef-26c0-4632-956e-5cafcc498a32",
+    "value": {
+      "type": "StringReply",
+      "value": "2023-12-21"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2abf4bac-c9e7-5c56-8482-3b0bedd9d7c1",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.d21fdb06-22bf-418e-aa40-dc5ef1485f56",
+    "value": {
+      "type": "AnswerReply",
+      "value": "1072923b-8330-4da1-9b5f-9880afa053a9"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "316d12e7-d116-552e-8ba9-c6080abced85",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.d21fdb06-22bf-418e-aa40-dc5ef1485f56.1072923b-8330-4da1-9b5f-9880afa053a9.c928d464-4ae7-447c-82f6-bc525d2596a9",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a31e0fc2-4bde-4482-8747-d250042a1589"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "da87f6d5-8662-5a67-83e3-118d23b04ded",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.81d3095e-a530-40a4-878e-ced42fabc4cd.983cc16e-d8e3-5441-944a-54ba20959379.d21fdb06-22bf-418e-aa40-dc5ef1485f56.1072923b-8330-4da1-9b5f-9880afa053a9.7f55274c-a5f5-4f6a-94d8-531ea0077462",
+    "value": {
+      "type": "AnswerReply",
+      "value": "862e3a05-e5d7-4004-b6d9-79fc20192311"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c98cb173-b65f-5eee-8ed9-bcda8af96ff2",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.46039bea-87e6-4c61-8567-4e819404b4d0",
+    "value": {
+      "type": "AnswerReply",
+      "value": "aaae5c5b-0aa9-4619-bb68-de0cd27f14da"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "240e3188-6614-5568-93bc-e8513df28801",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "5d7aa34b-2e26-485a-be2b-5de39f788c3e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "62074505-1c4a-5d7b-af9b-ed748741220e",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "3acc1945-2cdd-58ad-86b5-a75885aa6e51"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "48e8f492-bc74-5b41-a0d0-3e835b807e99",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818.3acc1945-2cdd-58ad-86b5-a75885aa6e51.235b36a8-3df7-44b7-9d0f-2ced3e4281a3",
+    "value": {
+      "type": "StringReply",
+      "value": "PDF 閱讀器、LibreOffice 或相容的 ODT 文件編輯器"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "be339f07-19a0-5212-9863-72d35d5a4ef1",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.371461b3-3758-443d-b06a-fa37514be4da.b8543a67-2a6b-4f45-a0b0-d245227f9818.3acc1945-2cdd-58ad-86b5-a75885aa6e51.f29e2dbd-8edc-4ac3-92ba-96a6d507789b",
+    "value": {
+      "type": "StringReply",
+      "value": "https://www.libreoffice.org/"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "22bb83d3-8524-5984-be91-95cdf067daa1",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.5f5cc5b6-a17c-4cf5-b6fc-ecfd655c0fe6",
+    "value": {
+      "type": "AnswerReply",
+      "value": "58468158-3e03-4f3d-a262-6fffb05bf08f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "09025665-7d6b-5e12-823a-d2d861600f14",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db",
+    "value": {
+      "type": "AnswerReply",
+      "value": "3699b746-00ca-487f-a301-8c5356e6039d"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4ec05834-3b30-5932-96f7-32f787feafac",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "fb3bc909-fb92-507a-abdf-324c7559811d"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "3fafee1a-2311-5d08-8825-e223d364f09a",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd.fb3bc909-fb92-507a-abdf-324c7559811d.abb6ac92-6508-4a24-b262-5d64db4ae731",
+    "value": {
+      "type": "StringReply",
+      "value": "https://data.depositar.io/organization/rdm-basics"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5afc0d5c-1efe-5aa3-8335-dc7c5bee3e81",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f876a937-c295-4a12-9dfb-6ffc7395c8db.3699b746-00ca-487f-a301-8c5356e6039d.7828d3a0-29bf-450e-aee9-473457a225fd.fb3bc909-fb92-507a-abdf-324c7559811d.c70e49f9-09e4-456a-814b-bbaa8fde887c",
+    "value": {
+      "type": "StringReply",
+      "value": "屬於研究資料管理實務組織頁面的公開教材資料集。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9dc069a9-21dd-5d5e-9351-1e745a40559e",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.d4e6a244-07fb-4573-b93f-c20a9409ac7c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "59305ef2-2dd0-4553-8d7b-29186e0b8cd5"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9ea57fb6-6920-58f0-8f9e-2808e64a7572",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.d4e6a244-07fb-4573-b93f-c20a9409ac7c.7b5f059a-ae7e-4f7f-92e8-119911e568b2.346118ee-265f-4104-8409-161ea9a57f75",
+    "value": {
+      "type": "StringReply",
+      "value": "至少 10 年；若 depositar 平台與授權條款允許，將盡可能長期保留。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d5fdb835-c497-5d88-aa9d-226d3d68769a",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.3b3fbcc6-c405-4151-8dce-e11dbd46b1bd",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d21c32f1-c150-4c89-8472-2918d60dd547"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "deea31ee-9a8a-5e38-820f-c54f16284dee",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a1d76760-053c-4706-80a2-cfb6c6a061f3",
+    "value": {
+      "type": "AnswerReply",
+      "value": "4b2a08c7-4942-41fc-8114-d3868c882624"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "384f452b-8434-53dc-86d6-27310101de3e",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.cc95b399-7d8d-4232-bccf-686f78c91bff",
+    "value": {
+      "type": "AnswerReply",
+      "value": "60de66a3-d303-4784-8931-bc58f8a3e747"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4606687c-d28e-5cf9-b42d-a67580add681",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.0e810343-6026-4992-8ea0-5539cbc77093",
+    "value": {
+      "type": "AnswerReply",
+      "value": "bd40f22d-6bce-464c-b525-e7813762a006"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "57f7c1be-51eb-5241-8509-025ea6cd393c",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8e886b55-3287-48e7-b353-daf6ab40f7d8",
+    "value": {
+      "type": "AnswerReply",
+      "value": "c05f27a2-30ac-44fd-9ac9-cd6f62b16d0c"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a72b743f-14df-5cba-9957-cabed2cecd00",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8e886b55-3287-48e7-b353-daf6ab40f7d8.c05f27a2-30ac-44fd-9ac9-cd6f62b16d0c.d4fe0b55-4aee-4d05-88d4-a3f4cad2cfa9",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8b13234e-879b-4221-be12-4df24e6de00e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0f26c78f-5519-5f66-8e55-b4c8417ba1d7",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8e886b55-3287-48e7-b353-daf6ab40f7d8.c05f27a2-30ac-44fd-9ac9-cd6f62b16d0c.d4fe0b55-4aee-4d05-88d4-a3f4cad2cfa9.8b13234e-879b-4221-be12-4df24e6de00e.9ff389f0-2236-48cf-880c-040ea1bb0d2f",
+    "value": {
+      "type": "StringReply",
+      "value": "所有檔案以「活動日期-資料類型-語言-版本」命名，例如 20230915-dmp-example-zh-Hant-v1.pdf；資料夾依資料集 slug、原始檔、整理後檔案、發布檔案與後設資料分層。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d16ea403-8fca-5777-b71b-c5e8535ab01c",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8e886b55-3287-48e7-b353-daf6ab40f7d8.c05f27a2-30ac-44fd-9ac9-cd6f62b16d0c.37d0367b-3b69-4b3e-9303-71e628b1f360",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8032494b-e0cb-4fe5-94e7-d8a203292537"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c99990a6-5f08-516d-8fe8-c5de52631b54",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8e886b55-3287-48e7-b353-daf6ab40f7d8.c05f27a2-30ac-44fd-9ac9-cd6f62b16d0c.7dfd022e-6d6e-4923-a81a-ca1f11024b57",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2f695e7c-0661-4b43-ba55-1a82a2c706ef"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "f02e85c1-3fcd-5cf6-bed3-48bf8b23e7fb",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8e886b55-3287-48e7-b353-daf6ab40f7d8.c05f27a2-30ac-44fd-9ac9-cd6f62b16d0c.b1f62b06-e69a-41be-8d16-1d73b9b75cd2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "c0898e79-f145-4ff4-b4c8-7e15c689c5f2"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "f0fc7045-94b5-5245-ab22-2cbef793a685",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.b08fe063-33f8-4380-b3a9-ba1e586dedf2.cf7aa02c-47bd-4eaf-ab5e-c4df7d9b705f.192fc5d3-dc2a-495c-8f24-f59a4c5d95c9",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d75d94bb-6c3a-4170-a5a1-2a75a78629c2"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4c148121-23db-590a-b9b4-4567bc990e62",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.2bac9020-99cf-4463-8d34-0b0eb2781cd1",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "5c76e7be-48f2-5091-9916-17b50eacf19d",
+        "426e93eb-0682-5c9d-90a7-816bac5a57b1",
+        "4caaa973-cff4-5868-8434-bd3ee99acd11"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "05e8012c-6f51-5753-9005-82d6d844d0d5",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.2bac9020-99cf-4463-8d34-0b0eb2781cd1.5c76e7be-48f2-5091-9916-17b50eacf19d.9a7e42c3-eed2-46da-bf45-52acbf1eb50f",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "Dublin Core Metadata Element Set"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "73dbdc56-6c41-5a4a-a86d-7eb976da8a74",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.2bac9020-99cf-4463-8d34-0b0eb2781cd1.5c76e7be-48f2-5091-9916-17b50eacf19d.c00627a4-40e3-48c2-b481-a0cff5e00080",
+    "value": {
+      "type": "StringReply",
+      "value": "https://www.dublincore.org/specifications/dublin-core/dces/"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5651355a-d8f7-5db5-bfbb-03b1c2d6829d",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.2bac9020-99cf-4463-8d34-0b0eb2781cd1.426e93eb-0682-5c9d-90a7-816bac5a57b1.9a7e42c3-eed2-46da-bf45-52acbf1eb50f",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "DataCite Metadata Schema"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d456b3e8-ffcb-5264-9cd0-8058a08746af",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.2bac9020-99cf-4463-8d34-0b0eb2781cd1.426e93eb-0682-5c9d-90a7-816bac5a57b1.c00627a4-40e3-48c2-b481-a0cff5e00080",
+    "value": {
+      "type": "StringReply",
+      "value": "https://schema.datacite.org/"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ed30fc56-c299-5378-ae3c-73fb406a999a",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.2bac9020-99cf-4463-8d34-0b0eb2781cd1.4caaa973-cff4-5868-8434-bd3ee99acd11.9a7e42c3-eed2-46da-bf45-52acbf1eb50f",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "depositar 資料集關鍵字與組織分類"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "74a777f2-4f23-5412-afb5-aa974b739368",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.2bac9020-99cf-4463-8d34-0b0eb2781cd1.4caaa973-cff4-5868-8434-bd3ee99acd11.c00627a4-40e3-48c2-b481-a0cff5e00080",
+    "value": {
+      "type": "StringReply",
+      "value": "https://data.depositar.io/organization/rdm-basics"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "71221506-cac7-5762-a6a2-cac9411051a4",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.5ba53879-eb48-47f2-a73b-f7f7d83bf030",
+    "value": {
+      "type": "AnswerReply",
+      "value": "c470de83-0a9b-4d7d-a2cd-903bfbedc8d1"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "cafcda72-234c-5876-b4dd-2b0574fff48f",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.ab4b3f39-dfab-45a5-9489-2d46ceacbb73",
+    "value": {
+      "type": "AnswerReply",
+      "value": "b24b7cbe-2209-47e9-87d6-401fbfb3cdec"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "60893b9b-ad9d-58d4-bb8d-415267a777cb",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.ab4b3f39-dfab-45a5-9489-2d46ceacbb73.b24b7cbe-2209-47e9-87d6-401fbfb3cdec.2e394765-d87d-4c1e-9f90-d8d2a06826e3",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2be7a50f-f044-4649-a163-2197a13e5edc"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "8e253fbb-20e6-5bd3-a85a-3d59c348b857",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.ab4b3f39-dfab-45a5-9489-2d46ceacbb73.b24b7cbe-2209-47e9-87d6-401fbfb3cdec.2e394765-d87d-4c1e-9f90-d8d2a06826e3.2be7a50f-f044-4649-a163-2197a13e5edc.677c07f0-a709-4d77-946f-78735a88c858",
+    "value": {
+      "type": "AnswerReply",
+      "value": "62028d39-f35d-4b09-ad7a-a0772d45573e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b819cdee-f08c-5049-9c79-5e6b8badc99e",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.63b6e695-2371-412c-bed3-f13e157da0b4",
+    "value": {
+      "type": "AnswerReply",
+      "value": "3ed68fbb-ec13-46ab-806b-247c16c1ecbd"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "05c38073-aa46-5450-ae7f-1e6d52d6ba81",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.02b3fed1-0b50-4a80-b8b6-a225a1107022",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8608d3df-7d7f-4893-8f80-e5297167b213"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "116453c7-4a72-5da6-be32-3e9bf003b4d3",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.02b3fed1-0b50-4a80-b8b6-a225a1107022.8608d3df-7d7f-4893-8f80-e5297167b213.e0759fdc-7ce9-4020-816d-73119f634c7e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "e7a8b914-54f3-4a72-9136-74a99db73926"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "158e5c29-28ee-565f-98b1-d4242049a268",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.02b3fed1-0b50-4a80-b8b6-a225a1107022.8608d3df-7d7f-4893-8f80-e5297167b213.acb86509-e93a-4d87-a958-74def0678e10",
+    "value": {
+      "type": "AnswerReply",
+      "value": "4bd98e96-3d02-4967-b56b-d94a7b0079c6"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "6eb5ddba-74a1-5bc5-8dbb-5f81e511b249",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.434b28c1-dbc0-4dd0-bb53-6d6ad51b86f4",
+    "value": {
+      "type": "AnswerReply",
+      "value": "c6efc94b-68e0-4d1c-a8c9-f02bd736623c"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "42f8fbbb-84c0-570f-8321-e68d1d5142c6",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.6226d7f2-565f-4991-94b3-c00be6aca20e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a23664b1-a17c-41fe-855c-db274984b355"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d914bae0-083b-5ccd-9306-e9b3bd208b53",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.6226d7f2-565f-4991-94b3-c00be6aca20e.a23664b1-a17c-41fe-855c-db274984b355.44a9d6c0-f96c-47d2-8c7a-902a9c222067",
+    "value": {
+      "type": "AnswerReply",
+      "value": "b3acec51-6385-43f1-a28a-123ab28b798f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "dd2ba093-1661-5c68-ab10-d42913cc1aba",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.ed872b74-6bf7-4cba-8f36-4da4509e4a4f",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2fb268e0-2c25-475a-b7e1-7794a05a3091"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ad6ddfc6-7bbe-5a9b-a640-2c91b2bc7a14",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.15573266-7ddf-4c6b-962e-45691d34cf61",
+    "value": {
+      "type": "AnswerReply",
+      "value": "cb765913-50c9-482e-bf10-5f5f91d0e473"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9081d6d0-053f-50d8-8796-57e53f75c5c8",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.15573266-7ddf-4c6b-962e-45691d34cf61.cb765913-50c9-482e-bf10-5f5f91d0e473.73bf7531-3490-4c0f-b6a2-a9f4f2bc3e1a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "018fc8a0-c51e-48f4-99d5-77e8c9dcf51f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b0756455-9135-5416-a562-818c761bdf3d",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.15573266-7ddf-4c6b-962e-45691d34cf61.cb765913-50c9-482e-bf10-5f5f91d0e473.c961b59a-b635-4a77-87ba-bc1b449bb012",
+    "value": {
+      "type": "AnswerReply",
+      "value": "fb7addc1-c3ba-4eeb-973c-109aeef11ced"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "3395ce59-07e0-59f8-9588-1c21062511b2",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.ae28a862-5020-44c2-8c78-3abc185b190f",
+    "value": {
+      "type": "AnswerReply",
+      "value": "6110d79f-1cf0-4a89-8a6d-84a472388fd8"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "410fb1d8-0034-5eb9-ab41-2ec1e45684e4",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.ae28a862-5020-44c2-8c78-3abc185b190f.6110d79f-1cf0-4a89-8a6d-84a472388fd8.0551adc9-7faa-4ddc-a07b-08fbde2a247b",
+    "value": {
+      "type": "AnswerReply",
+      "value": "245e5ab0-baa7-48b3-97b8-55d2af5e4fa8"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ee2fdc98-ea81-535a-b265-11adc8fd1784",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.de1b1a0f-58ea-4859-91b0-aa2b52090395",
+    "value": {
+      "type": "AnswerReply",
+      "value": "ff6ea5fb-c987-4391-bca7-c3c3e7a95964"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "29a43225-b4be-5c70-ab2b-aa8dea5406ad",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.91a7c75c-6f0e-4bae-b3f3-1890feaae9b2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "fdb89e4f-f108-4d4f-9145-07e255137d85"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "138a3f48-88f4-5f7c-8383-c9ac03b20198",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.b642c31d-a512-4ca7-8743-a2e0254006fa.c277adae-c0e2-4f98-a661-0a9c50b79dfb.4e84a44f-e66b-42f5-bb42-7e6c4bd3b79b",
+    "value": {
+      "type": "AnswerReply",
+      "value": "407560bc-705a-4885-85d6-4f61fe58eeed"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "734197d3-c92a-52ea-bfc1-a8b7f8d72e77",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.b642c31d-a512-4ca7-8743-a2e0254006fa.c277adae-c0e2-4f98-a661-0a9c50b79dfb.36d40d39-894b-4c1a-9e9c-feaddef09df3",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d988687b-41e9-4be4-8472-031938d13c37"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "74f6de96-a214-521e-8753-66c28c3d70d1",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.b642c31d-a512-4ca7-8743-a2e0254006fa.c277adae-c0e2-4f98-a661-0a9c50b79dfb.36d40d39-894b-4c1a-9e9c-feaddef09df3.d988687b-41e9-4be4-8472-031938d13c37.68956a97-6138-4538-9968-e7a925f299cc",
+    "value": {
+      "type": "AnswerReply",
+      "value": "c4443193-11f5-4a9e-9444-fabf575d9246"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "75da5cf0-2fce-5363-8f91-55ec1f3d674b",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.b642c31d-a512-4ca7-8743-a2e0254006fa.c277adae-c0e2-4f98-a661-0a9c50b79dfb.c520b63c-cc35-4789-9d98-cc87b59ebcf1",
+    "value": {
+      "type": "AnswerReply",
+      "value": "0c630b6f-8aec-4153-818d-90fbb559072f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5183663c-ece6-502b-9d15-4fcf5742f00f",
+    "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.f038bd46-ee4e-4f53-b7ea-482381c2c855.4fd89b13-f33c-4858-8b25-ab6da271efc6.b642c31d-a512-4ca7-8743-a2e0254006fa.c277adae-c0e2-4f98-a661-0a9c50b79dfb.c520b63c-cc35-4789-9d98-cc87b59ebcf1.0c630b6f-8aec-4153-818d-90fbb559072f.41a1b4ba-8cd5-47fe-a7be-06cccf9a1688",
+    "value": {
+      "type": "StringReply",
+      "value": "可作為研究資料管理課程、DMP 撰寫教學、資料發布流程設計，以及開放教材再利用的範例。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "da016753-d40c-5eef-9aa7-76b1aa83041a",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.5607d0bb-6b9e-4211-821c-785acc3aa25e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "35b32d04-fec6-465e-976d-466aafcb385d"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0adc7125-bde7-529b-a95d-b3e43836bf21",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc",
+    "value": {
+      "type": "AnswerReply",
+      "value": "5af813b7-cb41-4eb9-afe7-ca364771b74e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "7b321dd1-43ef-58f1-8489-644a6f1fe148",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.b171ec17-d7b5-4726-ae22-0d892b106cf8",
+    "value": {
+      "type": "AnswerReply",
+      "value": "0d64d3c6-4312-47a9-92ad-0bc9440d6e45"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "bbfcaba9-7a0e-54c1-9089-3273248f98d0",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.80d403f3-3f29-4f37-9040-b901ae9afa37",
+    "value": {
+      "type": "AnswerReply",
+      "value": "b21c9f70-78e7-4975-b776-59e372285662"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "837bd4b5-2afa-53ba-beec-183bd0794fb5",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.38ebf5d0-f7a3-4cf5-93eb-6ee3143c8a69.ec502175-376d-4bf3-a055-c4f7d7639103.b6d0922c-6e9c-45f8-b687-79310744601a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "379327e3-485d-4121-a9ec-d790ae6f5bcf"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "335a4524-d9da-56e4-8bac-a8d68aabdd53",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.bc5e3dbf-2923-4025-a49a-f204b01d4018.f7f2ff16-eee0-42a7-a89a-bd7291cef5fc.65730a4d-40db-46c9-b6d2-2b44b35f617e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "643254d2-6f0e-419b-97d3-bd57b03ab1ac"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b9f60971-2356-5681-a506-fac4a4a9b15e",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.4ba3304e-225c-4916-bbf7-754de381253c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "4d74014e-588d-4a1d-a343-9bc3a4d72e25"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d6b63f1d-8ec8-5ea2-82c1-10541d43d824",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.1991077f-04ae-4808-90a5-e4b2f82e30bf",
+    "value": {
+      "type": "AnswerReply",
+      "value": "12a85bf3-1407-4783-9e73-564d75e7c98a"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "130e0244-2648-573e-b182-6136d48de342",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.918d5fd1-ea37-468f-8acd-ca3e80203900",
+    "value": {
+      "type": "AnswerReply",
+      "value": "30d1e85c-0e3e-482f-97f9-22a7658b329e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5af83137-8ab0-547e-8d83-e3ae07993fe0",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.e87ef779-2c4b-4c0d-a1f1-821290123a3c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "3cc05034-3c04-4f08-bd9b-c37e87fb9c81"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2e152d98-8209-5ca5-8dba-dcf3fe09fba1",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.84ec46bd-e714-4d98-8525-cdd0d58777ef",
+    "value": {
+      "type": "AnswerReply",
+      "value": "099bfaa6-157a-49e5-8ef7-dad0876654f7"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "50413901-1d25-5a82-8842-f0166e23f6fd",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.2d57daa6-df2e-4bf9-b024-710e74781d88",
+    "value": {
+      "type": "AnswerReply",
+      "value": "1846d736-7f9c-4177-9e36-308afde00a5a"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "190fad9d-60cc-5ec4-8d7e-afe497e71c0b",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.acc82522-327a-4c76-8c24-f8034f7dc1d4",
+    "value": {
+      "type": "AnswerReply",
+      "value": "b430a132-0c46-4e16-9508-190801976633"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2da027ba-650d-57d4-a401-12db2b734a5f",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f",
+    "value": {
+      "type": "ItemListReply",
+      "value": [
+        "a06888ce-f6e6-522e-80dd-ffffbb2dd197",
+        "3efb7326-de02-5097-98ef-198e9827c4b1"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ee4cc719-72b1-5c7d-a050-636e5b0ca3dd",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.a06888ce-f6e6-522e-80dd-ffffbb2dd197.63ed4349-9743-4fd1-96df-73dbb7e4f05b",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "文件資源：PDF／ODT"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "60b243f8-da6c-5988-9f9f-6127ec5f4a9e",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.a06888ce-f6e6-522e-80dd-ffffbb2dd197.87fe7235-0a0f-4788-8f44-04523461655f",
+    "value": {
+      "type": "AnswerReply",
+      "value": "4e6d2cb0-1901-41dd-9902-6066739c9ab5"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "cdae4628-9396-5671-a2d1-560d5c6fab9f",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.a06888ce-f6e6-522e-80dd-ffffbb2dd197.87fe7235-0a0f-4788-8f44-04523461655f.4e6d2cb0-1901-41dd-9902-6066739c9ab5.024bb661-70d4-4da6-a938-934a3935b16a",
+    "value": {
+      "type": "StringReply",
+      "value": "PDF 與 ODT 檔案以課程、日期、版本與授權資訊描述；主要內容為簡報、指南與 DMP 範例文件。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d5f4b9bf-133d-5ef8-9f2d-012ac19ccde4",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.63ed4349-9743-4fd1-96df-73dbb7e4f05b",
+    "value": {
+      "type": "IntegrationReply",
+      "value": {
+        "type": "PlainType",
+        "value": "資料集後設資料表：CSV"
+      }
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e1f900d3-846c-57c6-8ae5-a9fb3c9b9343",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f",
+    "value": {
+      "type": "AnswerReply",
+      "value": "e8334918-27f8-4e1c-aa9f-5e8191b7fabb"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "484e0db2-2cb2-5c49-bf8f-3597db9aca4b",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.6bfde30e-90e7-4422-b984-d571196194e0",
+    "value": {
+      "type": "AnswerReply",
+      "value": "53d43c6a-d12e-4bfd-b70d-233bf62c7f5b"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "8cd7406e-618c-5e6a-a123-13bceab3f445",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.0259866a-50b2-4f77-858f-982c9e16091d",
+    "value": {
+      "type": "AnswerReply",
+      "value": "7341ed8c-c4d6-4562-808f-068bc47ec418"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a3408a05-12bf-5f9f-93f1-00b0f1dbed08",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.ccaaf562-ebed-4d94-b168-b8398ed25546",
+    "value": {
+      "type": "AnswerReply",
+      "value": "b904da82-6aae-4f2e-8b5d-5359cf48939e"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "dc1de67c-e131-5b16-84b1-086182c39239",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.f90914d8-2731-4cd1-bbf8-2710a5e08c43",
+    "value": {
+      "type": "AnswerReply",
+      "value": "6daf9964-6a2a-46aa-8a87-c918391f8625"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "7a40daac-3d79-5b4b-86e8-4ed9271bd8b1",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.0451d421-4c97-452e-b399-4fe278b97147",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a2aa695e-4ea9-4dc6-81f3-cb8c9605bf98"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "8dfda81f-b833-5111-8a63-4153724a69c1",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.bdaba73c-02e0-4ff1-acb3-a68df891c36a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "7dcc6fb0-e591-4f87-87fa-166ae839193a"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e2d51e25-0dba-5523-86ce-56a40c1ea8ad",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.109ed7ea-ef1d-4719-b2b4-eb4f7202c65c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "238ace4b-22bb-4a9d-a312-e30d82d4382d"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4cdaf84e-e1aa-5fc0-9e6f-39c7bf8f5905",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.109ed7ea-ef1d-4719-b2b4-eb4f7202c65c.238ace4b-22bb-4a9d-a312-e30d82d4382d.ff85db18-565c-4177-a397-9a8cf4c7b374",
+    "value": {
+      "type": "AnswerReply",
+      "value": "01aaaf8a-ee94-4cd0-8e36-adcb7ac9d18d"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b5793de9-bfd7-5dcc-8aa8-ca96b1faa782",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.f67e1539-5c7d-4df7-8259-e4f2edfa2685",
+    "value": {
+      "type": "AnswerReply",
+      "value": "b497f330-91a0-44c9-990d-3d3e02d380b4"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "08ed3f21-7985-5379-b124-182b8e50bce3",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.d0306914-c253-472c-869f-19a60578c087",
+    "value": {
+      "type": "AnswerReply",
+      "value": "6332fd3a-6b3b-4db6-a5bf-f108f5c19801"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "62d02011-2246-5b17-b7c0-e6dc2077eb52",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.dbb6dcdf-dd2e-4829-8c03-16b2339ebd5a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "493b4264-185d-413e-83f8-d424c50768b9"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "65081120-ee97-5800-809a-96cc9f31bff9",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.dbb6dcdf-dd2e-4829-8c03-16b2339ebd5a.493b4264-185d-413e-83f8-d424c50768b9.18f9b8ec-bf1b-4035-8eac-3fd329613a7c",
+    "value": {
+      "type": "AnswerReply",
+      "value": "cce50ae0-08ff-43f3-835c-a494d5a56222"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "effc11f0-74a4-5f16-9eda-9b5b398c52af",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.d5d21ad3-720c-4a6a-bd5a-09f14b15666f",
+    "value": {
+      "type": "AnswerReply",
+      "value": "61d05101-2eaa-4ebb-8be7-2fcac50f2fb2"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4abc6649-af52-54cb-a643-ac895de1cc14",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.d5d21ad3-720c-4a6a-bd5a-09f14b15666f.61d05101-2eaa-4ebb-8be7-2fcac50f2fb2.63b020de-664a-4271-807c-a6f4361d6439",
+    "value": {
+      "type": "AnswerReply",
+      "value": "f8f49bdc-670b-495f-9a4b-5300db71cfe2"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "617ac435-6b46-5d08-a337-0b22d3d143ec",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.d5d21ad3-720c-4a6a-bd5a-09f14b15666f.61d05101-2eaa-4ebb-8be7-2fcac50f2fb2.c6fdeacb-4a1f-4948-988a-0c6458cdf7b9",
+    "value": {
+      "type": "AnswerReply",
+      "value": "26f64599-467a-4339-a971-74ac638f4c37"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "aec9636e-ed9a-5ab5-9f07-9e2f5c84e0b9",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.d5d21ad3-720c-4a6a-bd5a-09f14b15666f.61d05101-2eaa-4ebb-8be7-2fcac50f2fb2.6b3d62a5-1d4d-49e1-aaf1-0a8b398a7ac3",
+    "value": {
+      "type": "AnswerReply",
+      "value": "04fe8749-82a5-4b06-a7f8-58e634e5cd86"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2a299d90-595a-5c02-9b5f-89283a0c6a9a",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.d5d21ad3-720c-4a6a-bd5a-09f14b15666f.61d05101-2eaa-4ebb-8be7-2fcac50f2fb2.15eb6fe6-7b21-493b-a5a0-09ac63212ab6",
+    "value": {
+      "type": "AnswerReply",
+      "value": "ced5f19d-eaa9-4576-82d4-7ef97741a7e0"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "22e35dd2-e360-5a63-b59c-5dadcc07c4a6",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.dc4f1dc7-4608-45f9-8503-aa05536f4d97",
+    "value": {
+      "type": "AnswerReply",
+      "value": "fa0f8ecf-9cd5-4395-9228-0aeca4339ea4"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "1a8c5a19-c4d0-5cc9-b4c3-f3ca464e324b",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.e1dba221-ad5a-474e-a2e3-9b4e472959fa",
+    "value": {
+      "type": "AnswerReply",
+      "value": "e492d849-cd0b-4526-b876-afabbec36da3"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "bcc0b146-1213-501c-82f7-962f3f5478a2",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.460803f2-cc23-4c57-b50e-c5177a3c11d5",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8592fc25-fd0f-438c-b0e9-2b0ad81475c7"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "31abcdf4-b625-5662-9e63-5f2ec27976d6",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.3a8ed3fc-b1a6-4119-80ed-238804861734",
+    "value": {
+      "type": "AnswerReply",
+      "value": "79f7797e-f7b1-4930-b691-84bee936af20"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "6f54486e-c4da-527b-b851-d9f0965cc14c",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f99b1723-c8e4-44b9-af22-f66955eda1e2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "facde7e9-8711-4ced-a6f8-5fbacf929381"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b3c19c92-47a8-5d82-b59f-747d74726943",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f99b1723-c8e4-44b9-af22-f66955eda1e2.facde7e9-8711-4ced-a6f8-5fbacf929381.05655914-e1f4-4578-a7d4-bae17579fce8",
+    "value": {
+      "type": "MultiChoiceReply",
+      "value": [
+        "74158bea-966b-4c53-ba0d-1c9c47536f57",
+        "b509d5d3-81e1-450a-86ab-cec423091181"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "da18d7e0-7734-547a-a021-b4510306b8c0",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.0c56109a-9990-409d-9b51-562c6a26f2c1.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.5d7aa34b-2e26-485a-be2b-5de39f788c3e.14f7a766-c28e-400e-8426-53f7b4e5b90b",
+    "value": {
+      "type": "StringReply",
+      "value": "資料採 PDF、ODT、CSV 與一般網頁連結等常見開放格式，可用標準閱讀器或試算表軟體開啟。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c2cee5bf-0d9f-56af-98aa-3ce0d82de397",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.3a8ed3fc-b1a6-4119-80ed-238804861734",
+    "value": {
+      "type": "AnswerReply",
+      "value": "79f7797e-f7b1-4930-b691-84bee936af20"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "72b59037-1552-510f-bcbf-e874297063fb",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f99b1723-c8e4-44b9-af22-f66955eda1e2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "facde7e9-8711-4ced-a6f8-5fbacf929381"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "3812cf14-486e-5c92-9fbd-2c3115d3c582",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f99b1723-c8e4-44b9-af22-f66955eda1e2.facde7e9-8711-4ced-a6f8-5fbacf929381.05655914-e1f4-4578-a7d4-bae17579fce8",
+    "value": {
+      "type": "MultiChoiceReply",
+      "value": [
+        "74158bea-966b-4c53-ba0d-1c9c47536f57",
+        "b509d5d3-81e1-450a-86ab-cec423091181"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "e5506db0-280b-5a7a-8605-2cdb94dcc68b",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.df13edeb-395c-58ca-a835-2549e5ee66db.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.5d7aa34b-2e26-485a-be2b-5de39f788c3e.14f7a766-c28e-400e-8426-53f7b4e5b90b",
+    "value": {
+      "type": "StringReply",
+      "value": "資料採 PDF、ODT、CSV 與一般網頁連結等常見開放格式，可用標準閱讀器或試算表軟體開啟。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "7e9829b8-8715-590a-aed5-3b102b5876fb",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.3a8ed3fc-b1a6-4119-80ed-238804861734",
+    "value": {
+      "type": "AnswerReply",
+      "value": "79f7797e-f7b1-4930-b691-84bee936af20"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "626a790c-e983-526b-9d7d-e7688fc88d23",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f99b1723-c8e4-44b9-af22-f66955eda1e2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "facde7e9-8711-4ced-a6f8-5fbacf929381"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "ec10994f-d862-5924-b4c3-44fddaad74e2",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.f99b1723-c8e4-44b9-af22-f66955eda1e2.facde7e9-8711-4ced-a6f8-5fbacf929381.05655914-e1f4-4578-a7d4-bae17579fce8",
+    "value": {
+      "type": "MultiChoiceReply",
+      "value": [
+        "74158bea-966b-4c53-ba0d-1c9c47536f57",
+        "b509d5d3-81e1-450a-86ab-cec423091181"
+      ]
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9ca4a02d-cf39-58ca-a1ac-da9df8505418",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.a063da1c-aaea-4e18-85ec-f560d833f292.8d1b07a7-f177-41f5-9532-05536223a8d6.1302cb21-6a98-490e-b64d-acf4744a8b1a.5d7aa34b-2e26-485a-be2b-5de39f788c3e.14f7a766-c28e-400e-8426-53f7b4e5b90b",
+    "value": {
+      "type": "StringReply",
+      "value": "資料採 PDF、ODT、CSV 與一般網頁連結等常見開放格式，可用標準閱讀器或試算表軟體開啟。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "33b9bac9-9187-5f4e-bc2e-0dad22843ccd",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.f9d84278-b61d-4314-94e9-12644bfa1d00",
+    "value": {
+      "type": "AnswerReply",
+      "value": "b6890d88-88e4-4667-8b28-82bc73c728be"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "72a140e4-a629-5cd2-a1ee-1b70996e476a",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4baf405e-262e-4f1a-bfdc-fe72fc628650",
+    "value": {
+      "type": "AnswerReply",
+      "value": "ccbe8121-ac77-4619-a49d-5a755c01d5a2"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "6b3f88cf-2b22-5c7d-bfd4-4de5d506598f",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.13a7eeae-09f5-42bf-8e62-b2c1fe1b86f7.db44d6ca-efc2-413e-8abc-d92f92ed1d1d.2a0cf686-63ed-44b6-ae74-38ddd39ac741",
+    "value": {
+      "type": "StringReply",
+      "value": "0 TWD；本範例使用既有公開資料與 depositar 平台，額外 FAIR 整備成本以團隊例行資料策展工時計入。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "2d174f9c-5540-5525-9bbd-97db8b8fb99a",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.92a10652-3675-48f2-8d50-180a29cec62e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "18ca5e47-464d-40c5-881b-c15e54bd2bff"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d5dde192-ea1a-5d88-8023-8952ed51c870",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.588ad032-56ba-4d52-b29c-6a5b56aa6569",
+    "value": {
+      "type": "AnswerReply",
+      "value": "1e28b25b-bfe8-4d67-9643-6e57587a9495"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "da19f220-ba2b-5650-889c-d77e53158680",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.73bfcfcf-a619-4f6a-a901-2e8ce01d039a",
+    "value": {
+      "type": "StringReply",
+      "value": "主要為 PDF、ODT、CSV、Markdown/HTML 說明檔與資料集後設資料；檔案數量小、單檔容量低，適合一般文件管理與版本紀錄流程。"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "7fafd1b9-609f-5cde-8db0-84349b40956e",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.f6e66f4f-7b11-420f-a4b6-5fc972bc66d9",
+    "value": {
+      "type": "AnswerReply",
+      "value": "12f3cb44-db3c-4ea8-b4fb-2834a11da6a7"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "3d460754-fd1c-5cca-b10c-ed4f3ea2b858",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.50f9d580-3e62-434b-81ff-86daed56aca8",
+    "value": {
+      "type": "AnswerReply",
+      "value": "df08a7fa-61af-418f-9eb8-965ba50efcc8"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c6b4c427-708c-50ce-b354-9fd85366bd52",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.4ee4d67d-62c5-47f0-a741-f2629b65cf8a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "eef277cb-1032-401e-b242-e74afde575dc"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "deff3329-dbff-5de0-9377-b9a961e709e7",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.50a9c060-91e9-4e34-8cb2-2d41fa493f9e",
+    "value": {
+      "type": "AnswerReply",
+      "value": "09ac9b88-4350-441b-97f4-5f85ced2ddf2"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0f98b30c-4e41-59e5-bc8a-d5c5cc944da5",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.f4065e54-d27a-45de-be4c-10384feacd0d",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2271d2cd-de50-460b-85a1-dddf9d28776c"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "40393d07-8d83-5c04-82d4-c6f2be7881d0",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.2ed7b5c7-2452-4087-b4ed-d15ca31a4e65",
+    "value": {
+      "type": "AnswerReply",
+      "value": "54e9c073-52ee-4f8d-a1aa-1d279ec0f61d"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "b3cebf51-eb9c-5c4a-98e3-0f6a447b7ab9",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.2ed7b5c7-2452-4087-b4ed-d15ca31a4e65.54e9c073-52ee-4f8d-a1aa-1d279ec0f61d.b1faddd1-2f9f-48a8-b9a7-d8f6f8c02470",
+    "value": {
+      "type": "AnswerReply",
+      "value": "9b723841-1bd4-487c-b45c-f0a369330b3a"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "defa5c1c-53f4-53fb-82da-dea755527246",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.b171ec17-d7b5-4726-ae22-0d892b106cf8.0d64d3c6-4312-47a9-92ad-0bc9440d6e45.25e06912-08a2-40e4-af76-cfbc5ada9925",
+    "value": {
+      "type": "AnswerReply",
+      "value": "44810299-8618-4a79-a732-13cc2ff21903"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a4f58f25-bec1-5e0d-a932-b3ce26a2226f",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.b171ec17-d7b5-4726-ae22-0d892b106cf8.0d64d3c6-4312-47a9-92ad-0bc9440d6e45.0548db0c-bd34-40ce-be73-7a13a5e8eb7d",
+    "value": {
+      "type": "AnswerReply",
+      "value": "ef611a20-d5f9-4ea6-bb02-a7122bfd7eed"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "17e8b8d9-9c7a-5a98-81a0-f3a80dad192e",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.b171ec17-d7b5-4726-ae22-0d892b106cf8.0d64d3c6-4312-47a9-92ad-0bc9440d6e45.6531dd45-f628-4aa7-a2c5-82c639b79ab8",
+    "value": {
+      "type": "AnswerReply",
+      "value": "c9d8c9ed-ba2d-4108-b798-493cdf9225df"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "8605a137-6626-5638-adb5-53df21eec647",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.b171ec17-d7b5-4726-ae22-0d892b106cf8.0d64d3c6-4312-47a9-92ad-0bc9440d6e45.aacf28a0-aab9-4436-8b2b-95ef755ae32a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "42fb53ea-76ed-494b-8582-f080d952a3ed"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "c7a78d59-e758-5833-be50-5b056b3caceb",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.b171ec17-d7b5-4726-ae22-0d892b106cf8.0d64d3c6-4312-47a9-92ad-0bc9440d6e45.98d9789b-32fc-4e2f-876a-47760ad7c7ec",
+    "value": {
+      "type": "AnswerReply",
+      "value": "278810f9-6396-4203-9fa6-6cd3a003159c"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "5f51573d-6535-5dd8-a1e8-37b6199f944e",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.1991077f-04ae-4808-90a5-e4b2f82e30bf.12a85bf3-1407-4783-9e73-564d75e7c98a.5e111fc1-9d17-4ec8-aafb-1694a538a3aa",
+    "value": {
+      "type": "AnswerReply",
+      "value": "0d9d77b1-bbcd-480e-b165-8bcb29bd4a67"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "79252a20-fd4e-5409-87cf-b53e851c596d",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.1991077f-04ae-4808-90a5-e4b2f82e30bf.12a85bf3-1407-4783-9e73-564d75e7c98a.a972fba5-7586-4156-bdf8-8251288dc341",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2f4e30d6-6a43-4f52-b146-26f1f690549f"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "6e7d7879-111a-5e4b-91b3-c2376271177f",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.1991077f-04ae-4808-90a5-e4b2f82e30bf.12a85bf3-1407-4783-9e73-564d75e7c98a.decb7c9c-c6dc-4027-8c0e-18934c852ca6",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a7b481ba-13cb-407d-896f-cc662160f4ee"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "bdbccc13-ea10-57df-b688-d219c9044e80",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.1991077f-04ae-4808-90a5-e4b2f82e30bf.12a85bf3-1407-4783-9e73-564d75e7c98a.4c7cd15f-90f9-4ab3-8082-38da4f642de1",
+    "value": {
+      "type": "AnswerReply",
+      "value": "e8b48f96-d3d5-4e54-a215-4454d08e6b59"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "d722ff86-81af-5594-b3f6-6103383f0ab5",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.1991077f-04ae-4808-90a5-e4b2f82e30bf.12a85bf3-1407-4783-9e73-564d75e7c98a.49199b05-73d7-4912-a5ca-bc1e14a09468",
+    "value": {
+      "type": "AnswerReply",
+      "value": "a9db9446-5bbc-431e-981d-d2f487ab28ae"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "bd43868b-71fc-5c88-92c6-4622f3e83f5f",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.1991077f-04ae-4808-90a5-e4b2f82e30bf.12a85bf3-1407-4783-9e73-564d75e7c98a.56bc8ebb-aba5-4745-8034-17ed3fe4fe07",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8afcd524-0916-4980-8bee-15b00bf5c335"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a3e25c97-7031-5f47-819f-00504aa8e2b7",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.918d5fd1-ea37-468f-8acd-ca3e80203900.30d1e85c-0e3e-482f-97f9-22a7658b329e.e8a08f27-9f82-4147-b446-822d34a5d468",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8d038086-a207-46f4-9e7c-180780d9c3a6"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a833cd8b-45b7-5cd9-9099-99bcd6cd6a18",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.918d5fd1-ea37-468f-8acd-ca3e80203900.30d1e85c-0e3e-482f-97f9-22a7658b329e.a3a4ce37-4ced-41df-8ec6-e42d87a6a3f1",
+    "value": {
+      "type": "AnswerReply",
+      "value": "9ffbb7f2-5eb8-455a-bd98-6547887e0eb6"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "21bcffeb-309b-5c1a-bcc6-f7a651bb6a8e",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.918d5fd1-ea37-468f-8acd-ca3e80203900.30d1e85c-0e3e-482f-97f9-22a7658b329e.34a3ef8b-4a17-4030-9157-ed1c1bf60b80",
+    "value": {
+      "type": "AnswerReply",
+      "value": "f14a3135-32d9-4520-bc09-45f50f0c6031"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "bfa2fa91-0fc7-58d9-a77e-9c17bddf7c88",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.918d5fd1-ea37-468f-8acd-ca3e80203900.30d1e85c-0e3e-482f-97f9-22a7658b329e.faf72b3d-ac29-41d1-97f2-5223b199a086",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2c9f5097-34a8-4852-8e10-b26bd71ee1ba"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "4360c542-b290-59e6-9a9b-cb53f760345f",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.6bfde30e-90e7-4422-b984-d571196194e0.53d43c6a-d12e-4bfd-b70d-233bf62c7f5b.cacee0fd-7de5-4e07-aa94-1661cb853558",
+    "value": {
+      "type": "AnswerReply",
+      "value": "02b2c93a-5956-4c75-8797-d3803d4344e8"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "0cc9f673-8f5c-5239-97ce-11181e0b897b",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.6bfde30e-90e7-4422-b984-d571196194e0.53d43c6a-d12e-4bfd-b70d-233bf62c7f5b.6ab36a2a-23ca-484d-b3d7-0c1a4eea821a",
+    "value": {
+      "type": "AnswerReply",
+      "value": "d4a545a3-0981-461b-9762-7073e5750ea9"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "9da557a0-7de9-557d-88b3-16fe3585c251",
+    "path": "83438863-0aa0-4458-b14b-2b2c0d4f811d.a797cab9-0829-4787-a096-1b5cedc9147f.3efb7326-de02-5097-98ef-198e9827c4b1.87fe7235-0a0f-4788-8f44-04523461655f.e8334918-27f8-4e1c-aa9f-5e8191b7fabb.6bfde30e-90e7-4422-b984-d571196194e0.53d43c6a-d12e-4bfd-b70d-233bf62c7f5b.c47d330a-2eb4-472e-be48-d06b3ec9b8e8",
+    "value": {
+      "type": "AnswerReply",
+      "value": "2376500a-34cb-4535-868e-b7b126321f34"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "24edf881-7787-55b2-a0cd-dfc2e99be201",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.2ed7b5c7-2452-4087-b4ed-d15ca31a4e65.54e9c073-52ee-4f8d-a1aa-1d279ec0f61d.f99580d5-b3ea-498c-86ac-f7326bd999c2",
+    "value": {
+      "type": "AnswerReply",
+      "value": "68be7c83-54ed-46d4-a77f-b99488665f1c"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "fc4393da-95d2-5545-9174-f5dab2ca102d",
+    "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.72099c46-16e7-47a2-a320-cc768b7085fe.e7324e1a-bfcb-4f2b-855a-35701dfb1ad5.df36fb68-131c-4f31-a42b-684abf523bbc.5af813b7-cb41-4eb9-afe7-ca364771b74e.2ed7b5c7-2452-4087-b4ed-d15ca31a4e65.54e9c073-52ee-4f8d-a1aa-1d279ec0f61d.f14750e9-3a39-4aae-b2c8-845583934c1d",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8fa969a0-7477-41be-aefc-a54a8045c954"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "35e19525-9b6d-52d6-8095-f180a77df80f",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.d5784d24-0e66-4821-bd62-a711fb6d7a40.a547dc69-a3e8-46e4-bb4b-21fd104231f9.b16e76a9-34a8-4ba5-9420-b58bebaeac8d",
+    "value": {
+      "type": "AnswerReply",
+      "value": "8d1f370f-6e4f-46ae-a169-1f7e969335e1"
+    }
+  },
+  {
+    "type": "SetReplyEvent",
+    "uuid": "a668865c-f6ad-51fe-ab6c-acb492d964a1",
+    "path": "d5b27482-b598-4b8c-b534-417d4ad27394.d5784d24-0e66-4821-bd62-a711fb6d7a40.a547dc69-a3e8-46e4-bb4b-21fd104231f9.7f8ff791-8593-4e00-93f9-e31c5dff5ffb",
+    "value": {
+      "type": "AnswerReply",
+      "value": "fbe7ef0d-3199-47de-ad28-1b9299200156"
     }
   }
 ]
