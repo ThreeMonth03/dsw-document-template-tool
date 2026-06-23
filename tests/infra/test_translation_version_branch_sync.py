@@ -264,6 +264,44 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
 
 
+def test_version_branch_workflow_disables_preview_for_incompatible_versions(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Older metamodel branches should package templates without rendering previews."""
+
+    sync_module = _load_sync_module(repo_root)
+    checkout = tmp_path / "checkout"
+    checkout.mkdir()
+    _write_translation_config(
+        checkout / "translation-config.yml",
+        supported_versions=("v1.29.1", "v1.30.0"),
+    )
+    config = sync_module.load_translation_repository_config(checkout / "translation-config.yml")
+
+    sync_module.write_version_branch_workflow(
+        checkout=checkout,
+        tooling_root=repo_root,
+        config=config,
+        version="v1.29.1",
+        branch="translation/v1.29.1",
+    )
+
+    workflow_text = (
+        checkout / ".github/workflows/document_template_translation_sync.yml"
+    ).read_text(encoding="utf-8")
+    assert sync_module.version_supports_sample_preview("v1.29.1") is False
+    assert sync_module.version_supports_sample_preview("v1.30.0") is True
+    assert 'branches: ["translation/v1.29.1"]' in workflow_text
+    assert 'PROJECT_REF: ""' in workflow_text
+    assert (
+        "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.29.1"
+    ) in workflow_text
+    assert "TRANSLATED_TEMPLATE_VERSION: 1.29.1" in workflow_text
+    assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+
+
 def _load_sync_module(repo_root: Path) -> ModuleType:
     module_path = repo_root / "scripts" / "ci" / "sync_translation_version_branches.py"
     spec = importlib.util.spec_from_file_location("sync_translation_version_branches", module_path)
@@ -275,9 +313,14 @@ def _load_sync_module(repo_root: Path) -> ModuleType:
     return module
 
 
-def _write_translation_config(path: Path) -> None:
+def _write_translation_config(
+    path: Path,
+    *,
+    supported_versions: tuple[str, ...] = ("v1.30.1",),
+) -> None:
+    supported_versions_yaml = "\n".join(f"    - {version}" for version in supported_versions)
     path.write_text(
-        """
+        f"""
 schema_version: 1
 
 template:
@@ -286,7 +329,7 @@ template:
   upstream_repository: https://github.com/ds-wizard/science-europe-template.git
   supported_ref_spec: v1.21.0+
   supported_versions:
-    - v1.30.1
+{supported_versions_yaml}
 
 translation:
   source_language: en

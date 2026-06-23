@@ -26,7 +26,10 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     sorted_versions,
     version_branch,
     version_paths,
+    version_sort_key,
 )
+
+PREVIEW_COMPATIBLE_MIN_VERSION = "v1.30.0"
 
 
 @dataclass(frozen=True)
@@ -523,6 +526,8 @@ def write_version_branch_workflow(
             f"{config.translation.target_language_label}/test-project.pdf"
         ),
     }
+    if not version_supports_sample_preview(version):
+        replacements["PROJECT_REF: workspace/projects/test-project.json"] = 'PROJECT_REF: ""'
     for old, new in replacements.items():
         workflow = replace_once(workflow, old, new)
     workflow = replace_count(
@@ -534,6 +539,12 @@ def write_version_branch_workflow(
 
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(workflow, encoding="utf-8")
+
+
+def version_supports_sample_preview(version: str) -> bool:
+    """Return whether the version branch can render preview with the default CI DSW stack."""
+
+    return version_sort_key(version) >= version_sort_key(PREVIEW_COMPATIBLE_MIN_VERSION)
 
 
 def merge_preserved_translations(
