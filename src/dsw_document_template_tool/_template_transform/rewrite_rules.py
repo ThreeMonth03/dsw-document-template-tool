@@ -5,6 +5,18 @@ from __future__ import annotations
 import base64
 from dataclasses import dataclass
 
+ReversibleReplacement = tuple[str, str]
+ReversibleReplacements = tuple[ReversibleReplacement, ...]
+
+__all__ = [
+    "ReversibleReplacement",
+    "ReversibleReplacementGroup",
+    "ReversibleReplacements",
+    "apply_reversible_replacement_groups",
+    "apply_reversible_replacements",
+    "wrap_reversible_branch_sentence_rewrite",
+]
+
 
 @dataclass(frozen=True)
 class ReversibleReplacementGroup:
@@ -16,12 +28,12 @@ class ReversibleReplacementGroup:
     """
 
     name: str
-    replacements: tuple[tuple[str, str], ...]
+    replacements: ReversibleReplacements
 
 
 def apply_reversible_replacements(
     source_text: str,
-    replacements: tuple[tuple[str, str], ...],
+    replacements: ReversibleReplacements,
 ) -> str:
     """Apply exact replacements and preserve the original text for compaction."""
 
