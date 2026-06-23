@@ -7,6 +7,8 @@ from pathlib import Path
 
 import yaml
 
+from dsw_document_template_tool.translation_migration import preview_runtime_matrix
+
 
 def load_workflow_yaml(path: Path) -> dict[str, object]:
     """Load one workflow YAML file while preserving the `on` key."""
@@ -37,36 +39,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "make render-upstream-artifact-previews" in workflow_text
     render_job = workflow["jobs"]["render-regression"]
     matrix_include = render_job["strategy"]["matrix"]["include"]
-    assert matrix_include == [
-        {
-            "metamodel_key": "16",
-            "metamodel_version": "16",
-            "dsw_version": "4.13",
-            "upstream_template_artifact_refs": "v1.21.0 v1.22.0 v1.23.0 v1.24.0",
-            "run_preview_regression": "false",
-        },
-        {
-            "metamodel_key": "17-0",
-            "metamodel_version": "17.0",
-            "dsw_version": "4.22",
-            "upstream_template_artifact_refs": "v1.25.0 v1.26.0 v1.27.0 v1.28.0 v1.29.0",
-            "run_preview_regression": "false",
-        },
-        {
-            "metamodel_key": "17-1",
-            "metamodel_version": "17.1",
-            "dsw_version": "4.26",
-            "upstream_template_artifact_refs": "v1.29.1",
-            "run_preview_regression": "false",
-        },
-        {
-            "metamodel_key": "18-0",
-            "metamodel_version": "18.0",
-            "dsw_version": "4.30",
-            "upstream_template_artifact_refs": "v1.30.0+",
-            "run_preview_regression": "true",
-        },
-    ]
+    assert matrix_include == preview_runtime_matrix()
     assert "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" in workflow_text
     assert (
         render_job["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"]
@@ -162,6 +135,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["PROJECT_RENDER_OUTPUT"].startswith(
         "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/"
     )
+    assert workflow["env"]["DSW_VERSION"] == "4.30"
+    assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
     assert "github.event.pull_request.head.ref" in workflow_text

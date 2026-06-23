@@ -23,13 +23,11 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     clean_artifact_version_paths,
     clean_artifact_versions,
     load_translation_repository_config,
+    preview_runtime_for_version,
     sorted_versions,
     version_branch,
     version_paths,
-    version_sort_key,
 )
-
-PREVIEW_COMPATIBLE_MIN_VERSION = "v1.30.0"
 
 
 @dataclass(frozen=True)
@@ -485,6 +483,7 @@ def write_version_branch_workflow(
     """Write the version-specific translation sync workflow into a branch checkout."""
 
     paths = version_paths(config, version)
+    runtime = preview_runtime_for_version(version)
     source = tooling_root / "examples" / "github-actions" / "document_template_translation_sync.yml"
     target = checkout / ".github" / "workflows" / "document_template_translation_sync.yml"
     workflow = source.read_text(encoding="utf-8")
@@ -509,6 +508,10 @@ def write_version_branch_workflow(
         "TRANSLATED_TEMPLATE_VERSION: 1.30.0": (
             f"TRANSLATED_TEMPLATE_VERSION: {paths.version_number}"
         ),
+        "DSW_VERSION: 4.30": f"DSW_VERSION: {runtime.dsw_version}",
+        'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"': (
+            f'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "{runtime.metamodel_version}"'
+        ),
         (
             "TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/"
             "v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0"
@@ -526,8 +529,6 @@ def write_version_branch_workflow(
             f"{config.translation.target_language_label}/test-project.pdf"
         ),
     }
-    if not version_supports_sample_preview(version):
-        replacements["PROJECT_REF: workspace/projects/test-project.json"] = 'PROJECT_REF: ""'
     for old, new in replacements.items():
         workflow = replace_once(workflow, old, new)
     workflow = replace_count(
@@ -539,12 +540,6 @@ def write_version_branch_workflow(
 
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(workflow, encoding="utf-8")
-
-
-def version_supports_sample_preview(version: str) -> bool:
-    """Return whether the version branch can render preview with the default CI DSW stack."""
-
-    return version_sort_key(version) >= version_sort_key(PREVIEW_COMPATIBLE_MIN_VERSION)
 
 
 def merge_preserved_translations(

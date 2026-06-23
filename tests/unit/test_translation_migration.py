@@ -12,6 +12,8 @@ from dsw_document_template_tool.translation_migration import (
     clean_artifact_versions,
     load_translation_repository_config,
     migration_branch,
+    preview_runtime_for_version,
+    preview_runtime_matrix,
     sorted_versions,
     target_versions,
     version_branch,
@@ -143,3 +145,18 @@ def test_version_to_number_requires_v_prefix() -> None:
     ]
     with pytest.raises(TranslationMigrationError):
         version_to_number("1.30.1")
+
+
+def test_preview_runtime_for_version_matches_supported_metamodels() -> None:
+    """Template versions should map to the DSW stack that supports their metamodel."""
+
+    assert preview_runtime_for_version("v1.21.0").dsw_version == "4.13"
+    assert preview_runtime_for_version("v1.24.0").metamodel_version == "16"
+    assert preview_runtime_for_version("v1.25.0").dsw_version == "4.22"
+    assert preview_runtime_for_version("v1.29.0").metamodel_version == "17.0"
+    assert preview_runtime_for_version("v1.29.1").dsw_version == "4.26"
+    assert preview_runtime_for_version("v1.30.0").metamodel_version == "18.0"
+    assert preview_runtime_for_version("v1.30.9").dsw_version == "4.30"
+    assert preview_runtime_matrix()[-1]["upstream_template_artifact_refs"] == "v1.30.0+"
+    with pytest.raises(TranslationMigrationError):
+        preview_runtime_for_version("v1.20.0")

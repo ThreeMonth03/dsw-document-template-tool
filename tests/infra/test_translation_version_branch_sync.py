@@ -264,11 +264,11 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
 
 
-def test_version_branch_workflow_disables_preview_for_incompatible_versions(
+def test_version_branch_workflow_uses_version_specific_preview_runtime(
     repo_root: Path,
     tmp_path: Path,
 ) -> None:
-    """Older metamodel branches should package templates without rendering previews."""
+    """Older metamodel branches should preview with a compatible DSW runtime."""
 
     sync_module = _load_sync_module(repo_root)
     checkout = tmp_path / "checkout"
@@ -290,10 +290,12 @@ def test_version_branch_workflow_disables_preview_for_incompatible_versions(
     workflow_text = (
         checkout / ".github/workflows/document_template_translation_sync.yml"
     ).read_text(encoding="utf-8")
-    assert sync_module.version_supports_sample_preview("v1.29.1") is False
-    assert sync_module.version_supports_sample_preview("v1.30.0") is True
+    assert sync_module.preview_runtime_for_version("v1.29.1").dsw_version == "4.26"
+    assert sync_module.preview_runtime_for_version("v1.30.0").dsw_version == "4.30"
     assert 'branches: ["translation/v1.29.1"]' in workflow_text
-    assert 'PROJECT_REF: ""' in workflow_text
+    assert "PROJECT_REF: workspace/projects/test-project.json" in workflow_text
+    assert "DSW_VERSION: 4.26" in workflow_text
+    assert 'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"' in workflow_text
     assert (
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.29.1"
     ) in workflow_text

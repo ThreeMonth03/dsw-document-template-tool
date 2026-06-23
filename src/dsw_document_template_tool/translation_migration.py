@@ -98,6 +98,59 @@ class CleanArtifactVersionPaths:
     translation_tree_dir: Path
 
 
+@dataclass(frozen=True)
+class DswPreviewRuntime:
+    """DSW runtime that can preview a template metamodel range."""
+
+    metamodel_key: str
+    metamodel_version: str
+    dsw_version: str
+    min_version: str
+    max_version: str | None
+    upstream_template_artifact_refs: str
+    run_preview_regression: bool
+
+
+DSW_PREVIEW_RUNTIMES: tuple[DswPreviewRuntime, ...] = (
+    DswPreviewRuntime(
+        metamodel_key="16",
+        metamodel_version="16",
+        dsw_version="4.13",
+        min_version="v1.21.0",
+        max_version="v1.24.0",
+        upstream_template_artifact_refs="v1.21.0 v1.22.0 v1.23.0 v1.24.0",
+        run_preview_regression=False,
+    ),
+    DswPreviewRuntime(
+        metamodel_key="17-0",
+        metamodel_version="17.0",
+        dsw_version="4.22",
+        min_version="v1.25.0",
+        max_version="v1.29.0",
+        upstream_template_artifact_refs="v1.25.0 v1.26.0 v1.27.0 v1.28.0 v1.29.0",
+        run_preview_regression=False,
+    ),
+    DswPreviewRuntime(
+        metamodel_key="17-1",
+        metamodel_version="17.1",
+        dsw_version="4.26",
+        min_version="v1.29.1",
+        max_version="v1.29.1",
+        upstream_template_artifact_refs="v1.29.1",
+        run_preview_regression=False,
+    ),
+    DswPreviewRuntime(
+        metamodel_key="18-0",
+        metamodel_version="18.0",
+        dsw_version="4.30",
+        min_version="v1.30.0",
+        max_version=None,
+        upstream_template_artifact_refs="v1.30.0+",
+        run_preview_regression=True,
+    ),
+)
+
+
 def load_translation_repository_config(path: Path) -> TranslationRepositoryConfig:
     """Load and validate ``translation-config.yml``."""
 
@@ -284,6 +337,32 @@ def clean_artifact_versions(
     return sorted_versions(versions)
 
 
+def preview_runtime_for_version(version: str) -> DswPreviewRuntime:
+    """Return the DSW runtime that can preview a template version tag."""
+
+    for runtime in DSW_PREVIEW_RUNTIMES:
+        if _version_in_runtime(version, runtime):
+            return runtime
+    raise TranslationMigrationError(
+        f"No DSW preview runtime configured for template version {version!r}"
+    )
+
+
+def preview_runtime_matrix() -> list[dict[str, str]]:
+    """Return GitHub Actions matrix rows for all configured preview runtimes."""
+
+    return [
+        {
+            "metamodel_key": runtime.metamodel_key,
+            "metamodel_version": runtime.metamodel_version,
+            "dsw_version": runtime.dsw_version,
+            "upstream_template_artifact_refs": runtime.upstream_template_artifact_refs,
+            "run_preview_regression": str(runtime.run_preview_regression).lower(),
+        }
+        for runtime in DSW_PREVIEW_RUNTIMES
+    ]
+
+
 def sorted_versions(versions: list[str] | tuple[str, ...]) -> list[str]:
     """Sort version tags using numeric semantic version ordering."""
 
@@ -316,6 +395,13 @@ def validate_supported_version(config: TranslationRepositoryConfig, version: str
         raise TranslationMigrationError(
             f"Unsupported version {version!r}. Supported versions: {supported}"
         )
+
+
+def _version_in_runtime(version: str, runtime: DswPreviewRuntime) -> bool:
+    version_key = version_sort_key(version)
+    if version_key < version_sort_key(runtime.min_version):
+        return False
+    return runtime.max_version is None or version_key <= version_sort_key(runtime.max_version)
 
 
 def _required_str(payload: object, key: str) -> str:
