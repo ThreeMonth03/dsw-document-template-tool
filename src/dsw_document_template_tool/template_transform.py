@@ -54,8 +54,8 @@ from ._template_transform.scanner import (
     lex_source_tokens as _lex_source_tokens,
 )
 from ._template_transform.science_europe import (
-    _rewrite_known_science_europe_fragments,
-    _rewrite_known_science_europe_source_fragments,
+    rewrite_science_europe_balanced_source_fragments,
+    rewrite_science_europe_unbalanced_html_fragments,
 )
 from ._template_transform.workspace import (
     MANIFEST_PATH,
@@ -218,10 +218,10 @@ def compact_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
 
 def _expand_template_text(*, source_text: str) -> str:
     source_text = _rewrite_append_sentence_literals(source_text)
-    source_text = _rewrite_known_science_europe_source_fragments(source_text)
+    source_text = rewrite_science_europe_balanced_source_fragments(source_text)
     source_text = _rewrite_inline_conditional_expressions(source_text)
     source_text = _rewrite_common_prefix_branch_sentences(source_text)
-    source_text = _rewrite_known_science_europe_fragments(source_text)
+    source_text = rewrite_science_europe_unbalanced_html_fragments(source_text)
     tokens = _lex_source_tokens(source_text)
     regions = _collect_annotation_regions(tokens=tokens, source_text=source_text)
 

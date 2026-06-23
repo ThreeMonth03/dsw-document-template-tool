@@ -2,29 +2,13 @@
 
 from __future__ import annotations
 
-import base64
+from .rewrite_rules import (
+    ReversibleReplacementGroup,
+    apply_reversible_replacement_groups,
+)
 
 
-def _apply_reversible_replacements(
-    source_text: str,
-    replacements: tuple[tuple[str, str], ...],
-) -> str:
-    rewritten_text = source_text
-    for original, replacement in replacements:
-        if original not in rewritten_text:
-            continue
-        rewritten_text = rewritten_text.replace(
-            original,
-            _wrap_reversible_branch_sentence_rewrite(
-                original=original,
-                replacement=replacement,
-            ),
-            1,
-        )
-    return rewritten_text
-
-
-def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
+def rewrite_science_europe_balanced_source_fragments(source_text: str) -> str:
     """Rewrite exact upstream Science Europe fragments before generic expansion."""
 
     ref_data_conditions_original = """
@@ -1209,70 +1193,93 @@ def _rewrite_known_science_europe_source_fragments(source_text: str) -> str:
             {%- endif -%}
 """
 
-    return _apply_reversible_replacements(
+    return apply_reversible_replacement_groups(
         source_text,
         (
-            (ref_data_conditions_original, ref_data_conditions_replacement),
-            (ref_data_conditions_markdown_original, ref_data_conditions_markdown_replacement),
-            (nref_data_conditions_original, nref_data_conditions_replacement),
-            (measured_external_ownership_original, measured_external_ownership_replacement),
-            (nref_personal_legal_basis_original, nref_personal_legal_basis_replacement),
-            (computer_readable_original, computer_readable_replacement),
-            (
-                computer_readable_standardised_list_original,
-                computer_readable_standardised_list_replacement,
+            ReversibleReplacementGroup(
+                "balanced_science_europe_sentence_blocks",
+                (
+                    (ref_data_conditions_original, ref_data_conditions_replacement),
+                    (
+                        ref_data_conditions_markdown_original,
+                        ref_data_conditions_markdown_replacement,
+                    ),
+                    (nref_data_conditions_original, nref_data_conditions_replacement),
+                    (
+                        measured_external_ownership_original,
+                        measured_external_ownership_replacement,
+                    ),
+                    (
+                        nref_personal_legal_basis_original,
+                        nref_personal_legal_basis_replacement,
+                    ),
+                    (computer_readable_original, computer_readable_replacement),
+                    (
+                        computer_readable_standardised_list_original,
+                        computer_readable_standardised_list_replacement,
+                    ),
+                    (
+                        computer_readable_standardized_list_original,
+                        computer_readable_standardized_list_replacement,
+                    ),
+                    (
+                        ref_data_used_identification_original,
+                        ref_data_used_identification_replacement,
+                    ),
+                    (
+                        ref_data_used_identification_markdown_original,
+                        ref_data_used_identification_markdown_replacement,
+                    ),
+                    (
+                        nref_data_used_identification_original,
+                        nref_data_used_identification_replacement,
+                    ),
+                    (
+                        nref_data_used_identification_markdown_original,
+                        nref_data_used_identification_markdown_replacement,
+                    ),
+                    (
+                        nref_data_used_identification_rnef_link_original,
+                        nref_data_used_identification_rnef_link_replacement,
+                    ),
+                    (nref_data_complete_original, nref_data_complete_replacement),
+                    (nref_data_fixed_original, nref_data_fixed_replacement),
+                    (
+                        ref_data_not_used_identification_original,
+                        ref_data_not_used_identification_replacement,
+                    ),
+                    (
+                        ref_data_not_used_identification_markdown_original,
+                        ref_data_not_used_identification_markdown_replacement,
+                    ),
+                    (
+                        nref_data_conditions_markdown_original,
+                        nref_data_conditions_markdown_replacement,
+                    ),
+                    (
+                        nref_data_not_used_identification_original,
+                        nref_data_not_used_identification_replacement,
+                    ),
+                    (
+                        nref_data_not_used_identification_markdown_original,
+                        nref_data_not_used_identification_markdown_replacement,
+                    ),
+                    (shared_workspace_original, shared_workspace_replacement),
+                    (published_software_original, published_software_replacement),
+                    (format_volume_original, format_volume_replacement),
+                    (
+                        nonstandard_format_other_reason_original,
+                        nonstandard_format_other_reason_replacement,
+                    ),
+                    (published_license_heading_original, published_license_heading_replacement),
+                    (published_data_fixed_period_original, published_data_fixed_period_replacement),
+                ),
             ),
-            (
-                computer_readable_standardized_list_original,
-                computer_readable_standardized_list_replacement,
-            ),
-            (ref_data_used_identification_original, ref_data_used_identification_replacement),
-            (
-                ref_data_used_identification_markdown_original,
-                ref_data_used_identification_markdown_replacement,
-            ),
-            (nref_data_used_identification_original, nref_data_used_identification_replacement),
-            (
-                nref_data_used_identification_markdown_original,
-                nref_data_used_identification_markdown_replacement,
-            ),
-            (
-                nref_data_used_identification_rnef_link_original,
-                nref_data_used_identification_rnef_link_replacement,
-            ),
-            (nref_data_complete_original, nref_data_complete_replacement),
-            (nref_data_fixed_original, nref_data_fixed_replacement),
-            (
-                ref_data_not_used_identification_original,
-                ref_data_not_used_identification_replacement,
-            ),
-            (
-                ref_data_not_used_identification_markdown_original,
-                ref_data_not_used_identification_markdown_replacement,
-            ),
-            (
-                nref_data_conditions_markdown_original,
-                nref_data_conditions_markdown_replacement,
-            ),
-            (
-                nref_data_not_used_identification_original,
-                nref_data_not_used_identification_replacement,
-            ),
-            (
-                nref_data_not_used_identification_markdown_original,
-                nref_data_not_used_identification_markdown_replacement,
-            ),
-            (shared_workspace_original, shared_workspace_replacement),
-            (published_software_original, published_software_replacement),
-            (format_volume_original, format_volume_replacement),
-            (nonstandard_format_other_reason_original, nonstandard_format_other_reason_replacement),
-            (published_license_heading_original, published_license_heading_replacement),
-            (published_data_fixed_period_original, published_data_fixed_period_replacement),
         ),
     )
 
 
-def _rewrite_known_science_europe_fragments(source_text: str) -> str:
+def rewrite_science_europe_unbalanced_html_fragments(source_text: str) -> str:
     """Patch upstream Science Europe sentence fragments that generic HTML cannot see.
 
     A few upstream fragments live inside large, unbalanced list-item wrappers, so
@@ -1530,25 +1537,12 @@ def _rewrite_known_science_europe_fragments(source_text: str) -> str:
         ),
     )
 
-    rewritten_text = source_text
-    for original, replacement in replacements:
-        if original not in rewritten_text:
-            continue
-        rewritten_text = rewritten_text.replace(
-            original,
-            _wrap_reversible_branch_sentence_rewrite(
-                original=original,
-                replacement=replacement,
+    return apply_reversible_replacement_groups(
+        source_text,
+        (
+            ReversibleReplacementGroup(
+                "unbalanced_science_europe_html_fragments",
+                replacements,
             ),
-            1,
-        )
-    return rewritten_text
-
-
-def _wrap_reversible_branch_sentence_rewrite(*, original: str, replacement: str) -> str:
-    encoded_original = base64.urlsafe_b64encode(original.encode("utf-8")).decode("ascii")
-    return (
-        f"{{# __tr_branch_sentence_original:{encoded_original} #}}"
-        f"{replacement}"
-        "{# __tr_branch_sentence_original:end #}"
+        ),
     )
