@@ -508,7 +508,7 @@ def write_version_branch_workflow(
         "TRANSLATED_TEMPLATE_VERSION: 1.30.0": (
             f"TRANSLATED_TEMPLATE_VERSION: {paths.version_number}"
         ),
-        "DSW_VERSION: 4.30": f"DSW_VERSION: {runtime.dsw_version}",
+        'DSW_VERSION: "4.30"': f'DSW_VERSION: "{runtime.dsw_version}"',
         'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"': (
             f'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "{runtime.metamodel_version}"'
         ),

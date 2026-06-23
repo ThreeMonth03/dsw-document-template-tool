@@ -37,7 +37,7 @@ env:
   PROJECT_REF: workspace/projects/test-project.json
   PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf
   PROJECT_RENDER_FORMAT_UUID: 68c26e34-5e77-4e15-9bf7-06ff92582257
-  DSW_VERSION: 4.30
+  DSW_VERSION: "4.30"
   UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"
 
 jobs:

@@ -294,7 +294,7 @@ def test_version_branch_workflow_uses_version_specific_preview_runtime(
     assert sync_module.preview_runtime_for_version("v1.30.0").dsw_version == "4.30"
     assert 'branches: ["translation/v1.29.1"]' in workflow_text
     assert "PROJECT_REF: workspace/projects/test-project.json" in workflow_text
-    assert "DSW_VERSION: 4.26" in workflow_text
+    assert 'DSW_VERSION: "4.26"' in workflow_text
     assert 'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"' in workflow_text
     assert (
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.29.1"
