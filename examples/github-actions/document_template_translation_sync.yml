@@ -253,6 +253,14 @@ jobs:
             --output "$HOST_ROOT/$TRANSLATED_TEMPLATE_PACKAGE" \
             --force
 
+      - name: Upload translated template package
+        uses: actions/upload-artifact@v4
+        with:
+          name: document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}
+          path: |
+            template-repo/${{ env.TRANSLATED_TEMPLATE_DIR }}
+            template-repo/${{ env.TRANSLATED_TEMPLATE_PACKAGE }}
+
       # This boots an ephemeral DSW and copies PROJECT_REF into it. PROJECT_REF
       # can either point at an existing project UUID for a persistent DSW, or at
       # a JSON recipe with `knowledge_model_package_id` and `events_file`.
@@ -290,16 +298,16 @@ jobs:
         working-directory: tooling-repo
         run: make stop-ci-dsw
 
-      - name: Upload translated template package
+      - name: Upload sample project preview
+        if: ${{ always() && env.PROJECT_REF != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: translated-document-template-${{ env.TRANSLATED_TEMPLATE_VERSION }}
+          name: document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}
           path: |
-            template-repo/${{ env.TRANSLATED_TEMPLATE_DIR }}
-            template-repo/${{ env.TRANSLATED_TEMPLATE_PACKAGE }}
             template-repo/${{ env.PROJECT_RENDER_OUTPUT }}
             template-repo/${{ env.PROJECT_RENDER_OUTPUT }}.json
             tooling-repo/outputs/ci-dsw/
+          if-no-files-found: warn
 
       - name: Mark auto-repaired head as validated
         if: ${{ steps.auto_commit.outputs.repaired_sha != '' }}

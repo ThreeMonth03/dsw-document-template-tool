@@ -109,6 +109,22 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         )
         == "fake package\n"
     )
+    workflow_text = _git_show(
+        translation_repo,
+        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert 'branches: ["translation/v1.30.2"]' in workflow_text
+    assert "github.event_name == 'push'" in workflow_text
+    assert (
+        "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.2"
+    ) in workflow_text
+    assert "TRANSLATED_TEMPLATE_VERSION: 1.30.2" in workflow_text
+    assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert (
+        "PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/"
+        "v1.30.2/zh-Hant/test-project.pdf"
+    ) in workflow_text
 
 
 def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact(
@@ -238,6 +254,14 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         )
         == "manual translation\n"
     )
+    workflow_text = _git_show(
+        translation_repo,
+        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert 'branches: ["translation/v1.30.1"]' in workflow_text
+    assert "github.event_name == 'push'" in workflow_text
+    assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
 
 
 def _load_sync_module(repo_root: Path) -> ModuleType:

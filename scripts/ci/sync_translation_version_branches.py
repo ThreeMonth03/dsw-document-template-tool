@@ -291,6 +291,13 @@ def refresh_version_branch(
             config=config,
             version=version,
         )
+        write_version_branch_workflow(
+            checkout=checkout,
+            tooling_root=tooling_root,
+            config=config,
+            version=version,
+            branch=branch,
+        )
         ensure_git_identity(checkout)
         _run(["git", "add", "."], cwd=checkout)
         staged_paths = tuple(staged_changed_paths(checkout))
@@ -344,6 +351,13 @@ def create_version_branch(
             tdk_executable=tdk_executable,
             config=config,
             version=version,
+        )
+        write_version_branch_workflow(
+            checkout=checkout,
+            tooling_root=tooling_root,
+            config=config,
+            version=version,
+            branch=branch,
         )
         ensure_git_identity(checkout)
         _run(["git", "add", "."], cwd=checkout)
@@ -457,6 +471,71 @@ def sync_blank_translation_output(
     )
 
 
+def write_version_branch_workflow(
+    *,
+    checkout: Path,
+    tooling_root: Path,
+    config: TranslationRepositoryConfig,
+    version: str,
+    branch: str,
+) -> None:
+    """Write the version-specific translation sync workflow into a branch checkout."""
+
+    paths = version_paths(config, version)
+    source = tooling_root / "examples" / "github-actions" / "document_template_translation_sync.yml"
+    target = checkout / ".github" / "workflows" / "document_template_translation_sync.yml"
+    workflow = source.read_text(encoding="utf-8")
+
+    replacements = {
+        'pull_request:\n    branches: ["master"]': (
+            f'pull_request:\n    branches: ["{branch}"]\n  push:\n    branches: ["{branch}"]'
+        ),
+        "github.event_name == 'schedule' ||": (
+            "github.event_name == 'push' ||\n      github.event_name == 'schedule' ||"
+        ),
+        "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0": (
+            f"COMPACT_TEMPLATE_DIR: {paths.compact_template_dir.as_posix()}"
+        ),
+        "EXPANDED_TEMPLATE_DIR: workspace/document-templates/expanded/dsw-science-europe-1.30.0": (
+            f"EXPANDED_TEMPLATE_DIR: {paths.expanded_template_dir.as_posix()}"
+        ),
+        (
+            "TRANSLATION_TREE_DIR: workspace/document-templates/translation/"
+            "dsw-science-europe-1.30.0"
+        ): f"TRANSLATION_TREE_DIR: {paths.translation_tree_dir.as_posix()}",
+        "TRANSLATED_TEMPLATE_VERSION: 1.30.0": (
+            f"TRANSLATED_TEMPLATE_VERSION: {paths.version_number}"
+        ),
+        (
+            "TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/"
+            "v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0"
+        ): f"TRANSLATED_TEMPLATE_DIR: {paths.translated_template_dir.as_posix()}",
+        (
+            "TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/"
+            "v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip"
+        ): f"TRANSLATED_TEMPLATE_PACKAGE: {paths.translated_template_package.as_posix()}",
+        (
+            "PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/"
+            "v1.30.0/zh-Hant/test-project.pdf"
+        ): (
+            "PROJECT_RENDER_OUTPUT: "
+            f"outputs/project-render/{paths.source_template_id}/{version}/"
+            f"{config.translation.target_language_label}/test-project.pdf"
+        ),
+    }
+    for old, new in replacements.items():
+        workflow = replace_once(workflow, old, new)
+    workflow = replace_count(
+        workflow,
+        "github.event.pull_request.head.ref || 'master'",
+        f"github.event.pull_request.head.ref || '{branch}'",
+        expected_count=3,
+    )
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(workflow, encoding="utf-8")
+
+
 def merge_preserved_translations(
     *,
     checkout: Path,
@@ -543,6 +622,28 @@ def replace_tree(source: Path, destination: Path) -> None:
         shutil.rmtree(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(source, destination)
+
+
+def replace_once(text: str, old: str, new: str) -> str:
+    """Replace exactly one occurrence in generated workflow templates."""
+
+    count = text.count(old)
+    if count != 1:
+        raise SystemExit(
+            f"Expected exactly one workflow template occurrence of {old!r}, got {count}"
+        )
+    return text.replace(old, new, 1)
+
+
+def replace_count(text: str, old: str, new: str, *, expected_count: int) -> str:
+    """Replace a known repeated marker in generated workflow templates."""
+
+    count = text.count(old)
+    if count != expected_count:
+        raise SystemExit(
+            f"Expected {expected_count} workflow template occurrences of {old!r}, got {count}"
+        )
+    return text.replace(old, new)
 
 
 def ensure_git_identity(repo: Path) -> None:

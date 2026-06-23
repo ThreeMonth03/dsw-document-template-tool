@@ -208,7 +208,11 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
     assert "outline.md" in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
-    assert "translated-document-template-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "Upload translated template package" in workflow_text
+    assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "Upload sample project preview" in workflow_text
+    assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "if-no-files-found: warn" in workflow_text
 
     project_ref_path = repo_root / workflow["env"]["PROJECT_REF"]
     assert project_ref_path.is_file()
