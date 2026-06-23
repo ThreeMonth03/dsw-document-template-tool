@@ -39,6 +39,7 @@ env:
   PROJECT_RENDER_FORMAT_UUID: 68c26e34-5e77-4e15-9bf7-06ff92582257
   DSW_VERSION: "4.30"
   UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"
+  UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"
 
 jobs:
   translation-sync:
@@ -282,13 +283,34 @@ jobs:
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
           TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
+          template_json="$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR/template.json"
+          template_metamodel_version="$("$TOOL_ROOT/.venv/bin/python" -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("metamodelVersion", ""))' "$template_json")"
+          failure_path="$(dirname "$HOST_ROOT/$PROJECT_RENDER_OUTPUT")/failed.json"
 
+          set +e
           "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/render_project.py" \
             --project-ref "$HOST_ROOT/$PROJECT_REF" \
             --template-dir "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR" \
             --format-uuid "$PROJECT_RENDER_FORMAT_UUID" \
             --output "$HOST_ROOT/$PROJECT_RENDER_OUTPUT" \
             --tdk-executable "$TOOL_ROOT/.venv/bin/dsw-tdk"
+          render_status=$?
+          set -e
+
+          if [ "$render_status" -ne 0 ]; then
+            "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/scripts/ci/write_preview_status.py" \
+              --output "$failure_path" \
+              --status failed \
+              --reason render_failed \
+              --template-version "v$TRANSLATED_TEMPLATE_VERSION" \
+              --template-metamodel-version "$template_metamodel_version" \
+              --preview-metamodel-version "$UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" \
+              --exit-code "$render_status"
+            echo "WARNING: Sample project preview failed; wrote $failure_path"
+            if [ "$UPSTREAM_TEMPLATE_PREVIEW_STRICT" = "true" ]; then
+              exit "$render_status"
+            fi
+          fi
 
       - name: Collect local DSW logs
         if: ${{ always() && env.PROJECT_REF != '' }}
@@ -306,8 +328,7 @@ jobs:
         with:
           name: document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}
           path: |
-            template-repo/${{ env.PROJECT_RENDER_OUTPUT }}
-            template-repo/${{ env.PROJECT_RENDER_OUTPUT }}.json
+            template-repo/outputs/project-render/
             tooling-repo/outputs/ci-dsw/
           if-no-files-found: warn
 

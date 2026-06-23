@@ -512,6 +512,9 @@ def write_version_branch_workflow(
         'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"': (
             f'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "{runtime.metamodel_version}"'
         ),
+        'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"': (
+            f'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "{str(runtime.run_preview_regression).lower()}"'
+        ),
         (
             "TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/"
             "v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0"

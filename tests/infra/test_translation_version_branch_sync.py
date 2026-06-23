@@ -296,12 +296,62 @@ def test_version_branch_workflow_uses_version_specific_preview_runtime(
     assert "PROJECT_REF: workspace/projects/test-project.json" in workflow_text
     assert 'DSW_VERSION: "4.26"' in workflow_text
     assert 'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"' in workflow_text
+    assert 'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "false"' in workflow_text
     assert (
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.29.1"
     ) in workflow_text
     assert "TRANSLATED_TEMPLATE_VERSION: 1.29.1" in workflow_text
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+
+
+def test_version_branch_workflow_runtime_injection_covers_metamodel_groups(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Generated branch workflows should stay aligned with the tooling runtime matrix."""
+
+    sync_module = _load_sync_module(repo_root)
+    checkout = tmp_path / "checkout"
+    checkout.mkdir()
+    _write_translation_config(
+        checkout / "translation-config.yml",
+        supported_versions=("v1.21.0", "v1.29.1", "v1.30.0"),
+    )
+    config = sync_module.load_translation_repository_config(checkout / "translation-config.yml")
+
+    expectations = {
+        "v1.21.0": (
+            'DSW_VERSION: "4.13"',
+            'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "16"',
+            'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "false"',
+        ),
+        "v1.29.1": (
+            'DSW_VERSION: "4.26"',
+            'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"',
+            'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "false"',
+        ),
+        "v1.30.0": (
+            'DSW_VERSION: "4.30"',
+            'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"',
+            'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"',
+        ),
+    }
+    for version, expected_lines in expectations.items():
+        branch = f"translation/{version}"
+        sync_module.write_version_branch_workflow(
+            checkout=checkout,
+            tooling_root=repo_root,
+            config=config,
+            version=version,
+            branch=branch,
+        )
+        workflow_text = (
+            checkout / ".github/workflows/document_template_translation_sync.yml"
+        ).read_text(encoding="utf-8")
+        assert f'branches: ["{branch}"]' in workflow_text
+        for expected_line in expected_lines:
+            assert expected_line in workflow_text
 
 
 def _load_sync_module(repo_root: Path) -> ModuleType:

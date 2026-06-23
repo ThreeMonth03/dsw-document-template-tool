@@ -137,6 +137,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     )
     assert workflow["env"]["DSW_VERSION"] == "4.30"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
+    assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
     assert "github.event.pull_request.head.ref" in workflow_text
@@ -174,6 +175,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert 'dsw-tdk" package' in workflow_text
     assert "make start-ci-dsw" in workflow_text
     assert "src/render_project.py" in workflow_text
+    assert "scripts/ci/write_preview_status.py" in workflow_text
+    assert "--reason render_failed" in workflow_text
+    assert 'if [ "$UPSTREAM_TEMPLATE_PREVIEW_STRICT" = "true" ]; then' in workflow_text
     assert "make ci-dsw-logs" in workflow_text
     assert "make stop-ci-dsw" in workflow_text
     assert "Auto-commit generated outputs" not in workflow_text
@@ -187,6 +191,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "Upload sample project preview" in workflow_text
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "template-repo/outputs/project-render/" in workflow_text
     assert "if-no-files-found: warn" in workflow_text
 
     project_ref_path = repo_root / workflow["env"]["PROJECT_REF"]
