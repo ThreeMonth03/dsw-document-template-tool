@@ -152,7 +152,7 @@ class DSWApiClient:
         """Resolve KM coordinates like `org:km:version` into a package UUID."""
 
         organization_id, km_id, version = package_id.split(":")
-        payload = self._request_json(
+        response = self._request(
             "GET",
             "/knowledge-model-packages",
             params={
@@ -162,6 +162,12 @@ class DSWApiClient:
                 "size": 1000,
             },
         )
+        if response.status_code == 404:
+            return None
+        self._raise_for_status(response)
+        payload = response.json()
+        if not isinstance(payload, dict):
+            raise DSWAPIError("Expected JSON object from /knowledge-model-packages")
         items = payload.get("_embedded", {}).get("knowledgeModelPackages", [])
         for item in items:
             if not isinstance(item, dict):
@@ -254,7 +260,7 @@ class DSWApiClient:
                 verify=self.verify_ssl,
                 timeout=120,
             )
-        self._raise_for_status(response, expected_statuses={200})
+        self._raise_for_status(response, expected_statuses={200, 201})
         payload = response.json()
         if not isinstance(payload, dict):
             raise DSWAPIError("KM bundle upload did not return a JSON object")
