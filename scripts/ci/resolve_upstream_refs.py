@@ -54,7 +54,7 @@ def dedupe_preserving_order(items: Iterable[str]) -> list[str]:
 
 
 def resolve_refs(remote: str, refs: Iterable[str]) -> list[str]:
-    """Resolve refs, expanding inputs like v1.30.0+ into matching version tags."""
+    """Resolve refs, expanding inputs like v1.29.1+ into matching version tags."""
 
     remote_tags: list[str] | None = None
     resolved_refs: list[str] = []
@@ -81,7 +81,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--remote", required=True, help="Git remote URL or owner/name URL.")
-    parser.add_argument("refs", nargs="+", help="Refs to resolve, e.g. latest main v1.30.0+")
+    parser.add_argument("refs", nargs="+", help="Refs to resolve, e.g. latest main v1.29.1+")
     args = parser.parse_args()
 
     try:

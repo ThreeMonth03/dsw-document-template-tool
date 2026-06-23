@@ -27,11 +27,12 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert workflow["on"]["pull_request"]["branches"] == ["**"]
     assert workflow["on"]["schedule"][0]["cron"] == "30 18 * * *"
     assert "make install-dev" in workflow_text
+    assert "v1.29.1+" in workflow_text
     assert "v1.30.0+" in workflow_text
-    assert "v1.21.0+" in workflow_text
+    assert "v1.21.0+" not in workflow_text
     assert (
         workflow["on"]["workflow_dispatch"]["inputs"]["upstream_template_artifact_refs"]["default"]
-        == "v1.21.0+"
+        == "v1.29.1+"
     )
     assert "make test-upstream-tags" in workflow_text
     assert "make test-upstream-compat-tags" not in workflow_text
@@ -43,8 +44,9 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" in workflow_text
     assert (
         render_job["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"]
-        == "${{ matrix.run_preview_regression }}"
+        == "${{ matrix.strict_project_preview }}"
     )
+    assert "dsw-tdk==${{ matrix.tdk_version }}" in workflow_text
     assert "regression-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
     assert "clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
     assert "git diff --exit-code -- workspace/document-templates/expanded" not in workflow_text
@@ -136,8 +138,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
         "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/"
     )
     assert workflow["env"]["DSW_VERSION"] == "4.30"
+    assert workflow["env"]["DSW_TDK_VERSION"] == "4.30.2"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
+    assert "dsw-tdk==$DSW_TDK_VERSION" in workflow_text
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
     assert "github.event.pull_request.head.ref" in workflow_text

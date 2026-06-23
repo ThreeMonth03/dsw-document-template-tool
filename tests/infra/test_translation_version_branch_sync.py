@@ -295,8 +295,9 @@ def test_version_branch_workflow_uses_version_specific_preview_runtime(
     assert 'branches: ["translation/v1.29.1"]' in workflow_text
     assert "PROJECT_REF: workspace/projects/test-project.json" in workflow_text
     assert 'DSW_VERSION: "4.26"' in workflow_text
+    assert 'DSW_TDK_VERSION: "4.26.1"' in workflow_text
     assert 'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"' in workflow_text
-    assert 'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "false"' in workflow_text
+    assert 'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"' in workflow_text
     assert (
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.29.1"
     ) in workflow_text
@@ -316,23 +317,20 @@ def test_version_branch_workflow_runtime_injection_covers_metamodel_groups(
     checkout.mkdir()
     _write_translation_config(
         checkout / "translation-config.yml",
-        supported_versions=("v1.21.0", "v1.29.1", "v1.30.0"),
+        supported_versions=("v1.29.1", "v1.30.0"),
     )
     config = sync_module.load_translation_repository_config(checkout / "translation-config.yml")
 
     expectations = {
-        "v1.21.0": (
-            'DSW_VERSION: "4.13"',
-            'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "16"',
-            'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "false"',
-        ),
         "v1.29.1": (
             'DSW_VERSION: "4.26"',
+            'DSW_TDK_VERSION: "4.26.1"',
             'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"',
-            'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "false"',
+            'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"',
         ),
         "v1.30.0": (
             'DSW_VERSION: "4.30"',
+            'DSW_TDK_VERSION: "4.30.2"',
             'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"',
             'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"',
         ),
@@ -379,7 +377,7 @@ template:
   organization_id: dsw
   template_id: science-europe
   upstream_repository: https://github.com/ds-wizard/science-europe-template.git
-  supported_ref_spec: v1.21.0+
+  supported_ref_spec: v1.29.1+
   supported_versions:
 {supported_versions_yaml}
 

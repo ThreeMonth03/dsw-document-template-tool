@@ -105,48 +105,36 @@ class DswPreviewRuntime:
     metamodel_key: str
     metamodel_version: str
     dsw_version: str
+    tdk_version: str
     min_version: str
     max_version: str | None
     upstream_template_artifact_refs: str
     run_preview_regression: bool
+    strict_project_preview: bool
 
 
 DSW_PREVIEW_RUNTIMES: tuple[DswPreviewRuntime, ...] = (
     DswPreviewRuntime(
-        metamodel_key="16",
-        metamodel_version="16",
-        dsw_version="4.13",
-        min_version="v1.21.0",
-        max_version="v1.24.0",
-        upstream_template_artifact_refs="v1.21.0 v1.22.0 v1.23.0 v1.24.0",
-        run_preview_regression=False,
-    ),
-    DswPreviewRuntime(
-        metamodel_key="17-0",
-        metamodel_version="17.0",
-        dsw_version="4.22",
-        min_version="v1.25.0",
-        max_version="v1.29.0",
-        upstream_template_artifact_refs="v1.25.0 v1.26.0 v1.27.0 v1.28.0 v1.29.0",
-        run_preview_regression=False,
-    ),
-    DswPreviewRuntime(
         metamodel_key="17-1",
         metamodel_version="17.1",
         dsw_version="4.26",
+        tdk_version="4.26.1",
         min_version="v1.29.1",
         max_version="v1.29.1",
         upstream_template_artifact_refs="v1.29.1",
         run_preview_regression=False,
+        strict_project_preview=True,
     ),
     DswPreviewRuntime(
         metamodel_key="18-0",
         metamodel_version="18.0",
         dsw_version="4.30",
+        tdk_version="4.30.2",
         min_version="v1.30.0",
         max_version=None,
         upstream_template_artifact_refs="v1.30.0+",
         run_preview_regression=True,
+        strict_project_preview=True,
     ),
 )
 
@@ -356,8 +344,10 @@ def preview_runtime_matrix() -> list[dict[str, str]]:
             "metamodel_key": runtime.metamodel_key,
             "metamodel_version": runtime.metamodel_version,
             "dsw_version": runtime.dsw_version,
+            "tdk_version": runtime.tdk_version,
             "upstream_template_artifact_refs": runtime.upstream_template_artifact_refs,
             "run_preview_regression": str(runtime.run_preview_regression).lower(),
+            "strict_project_preview": str(runtime.strict_project_preview).lower(),
         }
         for runtime in DSW_PREVIEW_RUNTIMES
     ]

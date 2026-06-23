@@ -509,11 +509,12 @@ def write_version_branch_workflow(
             f"TRANSLATED_TEMPLATE_VERSION: {paths.version_number}"
         ),
         'DSW_VERSION: "4.30"': f'DSW_VERSION: "{runtime.dsw_version}"',
+        'DSW_TDK_VERSION: "4.30.2"': f'DSW_TDK_VERSION: "{runtime.tdk_version}"',
         'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"': (
             f'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "{runtime.metamodel_version}"'
         ),
         'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"': (
-            f'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "{str(runtime.run_preview_regression).lower()}"'
+            f'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "{str(runtime.strict_project_preview).lower()}"'
         ),
         (
             "TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/"

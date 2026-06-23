@@ -32,7 +32,7 @@ template:
   organization_id: dsw
   template_id: science-europe
   upstream_repository: https://github.com/ds-wizard/science-europe-template.git
-  supported_ref_spec: v1.21.0+
+  supported_ref_spec: v1.29.1+
   supported_versions:
     - v1.30.0
     - v1.30.1
@@ -70,7 +70,7 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     config = load_translation_repository_config(_write_config(tmp_path))
     paths = version_paths(config, "v1.30.1")
 
-    assert config.template.supported_ref_spec == "v1.21.0+"
+    assert config.template.supported_ref_spec == "v1.29.1+"
     assert config.template.supported_versions == ("v1.30.0", "v1.30.1")
     assert version_branch(config, "v1.30.1") == "translation/v1.30.1"
     assert migration_branch(config, "v1.30.0", "v1.30.1") == (
@@ -150,13 +150,14 @@ def test_version_to_number_requires_v_prefix() -> None:
 def test_preview_runtime_for_version_matches_supported_metamodels() -> None:
     """Template versions should map to the DSW stack that supports their metamodel."""
 
-    assert preview_runtime_for_version("v1.21.0").dsw_version == "4.13"
-    assert preview_runtime_for_version("v1.24.0").metamodel_version == "16"
-    assert preview_runtime_for_version("v1.25.0").dsw_version == "4.22"
-    assert preview_runtime_for_version("v1.29.0").metamodel_version == "17.0"
     assert preview_runtime_for_version("v1.29.1").dsw_version == "4.26"
+    assert preview_runtime_for_version("v1.29.1").tdk_version == "4.26.1"
+    assert preview_runtime_for_version("v1.29.1").strict_project_preview is True
     assert preview_runtime_for_version("v1.30.0").metamodel_version == "18.0"
     assert preview_runtime_for_version("v1.30.9").dsw_version == "4.30"
+    assert preview_runtime_matrix()[0]["upstream_template_artifact_refs"] == "v1.29.1"
+    assert preview_runtime_matrix()[0]["strict_project_preview"] == "true"
     assert preview_runtime_matrix()[-1]["upstream_template_artifact_refs"] == "v1.30.0+"
+    assert preview_runtime_matrix()[-1]["strict_project_preview"] == "true"
     with pytest.raises(TranslationMigrationError):
-        preview_runtime_for_version("v1.20.0")
+        preview_runtime_for_version("v1.29.0")

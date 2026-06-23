@@ -38,6 +38,7 @@ env:
   PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf
   PROJECT_RENDER_FORMAT_UUID: 68c26e34-5e77-4e15-9bf7-06ff92582257
   DSW_VERSION: "4.30"
+  DSW_TDK_VERSION: "4.30.2"
   UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"
   UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"
 
@@ -76,6 +77,12 @@ jobs:
       - name: Install tooling dependencies
         working-directory: tooling-repo
         run: make install-dev BOOTSTRAP_PYTHON=python
+
+      - name: Install matching dsw-tdk
+        working-directory: tooling-repo
+        run: |
+          .venv/bin/python -m pip install "dsw-tdk==$DSW_TDK_VERSION"
+          .venv/bin/dsw-tdk --version
 
       # Keep this step when expanded/translation are checked-in generated inputs.
       # If another repository only wants to package already-committed translation

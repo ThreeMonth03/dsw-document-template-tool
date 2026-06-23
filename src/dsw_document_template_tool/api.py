@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
@@ -15,6 +16,30 @@ import requests
 
 class DSWAPIError(RuntimeError):
     """Raised when the DSW API returns an unexpected response."""
+
+
+@dataclass(frozen=True)
+class KnowledgeModelPackageReference:
+    """Resolved KM package identifiers across DSW API generations."""
+
+    package_id: str | None = None
+    uuid: str | None = None
+
+    def require_project_create_identifier(self) -> str:
+        """Return the best package identifier for legacy project creation payloads."""
+
+        if self.package_id:
+            return self.package_id
+        if self.uuid:
+            return self.uuid
+        raise DSWAPIError("Resolved KM package did not include an id or uuid")
+
+    def require_uuid(self) -> str:
+        """Return the UUID required by current project APIs."""
+
+        if self.uuid:
+            return self.uuid
+        raise DSWAPIError("Resolved KM package did not include a UUID")
 
 
 class DSWApiClient:
@@ -59,7 +84,13 @@ class DSWApiClient:
         return self._request_json("GET", "/users/current")
 
     def find_draft_uuid_by_id(self, template_id: str) -> str | None:
-        """Resolve draft coordinates like `org:id:version` into a draft UUID."""
+        """Resolve draft coordinates into the API's draft reference.
+
+        DSW 4.30+ exposes draft UUIDs. Older DSW releases identify drafts by
+        `tId` (`org:template:version`) while using the same preview endpoints.
+        The caller only needs an endpoint reference, so this method returns
+        whichever identifier the server exposes.
+        """
 
         if template_id.count(":") != 2:
             return None
@@ -74,17 +105,17 @@ class DSWApiClient:
         for draft in drafts:
             if not isinstance(draft, dict):
                 continue
-            uuid = draft.get("uuid")
-            if not isinstance(uuid, str):
+            draft_ref = draft.get("uuid") or draft.get("id") or draft.get("tId")
+            if not isinstance(draft_ref, str):
                 continue
             if (
                 draft.get("organizationId") == organization_id
                 and draft.get("templateId") == short_template_id
                 and draft.get("version") == version
             ):
-                return uuid
+                return draft_ref
             if draft.get("templateId") == short_template_id and draft.get("version") == version:
-                partial_match = uuid
+                partial_match = draft_ref
         return partial_match
 
     def check_draft_exists(self, draft_uuid: str) -> bool:
@@ -132,24 +163,39 @@ class DSWApiClient:
     def resolve_knowledge_model_package_uuid(self, package_id: str) -> str:
         """Resolve released KM package coordinates into the API's UUID field."""
 
+        return self.resolve_knowledge_model_package_reference(package_id).require_uuid()
+
+    def resolve_knowledge_model_package_reference(
+        self, package_id: str
+    ) -> KnowledgeModelPackageReference:
+        """Resolve a KM package for both current and legacy DSW APIs."""
+
         if _looks_like_uuid(package_id):
-            return package_id
+            return KnowledgeModelPackageReference(uuid=package_id)
         bundle_path = Path(package_id).expanduser()
         if bundle_path.is_file():
-            return self._resolve_knowledge_model_package_bundle(bundle_path)
+            return self._resolve_knowledge_model_package_reference_bundle(bundle_path)
         if package_id.count(":") != 2:
             raise DSWAPIError(
                 "Knowledge model package references must be a UUID, `org:km:version`, "
                 "or a local `.km` bundle path, "
                 f"got {package_id!r}"
             )
-        resolved_uuid = self.find_knowledge_model_package_uuid_by_id(package_id)
-        if resolved_uuid is not None:
-            return resolved_uuid
+        resolved_ref = self.find_knowledge_model_package_reference_by_id(package_id)
+        if resolved_ref is not None:
+            return resolved_ref
         raise DSWAPIError(f"Could not resolve KM package UUID for {package_id!r}")
 
     def find_knowledge_model_package_uuid_by_id(self, package_id: str) -> str | None:
         """Resolve KM coordinates like `org:km:version` into a package UUID."""
+
+        resolved_ref = self.find_knowledge_model_package_reference_by_id(package_id)
+        return resolved_ref.uuid if resolved_ref is not None else None
+
+    def find_knowledge_model_package_reference_by_id(
+        self, package_id: str
+    ) -> KnowledgeModelPackageReference | None:
+        """Resolve KM coordinates into whichever identifiers the DSW API exposes."""
 
         organization_id, km_id, version = package_id.split(":")
         response = self._request(
@@ -165,21 +211,13 @@ class DSWApiClient:
         if response.status_code == 404:
             return None
         self._raise_for_status(response)
-        payload = response.json()
-        if not isinstance(payload, dict):
-            raise DSWAPIError("Expected JSON object from /knowledge-model-packages")
-        items = payload.get("_embedded", {}).get("knowledgeModelPackages", [])
-        for item in items:
-            if not isinstance(item, dict):
-                continue
+        for item in _extract_collection_items(response.json()):
             if (
                 item.get("organizationId") == organization_id
                 and item.get("kmId") == km_id
                 and item.get("version") == version
             ):
-                resolved_uuid = item.get("uuid")
-                if isinstance(resolved_uuid, str) and resolved_uuid:
-                    return resolved_uuid
+                return _package_reference_from_item(item)
         return None
 
     def create_project_from_package(
@@ -193,17 +231,42 @@ class DSWApiClient:
     ) -> dict[str, Any]:
         """Create one fixture project."""
 
-        knowledge_model_package_uuid = self.resolve_knowledge_model_package_uuid(
-            knowledge_model_package_id
+        package_ref = self.resolve_knowledge_model_package_reference(knowledge_model_package_id)
+        errors: list[str] = []
+
+        if package_ref.uuid is not None:
+            created = self._try_create_resource(
+                endpoint="/projects",
+                body={
+                    "name": name,
+                    "knowledgeModelPackageUuid": package_ref.uuid,
+                    "visibility": visibility,
+                    "sharing": sharing,
+                    "questionTagUuids": question_tag_uuids,
+                },
+                kind="project",
+                errors=errors,
+            )
+            if created is not None:
+                return created
+
+        package_identifier = package_ref.require_project_create_identifier()
+        created = self._try_create_resource(
+            endpoint="/projects",
+            body={
+                "name": name,
+                "knowledgeModelPackageId": package_identifier,
+                "visibility": visibility,
+                "sharing": sharing,
+                "questionTagUuids": question_tag_uuids,
+            },
+            kind="project",
+            errors=errors,
         )
-        body = {
-            "name": name,
-            "knowledgeModelPackageUuid": knowledge_model_package_uuid,
-            "visibility": visibility,
-            "sharing": sharing,
-            "questionTagUuids": question_tag_uuids,
-        }
-        return self._request_json("POST", "/projects", json=body, expected_status=201)
+        if created is not None:
+            return created
+
+        raise DSWAPIError("Could not create preview project: " + "; ".join(errors))
 
     def put_project_content(self, *, project_uuid: str, events: list[dict[str, Any]]) -> None:
         """Apply a stable fixture event list to one project."""
@@ -248,23 +311,31 @@ class DSWApiClient:
     def upload_knowledge_model_package_bundle(self, bundle_path: Path) -> dict[str, Any]:
         """Upload one local KM bundle to the DSW API."""
 
-        url = f"{self.api_url}/knowledge-model-packages/bundle"
-        headers = {"User-Agent": "dsw-document-template-tool"}
-        if self.token is not None:
-            headers["Authorization"] = f"Bearer {self.token}"
-        with bundle_path.open("rb") as bundle_file:
-            response = self.session.post(
-                url=url,
-                headers=headers,
-                files={"file": (bundle_path.name, bundle_file, "application/json")},
-                verify=self.verify_ssl,
-                timeout=120,
-            )
-        self._raise_for_status(response, expected_statuses={200, 201})
-        payload = response.json()
-        if not isinstance(payload, dict):
-            raise DSWAPIError("KM bundle upload did not return a JSON object")
+        package_ref = self.upload_knowledge_model_package_bundle_reference(bundle_path)
+        payload: dict[str, Any] = {}
+        if package_ref.uuid is not None:
+            payload["uuid"] = package_ref.uuid
+        if package_ref.package_id is not None:
+            payload["id"] = package_ref.package_id
         return payload
+
+    def upload_knowledge_model_package_bundle_reference(
+        self, bundle_path: Path
+    ) -> KnowledgeModelPackageReference:
+        """Upload one local KM bundle and normalize legacy/current response shapes."""
+
+        package_id = _read_knowledge_model_package_id_from_bundle(bundle_path)
+        endpoint = "/knowledge-model-packages/bundle"
+        response = self._post_bundle(endpoint, bundle_path)
+        self._raise_for_status(response, expected_statuses={200, 201})
+        package_ref = _package_reference_from_upload_payload(_safe_json(response))
+        if package_ref is not None:
+            return package_ref
+        if package_id is not None:
+            resolved_ref = self.find_knowledge_model_package_reference_by_id(package_id)
+            if resolved_ref is not None:
+                return resolved_ref
+        raise DSWAPIError(f"Could not upload KM bundle: {endpoint} response was not resolvable")
 
     def put_draft_preview_settings(
         self,
@@ -275,17 +346,21 @@ class DSWApiClient:
     ) -> dict[str, Any]:
         """Bind one draft preview to a format and a project."""
 
-        body = {
-            "formatUuid": format_uuid,
-            "projectUuid": project_uuid,
-            "knowledgeModelEditorUuid": None,
-        }
-        return self._request_json(
+        endpoint = f"/document-template-drafts/{draft_uuid}/documents/preview/settings"
+        response = self._request(
             "PUT",
-            f"/document-template-drafts/{draft_uuid}/documents/preview/settings",
-            json=body,
-            expected_status=200,
+            endpoint,
+            json={
+                "formatUuid": format_uuid,
+                "projectUuid": project_uuid,
+                "knowledgeModelEditorUuid": None,
+            },
         )
+        self._raise_for_status(response, expected_statuses={200})
+        payload = response.json()
+        if not isinstance(payload, dict):
+            raise DSWAPIError(f"Expected JSON object from {endpoint}")
+        return payload
 
     def poll_draft_preview_url(
         self,
@@ -407,18 +482,52 @@ class DSWApiClient:
         return response.content
 
     def _resolve_knowledge_model_package_bundle(self, bundle_path: Path) -> str:
+        return self._resolve_knowledge_model_package_reference_bundle(bundle_path).require_uuid()
+
+    def _resolve_knowledge_model_package_reference_bundle(
+        self, bundle_path: Path
+    ) -> KnowledgeModelPackageReference:
         package_id = _read_knowledge_model_package_id_from_bundle(bundle_path)
         if package_id is not None:
-            existing_uuid = self.find_knowledge_model_package_uuid_by_id(package_id)
-            if existing_uuid is not None:
-                return existing_uuid
-        payload = self.upload_knowledge_model_package_bundle(bundle_path)
-        resolved_uuid = payload.get("uuid")
-        if not isinstance(resolved_uuid, str) or not resolved_uuid:
-            raise DSWAPIError(
-                f"KM bundle upload for {bundle_path} did not return a valid package UUID"
+            existing_ref = self.find_knowledge_model_package_reference_by_id(package_id)
+            if existing_ref is not None:
+                return existing_ref
+        return self.upload_knowledge_model_package_bundle_reference(bundle_path)
+
+    def _try_create_resource(
+        self,
+        *,
+        endpoint: str,
+        body: dict[str, Any],
+        kind: str,
+        errors: list[str],
+    ) -> dict[str, Any] | None:
+        response = self._request("POST", endpoint, json=body)
+        if response.status_code in {400, 404, 422}:
+            errors.append(f"{endpoint}: HTTP {response.status_code} {response.text}")
+            return None
+        self._raise_for_status(response, expected_statuses={201})
+        payload = response.json()
+        if not isinstance(payload, dict):
+            raise DSWAPIError(f"Expected JSON object from {endpoint}")
+        created_uuid = payload.get("uuid")
+        if not isinstance(created_uuid, str) or not created_uuid:
+            errors.append(f"{endpoint}: {kind} create response did not include a UUID")
+            return None
+        return payload
+
+    def _post_bundle(self, endpoint: str, bundle_path: Path) -> requests.Response:
+        headers = {"User-Agent": "dsw-document-template-tool"}
+        if self.token is not None:
+            headers["Authorization"] = f"Bearer {self.token}"
+        with bundle_path.open("rb") as bundle_file:
+            return self.session.post(
+                url=f"{self.api_url}{endpoint}",
+                headers=headers,
+                files={"file": (bundle_path.name, bundle_file, "application/json")},
+                verify=self.verify_ssl,
+                timeout=120,
             )
-        return resolved_uuid
 
     def _request(
         self,
@@ -547,3 +656,62 @@ def _read_knowledge_model_package_id_from_bundle(bundle_path: Path) -> str | Non
     if all(isinstance(item, str) and item for item in (organization_id, km_id, version)):
         return f"{organization_id}:{km_id}:{version}"
     return None
+
+
+def _safe_json(response: requests.Response) -> Any:
+    try:
+        return response.json()
+    except Exception:
+        return None
+
+
+def _extract_collection_items(payload: Any) -> list[dict[str, Any]]:
+    """Extract list items from DSW page/list responses across API generations."""
+
+    if isinstance(payload, list):
+        return [item for item in payload if isinstance(item, dict)]
+    if not isinstance(payload, dict):
+        return []
+
+    embedded = payload.get("_embedded")
+    if isinstance(embedded, dict):
+        embedded_items: list[dict[str, Any]] = []
+        for value in embedded.values():
+            if isinstance(value, list):
+                embedded_items.extend(item for item in value if isinstance(item, dict))
+        if embedded_items:
+            return embedded_items
+
+    for key in ("items", "content", "data"):
+        value = payload.get(key)
+        if isinstance(value, list):
+            return [item for item in value if isinstance(item, dict)]
+    return []
+
+
+def _package_reference_from_upload_payload(
+    payload: Any,
+) -> KnowledgeModelPackageReference | None:
+    items = _extract_collection_items(payload)
+    if items:
+        return _package_reference_from_item(items[0])
+    if isinstance(payload, dict):
+        return _package_reference_from_item(payload)
+    return None
+
+
+def _package_reference_from_item(item: dict[str, Any]) -> KnowledgeModelPackageReference:
+    uuid = item.get("uuid")
+    package_id = item.get("id") or item.get("pId")
+    if not isinstance(package_id, str) or not package_id:
+        organization_id = item.get("organizationId")
+        km_id = item.get("kmId")
+        version = item.get("version")
+        if all(isinstance(value, str) and value for value in (organization_id, km_id, version)):
+            package_id = f"{organization_id}:{km_id}:{version}"
+        else:
+            package_id = None
+    return KnowledgeModelPackageReference(
+        package_id=package_id,
+        uuid=uuid if isinstance(uuid, str) and uuid else None,
+    )

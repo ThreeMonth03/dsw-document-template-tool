@@ -196,7 +196,7 @@ def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Pat
 
     output_path = tmp_path / "failed.json"
     env = os.environ.copy()
-    env["DSW_VERSION"] = "4.22"
+    env["DSW_VERSION"] = "4.26"
     result = subprocess.run(
         [
             sys.executable,
@@ -208,11 +208,11 @@ def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Pat
             "--reason",
             "render_failed",
             "--template-version",
-            "v1.25.0",
+            "v1.29.1",
             "--template-metamodel-version",
-            "17.0",
+            "17.1",
             "--preview-metamodel-version",
-            "17.0",
+            "17.1",
             "--exit-code",
             "2",
         ],
@@ -226,16 +226,16 @@ def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Pat
     assert json.loads(output_path.read_text(encoding="utf-8")) == {
         "status": "failed",
         "reason": "render_failed",
-        "template_metamodel_version": "17.0",
-        "preview_metamodel_version": "17.0",
-        "template_version": "v1.25.0",
+        "template_metamodel_version": "17.1",
+        "preview_metamodel_version": "17.1",
+        "template_version": "v1.29.1",
         "exit_code": 2,
-        "dsw_version": "4.22",
+        "dsw_version": "4.26",
     }
 
 
 def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
-    """The clean scaffold artifact range should include all tags since v1.21.0."""
+    """The clean scaffold artifact range should include all supported tags."""
 
     result = subprocess.run(
         [
@@ -243,7 +243,7 @@ def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
             str(repo_root / "scripts" / "ci" / "resolve_upstream_refs.py"),
             "--remote",
             "https://github.com/ds-wizard/science-europe-template.git",
-            "v1.21.0+",
+            "v1.29.1+",
         ],
         capture_output=True,
         text=True,
@@ -252,9 +252,9 @@ def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
 
     assert result.returncode == 0, result.stdout + result.stderr
     refs = result.stdout.strip().split()
-    assert refs[0] == "v1.21.0"
+    assert refs[0] == "v1.29.1"
     assert "v1.30.1" in refs
-    assert "v1.20.0" not in refs
+    assert "v1.29.0" not in refs
 
 
 def test_dsw_tdk_verify_command_is_available() -> None:
