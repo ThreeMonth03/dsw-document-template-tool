@@ -3,16 +3,12 @@
 from __future__ import annotations
 
 import ast
-import html
 import json
 import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-from ._template_transform.jinja_literals import (
-    extract_translatable_jinja_block_literals as _extract_translatable_jinja_block_literals,
-)
 from ._template_transform.jinja_literals import (
     extract_translatable_jinja_literals as _extract_translatable_jinja_literals,
 )
@@ -41,10 +37,8 @@ from ._template_transform.markers import (
 from ._template_transform.models import TemplateTransformError
 from ._template_transform.scanner import (
     ANNOTATABLE_HTML_TAGS,
-    HTML_TAG_PATTERN,
     JINJA_BLOCK_PATTERN,
     JINJA_EXPR_PATTERN,
-    VISIBLE_TEXT_PATTERN,
     AnnotationRegion,
     SourceToken,
 )
@@ -57,6 +51,18 @@ from ._template_transform.scanner import (
 from ._template_transform.science_europe import (
     rewrite_science_europe_balanced_source_fragments,
     rewrite_science_europe_unbalanced_html_fragments,
+)
+from ._template_transform.text_visibility import (
+    contains_translatable_text as _contains_translatable_text,
+)
+from ._template_transform.text_visibility import (
+    is_translatable_jinja_block as _is_translatable_jinja_block,
+)
+from ._template_transform.text_visibility import (
+    visible_text_for_rewrite as _visible_text_for_rewrite,
+)
+from ._template_transform.text_visibility import (
+    visible_words as _visible_words,
 )
 from ._template_transform.workspace import (
     MANIFEST_PATH,
@@ -1063,18 +1069,6 @@ def _is_simple_branch_sentence_fragment(source_text: str) -> bool:
     return True
 
 
-def _visible_text_for_rewrite(source_text: str) -> str:
-    stripped = JINJA_EXPR_PATTERN.sub(" {value} ", source_text)
-    stripped = JINJA_BLOCK_PATTERN.sub(" ", stripped)
-    stripped = re.sub(r"\{#.*?#\}", " ", stripped, flags=re.DOTALL)
-    stripped = HTML_TAG_PATTERN.sub(" ", stripped)
-    return re.sub(r"\s+", " ", html.unescape(stripped)).strip()
-
-
-def _visible_words(source_text: str) -> list[str]:
-    return re.findall(r"[A-Za-z0-9]+", _visible_text_for_rewrite(source_text))
-
-
 def _replace_non_overlapping_regions(
     source_text: str, replacements: list[tuple[int, int, str]]
 ) -> str:
@@ -1232,27 +1226,3 @@ def _is_inside_covered_region(
     return any(
         region.start <= token.start and token.end <= region.end for region in covered_regions
     )
-
-
-def _contains_translatable_text(source_text: str) -> bool:
-    stripped = GENERATED_BLOCK_PATTERN.sub(lambda match: generated_block_body(match), source_text)
-    stripped = JINJA_EXPR_PATTERN.sub(_replace_expr_with_visible_literals, stripped)
-    stripped = JINJA_BLOCK_PATTERN.sub(_replace_block_with_visible_literals, stripped)
-    stripped = re.sub(r"\{#.*?#\}", "", stripped, flags=re.DOTALL)
-    stripped = re.sub(r"\{%.*?%\}", "", stripped, flags=re.DOTALL)
-    stripped = re.sub(r"\{\{.*?\}\}", "", stripped, flags=re.DOTALL)
-    visible_text = html.unescape(HTML_TAG_PATTERN.sub("", stripped))
-    return VISIBLE_TEXT_PATTERN.search(visible_text) is not None
-
-
-def _replace_expr_with_visible_literals(match: re.Match[str]) -> str:
-    return " ".join(_extract_translatable_jinja_literals(match.group("expr")))
-
-
-def _replace_block_with_visible_literals(match: re.Match[str]) -> str:
-    return " ".join(_extract_translatable_jinja_block_literals(match.group("body")))
-
-
-def _is_translatable_jinja_block(token_text: str) -> bool:
-    match = JINJA_BLOCK_PATTERN.fullmatch(token_text)
-    return bool(match and _extract_translatable_jinja_block_literals(match.group("body")))
