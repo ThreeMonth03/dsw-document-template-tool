@@ -1,0 +1,284 @@
+# ruff: noqa: E501
+"""Unbalanced exact rewrites for upstream Science Europe templates.
+
+These rules patch fragments that live inside larger unbalanced HTML/Jinja flows
+where the generic region scanner cannot safely infer complete boundaries.
+Long literals intentionally keep upstream formatting because exact text matching
+is part of the reversible transform contract.
+"""
+
+from __future__ import annotations
+
+from .rewrite_rules import (
+    ReversibleReplacementGroup,
+    apply_reversible_replacement_groups,
+)
+
+
+def rewrite_science_europe_unbalanced_html_fragments(source_text: str) -> str:
+    """Patch upstream Science Europe sentence fragments that generic HTML cannot see.
+
+    A few upstream fragments live inside large, unbalanced list-item wrappers, so
+    the generic paragraph rewriter cannot safely discover their `<p>` boundaries.
+    These replacements are still reversible: compacting restores the exact
+    upstream text stored in the marker payload.
+    """
+
+    nref_where_url_if = (
+        '{%- if nrefDataWhere.startswith("http://") or '
+        'nrefDataWhere.startswith("https://") or '
+        'nrefDataWhere.startswith("ftp://") -%}'
+    )
+    nref_no_reason_other_elif = (
+        "{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid "
+        "and nrefDataUseNoOtherReasonReply -%}"
+    )
+    nref_no_cond_sentence = (
+        ', but decided not to reuse it{{" "}}because its conditions of use do not allow us '
+        "to use it"
+    )
+    nref_no_reason_other_sentence = (
+        ', but decided not to reuse it{{" "}}because: "{{nrefDataUseNoOtherReasonReply}}"'
+    )
+    nref_where_link = (
+        '{{+" "}}available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">'
+        "{{ nrefDataWhere }} </a>."
+    )
+    nref_used_where_url_if = (
+        '{%- if nrefDataWhere.startswith("http://") or '
+        'nrefDataWhere.startswith("https://") or '
+        'nrefDataWhere.startswith("ftp://") -%}'
+    )
+    nref_used_where_link = (
+        '{{" "}} available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">'
+        "{{ nrefDataWhere }} </a>."
+    )
+
+    personal_data_legal_basis_original = """
+                    <p> We are collecting and processing personal data{{+" "}}
+                    {%- if personalDataLegalBasisReply == uuids.cpersGdprLegalBasisPublicAUuid -%}
+                        based on public interest.</p>
+                    {%- elif personalDataLegalBasisReply == uuids.cpersGdprLegalBasisAskAUuid -%}
+                        based on subject's consent.</p>
+                    {%- elif personalDataLegalBasisReply == uuids.cpersGdprLegalBasisOtherAUuid -%}
+                        {%- set personalDataLegalBasisOtherQUuid = [personalDataLegalBasisQUuid, uuids.cpersGdprLegalBasisOtherAUuid, uuids. cpersGdprLegalBasisOtherWhichQUuid ]|reply_path -%}
+                        {%- set personalDataLegalBasisOtherReply = repliesMap[personalDataLegalBasisOtherQUuid]|reply_str_value  -%}
+                        {%- if personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichContractAUui -%}
+                            in order to fulfil contract.</p>
+                        {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichLegitAUuid -%}
+                            based on legitimate interest.</p>
+                        {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichVitalAUuid -%}
+                            based on vital interest.</p>
+                        {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichLegalAUuid -%}
+                            based on legal requirement.</p>
+                        {%- endif -%}
+                    {%- endif -%}
+"""
+    personal_data_legal_basis_replacement = """
+                    {%- if personalDataLegalBasisReply == uuids.cpersGdprLegalBasisPublicAUuid -%}
+                        <p> We are collecting and processing personal data{{+" "}}based on public interest.</p>
+                    {%- elif personalDataLegalBasisReply == uuids.cpersGdprLegalBasisAskAUuid -%}
+                        <p> We are collecting and processing personal data{{+" "}}based on subject's consent.</p>
+                    {%- elif personalDataLegalBasisReply == uuids.cpersGdprLegalBasisOtherAUuid -%}
+                        {%- set personalDataLegalBasisOtherQUuid = [personalDataLegalBasisQUuid, uuids.cpersGdprLegalBasisOtherAUuid, uuids. cpersGdprLegalBasisOtherWhichQUuid ]|reply_path -%}
+                        {%- set personalDataLegalBasisOtherReply = repliesMap[personalDataLegalBasisOtherQUuid]|reply_str_value  -%}
+                        {%- if personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichContractAUui -%}
+                            <p> We are collecting and processing personal data{{+" "}}in order to fulfil contract.</p>
+                        {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichLegitAUuid -%}
+                            <p> We are collecting and processing personal data{{+" "}}based on legitimate interest.</p>
+                        {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichVitalAUuid -%}
+                            <p> We are collecting and processing personal data{{+" "}}based on vital interest.</p>
+                        {%- elif personalDataLegalBasisOtherReply == uuids.cpersGdprLegalBasisOtherWhichLegalAUuid -%}
+                            <p> We are collecting and processing personal data{{+" "}}based on legal requirement.</p>
+                        {%- else -%}
+                            <p> We are collecting and processing personal data{%- if false -%}</p>{%- endif -%}
+                        {%- endif -%}
+                    {%- endif -%}
+"""
+
+    copyright_open_reasons_original = """
+      {%- if nReasons > 0 -%}
+        <p>
+        The data cannot become completely open because\x20
+        {%- if nReasons == 1 -%}
+          {%- if legalReasons %}
+            of legal reasons.
+          {%- elif businessReasonsPatents %}
+            of patent-related business reasons.
+          {%- elif businessReasonsOther %}
+            of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}
+          {%- elif otherReasonsPapers %}
+            we want to publish a paper first.
+          {%- elif otherReasonsOther %}
+            we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}
+          {%- endif -%}
+        {%- else %}
+          of:
+          <ul>
+            {%- if legalReasons %}
+              <li>legal reasons</li>
+            {%- endif -%}
+            {%- if businessReasonsPatents %}
+              <li>patent-related business reasons</li>
+            {%- elif businessReasonsOther %}
+              <li>non-patent business reasons{{ ": " ~ notOpenBusinessReasonsOther if notOpenBusinessReasonsOther else "" }}</li>
+            {%- endif -%}
+            {%- if otherReasonsPapers %}
+              <li>we want to publish a paper first</li>
+            {%- elif otherReasonsOther -%}
+              <li>we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther if notOpenOtherReasonsOther else "" }}</li>
+            {%- endif -%}
+          </ul>
+        {%- endif -%}
+"""
+    copyright_open_reasons_replacement = """
+      {%- if nReasons > 0 -%}
+        <p>
+        {%- if nReasons == 1 -%}
+          {%- if legalReasons %}
+            The data cannot become completely open because of legal reasons.
+          {%- elif businessReasonsPatents %}
+            The data cannot become completely open because of patent-related business reasons.
+          {%- elif businessReasonsOther %}
+            The data cannot become completely open because of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}
+          {%- elif otherReasonsPapers %}
+            The data cannot become completely open because we want to publish a paper first.
+          {%- elif otherReasonsOther %}
+            The data cannot become completely open because we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}
+          {%- endif -%}
+        {%- else %}
+          The data cannot become completely open because of:
+          <ul>
+            {%- if legalReasons %}
+              <li>legal reasons</li>
+            {%- endif -%}
+            {%- if businessReasonsPatents %}
+              <li>patent-related business reasons</li>
+            {%- elif businessReasonsOther %}
+              <li>non-patent business reasons{{ ": " ~ notOpenBusinessReasonsOther if notOpenBusinessReasonsOther else "" }}</li>
+            {%- endif -%}
+            {%- if otherReasonsPapers %}
+              <li>we want to publish a paper first</li>
+            {%- elif otherReasonsOther -%}
+              <li>we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther if notOpenOtherReasonsOther else "" }}</li>
+            {%- endif -%}
+          </ul>
+        {%- endif -%}
+"""
+
+    measured_reuse_other_field_original = """
+                <p>Researchers working in other fields will be interested in re-using this data
+\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+                {%- if measuredDataReuseOtherFieldHowReply -%}
+\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+                 {{" "}}because: {{measuredDataReuseOtherFieldHowReply|dot}}</p>
+                {%- else -%}
+                .
+                {%- endif -%}
+"""
+    measured_reuse_other_field_replacement = """
+                {%- if measuredDataReuseOtherFieldHowReply -%}
+                <p>Researchers working in other fields will be interested in re-using this data{{" "}}because: {{measuredDataReuseOtherFieldHowReply|dot}}</p>
+                {%- else -%}
+                <p>Researchers working in other fields will be interested in re-using this data.</p>
+                {%- endif -%}
+"""
+
+    replacements = (
+        (personal_data_legal_basis_original, personal_data_legal_basis_replacement),
+        (copyright_open_reasons_original, copyright_open_reasons_replacement),
+        (measured_reuse_other_field_original, measured_reuse_other_field_replacement),
+        (
+            f"""
+         {{{{" "}}}} available via:{{{{" "}}}}
+            {nref_used_where_url_if}
+              <a href="{{{{ nrefDataWhere }}}}" target="_blank">{{{{ nrefDataWhere }}}} </a>.
+            {{%- else -%}}
+              {{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+            f"""
+            {nref_used_where_url_if}
+         {nref_used_where_link}
+            {{%- else -%}}
+         {{{{" "}}}} available via:{{{{" "}}}}{{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+        ),
+        (
+            f"""
+          {{{{+" "}}}}available via:{{{{" "}}}}
+            {nref_where_url_if}
+              <a href="{{{{ rnefDataWhere }}}}" target="_blank">{{{{ nrefDataWhere }}}} </a>.
+            {{%- else -%}}
+              {{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+            f"""
+            {nref_where_url_if}
+          {nref_where_link}
+            {{%- else -%}}
+          {{{{+" "}}}}available via:{{{{" "}}}}{{{{ nrefDataWhere }}}}
+            {{%- endif -%}}
+""",
+        ),
+        (
+            """
+                available with{{" "}}
+                  {%- if nrefDataConditionsOtherReply -%}
+                   following restrictions: "{{nrefDataConditionsOtherReply}}".
+                  {%- else -%}
+                    {{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+""",
+            """
+                  {%- if nrefDataConditionsOtherReply -%}
+                available with{{" "}}following restrictions: "{{nrefDataConditionsOtherReply}}".
+                  {%- else -%}
+                available with{{" "}}restrictions, that will be specified.
+                  {%- endif -%}
+""",
+        ),
+        (
+            f"""
+            , but decided not to reuse it
+            {{%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}}
+              {{{{" "}}}}because it misses data we need
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}}
+              {{{{" "}}}}becauseit misses required aspects
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}}
+              {{{{" "}}}}becauseit is not sufficient quality
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}}
+              {{{{" "}}}}because its conditions of use do not allow us to use it
+            {nref_no_reason_other_elif}
+              {{{{" "}}}}because: "{{{{nrefDataUseNoOtherReasonReply}}}}"
+            {{%- endif -%}}
+            .
+""",
+            f"""
+            {{%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}}
+            , but decided not to reuse it{{{{" "}}}}because it misses data we need.
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}}
+            , but decided not to reuse it{{{{" "}}}}becauseit misses required aspects.
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}}
+            , but decided not to reuse it{{{{" "}}}}becauseit is not sufficient quality.
+            {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}}
+            {nref_no_cond_sentence}.
+            {nref_no_reason_other_elif}
+            {nref_no_reason_other_sentence}.
+            {{%- else -%}}
+            , but decided not to reuse it.
+            {{%- endif -%}}
+""",
+        ),
+    )
+
+    return apply_reversible_replacement_groups(
+        source_text,
+        (
+            ReversibleReplacementGroup(
+                "unbalanced_science_europe_html_fragments",
+                replacements,
+            ),
+        ),
+    )
