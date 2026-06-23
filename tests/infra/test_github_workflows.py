@@ -160,7 +160,11 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "id: auto_commit" in workflow_text
     assert "chore(sync): refresh document template translations" in workflow_text
     assert 'echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"' in workflow_text
-    assert 'git add "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR"' in workflow_text
+    assert (
+        'git add "$EXPANDED_TEMPLATE_DIR" '
+        '"$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" "$TRANSLATION_TREE_DIR/tree"'
+        in workflow_text
+    )
     assert 'git push origin "HEAD:$TARGET_REF"' in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
     assert 'src/translation_tree.py" audit-output' in workflow_text
@@ -187,9 +191,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "Auto-commit generated outputs" not in workflow_text
     assert "chore(sync): refresh generated document outputs" not in workflow_text
     assert 'git add "${output_paths[@]}"' not in workflow_text
-    assert '"$TRANSLATION_TREE_DIR/.translation-tree"' in workflow_text
+    assert '"$TRANSLATION_TREE_DIR/.translation-tree/manifest.json"' in workflow_text
     assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
     assert "outline.md" in workflow_text
+    assert "merge-report.json" in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
     assert "Upload translated template package" in workflow_text
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
