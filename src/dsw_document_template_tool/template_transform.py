@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-import base64
 import html
 import json
 import re
@@ -35,6 +34,8 @@ from ._template_transform.localization import (
 from ._template_transform.markers import (
     GENERATED_BLOCK_PATTERN,
     GENERATED_BLOCK_PREFIX,
+    decode_marker_payload,
+    encode_marker_payload,
     generated_block_body,
 )
 from ._template_transform.models import TemplateTransformError
@@ -273,7 +274,7 @@ def _rewrite_append_sentence_literals(source_text: str) -> str:
 
         variable_name = f"__tr_append_sentence_{append_index:04d}"
         append_index += 1
-        encoded_original = base64.urlsafe_b64encode(original.encode("utf-8")).decode("ascii")
+        encoded_original = encode_marker_payload(original)
         target = append_match.group("target")
         return (
             f"{{# __tr_append_sentence_original:{encoded_original} #}}"
@@ -303,7 +304,7 @@ def _restore_append_sentence_rewrites(source_text: str) -> str:
 
     def replace(match: re.Match[str]) -> str:
         try:
-            return base64.urlsafe_b64decode(match.group("payload")).decode("utf-8")
+            return decode_marker_payload(match.group("payload"))
         except (ValueError, UnicodeDecodeError) as exc:
             raise TemplateTransformError("Invalid append sentence rewrite marker") from exc
 
@@ -399,7 +400,7 @@ def _rewrite_inline_conditional_expressions(source_text: str) -> str:
         true_expr, condition_expr, false_expr = parts
         if not _should_rewrite_inline_conditional(true_expr=true_expr, false_expr=false_expr):
             return original
-        encoded_original = base64.urlsafe_b64encode(original.encode("utf-8")).decode("ascii")
+        encoded_original = encode_marker_payload(original)
         return (
             f"{{# __tr_inline_if_original:{encoded_original} #}}"
             f"{{% if {condition_expr} %}}{{{{ {true_expr} }}}}"
@@ -415,7 +416,7 @@ def _restore_inline_conditional_rewrites(source_text: str) -> str:
 
     def replace(match: re.Match[str]) -> str:
         try:
-            return base64.urlsafe_b64decode(match.group("payload")).decode("utf-8")
+            return decode_marker_payload(match.group("payload"))
         except (ValueError, UnicodeDecodeError) as exc:
             raise TemplateTransformError("Invalid inline conditional rewrite marker") from exc
 
@@ -461,7 +462,7 @@ def _rewrite_common_prefix_branch_sentences(source_text: str) -> str:
             continue
 
         original_region = source_text[token.start : end_token.end]
-        encoded_original = base64.urlsafe_b64encode(original_region.encode("utf-8")).decode("ascii")
+        encoded_original = encode_marker_payload(original_region)
         rewritten_region = (
             f"{{# __tr_branch_sentence_original:{encoded_original} #}}"
             f"{rewritten_inner}"
@@ -912,7 +913,7 @@ def _restore_branch_sentence_rewrites(source_text: str) -> str:
 
     def replace(match: re.Match[str]) -> str:
         try:
-            return base64.urlsafe_b64decode(match.group("payload")).decode("utf-8")
+            return decode_marker_payload(match.group("payload"))
         except (ValueError, UnicodeDecodeError) as exc:
             raise TemplateTransformError("Invalid branch sentence rewrite marker") from exc
 

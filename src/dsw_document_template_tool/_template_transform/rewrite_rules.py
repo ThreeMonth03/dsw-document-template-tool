@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import base64
 from dataclasses import dataclass
+
+from .markers import encode_marker_payload
 
 ReversibleReplacement = tuple[str, str]
 ReversibleReplacements = tuple[ReversibleReplacement, ...]
@@ -70,7 +71,7 @@ def apply_reversible_replacement_groups(
 def wrap_reversible_branch_sentence_rewrite(*, original: str, replacement: str) -> str:
     """Wrap replacement text with a marker containing the exact original text."""
 
-    encoded_original = base64.urlsafe_b64encode(original.encode("utf-8")).decode("ascii")
+    encoded_original = encode_marker_payload(original)
     return (
         f"{{# __tr_branch_sentence_original:{encoded_original} #}}"
         f"{replacement}"

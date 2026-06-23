@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import re
 
 GENERATED_BLOCK_PREFIX = "__tr_block_"
@@ -36,3 +37,15 @@ def generated_block_body(match: re.Match[str]) -> str:
     if set_body is None:
         raise ValueError("Generated block marker did not include a block body")
     return set_body
+
+
+def encode_marker_payload(source_text: str) -> str:
+    """Encode original source text for reversible marker comments."""
+
+    return base64.urlsafe_b64encode(source_text.encode("utf-8")).decode("ascii")
+
+
+def decode_marker_payload(payload: str) -> str:
+    """Decode original source text from one reversible marker comment."""
+
+    return base64.urlsafe_b64decode(payload).decode("utf-8")
