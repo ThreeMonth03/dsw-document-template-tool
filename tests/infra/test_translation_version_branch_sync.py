@@ -290,6 +290,9 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert "github.event_name == 'push'" in workflow_text
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "Dispatch control-plane migration" in workflow_text
+    assert "gh workflow run document_template_translation_sync.yml" in workflow_text
+    assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
 
 
 def test_version_branch_workflow_uses_version_specific_preview_runtime(
@@ -332,6 +335,8 @@ def test_version_branch_workflow_uses_version_specific_preview_runtime(
     assert "TRANSLATED_TEMPLATE_VERSION: 1.29.1" in workflow_text
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
+    assert "Dispatch control-plane migration" in workflow_text
+    assert "gh workflow run document_template_translation_sync.yml" in workflow_text
 
 
 def test_version_branch_workflow_runtime_injection_covers_metamodel_groups(
