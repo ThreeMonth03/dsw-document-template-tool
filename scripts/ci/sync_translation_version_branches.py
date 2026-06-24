@@ -29,6 +29,11 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     version_paths,
 )
 
+BRANCH_LOCAL_DEMO_ASSET_DIRS = (
+    Path("workspace") / "knowledge-models",
+    Path("workspace") / "projects",
+)
+
 
 @dataclass(frozen=True)
 class SyncResult:
@@ -408,6 +413,22 @@ def restore_clean_workspace(
         checkout / target_paths.expanded_template_dir,
     )
     replace_tree(artifact_paths.translation_tree_dir, checkout / target_paths.translation_tree_dir)
+    remove_branch_local_demo_assets(checkout)
+
+
+def remove_branch_local_demo_assets(checkout: Path) -> None:
+    """Remove stale demo fixtures from translation version branches.
+
+    Version branches should use the demo KM/project checked out from the tooling
+    repository by their workflow. Keeping copies in downstream branches makes
+    preview artifacts depend on whichever stale fixture happened to be committed
+    there.
+    """
+
+    for relative_dir in BRANCH_LOCAL_DEMO_ASSET_DIRS:
+        path = checkout / relative_dir
+        if path.exists():
+            shutil.rmtree(path)
 
 
 def sync_blank_translation_output(
