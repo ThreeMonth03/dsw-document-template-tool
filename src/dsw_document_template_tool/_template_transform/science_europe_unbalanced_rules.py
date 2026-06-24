@@ -193,6 +193,32 @@ def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup
                 {%- endif -%}
 """
 
+    additional_expertise_train_original = """
+    {%- elif expertiseAUuid == uuids.additionalExpertiseYesTrainAUuid -%}
+      <p>
+        To execute the DMP, additional specialist expertise is required. We will be training existing staff
+        {%- set expertiseTrainPath = [expertisePath, uuids.additionalExpertiseYesTrainAUuid, uuids.additionalExpertiseYesTrainTrainingQUuid]|reply_path -%}
+        {%- set expertiseTrainText = repliesMap[expertiseTrainPath]|reply_str_value -%}
+        {%- if expertiseTrainText %}
+          {{" "}}on: {{ expertiseTrainText|markdown }}
+        {%- else -%}
+          .
+        {%- endif -%}
+      </p>
+"""
+    additional_expertise_train_replacement = """
+    {%- elif expertiseAUuid == uuids.additionalExpertiseYesTrainAUuid -%}
+      {# __tr_branch_sentence_original:PHA-CiAgICAgICAgVG8gZXhlY3V0ZSB0aGUgRE1QLCBhZGRpdGlvbmFsIHNwZWNpYWxpc3QgZXhwZXJ0aXNlIGlzIHJlcXVpcmVkLiBXZSB3aWxsIGJlIHRyYWluaW5nIGV4aXN0aW5nIHN0YWZmCiAgICAgICAgeyUtIHNldCBleHBlcnRpc2VUcmFpblBhdGggPSBbZXhwZXJ0aXNlUGF0aCwgdXVpZHMuYWRkaXRpb25hbEV4cGVydGlzZVllc1RyYWluQVV1aWQsIHV1aWRzLmFkZGl0aW9uYWxFeHBlcnRpc2VZZXNUcmFpblRyYWluaW5nUVV1aWRdfHJlcGx5X3BhdGggLSV9CiAgICAgICAgeyUtIHNldCBleHBlcnRpc2VUcmFpblRleHQgPSByZXBsaWVzTWFwW2V4cGVydGlzZVRyYWluUGF0aF18cmVwbHlfc3RyX3ZhbHVlIC0lfQogICAgICAgIHslLSBpZiBleHBlcnRpc2VUcmFpblRleHQgJX0KICAgICAgICAgIHt7IiAifX1vbjoge3sgZXhwZXJ0aXNlVHJhaW5UZXh0fG1hcmtkb3duIH19CiAgICAgICAgeyUtIGVsc2UgLSV9CiAgICAgICAgICAuCiAgICAgICAgeyUtIGVuZGlmIC0lfQogICAgICA8L3A- #}
+      {%- set expertiseTrainPath = [expertisePath, uuids.additionalExpertiseYesTrainAUuid, uuids.additionalExpertiseYesTrainTrainingQUuid]|reply_path -%}
+      {%- set expertiseTrainText = repliesMap[expertiseTrainPath]|reply_str_value -%}
+      {%- if expertiseTrainText -%}
+        <p>To execute the DMP, additional specialist expertise is required. We will be training existing staff on: {{ expertiseTrainText|markdown }}</p>
+      {%- else -%}
+        <p>To execute the DMP, additional specialist expertise is required. We will be training existing staff.</p>
+      {%- endif -%}
+      {# __tr_branch_sentence_original:end #}
+"""
+
     reference_data_version_original = """
             {# version #}
             {%- set refDataVersionedPath = [refDataUsedPrefix, uuids.refDataVersionedQUuid]|reply_path -%}
@@ -297,6 +323,7 @@ def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup
         (personal_data_legal_basis_original, personal_data_legal_basis_replacement),
         (copyright_open_reasons_original, copyright_open_reasons_replacement),
         (measured_reuse_other_field_original, measured_reuse_other_field_replacement),
+        (additional_expertise_train_original, additional_expertise_train_replacement),
         (reference_data_version_original, reference_data_version_replacement),
         (information_risk_labels_original, information_risk_labels_replacement),
         (information_risk_join_original, information_risk_join_replacement),
