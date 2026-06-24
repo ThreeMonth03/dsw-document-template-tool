@@ -100,6 +100,11 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         '{{ ", " if not loop.last else "." }}\n'
         '{{ values|join(", ") }}\n'
         "{% if not loop.last %}, {% endif %}\n"
+        '資料溯源紀錄{{ ": " ~ value|markdown if value else "." }}\n'
+        "這是標準化格式。 這是適合長期保存的格式。\n"
+        "開放（與任何人共享） 並使用通用型資料儲存庫。\n"
+        "自 2023-12-21 起： 可自由使用。\n"
+        "ORCID： 0000-0002-1825-0097\n"
         "此資源分配用於確保資料可被找到, 確保資料可被取用與支援資料管理。"
     )
 
@@ -112,6 +117,11 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         '{{ "、" if not loop.last else "。" }}\n'
         '{{ values|join("、") }}\n'
         "{% if not loop.last %}、{% endif %}\n"
+        '資料溯源紀錄{{ "：" ~ value|markdown if value else "。" }}\n'
+        "這是標準化格式。這是適合長期保存的格式。\n"
+        "開放（與任何人共享）並使用通用型資料儲存庫。\n"
+        "自 2023-12-21 起：可自由使用。\n"
+        "ORCID： 0000-0002-1825-0097\n"
         "此資源分配用於確保資料可被找到、確保資料可被取用與支援資料管理。"
     )
 
