@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import re
 
+from .jinja_blocks import jinja_block_inner
 from .jinja_literals import is_translatable_jinja_literal
 from .markers import decode_marker_payload, encode_marker_payload
 from .models import TemplateTransformError
@@ -36,7 +37,7 @@ def rewrite_append_sentence_literals(source_text: str) -> str:
         if not (original.startswith("{%-") and original.rstrip().endswith("-%}")):
             return original
 
-        inner = _jinja_block_inner(original)
+        inner = jinja_block_inner(original)
         append_match = re.fullmatch(
             r"(?:(?P<mode>do)|set\s+(?P<set_name>[A-Za-z_][A-Za-z0-9_]*)\s*=)\s+"
             r"(?P<target>[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)"
@@ -162,7 +163,3 @@ def _split_top_level_concat(expr: str) -> list[str]:
 
     parts.append(expr[start:])
     return parts
-
-
-def _jinja_block_inner(token_text: str) -> str:
-    return token_text[2:-2].strip().strip("-").strip()

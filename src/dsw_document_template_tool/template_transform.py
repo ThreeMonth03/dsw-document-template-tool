@@ -20,6 +20,18 @@ from ._template_transform.inline_conditionals import (
 from ._template_transform.inline_conditionals import (
     rewrite_inline_conditional_expressions as _rewrite_inline_conditional_expressions,
 )
+from ._template_transform.jinja_blocks import (
+    jinja_block_inner as _jinja_block_inner,
+)
+from ._template_transform.jinja_blocks import (
+    jinja_block_keyword as _jinja_block_keyword,
+)
+from ._template_transform.jinja_blocks import (
+    jinja_block_trims_following_whitespace as _jinja_block_trims_following_whitespace,
+)
+from ._template_transform.jinja_blocks import (
+    jinja_block_trims_previous_whitespace as _jinja_block_trims_previous_whitespace,
+)
 from ._template_transform.localization import (
     LocalizationPatchError,
 )
@@ -717,14 +729,6 @@ def _contains_rewrite_unsafe_tail_control(source_text: str) -> bool:
     )
 
 
-def _jinja_block_trims_following_whitespace(token_text: str) -> bool:
-    return token_text.rstrip().endswith("-%}")
-
-
-def _jinja_block_trims_previous_whitespace(token_text: str) -> bool:
-    return token_text.startswith("{%-")
-
-
 def _restore_branch_sentence_rewrites(source_text: str) -> str:
     """Restore original common-prefix branches when compacting."""
 
@@ -851,15 +855,6 @@ def _active_jinja_if_conditions_at(*, tokens: list[SourceToken], token_index: in
 
 def _is_single_choice_context(active_conditions: list[str]) -> bool:
     return any(re.search(r"(^|[^=!<>])==\s*1(\D|$)", condition) for condition in active_conditions)
-
-
-def _jinja_block_keyword(token_text: str) -> str:
-    inner = _jinja_block_inner(token_text)
-    return inner.split(None, 1)[0] if inner else ""
-
-
-def _jinja_block_inner(token_text: str) -> str:
-    return token_text[2:-2].strip().strip("-").strip()
 
 
 def _is_simple_branch_sentence_fragment(source_text: str) -> bool:
