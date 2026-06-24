@@ -39,6 +39,7 @@ from ._translation_tree.models import (
     OutlineUnit,
     TranslationTreeError,
 )
+from ._translation_tree.output_polish import polish_translated_output_dir
 from ._translation_tree.outline import render_outline_markdown
 from ._translation_tree.source_text import (
     extract_sentence_text as _extract_sentence_text,
@@ -305,5 +306,6 @@ def sync_translation_tree(
         name=template_name,
         version=template_version,
     )
+    polish_translated_output_dir(output_dir=output_dir, target_lang=target_lang)
 
     return output_dir

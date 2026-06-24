@@ -17,6 +17,9 @@ from dsw_document_template_tool.translation_tree import (
     merge_translation_tree,
     sync_translation_tree,
 )
+from dsw_document_template_tool._translation_tree.output_polish import (
+    polish_zh_hant_template_text,
+)
 
 
 def _write_compact_template(tmp_path: Path, source_text: str) -> Path:
@@ -83,6 +86,30 @@ def _find_translation_doc(tree_dir: Path, sentence_text: str) -> Path:
         if sentence_text in document_path.read_text(encoding="utf-8"):
             return document_path
     raise AssertionError(f"Could not find translation document for {sentence_text!r}")
+
+
+def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> None:
+    """Hard-coded English punctuation around Jinja should not leak to zh-Hant output."""
+
+    source = (
+        "角色: 其他, 聯絡人\n"
+        "通用型資料儲存庫: {{ macros.integrationFairSharing(repo) }}.\n"
+        "特定學科資料儲存庫\n"
+        "    : {{ macros.integrationFairSharing(repo) }}.\n"
+        "{%- else -%}.\n"
+        '{{ ", " if not loop.last else "." }}\n'
+        "此資源分配用於確保資料可被找到, 確保資料可被取用與支援資料管理。"
+    )
+
+    assert polish_zh_hant_template_text(source) == (
+        "角色：其他、聯絡人\n"
+        "通用型資料儲存庫：{{ macros.integrationFairSharing(repo) }}。\n"
+        "特定學科資料儲存庫\n"
+        "    ：{{ macros.integrationFairSharing(repo) }}。\n"
+        "{%- else -%}。\n"
+        '{{ "、" if not loop.last else "。" }}\n'
+        "此資源分配用於確保資料可被找到、確保資料可被取用與支援資料管理。"
+    )
 
 
 def _write_compact_template_file(
