@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import quote
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = REPO_ROOT / "src"
@@ -559,7 +561,7 @@ def create_or_update_pull_request(
         cwd=checkout,
     ).strip()
     if existing_number:
-        _run(
+        _run_pr_command(
             [
                 "gh",
                 "pr",
@@ -570,11 +572,13 @@ def create_or_update_pull_request(
                 "--body-file",
                 str(summary_path),
             ],
-            cwd=checkout,
+            checkout=checkout,
+            bot_branch=bot_branch,
+            target_branch=target_branch,
         )
         return
 
-    _run(
+    _run_pr_command(
         [
             "gh",
             "pr",
@@ -588,7 +592,43 @@ def create_or_update_pull_request(
             "--body-file",
             str(summary_path),
         ],
-        cwd=checkout,
+        checkout=checkout,
+        bot_branch=bot_branch,
+        target_branch=target_branch,
+    )
+
+
+def _run_pr_command(
+    args: list[str],
+    *,
+    checkout: Path,
+    bot_branch: str,
+    target_branch: str,
+) -> None:
+    """Run a GitHub PR mutation, downgrading permission failures to warnings."""
+
+    result = _run(args, cwd=checkout, check=False)
+    if result.returncode == 0:
+        return
+
+    manual_url = manual_pull_request_url(base_branch=target_branch, head_branch=bot_branch)
+    print(
+        "WARNING: Could not create or update migration PR. The migration branch "
+        f"was pushed successfully; open the PR manually if needed: {manual_url}",
+        file=sys.stderr,
+    )
+
+
+def manual_pull_request_url(*, base_branch: str, head_branch: str) -> str:
+    """Build a manual PR URL for environments where Actions cannot create PRs."""
+
+    server_url = os.environ.get("GITHUB_SERVER_URL", "https://github.com").rstrip("/")
+    repository = os.environ.get("GITHUB_REPOSITORY")
+    if not repository:
+        return f"{head_branch} -> {base_branch}"
+    return (
+        f"{server_url}/{repository}/compare/"
+        f"{quote(base_branch, safe='')}...{quote(head_branch, safe='')}?expand=1"
     )
 
 
