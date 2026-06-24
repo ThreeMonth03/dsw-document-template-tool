@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 
 def test_manual_pull_request_url_uses_github_environment(
@@ -76,6 +77,88 @@ def test_pr_command_permission_failure_writes_github_summary(
     assert "translation/v1.29.1" in summary
     assert "automation/migrate-v1.30.1-to-v1.29.1" in summary
     assert "https://github.com/ThreeMonth03/example/compare/" in summary
+
+
+def test_auto_merge_requires_enabled_exact_only_safe_report(repo_root: Path) -> None:
+    """Auto-merge should only be requested for exact-only partial-safe migrations."""
+
+    module = _load_migration_pr_module(repo_root)
+    config = SimpleNamespace(
+        migration=SimpleNamespace(
+            auto_merge_when_clean=True,
+            mode="exact-only",
+            non_exact_policy="leave_empty_needs_translation",
+        )
+    )
+
+    assert module.is_auto_merge_safe(
+        config=config,
+        report={"migrated_units": 4, "sentence_matches": 0},
+    )
+    assert not module.is_auto_merge_safe(
+        config=config,
+        report={"migrated_units": 0, "sentence_matches": 0},
+    )
+    assert not module.is_auto_merge_safe(
+        config=config,
+        report={"migrated_units": 4, "sentence_matches": 1},
+    )
+
+    disabled_config = SimpleNamespace(
+        migration=SimpleNamespace(
+            auto_merge_when_clean=False,
+            mode="exact-only",
+            non_exact_policy="leave_empty_needs_translation",
+        )
+    )
+    assert not module.is_auto_merge_safe(
+        config=disabled_config,
+        report={"migrated_units": 4, "sentence_matches": 0},
+    )
+
+
+def test_enable_auto_merge_requests_guarded_squash_merge(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Auto-merge requests should be pinned to the generated migration head SHA."""
+
+    module = _load_migration_pr_module(repo_root)
+    commands: list[list[str]] = []
+
+    def fake_run(
+        args: list[str],
+        *,
+        cwd: Path | None = None,
+        check: bool = True,
+    ) -> subprocess.CompletedProcess[str]:
+        commands.append(args)
+        return subprocess.CompletedProcess(args=args, returncode=0)
+
+    monkeypatch.setattr(module, "_run", fake_run)
+
+    module.enable_auto_merge(
+        checkout=tmp_path,
+        pull_request_number="42",
+        head_sha="abc123",
+        bot_branch="automation/migrate-v1.30.1-to-v1.30.0",
+        target_branch="translation/v1.30.0",
+    )
+
+    assert commands == [
+        [
+            "gh",
+            "pr",
+            "merge",
+            "42",
+            "--squash",
+            "--auto",
+            "--delete-branch",
+            "--match-head-commit",
+            "abc123",
+        ]
+    ]
 
 
 def _load_migration_pr_module(repo_root: Path) -> ModuleType:

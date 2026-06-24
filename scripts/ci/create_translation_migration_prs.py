@@ -260,6 +260,7 @@ def migrate_one_target(
                 cwd=target_checkout,
             )
         if create_pr:
+            head_sha = _run_capture(["git", "rev-parse", "HEAD"], cwd=target_checkout).strip()
             create_or_update_pull_request(
                 checkout=target_checkout,
                 bot_branch=bot_branch,
@@ -267,6 +268,11 @@ def migrate_one_target(
                 source_version=source_version,
                 target_version=target_version,
                 summary_path=migration_result.summary_path,
+                head_sha=head_sha,
+                auto_merge=is_auto_merge_safe(
+                    config=config,
+                    report=migration_result.source_merge_report,
+                ),
             )
     finally:
         _run(["git", "worktree", "remove", "--force", str(source_checkout)], cwd=repo, check=False)
@@ -540,26 +546,17 @@ def create_or_update_pull_request(
     source_version: str,
     target_version: str,
     summary_path: Path,
+    head_sha: str,
+    auto_merge: bool,
 ) -> None:
     """Create or update one migration pull request."""
 
     title = f"chore: migrate {source_version} translations to {target_version}"
-    existing_number = _run_capture(
-        [
-            "gh",
-            "pr",
-            "list",
-            "--head",
-            bot_branch,
-            "--base",
-            target_branch,
-            "--json",
-            "number",
-            "--jq",
-            ".[0].number // empty",
-        ],
-        cwd=checkout,
-    ).strip()
+    existing_number = find_pull_request_number(
+        checkout=checkout,
+        bot_branch=bot_branch,
+        target_branch=target_branch,
+    )
     if existing_number:
         _run_pr_command(
             [
@@ -576,6 +573,14 @@ def create_or_update_pull_request(
             bot_branch=bot_branch,
             target_branch=target_branch,
         )
+        if auto_merge:
+            enable_auto_merge(
+                checkout=checkout,
+                pull_request_number=existing_number,
+                head_sha=head_sha,
+                bot_branch=bot_branch,
+                target_branch=target_branch,
+            )
         return
 
     _run_pr_command(
@@ -595,6 +600,121 @@ def create_or_update_pull_request(
         checkout=checkout,
         bot_branch=bot_branch,
         target_branch=target_branch,
+    )
+    new_number = find_pull_request_number(
+        checkout=checkout,
+        bot_branch=bot_branch,
+        target_branch=target_branch,
+    )
+    if auto_merge and new_number:
+        enable_auto_merge(
+            checkout=checkout,
+            pull_request_number=new_number,
+            head_sha=head_sha,
+            bot_branch=bot_branch,
+            target_branch=target_branch,
+        )
+
+
+def find_pull_request_number(*, checkout: Path, bot_branch: str, target_branch: str) -> str:
+    """Return an open pull request number for the migration branch when present."""
+
+    return _run_capture(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--head",
+            bot_branch,
+            "--base",
+            target_branch,
+            "--state",
+            "open",
+            "--json",
+            "number",
+            "--jq",
+            ".[0].number // empty",
+        ],
+        cwd=checkout,
+    ).strip()
+
+
+def is_auto_merge_safe(
+    *,
+    config: TranslationRepositoryConfig,
+    report: dict[str, object],
+) -> bool:
+    """Return whether the generated migration is safe to request auto-merge."""
+
+    if not config.migration.auto_merge_when_clean:
+        return False
+    if config.migration.mode != "exact-only":
+        return False
+    if config.migration.non_exact_policy != "leave_empty_needs_translation":
+        return False
+    if int(report.get("migrated_units", 0)) <= 0:
+        return False
+    return int(report.get("sentence_matches", 0)) == 0
+
+
+def enable_auto_merge(
+    *,
+    checkout: Path,
+    pull_request_number: str,
+    head_sha: str,
+    bot_branch: str,
+    target_branch: str,
+) -> None:
+    """Ask GitHub to merge the migration PR once repository requirements pass."""
+
+    result = _run(
+        [
+            "gh",
+            "pr",
+            "merge",
+            pull_request_number,
+            "--squash",
+            "--auto",
+            "--delete-branch",
+            "--match-head-commit",
+            head_sha,
+        ],
+        cwd=checkout,
+        check=False,
+    )
+    if result.returncode == 0:
+        append_github_summary(
+            [
+                "## Migration PR auto-merge requested",
+                "",
+                f"- Pull request: `#{pull_request_number}`",
+                f"- Base branch: `{target_branch}`",
+                f"- Head branch: `{bot_branch}`",
+                f"- Head SHA: `{head_sha}`",
+                "",
+            ]
+        )
+        return
+
+    manual_url = manual_pull_request_url(base_branch=target_branch, head_branch=bot_branch)
+    append_github_summary(
+        [
+            "## Migration PR auto-merge was not enabled",
+            "",
+            "GitHub rejected the auto-merge request. The migration PR still exists and "
+            "can be reviewed or merged manually.",
+            "",
+            f"- Pull request: `#{pull_request_number}`",
+            f"- Base branch: `{target_branch}`",
+            f"- Head branch: `{bot_branch}`",
+            f"- Manual PR URL: {manual_url}",
+            "",
+        ]
+    )
+    print(
+        "WARNING: Could not enable migration PR auto-merge. "
+        f"Review or merge manually if needed: {manual_url}",
+        file=sys.stderr,
     )
 
 
