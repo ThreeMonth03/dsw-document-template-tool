@@ -24,6 +24,15 @@ def rewrite_science_europe_unbalanced_html_fragments(source_text: str) -> str:
     upstream text stored in the marker payload.
     """
 
+    return apply_reversible_replacement_groups(
+        source_text,
+        _build_unbalanced_html_fragment_groups(),
+    )
+
+
+def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup, ...]:
+    """Build exact upstream fragment rewrites for unbalanced Science Europe markup."""
+
     nref_where_url_if = (
         '{%- if nrefDataWhere.startswith("http://") or '
         'nrefDataWhere.startswith("https://") or '
@@ -273,12 +282,9 @@ def rewrite_science_europe_unbalanced_html_fragments(source_text: str) -> str:
         ),
     )
 
-    return apply_reversible_replacement_groups(
-        source_text,
-        (
-            ReversibleReplacementGroup(
-                "unbalanced_science_europe_html_fragments",
-                replacements,
-            ),
+    return (
+        ReversibleReplacementGroup(
+            "unbalanced_science_europe_html_fragments",
+            replacements,
         ),
     )
