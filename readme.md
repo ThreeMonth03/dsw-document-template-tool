@@ -228,7 +228,7 @@ untranslated tree still syncs back to the original expanded template.
 For CI or migration previews across supported upstream tags, run:
 
 ```shell
-make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS='v1.30.0+'
+make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS='v1.29.1+'
 make render-upstream-artifact-previews
 ```
 
@@ -236,6 +236,11 @@ make render-upstream-artifact-previews
 `compact`, `expanded`, and `translation` workspaces, syncs a scaffold output
 template, and packages it. `render-upstream-artifact-previews` expects a running
 DSW API and renders the checked-in fixture project once per scaffold package.
+The checked-in CI workflow runs this in a metamodel-aware matrix: v1.29.1 uses
+the DSW 4.26 stack, and v1.30.0+ uses the DSW 4.30 stack. When running locally
+against a single DSW stack, scaffold packages whose template metamodel does not
+match `UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION` are skipped with a status
+JSON instead of being forced through an incompatible server.
 
 #### 6. Rebuild The Pre-Translation Compact Candidate For Regression
 
