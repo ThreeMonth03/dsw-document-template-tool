@@ -113,5 +113,6 @@ def test_science_europe_pid_negative_sentence_is_conditional() -> None:
     assert "{%- else -%}" in rewritten
     assert (
         "{%- endfor -%}\n"
-        "                        <p>Within this repository, unique and persistent identifiers will not be applied.</p>"
+        "                        <p>Within this repository, unique and persistent "
+        "identifiers will not be applied.</p>"
     ) not in rewritten
