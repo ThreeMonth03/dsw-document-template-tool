@@ -161,6 +161,61 @@ def test_enable_auto_merge_requests_guarded_squash_merge(
     ]
 
 
+def test_enable_auto_merge_falls_back_to_guarded_immediate_merge(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """If GitHub rejects auto-merge, safe migration PRs can still be merged directly."""
+
+    module = _load_migration_pr_module(repo_root)
+    commands: list[list[str]] = []
+
+    def fake_run(
+        args: list[str],
+        *,
+        cwd: Path | None = None,
+        check: bool = True,
+    ) -> subprocess.CompletedProcess[str]:
+        commands.append(args)
+        returncode = 1 if "--auto" in args else 0
+        return subprocess.CompletedProcess(args=args, returncode=returncode)
+
+    monkeypatch.setattr(module, "_run", fake_run)
+
+    module.enable_auto_merge(
+        checkout=tmp_path,
+        pull_request_number="42",
+        head_sha="abc123",
+        bot_branch="automation/migrate-v1.30.1-to-v1.30.0",
+        target_branch="translation/v1.30.0",
+    )
+
+    assert commands == [
+        [
+            "gh",
+            "pr",
+            "merge",
+            "42",
+            "--squash",
+            "--auto",
+            "--delete-branch",
+            "--match-head-commit",
+            "abc123",
+        ],
+        [
+            "gh",
+            "pr",
+            "merge",
+            "42",
+            "--squash",
+            "--delete-branch",
+            "--match-head-commit",
+            "abc123",
+        ],
+    ]
+
+
 def _load_migration_pr_module(repo_root: Path) -> ModuleType:
     module_path = repo_root / "scripts" / "ci" / "create_translation_migration_prs.py"
     spec = importlib.util.spec_from_file_location("create_translation_migration_prs", module_path)

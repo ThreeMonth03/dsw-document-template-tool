@@ -696,13 +696,45 @@ def enable_auto_merge(
         )
         return
 
+    immediate_merge_result = _run(
+        [
+            "gh",
+            "pr",
+            "merge",
+            pull_request_number,
+            "--squash",
+            "--delete-branch",
+            "--match-head-commit",
+            head_sha,
+        ],
+        cwd=checkout,
+        check=False,
+    )
+    if immediate_merge_result.returncode == 0:
+        append_github_summary(
+            [
+                "## Migration PR merged",
+                "",
+                "GitHub did not accept an auto-merge request, so the workflow "
+                "merged the exact-only migration PR directly after local "
+                "migration audits passed.",
+                "",
+                f"- Pull request: `#{pull_request_number}`",
+                f"- Base branch: `{target_branch}`",
+                f"- Head branch: `{bot_branch}`",
+                f"- Head SHA: `{head_sha}`",
+                "",
+            ]
+        )
+        return
+
     manual_url = manual_pull_request_url(base_branch=target_branch, head_branch=bot_branch)
     append_github_summary(
         [
-            "## Migration PR auto-merge was not enabled",
+            "## Migration PR was not merged",
             "",
-            "GitHub rejected the auto-merge request. The migration PR still exists and "
-            "can be reviewed or merged manually.",
+            "GitHub rejected both the auto-merge request and the immediate merge. "
+            "The migration PR still exists and can be reviewed or merged manually.",
             "",
             f"- Pull request: `#{pull_request_number}`",
             f"- Base branch: `{target_branch}`",
@@ -712,7 +744,7 @@ def enable_auto_merge(
         ]
     )
     print(
-        "WARNING: Could not enable migration PR auto-merge. "
+        "WARNING: Could not merge migration PR automatically. "
         f"Review or merge manually if needed: {manual_url}",
         file=sys.stderr,
     )
