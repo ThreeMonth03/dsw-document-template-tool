@@ -334,12 +334,104 @@ def _build_unbalanced_html_fragment_groups(
       <p>{{ fragments | join('。') }}。</p>
 """
 
+    persistent_identifier_assignment_original = """
+                            {# Will this data be assigned persistent identifier? #}
+                            {%- if publishedDataIdentifierAUuid == uuids.publishedDataIdentifierYesAUuid -%}
+                            <p>Within this repository, unique and persistent identifiers will be applied as follows:</p>
+                            <ul>
+                                {# Who assigns #}
+                                {%- set publishedDataIdentifierAssignsQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierAssignsQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierAssignsAUuid = repliesMap[publishedDataIdentifierAssignsQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsProjectDataStewardAUuid -%}
+                                    <p>A project data steward or principle investigator will assign the persistent identifier.</p>
+
+                                {%- elif publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsInstitDataStewardAUui -%}
+                                    <p>An institutional data steward will assign the persistent identifier.</p>
+
+                                {%- elif publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsRepositoryAUuid -%}
+                                    <p>The repository will assign the persistent identifier.</p>
+                                {%- endif -%}
+
+                                {# Resolvable #}
+                                {%- set publishedDataIdentifierResolvableQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierResolvableQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierResolvableAUuid = repliesMap[publishedDataIdentifierResolvableQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierResolvableAUuid == uuids.publishedDataIdentifierResolvableYesAUuid -%}
+                                    <p>The repository will make sure the persistent identifier can be resolved to a digital object.</p>
+
+                                {%- elif publishedDataIdentifierResolvableAUuid == uuids.publishedDataIdentifierResolvableNoAUuid -%}
+                                    <p>The repository will not make sure the persistent identifier can be resolved to a digital object.</p>
+                                {%- endif -%}
+
+                                {# Specification #}
+                                {%- set publishedDataIdentifierSpecifyQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierSpecifyQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierSpecifyReply = repliesMap[publishedDataIdentifierSpecifyQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierSpecifyReply -%}
+                                    <p>The assigned persistent identifier is specified as follows: {{publishedDataIdentifierSpecifyReply|dot}}</p>
+                                {%- endif -%}
+                            </ul>
+                            {%- endif -%}
+                            </li>
+                        {%- endfor -%}
+                        <p>Within this repository, unique and persistent identifiers will not be applied.</p>
+"""
+    persistent_identifier_assignment_replacement = """
+                            {# Will this data be assigned persistent identifier? #}
+                            {%- if publishedDataIdentifierAUuid == uuids.publishedDataIdentifierYesAUuid -%}
+                            <p>Within this repository, unique and persistent identifiers will be applied as follows:</p>
+                            <ul>
+                                {# Who assigns #}
+                                {%- set publishedDataIdentifierAssignsQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierAssignsQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierAssignsAUuid = repliesMap[publishedDataIdentifierAssignsQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsProjectDataStewardAUuid -%}
+                                    <p>A project data steward or principle investigator will assign the persistent identifier.</p>
+
+                                {%- elif publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsInstitDataStewardAUui -%}
+                                    <p>An institutional data steward will assign the persistent identifier.</p>
+
+                                {%- elif publishedDataIdentifierAssignsAUuid == uuids.publishedDataIdentifierAssignsRepositoryAUuid -%}
+                                    <p>The repository will assign the persistent identifier.</p>
+                                {%- endif -%}
+
+                                {# Resolvable #}
+                                {%- set publishedDataIdentifierResolvableQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierResolvableQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierResolvableAUuid = repliesMap[publishedDataIdentifierResolvableQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierResolvableAUuid == uuids.publishedDataIdentifierResolvableYesAUuid -%}
+                                    <p>The repository will make sure the persistent identifier can be resolved to a digital object.</p>
+
+                                {%- elif publishedDataIdentifierResolvableAUuid == uuids.publishedDataIdentifierResolvableNoAUuid -%}
+                                    <p>The repository will not make sure the persistent identifier can be resolved to a digital object.</p>
+                                {%- endif -%}
+
+                                {# Specification #}
+                                {%- set publishedDataIdentifierSpecifyQUuid = [publishedDataIdentifierQUuid, uuids.publishedDataIdentifierYesAUuid, uuids.publishedDataIdentifierSpecifyQUuid]|reply_path -%}
+                                {%- set publishedDataIdentifierSpecifyReply = repliesMap[publishedDataIdentifierSpecifyQUuid]|reply_str_value -%}
+
+                                {%- if publishedDataIdentifierSpecifyReply -%}
+                                    <p>The assigned persistent identifier is specified as follows: {{publishedDataIdentifierSpecifyReply|dot}}</p>
+                                {%- endif -%}
+                            </ul>
+                            {%- else -%}
+                            <p>Within this repository, unique and persistent identifiers will not be applied.</p>
+                            {%- endif -%}
+                            </li>
+                        {%- endfor -%}
+"""
+
     structural_replacements = (
         (personal_data_legal_basis_original, personal_data_legal_basis_replacement),
         (copyright_open_reasons_original, copyright_open_reasons_replacement),
         (measured_reuse_other_field_original, measured_reuse_other_field_replacement),
         (additional_expertise_train_original, additional_expertise_train_replacement),
         (reference_data_version_original, reference_data_version_replacement),
+        (
+            persistent_identifier_assignment_original,
+            persistent_identifier_assignment_replacement,
+        ),
         (
             f"""
          {{{{" "}}}} available via:{{{{" "}}}}

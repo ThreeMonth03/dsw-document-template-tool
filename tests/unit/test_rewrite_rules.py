@@ -88,10 +88,30 @@ def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
         "unbalanced_science_europe_html_fragments"
     ]
     assert len(balanced_groups[0].replacements) == 26
-    assert len(unbalanced_groups[0].replacements) == 14
+    assert len(unbalanced_groups[0].replacements) == 15
 
     for group in (*balanced_groups, *unbalanced_groups):
         originals = [original for original, _replacement in group.replacements]
         assert all(original for original in originals)
         assert all(replacement for _original, replacement in group.replacements)
         assert len(originals) == len(set(originals))
+
+
+def test_science_europe_pid_negative_sentence_is_conditional() -> None:
+    """PID negative sentence should not render after a positive PID branch."""
+
+    group = _build_unbalanced_html_fragment_groups()[0]
+    original, replacement = next(
+        pair
+        for pair in group.replacements
+        if "unique and persistent identifiers will not be applied" in pair[0]
+    )
+
+    rewritten = apply_reversible_replacements(original, ((original, replacement),))
+
+    assert "publishedDataIdentifierAUuid == uuids.publishedDataIdentifierYesAUuid" in rewritten
+    assert "{%- else -%}" in rewritten
+    assert (
+        "{%- endfor -%}\n"
+        "                        <p>Within this repository, unique and persistent identifiers will not be applied.</p>"
+    ) not in rewritten
