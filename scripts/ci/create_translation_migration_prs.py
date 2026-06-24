@@ -612,6 +612,19 @@ def _run_pr_command(
         return
 
     manual_url = manual_pull_request_url(base_branch=target_branch, head_branch=bot_branch)
+    append_github_summary(
+        [
+            "## Migration PR needs manual creation",
+            "",
+            "GitHub Actions pushed the migration branch, but this repository "
+            "does not allow Actions to create or update pull requests.",
+            "",
+            f"- Base branch: `{target_branch}`",
+            f"- Head branch: `{bot_branch}`",
+            f"- Manual PR URL: {manual_url}",
+            "",
+        ]
+    )
     print(
         "WARNING: Could not create or update migration PR. The migration branch "
         f"was pushed successfully; open the PR manually if needed: {manual_url}",
@@ -630,6 +643,17 @@ def manual_pull_request_url(*, base_branch: str, head_branch: str) -> str:
         f"{server_url}/{repository}/compare/"
         f"{quote(base_branch, safe='')}...{quote(head_branch, safe='')}?expand=1"
     )
+
+
+def append_github_summary(lines: list[str]) -> None:
+    """Append lines to the GitHub step summary when running in Actions."""
+
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+    with Path(summary_path).open("a", encoding="utf-8") as summary_file:
+        summary_file.write("\n".join(lines))
+        summary_file.write("\n")
 
 
 def _run_tool(tooling_root: Path, script: str, *args: object) -> None:

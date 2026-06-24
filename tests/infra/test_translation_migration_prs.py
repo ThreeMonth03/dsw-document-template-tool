@@ -52,6 +52,32 @@ def test_pr_command_permission_failure_is_warning(
     assert "https://github.com/ThreeMonth03/example/compare/" in captured.err
 
 
+def test_pr_command_permission_failure_writes_github_summary(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Blocked PR creation should leave an actionable link in the Actions summary."""
+
+    module = _load_migration_pr_module(repo_root)
+    summary_path = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_REPOSITORY", "ThreeMonth03/example")
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary_path))
+
+    module._run_pr_command(
+        ["bash", "-lc", "exit 1"],
+        checkout=tmp_path,
+        bot_branch="automation/migrate-v1.30.1-to-v1.29.1",
+        target_branch="translation/v1.29.1",
+    )
+
+    summary = summary_path.read_text(encoding="utf-8")
+    assert "Migration PR needs manual creation" in summary
+    assert "translation/v1.29.1" in summary
+    assert "automation/migrate-v1.30.1-to-v1.29.1" in summary
+    assert "https://github.com/ThreeMonth03/example/compare/" in summary
+
+
 def _load_migration_pr_module(repo_root: Path) -> ModuleType:
     module_path = repo_root / "scripts" / "ci" / "create_translation_migration_prs.py"
     spec = importlib.util.spec_from_file_location("create_translation_migration_prs", module_path)
