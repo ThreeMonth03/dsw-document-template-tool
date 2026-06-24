@@ -134,6 +134,7 @@ def test_expand_applies_reversible_science_europe_localization_patches(
     (compact_dir / "src" / "style.css").write_text(
         """
 body {
+  content: 'Data Management Plan';
   font-family: "Open Sans", sans-serif;
 }
 """.lstrip(),
@@ -156,6 +157,7 @@ body {
     assert "68c26e34-5e77-4e15-9bf7-06ff92582257" in expanded_style
     assert 'assets("src/fonts/NotoSansTC-Variable.ttf")' in expanded_style
     assert "data:font/ttf;base64" in expanded_style
+    assert "content: '資料管理方案';" in expanded_style
     assert '"DSW Noto Sans TC", {% endif %}"Open Sans", sans-serif' in expanded_style
     assert (expanded_dir / "src" / "fonts" / "NotoSansTC-Variable.ttf").is_file()
 

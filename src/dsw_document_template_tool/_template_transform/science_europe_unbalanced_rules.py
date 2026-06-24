@@ -193,10 +193,115 @@ def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup
                 {%- endif -%}
 """
 
+    reference_data_version_original = """
+            {# version #}
+            {%- set refDataVersionedPath = [refDataUsedPrefix, uuids.refDataVersionedQUuid]|reply_path -%}
+            {%- set refDataVersionedAUuid = repliesMap[refDataVersionedPath]|reply_str_value -%}
+            {%- if refDataVersionedAUuid == uuids.refDataVersionedYesAUuid -%}{%- set refDataVersionedWhichPath = [refDataVersionedPath, uuids.refDataVersionedYesAUuid, uuids.refDataVersionedWhichQUuid]|reply_path -%}{%- set refDataVersionedWhich = repliesMap[refDataVersionedWhichPath]|reply_str_value -%}{%- set refDataVersionedChangePath = [refDataVersionedPath, uuids.refDataVersionedYesAUuid, uuids.refDataVersionedChangeQUuid]|reply_path -%}{%- set refDataVersionedChangeAUuid = repliesMap[refDataVersionedChangePath]|reply_str_value -%}{%- if refDataVersionedChangeAUuid == uuids.refDataVersionedChangeStayAUuid %}{%- if refDataVersionedWhich or refDataVersionedChangeAUuid  %}
+                <p>
+                {% if refDataVersionedWhich -%}
+                  We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }}
+                {%- endif -%}{{" "}}
+                  If a new version becomes available during the project, we will stay with the old version.</p>
+              {%- endif -%}
+            {%- elif refDataVersionedChangeAUuid == uuids.refDataVersionedChangeNewAUuid %}{%- if refDataVersionedWhich or refDataVersionedChangeAUuid  %}
+                <p>
+                {% if refDataVersionedWhich -%}
+                  We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }}
+                {%- endif -%}{{" "}}
+                  If a new version becomes available during the project, new analyses will be done with the new version.</p>
+              {%- endif -%}
+            {%- elif refDataVersionedChangeAUuid == uuids.refDataVersionedChangeAllAUuid %}{%- if refDataVersionedWhich or refDataVersionedChangeAUuid  %}
+                <p>
+                {% if refDataVersionedWhich -%}
+                  We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }}
+                {%- endif -%}{{" "}}
+                  If a new version becomes available during the project, all analyses will be redone with the new version.</p>
+              {%- endif -%}
+            {% else %}{%- if refDataVersionedWhich or refDataVersionedChangeAUuid  %}
+                <p>
+                {% if refDataVersionedWhich -%}
+                  We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }}
+                {%- endif -%}</p>
+              {%- endif -%}
+            {%- endif -%}{%- endif -%}
+
+"""
+    reference_data_version_replacement = """
+            {# version #}
+            {%- set refDataVersionedPath = [refDataUsedPrefix, uuids.refDataVersionedQUuid]|reply_path -%}
+            {%- set refDataVersionedAUuid = repliesMap[refDataVersionedPath]|reply_str_value -%}
+            {%- if refDataVersionedAUuid == uuids.refDataVersionedYesAUuid -%}{%- set refDataVersionedWhichPath = [refDataVersionedPath, uuids.refDataVersionedYesAUuid, uuids.refDataVersionedWhichQUuid]|reply_path -%}{%- set refDataVersionedWhich = repliesMap[refDataVersionedWhichPath]|reply_str_value -%}{%- set refDataVersionedChangePath = [refDataVersionedPath, uuids.refDataVersionedYesAUuid, uuids.refDataVersionedChangeQUuid]|reply_path -%}{%- set refDataVersionedChangeAUuid = repliesMap[refDataVersionedChangePath]|reply_str_value -%}
+            {%- if refDataVersionedChangeAUuid == uuids.refDataVersionedChangeStayAUuid -%}
+              {%- if refDataVersionedWhich -%}
+                <p>We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }} If a new version becomes available during the project, we will stay with the old version.</p>
+              {%- else -%}
+                <p>If a new version becomes available during the project, we will stay with the old version.</p>
+              {%- endif -%}
+            {%- elif refDataVersionedChangeAUuid == uuids.refDataVersionedChangeNewAUuid -%}
+              {%- if refDataVersionedWhich -%}
+                <p>We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }} If a new version becomes available during the project, new analyses will be done with the new version.</p>
+              {%- else -%}
+                <p>If a new version becomes available during the project, new analyses will be done with the new version.</p>
+              {%- endif -%}
+            {%- elif refDataVersionedChangeAUuid == uuids.refDataVersionedChangeAllAUuid -%}
+              {%- if refDataVersionedWhich -%}
+                <p>We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }} If a new version becomes available during the project, all analyses will be redone with the new version.</p>
+              {%- else -%}
+                <p>If a new version becomes available during the project, all analyses will be redone with the new version.</p>
+              {%- endif -%}
+            {%- elif refDataVersionedWhich -%}
+              <p>We will use the following version of this dataset: {{ refDataVersionedWhich|markdown }}</p>
+            {%- endif -%}
+            {%- endif -%}
+
+"""
+
+    information_risk_labels_original = """
+    {# Extract selected levels for each type #}
+    {%- set selected = {
+      'loss': risk_levels[risksInfoLossAUuid],
+      'leak': risk_levels[risksInfoLeakAUuid],
+      'vandalism': risk_levels[risksInfoVandalismAUuid]
+    } -%}
+"""
+    information_risk_labels_replacement = """
+    {# Extract selected levels for each type #}
+    {%- set selected = {
+      '資訊遺失': risk_levels[risksInfoLossAUuid],
+      '資訊外洩': risk_levels[risksInfoLeakAUuid],
+      '資訊遭竄改': risk_levels[risksInfoVandalismAUuid]
+    } -%}
+"""
+
+    information_risk_join_original = """
+      {%- set risks = (small[:-1]|join(', ') ~ ', and ' ~ small[-1]) if small|length > 1 else small[0] -%}
+"""
+    information_risk_join_replacement = """
+      {%- set risks = small|join('、') -%}
+"""
+    information_low_risk_join_original = """
+      {%- set risks = (low[:-1]|join(', ') ~ ', and ' ~ low[-1]) if low|length > 1 else low[0] -%}
+"""
+    information_low_risk_join_replacement = """
+      {%- set risks = low|join('、') -%}
+"""
+    information_will_risk_join_original = """
+      {%- set risks = (will[:-1]|join(', ') ~ ', and ' ~ will[-1]) if will|length > 1 else will[0] -%}
+"""
+    information_will_risk_join_replacement = """
+      {%- set risks = will|join('、') -%}
+"""
+
     replacements = (
         (personal_data_legal_basis_original, personal_data_legal_basis_replacement),
         (copyright_open_reasons_original, copyright_open_reasons_replacement),
         (measured_reuse_other_field_original, measured_reuse_other_field_replacement),
+        (reference_data_version_original, reference_data_version_replacement),
+        (information_risk_labels_original, information_risk_labels_replacement),
+        (information_risk_join_original, information_risk_join_replacement),
+        (information_low_risk_join_original, information_low_risk_join_replacement),
+        (information_will_risk_join_original, information_will_risk_join_replacement),
         (
             f"""
          {{{{" "}}}} available via:{{{{" "}}}}

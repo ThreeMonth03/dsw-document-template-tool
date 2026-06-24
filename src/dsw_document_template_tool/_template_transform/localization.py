@@ -21,6 +21,8 @@ CJK_FONT_FAMILY_PATCHED = (
 )
 CJK_FONT_CSS_START = "/* DSW Document Template Tool CJK font fallback:start */"
 CJK_FONT_CSS_END = "/* DSW Document Template Tool CJK font fallback:end */"
+SCIENCE_EUROPE_PDF_HEADER_TITLE_ORIGINAL = "content: 'Data Management Plan';"
+SCIENCE_EUROPE_PDF_HEADER_TITLE_PATCHED = "content: '資料管理方案';"
 CJK_FONT_CSS = f"""{{% set dsw_document_format_uuid = ctx.document.formatUuid|default("") -%}}
 {{% if dsw_document_format_uuid == "{CJK_FONT_PDF_FORMAT_UUID}" -%}}
 {{% set dsw_noto_sans_tc_font = assets("{CJK_FONT_TEMPLATE_PATH.as_posix()}") -%}}
@@ -173,6 +175,10 @@ def _patch_cjk_font_face(*, output_dir: Path) -> bool:
     font_destination_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(font_source_path, font_destination_path)
     style_text = style_text.replace(CJK_FONT_FAMILY_ORIGINAL, CJK_FONT_FAMILY_PATCHED)
+    style_text = style_text.replace(
+        SCIENCE_EUROPE_PDF_HEADER_TITLE_ORIGINAL,
+        SCIENCE_EUROPE_PDF_HEADER_TITLE_PATCHED,
+    )
     style_path.write_text(
         _insert_css_after_initial_imports(style_text, CJK_FONT_CSS),
         encoding="utf-8",
@@ -202,6 +208,10 @@ def _remove_cjk_font_face(*, output_dir: Path) -> None:
             flags=re.DOTALL,
         )
         style_text = style_text.replace(CJK_FONT_FAMILY_PATCHED, CJK_FONT_FAMILY_ORIGINAL)
+        style_text = style_text.replace(
+            SCIENCE_EUROPE_PDF_HEADER_TITLE_PATCHED,
+            SCIENCE_EUROPE_PDF_HEADER_TITLE_ORIGINAL,
+        )
         style_path.write_text(style_text, encoding="utf-8")
 
     font_destination_path = output_dir / CJK_FONT_TEMPLATE_PATH

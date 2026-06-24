@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import base64
 
+from dsw_document_template_tool._template_transform.branch_sentences import (
+    restore_branch_sentence_rewrites,
+)
 from dsw_document_template_tool._template_transform.rewrite_rules import (
     ReversibleReplacementGroup,
     apply_reversible_replacement_groups,
@@ -48,6 +51,32 @@ def test_reversible_replacement_groups_apply_in_order() -> None:
     assert "delta" in rewritten_text
 
 
+def test_branch_sentence_restore_ignores_end_marker_as_payload() -> None:
+    """Adjacent reversible markers should not treat the end marker as a new start."""
+
+    rewritten_text = apply_reversible_replacements(
+        "alpha beta",
+        (
+            ("alpha", "translated alpha"),
+            ("beta", "translated beta"),
+        ),
+    )
+
+    assert restore_branch_sentence_rewrites(rewritten_text) == "alpha beta"
+
+
+def test_branch_sentence_restore_handles_nested_markers() -> None:
+    """Nested reversible markers should compact back from the inside out."""
+
+    inner = apply_reversible_replacements("beta", (("beta", "translated beta"),))
+    outer = apply_reversible_replacements(
+        f"alpha {inner}",
+        ((f"alpha {inner}", "translated alpha beta"),),
+    )
+
+    assert restore_branch_sentence_rewrites(outer) == "alpha beta"
+
+
 def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
     """Science Europe exact rewrites should stay grouped and non-duplicated."""
 
@@ -59,7 +88,7 @@ def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
         "unbalanced_science_europe_html_fragments"
     ]
     assert len(balanced_groups[0].replacements) == 26
-    assert len(unbalanced_groups[0].replacements) == 7
+    assert len(unbalanced_groups[0].replacements) == 12
 
     for group in (*balanced_groups, *unbalanced_groups):
         originals = [original for original, _replacement in group.replacements]

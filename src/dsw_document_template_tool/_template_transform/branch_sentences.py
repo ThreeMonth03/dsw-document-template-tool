@@ -49,11 +49,9 @@ from .text_visibility import (
     visible_words as _visible_words,
 )
 
-BRANCH_SENTENCE_REWRITE_PATTERN = re.compile(
-    r"\{# __tr_branch_sentence_original:(?P<payload>[A-Za-z0-9_-]+=*) #\}"
-    r".*?"
-    r"\{# __tr_branch_sentence_original:end #\}",
-    re.DOTALL,
+BRANCH_SENTENCE_MARKER_PATTERN = re.compile(
+    r"\{# __tr_branch_sentence_original:(?!end #)(?P<payload>[A-Za-z0-9_-]+=*) #\}"
+    r"|\{# __tr_branch_sentence_original:end #\}"
 )
 
 
@@ -112,13 +110,31 @@ def rewrite_common_prefix_branch_sentences(source_text: str) -> str:
 def restore_branch_sentence_rewrites(source_text: str) -> str:
     """Restore original common-prefix branches when compacting."""
 
-    def replace(match: re.Match[str]) -> str:
+    restored_text = source_text
+    while True:
+        replacement = _find_next_innermost_branch_sentence_rewrite(restored_text)
+        if replacement is None:
+            return restored_text
+        start, end, original = replacement
+        restored_text = f"{restored_text[:start]}{original}{restored_text[end:]}"
+
+
+def _find_next_innermost_branch_sentence_rewrite(source_text: str) -> tuple[int, int, str] | None:
+    stack: list[tuple[int, str]] = []
+    for match in BRANCH_SENTENCE_MARKER_PATTERN.finditer(source_text):
+        payload = match.group("payload")
+        if payload is not None:
+            stack.append((match.start(), payload))
+            continue
+        if not stack:
+            continue
+        start, payload = stack.pop()
         try:
-            return decode_marker_payload(match.group("payload"))
+            original = decode_marker_payload(payload)
         except (ValueError, UnicodeDecodeError) as exc:
             raise TemplateTransformError("Invalid branch sentence rewrite marker") from exc
-
-    return BRANCH_SENTENCE_REWRITE_PATTERN.sub(replace, source_text)
+        return (start, match.end(), original)
+    return None
 
 
 def _rewrite_inner_common_prefix_branch(
