@@ -10,9 +10,7 @@ select = [
 ]
 
 [lint.per-file-ignores]
-# These files intentionally embed exact upstream Jinja fragments. Keeping those
+# This test intentionally embeds exact upstream Jinja fragments. Keeping those
 # strings byte-for-byte readable is more important than wrapping individual
 # template lines to Python's line length.
-"src/dsw_document_template_tool/template_transform.py" = ["E501"]
-"src/dsw_document_template_tool/_template_transform/science_europe.py" = ["E501"]
 "tests/unit/test_translation_tree.py" = ["E501"]

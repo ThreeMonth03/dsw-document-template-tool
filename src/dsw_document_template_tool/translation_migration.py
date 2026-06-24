@@ -114,7 +114,7 @@ class DswPreviewRuntime:
 
 
 DEFAULT_DSW_COMPAT_PATH = Path(__file__).resolve().parents[2] / "config" / "dsw-compat.yml"
-DSW_PREVIEW_RUNTIMES: tuple[DswPreviewRuntime, ...] = ()
+DSW_PREVIEW_RUNTIMES: tuple[DswPreviewRuntime, ...]
 
 
 def load_preview_runtimes(

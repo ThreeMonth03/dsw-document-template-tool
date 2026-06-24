@@ -56,7 +56,7 @@ DSW_COMPAT_CONFIG ?= config/dsw-compat.yml
 UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION ?= 18.0
 UPSTREAM_TEMPLATE_PREVIEW_STRICT ?= true
 
-.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags build-upstream-artifacts render-upstream-artifact-previews start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
+.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags discover-upstream-compat build-upstream-artifacts render-upstream-artifact-previews start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
 venv: $(VENV_PYTHON)
 
@@ -91,6 +91,7 @@ help:
 	'  list-upstream-template-tags Show available upstream Science Europe version tags' \
 	'  fetch-upstream-template Fetch upstream template into $(UPSTREAM_TEMPLATE_CACHE)' \
 	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
+	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
