@@ -8,6 +8,9 @@ from pathlib import Path
 
 import pytest
 
+from dsw_document_template_tool._translation_tree.output_polish import (
+    polish_zh_hant_template_text,
+)
 from dsw_document_template_tool.template_transform import expand_template_dir
 from dsw_document_template_tool.translation_tree import (
     TranslationTreeError,
@@ -16,9 +19,6 @@ from dsw_document_template_tool.translation_tree import (
     export_translation_tree,
     merge_translation_tree,
     sync_translation_tree,
-)
-from dsw_document_template_tool._translation_tree.output_polish import (
-    polish_zh_hant_template_text,
 )
 
 

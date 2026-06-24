@@ -39,8 +39,8 @@ from ._translation_tree.models import (
     OutlineUnit,
     TranslationTreeError,
 )
-from ._translation_tree.output_polish import polish_translated_output_dir
 from ._translation_tree.outline import render_outline_markdown
+from ._translation_tree.output_polish import polish_translated_output_dir
 from ._translation_tree.source_text import (
     extract_sentence_text as _extract_sentence_text,
 )
