@@ -10,8 +10,10 @@ from dsw_document_template_tool.translation_migration import (
     TranslationMigrationError,
     clean_artifact_version_paths,
     clean_artifact_versions,
+    load_preview_runtimes,
     load_translation_repository_config,
     migration_branch,
+    preview_runtime_for_template,
     preview_runtime_for_version,
     preview_runtime_matrix,
     sorted_versions,
@@ -150,10 +152,14 @@ def test_version_to_number_requires_v_prefix() -> None:
 def test_preview_runtime_for_version_matches_supported_metamodels() -> None:
     """Template versions should map to the DSW stack that supports their metamodel."""
 
+    loaded_runtimes = load_preview_runtimes()
+
+    assert loaded_runtimes[0].metamodel_key == "17-1"
     assert preview_runtime_for_version("v1.29.1").dsw_version == "4.26"
     assert preview_runtime_for_version("v1.29.1").tdk_version == "4.26.1"
     assert preview_runtime_for_version("v1.29.1").strict_project_preview is True
     assert preview_runtime_for_version("v1.30.0").metamodel_version == "18.0"
+    assert preview_runtime_for_template("v1.30.0", "18.0").metamodel_key == "18-0"
     assert preview_runtime_for_version("v1.30.9").dsw_version == "4.30"
     assert preview_runtime_matrix()[0]["upstream_template_artifact_refs"] == "v1.29.1"
     assert preview_runtime_matrix()[0]["strict_project_preview"] == "true"
@@ -161,3 +167,5 @@ def test_preview_runtime_for_version_matches_supported_metamodels() -> None:
     assert preview_runtime_matrix()[-1]["strict_project_preview"] == "true"
     with pytest.raises(TranslationMigrationError):
         preview_runtime_for_version("v1.29.0")
+    with pytest.raises(TranslationMigrationError):
+        preview_runtime_for_template("v1.30.0", "19.0")

@@ -51,6 +51,8 @@ UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
 UPSTREAM_TEMPLATE_ARTIFACT_REFS ?= $(UPSTREAM_TEMPLATE_MIN_ARTIFACT_REF)+
 UPSTREAM_TEMPLATE_ARTIFACT_CACHE_ROOT ?= .cache/upstream-artifacts
 UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT ?= outputs/upstream-workspaces/$(SOURCE_TEMPLATE_ID)
+UPSTREAM_TEMPLATE_DISCOVERY_REFS ?= $(UPSTREAM_TEMPLATE_ARTIFACT_REFS)
+DSW_COMPAT_CONFIG ?= config/dsw-compat.yml
 UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION ?= 18.0
 UPSTREAM_TEMPLATE_PREVIEW_STRICT ?= true
 
@@ -256,6 +258,19 @@ test-upstream-tags: venv
 		$(DSW_TDK) package "$$output_dir" --output "$$package_path" --force; \
 		echo "INFO: [$$ref] passed"; \
 	done
+
+discover-upstream-compat: venv
+	@set -euo pipefail; \
+	summary_args=""; \
+	if [ -n "$${GITHUB_STEP_SUMMARY:-}" ]; then \
+		summary_args="--summary $$GITHUB_STEP_SUMMARY"; \
+	fi; \
+	$(PYTHON) scripts/ci/discover_dsw_compat.py \
+		--remote "$(UPSTREAM_TEMPLATE_REMOTE)" \
+		--compat "$(DSW_COMPAT_CONFIG)" \
+		--cache ".cache/upstream-compat-discovery" \
+		$$summary_args \
+		$(UPSTREAM_TEMPLATE_DISCOVERY_REFS)
 
 build-upstream-artifacts: venv
 	@set -euo pipefail; \

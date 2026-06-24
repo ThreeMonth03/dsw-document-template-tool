@@ -113,30 +113,76 @@ class DswPreviewRuntime:
     strict_project_preview: bool
 
 
-DSW_PREVIEW_RUNTIMES: tuple[DswPreviewRuntime, ...] = (
-    DswPreviewRuntime(
-        metamodel_key="17-1",
-        metamodel_version="17.1",
-        dsw_version="4.26",
-        tdk_version="4.26.1",
-        min_version="v1.29.1",
-        max_version="v1.29.1",
-        upstream_template_artifact_refs="v1.29.1",
-        run_preview_regression=False,
-        strict_project_preview=True,
-    ),
-    DswPreviewRuntime(
-        metamodel_key="18-0",
-        metamodel_version="18.0",
-        dsw_version="4.30",
-        tdk_version="4.30.2",
-        min_version="v1.30.0",
-        max_version=None,
-        upstream_template_artifact_refs="v1.30.0+",
-        run_preview_regression=True,
-        strict_project_preview=True,
-    ),
-)
+DEFAULT_DSW_COMPAT_PATH = Path(__file__).resolve().parents[2] / "config" / "dsw-compat.yml"
+DSW_PREVIEW_RUNTIMES: tuple[DswPreviewRuntime, ...] = ()
+
+
+def load_preview_runtimes(
+    path: Path | None = None,
+) -> tuple[DswPreviewRuntime, ...]:
+    """Load DSW preview runtimes from the checked-in compatibility table."""
+
+    config_path = path or DEFAULT_DSW_COMPAT_PATH
+    payload = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError(
+            f"DSW compatibility config {config_path} must contain a mapping"
+        )
+
+    runtime_payloads = payload.get("runtimes")
+    if not isinstance(runtime_payloads, list) or not runtime_payloads:
+        raise TranslationMigrationError(
+            f"DSW compatibility config {config_path} must define non-empty runtimes"
+        )
+
+    runtimes = tuple(_load_preview_runtime(item) for item in runtime_payloads)
+    _validate_preview_runtimes(runtimes)
+    return runtimes
+
+
+def _load_preview_runtime(payload: object) -> DswPreviewRuntime:
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError("Each DSW preview runtime must be a mapping")
+    max_version = payload.get("max_version")
+    if max_version is not None and not isinstance(max_version, str):
+        raise TranslationMigrationError("Expected string or null at max_version")
+    return DswPreviewRuntime(
+        metamodel_key=_required_str(payload, "metamodel_key"),
+        metamodel_version=_required_str(payload, "metamodel_version"),
+        dsw_version=_required_str(payload, "dsw_version"),
+        tdk_version=_required_str(payload, "tdk_version"),
+        min_version=_required_str(payload, "min_version"),
+        max_version=max_version,
+        upstream_template_artifact_refs=_required_str(
+            payload,
+            "upstream_template_artifact_refs",
+        ),
+        run_preview_regression=bool(payload.get("run_preview_regression", False)),
+        strict_project_preview=bool(payload.get("strict_project_preview", False)),
+    )
+
+
+def _validate_preview_runtimes(runtimes: tuple[DswPreviewRuntime, ...]) -> None:
+    seen_keys: set[str] = set()
+    seen_metamodels: set[str] = set()
+    for runtime in runtimes:
+        if runtime.metamodel_key in seen_keys:
+            raise TranslationMigrationError(
+                f"Duplicate DSW preview runtime key {runtime.metamodel_key!r}"
+            )
+        seen_keys.add(runtime.metamodel_key)
+        if runtime.metamodel_version in seen_metamodels:
+            raise TranslationMigrationError(
+                "Each metamodelVersion should map to one CI runtime; "
+                f"duplicate {runtime.metamodel_version!r}"
+            )
+        seen_metamodels.add(runtime.metamodel_version)
+        if runtime.max_version is not None and (
+            version_sort_key(runtime.max_version) < version_sort_key(runtime.min_version)
+        ):
+            raise TranslationMigrationError(
+                f"Runtime {runtime.metamodel_key} has max_version before min_version"
+            )
 
 
 def load_translation_repository_config(path: Path) -> TranslationRepositoryConfig:
@@ -336,6 +382,19 @@ def preview_runtime_for_version(version: str) -> DswPreviewRuntime:
     )
 
 
+def preview_runtime_for_template(version: str, metamodel_version: str) -> DswPreviewRuntime:
+    """Return the configured runtime for a concrete template version/metamodel pair."""
+
+    runtime = preview_runtime_for_version(version)
+    if runtime.metamodel_version != metamodel_version:
+        raise TranslationMigrationError(
+            f"Template {version} uses metamodelVersion {metamodel_version!r}, but "
+            f"configured runtime {runtime.metamodel_key!r} expects "
+            f"{runtime.metamodel_version!r}"
+        )
+    return runtime
+
+
 def preview_runtime_matrix() -> list[dict[str, str]]:
     """Return GitHub Actions matrix rows for all configured preview runtimes."""
 
@@ -410,3 +469,6 @@ def _required_str_list(payload: object, key: str) -> list[str]:
     if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
         raise TranslationMigrationError(f"Expected non-empty string list at {key!r}")
     return value
+
+
+DSW_PREVIEW_RUNTIMES = load_preview_runtimes()

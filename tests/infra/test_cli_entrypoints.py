@@ -149,6 +149,76 @@ def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path) -> None:
     assert "v1.29.1" not in refs
 
 
+def test_discover_dsw_compat_reports_supported_refs(repo_root: Path, tmp_path: Path) -> None:
+    """The compatibility discovery helper should accept known metamodel mappings."""
+
+    remote = _build_upstream_template_remote(
+        tmp_path,
+        [
+            ("v1.29.1", "1.29.1", "17.1"),
+            ("v1.30.0", "1.30.0", "18.0"),
+        ],
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "discover_dsw_compat.py"),
+            "--remote",
+            str(remote),
+            "--cache",
+            str(tmp_path / "cache-supported"),
+            "v1.29.1+",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "DSW Compatibility Discovery" in result.stdout
+    assert "`v1.29.1` | `v1.29.1` | `17.1`" in result.stdout
+    assert "`v1.30.0` | `v1.30.0` | `18.0`" in result.stdout
+    assert "covered" in result.stdout
+
+
+def test_discover_dsw_compat_fails_unknown_metamodel(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Unknown upstream metamodels should fail clearly instead of being skipped."""
+
+    remote = _build_upstream_template_remote(
+        tmp_path,
+        [
+            ("v1.30.0", "1.30.0", "18.0"),
+            ("v1.31.0", "1.31.0", "19.0"),
+        ],
+    )
+    summary = tmp_path / "summary.md"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "discover_dsw_compat.py"),
+            "--remote",
+            str(remote),
+            "--cache",
+            str(tmp_path / "cache-unsupported"),
+            "--summary",
+            str(summary),
+            "v1.30.0+",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "Unsupported Metamodels" in result.stdout
+    assert "metamodelVersion=19.0" in result.stdout
+    assert summary.is_file()
+    assert "v1.31.0" in summary.read_text(encoding="utf-8")
+
+
 def test_create_translation_migration_prs_help(repo_root: Path) -> None:
     """The migration PR helper should expose a working help screen."""
 
@@ -270,3 +340,37 @@ def test_dsw_tdk_verify_command_is_available() -> None:
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert "Usage: dsw-tdk verify" in result.stdout
+
+
+def _build_upstream_template_remote(
+    tmp_path: Path,
+    versions: list[tuple[str, str, str]],
+) -> Path:
+    """Create a tiny git repo with tagged template.json versions."""
+
+    remote = tmp_path / "upstream-template"
+    remote.mkdir()
+    _git(remote, "init", "--initial-branch=main")
+    _git(remote, "config", "user.name", "Test Bot")
+    _git(remote, "config", "user.email", "test@example.com")
+    for tag, version, metamodel_version in versions:
+        (remote / "template.json").write_text(
+            json.dumps(
+                {
+                    "id": "science-europe",
+                    "version": version,
+                    "metamodelVersion": metamodel_version,
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        _git(remote, "add", "template.json")
+        _git(remote, "commit", "-m", f"template {version}")
+        _git(remote, "tag", tag)
+    return remote
+
+
+def _git(repo: Path, *args: str) -> None:
+    subprocess.run(["git", "-C", str(repo), *args], check=True)

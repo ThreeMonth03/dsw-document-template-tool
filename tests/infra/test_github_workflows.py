@@ -35,6 +35,8 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
         == "v1.29.1+"
     )
     assert "make test-upstream-tags" in workflow_text
+    assert "make discover-upstream-compat" in workflow_text
+    assert "UPSTREAM_TEMPLATE_DISCOVERY_REFS" in workflow_text
     assert "make test-upstream-compat-tags" not in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
     assert "make render-upstream-artifact-previews" in workflow_text

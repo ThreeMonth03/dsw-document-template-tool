@@ -1,0 +1,26 @@
+schema_version: 1
+
+# DSW server / TDK runtimes that are proven by CI to render upstream
+# Science Europe template metamodels. Keep this file as the single source
+# of truth; workflow matrices and downstream version-branch workflows are
+# expected to stay in sync with it.
+runtimes:
+  - metamodel_key: "17-1"
+    metamodel_version: "17.1"
+    dsw_version: "4.26"
+    tdk_version: "4.26.1"
+    min_version: "v1.29.1"
+    max_version: "v1.29.1"
+    upstream_template_artifact_refs: "v1.29.1"
+    run_preview_regression: false
+    strict_project_preview: true
+
+  - metamodel_key: "18-0"
+    metamodel_version: "18.0"
+    dsw_version: "4.30"
+    tdk_version: "4.30.2"
+    min_version: "v1.30.0"
+    max_version: null
+    upstream_template_artifact_refs: "v1.30.0+"
+    run_preview_regression: true
+    strict_project_preview: true
