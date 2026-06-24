@@ -8,6 +8,7 @@ import shutil
 from pathlib import Path
 
 CJK_FONT_PATCH_NAME = "cjk_font_face"
+ZH_HANT_GLOBALS_PATCH_NAME = "zh_hant_globals"
 ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME = "zh_hant_allowed_package"
 CJK_FONT_SOURCE_PATH = Path("assets/fonts/NotoSansTC-Variable.ttf")
 CJK_FONT_TEMPLATE_PATH = Path("src/fonts/NotoSansTC-Variable.ttf")
@@ -23,6 +24,14 @@ CJK_FONT_CSS_START = "/* DSW Document Template Tool CJK font fallback:start */"
 CJK_FONT_CSS_END = "/* DSW Document Template Tool CJK font fallback:end */"
 SCIENCE_EUROPE_PDF_HEADER_TITLE_ORIGINAL = "content: 'Data Management Plan';"
 SCIENCE_EUROPE_PDF_HEADER_TITLE_PATCHED = "content: '資料管理方案';"
+SCIENCE_EUROPE_GLOBALS_ORIGINAL = """
+{%- set projects = "projects" if projectsItems|length > 1 else "project" -%}
+{%- set projectsIsAre = "are" if projectsItems|length > 1 else "is" -%}
+""".strip()
+SCIENCE_EUROPE_GLOBALS_PATCHED = """
+{%- set projects = "專案" -%}
+{%- set projectsIsAre = "為" -%}
+""".strip()
 CJK_FONT_CSS = f"""{{% set dsw_document_format_uuid = ctx.document.formatUuid|default("") -%}}
 {{% if dsw_document_format_uuid == "{CJK_FONT_PDF_FORMAT_UUID}" -%}}
 {{% set dsw_noto_sans_tc_font = assets("{CJK_FONT_TEMPLATE_PATH.as_posix()}") -%}}
@@ -82,6 +91,8 @@ def apply_post_expand_patches(*, output_dir: Path) -> list[str]:
     patches: list[str] = []
     if _patch_zh_hant_allowed_package(output_dir=output_dir):
         patches.append(ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME)
+    if _patch_zh_hant_globals(output_dir=output_dir):
+        patches.append(ZH_HANT_GLOBALS_PATCH_NAME)
     if _patch_cjk_font_face(output_dir=output_dir):
         patches.append(CJK_FONT_PATCH_NAME)
     return patches
@@ -104,6 +115,8 @@ def revert_post_expand_patches(
             output_dir=output_dir,
             trailing_newline=state.get("template_json_trailing_newline"),
         )
+    if ZH_HANT_GLOBALS_PATCH_NAME in patch_names:
+        _remove_zh_hant_globals(output_dir=output_dir)
     if CJK_FONT_PATCH_NAME in patch_names:
         _remove_cjk_font_face(output_dir=output_dir)
 
@@ -153,6 +166,35 @@ def _remove_zh_hant_allowed_package(*, output_dir: Path, trailing_newline: objec
     suffix = "\n" if trailing_newline is not False else ""
     template_json_path.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + suffix,
+        encoding="utf-8",
+    )
+
+
+def _patch_zh_hant_globals(*, output_dir: Path) -> bool:
+    globals_path = output_dir / "src" / "globals.j2"
+    if not globals_path.is_file():
+        return False
+    globals_text = globals_path.read_text(encoding="utf-8")
+    if SCIENCE_EUROPE_GLOBALS_PATCHED in globals_text:
+        return False
+    if SCIENCE_EUROPE_GLOBALS_ORIGINAL not in globals_text:
+        return False
+    globals_path.write_text(
+        globals_text.replace(SCIENCE_EUROPE_GLOBALS_ORIGINAL, SCIENCE_EUROPE_GLOBALS_PATCHED),
+        encoding="utf-8",
+    )
+    return True
+
+
+def _remove_zh_hant_globals(*, output_dir: Path) -> None:
+    globals_path = output_dir / "src" / "globals.j2"
+    if not globals_path.is_file():
+        return
+    globals_text = globals_path.read_text(encoding="utf-8")
+    if SCIENCE_EUROPE_GLOBALS_PATCHED not in globals_text:
+        return
+    globals_path.write_text(
+        globals_text.replace(SCIENCE_EUROPE_GLOBALS_PATCHED, SCIENCE_EUROPE_GLOBALS_ORIGINAL),
         encoding="utf-8",
     )
 

@@ -140,6 +140,16 @@ body {
 """.lstrip(),
         encoding="utf-8",
     )
+    (compact_dir / "src" / "globals.j2").write_text(
+        """
+{#- Project or projects (based on number) -#}
+{%- set projectsPath = [uuids.adminDetailsCUuid, uuids.projectsQUuid]|reply_path -%}
+{%- set projectsItems = repliesMap[projectsPath]|reply_items -%}
+{%- set projects = "projects" if projectsItems|length > 1 else "project" -%}
+{%- set projectsIsAre = "are" if projectsItems|length > 1 else "is" -%}
+""".lstrip(),
+        encoding="utf-8",
+    )
     (compact_dir / "src" / "index.html.j2").write_text(
         "<p>Hello world.</p>\n",
         encoding="utf-8",
@@ -151,8 +161,11 @@ body {
 
     expanded_template_json = (expanded_dir / "template.json").read_text(encoding="utf-8")
     expanded_style = (expanded_dir / "src" / "style.css").read_text(encoding="utf-8")
+    expanded_globals = (expanded_dir / "src" / "globals.j2").read_text(encoding="utf-8")
 
     assert '"kmId": "root-zh-hant"' in expanded_template_json
+    assert '{%- set projects = "專案" -%}' in expanded_globals
+    assert '{%- set projectsIsAre = "為" -%}' in expanded_globals
     assert "DSW Document Template Tool CJK font fallback:start" in expanded_style
     assert "68c26e34-5e77-4e15-9bf7-06ff92582257" in expanded_style
     assert 'assets("src/fonts/NotoSansTC-Variable.ttf")' in expanded_style
