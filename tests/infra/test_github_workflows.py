@@ -111,6 +111,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "workflow_dispatch" not in workflow["on"]
     assert workflow["permissions"]["contents"] == "write"
     assert workflow["permissions"]["statuses"] == "write"
+    assert workflow["permissions"]["actions"] == "write"
     assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "github.event.pull_request.head.repo.full_name == github.repository" in workflow_text
     assert "github.actor != 'github-actions[bot]' &&" not in workflow_text
