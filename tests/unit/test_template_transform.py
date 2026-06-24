@@ -483,6 +483,78 @@ def test_expand_rewrites_single_choice_optional_branches_reversibly(
         assert _render_template(expanded_text, context) == _render_template(source_text, context)
 
 
+def test_expand_does_not_cartesian_rewrite_independent_optional_fragments(
+    tmp_path: Path,
+) -> None:
+    """Independent optional fragments should stay grouped instead of exploding."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = """
+<p>
+  We will be using
+  {% if calibrating %}calibrating measurements{% endif %}
+  {% if repetition %}repeat samples/measurements{% endif %}
+  as part of the quality process.
+</p>
+""".lstrip()
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    assert "__tr_branch_sentence_original:" not in expanded_text
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+    contexts = [
+        {"calibrating": False, "repetition": False},
+        {"calibrating": True, "repetition": False},
+        {"calibrating": False, "repetition": True},
+        {"calibrating": True, "repetition": True},
+    ]
+    for context in contexts:
+        assert _render_template(expanded_text, context) == _render_template(source_text, context)
+
+
+def test_expand_does_not_rewrite_branch_with_unsafe_tail_control(
+    tmp_path: Path,
+) -> None:
+    """Branch tails with mutating Jinja should not be moved across conditions."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = """
+{% set fragments = [] %}
+<p>
+  Data access is {% if open_access %}open{% else %}restricted{% endif %}
+  {% do fragments.append("access reviewed") %}.
+</p>
+<p>{{ fragments|join(", ") }}</p>
+""".lstrip()
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    assert "__tr_branch_sentence_original:" not in expanded_text
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+    contexts = [
+        {"open_access": False},
+        {"open_access": True},
+    ]
+    for context in contexts:
+        assert _render_template(expanded_text, context) == _render_template(source_text, context)
+
+
 def test_expanded_comment_markers_preserve_rendered_output_across_branch_matrix(
     tmp_path: Path,
 ) -> None:
