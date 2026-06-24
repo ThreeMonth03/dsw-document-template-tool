@@ -98,6 +98,8 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         "    : {{ macros.integrationFairSharing(repo) }}.\n"
         "{%- else -%}.\n"
         '{{ ", " if not loop.last else "." }}\n'
+        '{{ values|join(", ") }}\n'
+        "{% if not loop.last %}, {% endif %}\n"
         "此資源分配用於確保資料可被找到, 確保資料可被取用與支援資料管理。"
     )
 
@@ -108,6 +110,8 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         "    ：{{ macros.integrationFairSharing(repo) }}。\n"
         "{%- else -%}。\n"
         '{{ "、" if not loop.last else "。" }}\n'
+        '{{ values|join("、") }}\n'
+        "{% if not loop.last %}、{% endif %}\n"
         "此資源分配用於確保資料可被找到、確保資料可被取用與支援資料管理。"
     )
 
