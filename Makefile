@@ -292,6 +292,7 @@ build-upstream-artifacts: venv
 		workspace_template_name="$(SOURCE_TEMPLATE_ID)-$$version"; \
 		compact_dir="$$workspace_root/compact/$$workspace_template_name"; \
 		expanded_dir="$$workspace_root/expanded/$$workspace_template_name"; \
+		regression_expanded_dir="$$workspace_root/expanded-regression/$$workspace_template_name"; \
 		tree_dir="$$workspace_root/translation/$$workspace_template_name"; \
 		output_root="outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$$version_tag/$(TRANSLATION_LOCALE)/scaffold"; \
 		output_dir="$$output_root/$(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(SCAFFOLD_TEMPLATE_ID)-$$version"; \
@@ -310,6 +311,10 @@ build-upstream-artifacts: venv
 			"$(SOURCE_TEMPLATE_ID)" \
 			"$$version"; \
 		echo "INFO: [$$ref] transform/export/sync/package version $$version"; \
+		$(PYTHON) src/transform_template.py expand \
+			--source "$$compact_dir" \
+			--output "$$regression_expanded_dir" \
+			--no-local-patches; \
 		$(PYTHON) src/transform_template.py expand \
 			--source "$$compact_dir" \
 			--output "$$expanded_dir"; \

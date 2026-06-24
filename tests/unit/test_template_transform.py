@@ -179,6 +179,79 @@ body {
     assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
 
 
+def test_expand_can_skip_science_europe_localization_patches(tmp_path: Path) -> None:
+    """Regression workspaces should be able to expand without local zh-Hant patches."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    (compact_dir / "template.json").write_text(
+        """
+{
+  "organizationId": "dsw",
+  "templateId": "science-europe",
+  "version": "1.30.0",
+  "allowedPackages": [
+    {
+      "orgId": "dsw",
+      "kmId": "root",
+      "minVersion": "2.7.0",
+      "maxVersion": null
+    }
+  ]
+}
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    (compact_dir / "src" / "style.css").write_text(
+        """
+body {
+  content: 'Data Management Plan';
+  font-family: "Open Sans", sans-serif;
+}
+""".lstrip(),
+        encoding="utf-8",
+    )
+    (compact_dir / "src" / "globals.j2").write_text(
+        """
+{#- Project or projects (based on number) -#}
+{%- set projectsPath = [uuids.adminDetailsCUuid, uuids.projectsQUuid]|reply_path -%}
+{%- set projectsItems = repliesMap[projectsPath]|reply_items -%}
+{%- set projects = "projects" if projectsItems|length > 1 else "project" -%}
+{%- set projectsIsAre = "are" if projectsItems|length > 1 else "is" -%}
+""".lstrip(),
+        encoding="utf-8",
+    )
+    (compact_dir / "src" / "index.html.j2").write_text(
+        "<p>Hello world.</p>\n",
+        encoding="utf-8",
+    )
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(
+        source_dir=compact_dir,
+        output_dir=expanded_dir,
+        apply_local_patches=False,
+    )
+
+    expanded_template_json = (expanded_dir / "template.json").read_text(encoding="utf-8")
+    expanded_style = (expanded_dir / "src" / "style.css").read_text(encoding="utf-8")
+    expanded_globals = (expanded_dir / "src" / "globals.j2").read_text(encoding="utf-8")
+    manifest = (expanded_dir / ".transform" / "manifest.json").read_text(encoding="utf-8")
+
+    assert '"kmId": "root-zh-hant"' not in expanded_template_json
+    assert '{%- set projects = "專案" -%}' not in expanded_globals
+    assert "DSW Document Template Tool CJK font fallback:start" not in expanded_style
+    assert "content: '資料管理方案';" not in expanded_style
+    assert not (expanded_dir / "src" / "fonts" / "NotoSansTC-Variable.ttf").exists()
+    assert '"post_expand_patches": []' in manifest
+
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+
 def test_expand_rewrites_inline_fallback_literals_reversibly(tmp_path: Path) -> None:
     """Inline ternaries with fallback text should become branch-safe Jinja."""
 

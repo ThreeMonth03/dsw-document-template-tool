@@ -83,7 +83,12 @@ from ._template_transform.workspace import (
 MANIFEST_VERSION = 2
 
 
-def expand_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
+def expand_template_dir(
+    *,
+    source_dir: Path,
+    output_dir: Path,
+    apply_local_patches: bool = True,
+) -> Path:
     """Expand one compact DSW template directory into a translation workspace."""
 
     source_dir = Path(source_dir).resolve()
@@ -97,6 +102,7 @@ def expand_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
         relative_path = source_path.relative_to(source_dir)
         expanded_text = _expand_template_text(
             source_text=source_path.read_text(encoding="utf-8"),
+            apply_local_patches=apply_local_patches,
         )
         destination_path = output_dir / relative_path
         destination_path.parent.mkdir(parents=True, exist_ok=True)
@@ -104,11 +110,14 @@ def expand_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
         transformed_files.append(relative_path.as_posix())
 
     _rewrite_workspace_readme(source_dir=source_dir, output_dir=output_dir)
-    post_expand_patch_state = _build_post_expand_patch_state(output_dir=output_dir)
-    try:
-        post_expand_patches = _apply_post_expand_patches(output_dir=output_dir)
-    except LocalizationPatchError as exc:
-        raise TemplateTransformError(str(exc)) from exc
+    post_expand_patch_state: dict[str, object] = {}
+    post_expand_patches: list[str] = []
+    if apply_local_patches:
+        post_expand_patch_state = _build_post_expand_patch_state(output_dir=output_dir)
+        try:
+            post_expand_patches = _apply_post_expand_patches(output_dir=output_dir)
+        except LocalizationPatchError as exc:
+            raise TemplateTransformError(str(exc)) from exc
 
     manifest = {
         "version": MANIFEST_VERSION,
@@ -184,12 +193,15 @@ def compact_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
     return output_dir
 
 
-def _expand_template_text(*, source_text: str) -> str:
+def _expand_template_text(*, source_text: str, apply_local_patches: bool = True) -> str:
     source_text = _rewrite_append_sentence_literals(source_text)
     source_text = rewrite_science_europe_balanced_source_fragments(source_text)
     source_text = _rewrite_inline_conditional_expressions(source_text)
     source_text = _rewrite_common_prefix_branch_sentences(source_text)
-    source_text = rewrite_science_europe_unbalanced_html_fragments(source_text)
+    source_text = rewrite_science_europe_unbalanced_html_fragments(
+        source_text,
+        apply_localization_rewrites=apply_local_patches,
+    )
     tokens = _lex_source_tokens(source_text)
     regions = _collect_annotation_regions(tokens=tokens, source_text=source_text)
 

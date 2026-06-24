@@ -15,7 +15,11 @@ from .rewrite_rules import (
 )
 
 
-def rewrite_science_europe_unbalanced_html_fragments(source_text: str) -> str:
+def rewrite_science_europe_unbalanced_html_fragments(
+    source_text: str,
+    *,
+    apply_localization_rewrites: bool = True,
+) -> str:
     """Patch upstream Science Europe sentence fragments that generic HTML cannot see.
 
     A few upstream fragments live inside large, unbalanced list-item wrappers, so
@@ -26,11 +30,16 @@ def rewrite_science_europe_unbalanced_html_fragments(source_text: str) -> str:
 
     return apply_reversible_replacement_groups(
         source_text,
-        _build_unbalanced_html_fragment_groups(),
+        _build_unbalanced_html_fragment_groups(
+            apply_localization_rewrites=apply_localization_rewrites,
+        ),
     )
 
 
-def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup, ...]:
+def _build_unbalanced_html_fragment_groups(
+    *,
+    apply_localization_rewrites: bool = True,
+) -> tuple[ReversibleReplacementGroup, ...]:
     """Build exact upstream fragment rewrites for unbalanced Science Europe markup."""
 
     nref_where_url_if = (
@@ -325,17 +334,12 @@ def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup
       <p>{{ fragments | join('。') }}。</p>
 """
 
-    replacements = (
+    structural_replacements = (
         (personal_data_legal_basis_original, personal_data_legal_basis_replacement),
         (copyright_open_reasons_original, copyright_open_reasons_replacement),
         (measured_reuse_other_field_original, measured_reuse_other_field_replacement),
         (additional_expertise_train_original, additional_expertise_train_replacement),
         (reference_data_version_original, reference_data_version_replacement),
-        (information_risk_labels_original, information_risk_labels_replacement),
-        (information_risk_join_original, information_risk_join_replacement),
-        (information_low_risk_join_original, information_low_risk_join_replacement),
-        (information_will_risk_join_original, information_will_risk_join_replacement),
-        (information_risk_sentence_join_original, information_risk_sentence_join_replacement),
         (
             f"""
          {{{{" "}}}} available via:{{{{" "}}}}
@@ -419,6 +423,18 @@ def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup
             {{%- endif -%}}
 """,
         ),
+    )
+    localization_replacements = (
+        (information_risk_labels_original, information_risk_labels_replacement),
+        (information_risk_join_original, information_risk_join_replacement),
+        (information_low_risk_join_original, information_low_risk_join_replacement),
+        (information_will_risk_join_original, information_will_risk_join_replacement),
+        (information_risk_sentence_join_original, information_risk_sentence_join_replacement),
+    )
+    replacements = (
+        structural_replacements + localization_replacements
+        if apply_localization_rewrites
+        else structural_replacements
     )
 
     return (

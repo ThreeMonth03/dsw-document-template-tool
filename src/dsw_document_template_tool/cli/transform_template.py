@@ -25,6 +25,15 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     expand_parser.add_argument("--source", required=True, help="Compact template directory.")
     expand_parser.add_argument("--output", required=True, help="Expanded workspace directory.")
+    expand_parser.add_argument(
+        "--no-local-patches",
+        action="store_true",
+        help=(
+            "Skip local zh-Hant patches such as package metadata, CJK fonts, and localized "
+            "source-level helper rewrites. "
+            "Use this for compact-vs-expanded render regression only."
+        ),
+    )
 
     compact_parser = subparsers.add_parser(
         "compact",
@@ -42,7 +51,11 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.command == "expand":
-        output_dir = expand_template_dir(source_dir=args.source, output_dir=args.output)
+        output_dir = expand_template_dir(
+            source_dir=args.source,
+            output_dir=args.output,
+            apply_local_patches=not args.no_local_patches,
+        )
         print(f"SUCCESS: Expanded template written to {output_dir}")
         return
 

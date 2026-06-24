@@ -61,7 +61,7 @@ def test_fixture_assets_exist(repo_root: Path) -> None:
 def test_shipped_preview_config_targets_generated_upstream_workspace(
     repo_root: Path, monkeypatch
 ) -> None:
-    """The preview config should point at generated upstream artifacts."""
+    """The preview config should point at generated behavior-regression artifacts."""
 
     monkeypatch.setenv("DSW_API_URL", "http://localhost:3000/wizard-api")
     monkeypatch.setenv("DSW_API_KEY", "secret-token")
@@ -75,7 +75,9 @@ def test_shipped_preview_config_targets_generated_upstream_workspace(
     )
     assert (
         Path(config.candidate.value)
-        == (expected_root / "v1.30.0" / "expanded" / "dsw-science-europe-1.30.0").resolve()
+        == (
+            expected_root / "v1.30.0" / "expanded-regression" / "dsw-science-europe-1.30.0"
+        ).resolve()
     )
     assert Path(config.fixtures[0].project.knowledge_model_package_id).is_file()
     assert config.regression.output_dir == (repo_root / "outputs" / "preview").resolve()
@@ -123,7 +125,9 @@ def test_shipped_ci_config_uses_ephemeral_local_dsw(repo_root: Path, monkeypatch
     )
     assert (
         Path(config.candidate.value)
-        == (expected_root / "v1.30.0" / "expanded" / "dsw-science-europe-1.30.0").resolve()
+        == (
+            expected_root / "v1.30.0" / "expanded-regression" / "dsw-science-europe-1.30.0"
+        ).resolve()
     )
     assert Path(config.fixtures[0].project.knowledge_model_package_id).is_file()
     assert config.regression.cleanup_projects is True
