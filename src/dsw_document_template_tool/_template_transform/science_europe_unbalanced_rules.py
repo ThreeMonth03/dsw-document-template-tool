@@ -318,6 +318,12 @@ def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup
     information_will_risk_join_replacement = """
       {%- set risks = will|join('、') -%}
 """
+    information_risk_sentence_join_original = """
+      <p>{{ fragments | join('. ') }}.</p>
+"""
+    information_risk_sentence_join_replacement = """
+      <p>{{ fragments | join('。') }}。</p>
+"""
 
     replacements = (
         (personal_data_legal_basis_original, personal_data_legal_basis_replacement),
@@ -329,6 +335,7 @@ def _build_unbalanced_html_fragment_groups() -> tuple[ReversibleReplacementGroup
         (information_risk_join_original, information_risk_join_replacement),
         (information_low_risk_join_original, information_low_risk_join_replacement),
         (information_will_risk_join_original, information_will_risk_join_replacement),
+        (information_risk_sentence_join_original, information_risk_sentence_join_replacement),
         (
             f"""
          {{{{" "}}}} available via:{{{{" "}}}}

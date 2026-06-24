@@ -88,7 +88,7 @@ def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
         "unbalanced_science_europe_html_fragments"
     ]
     assert len(balanced_groups[0].replacements) == 26
-    assert len(unbalanced_groups[0].replacements) == 13
+    assert len(unbalanced_groups[0].replacements) == 14
 
     for group in (*balanced_groups, *unbalanced_groups):
         originals = [original for original, _replacement in group.replacements]
