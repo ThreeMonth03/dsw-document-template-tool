@@ -896,7 +896,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.8c962e6f-17ee-4b22-8ebb-9f06f779e3b3.6d18bfff-0f53-469b-934e-9806dda9d4fb.948b5fd8-c1bd-457d-8f81-ea2fd093f541.ccdb5296-919c-44ac-89df-351fd2e564ae.b73b8310-3b4f-49c8-a5c0-4208883754ac",
     "value": {
       "type": "StringReply",
-      "value": "以 depositar 資料集頁面、資源描述、版本紀錄與文件修訂紀錄追蹤來源與處理歷程。"
+      "value": "以 depositar 資料集頁面、資源描述、版本紀錄與文件修訂紀錄追蹤資料溯源。"
     }
   },
   {
@@ -1487,7 +1487,7 @@
     "path": "10a10ffd-bfe1-4c6b-bbb6-3dfb1e63a5d5.614ab69d-55a6-4214-b384-00ba21ce92a1.b2f76c0a-847a-403c-9ed6-09cad10e625e.d5990471-0618-42cd-92cb-bbbfd4f61532.75b86c10-4aeb-4f1a-89cd-8b380a2287b1.59748a7b-f729-404d-babe-3147e2c6b247.c5bdfb9d-33a7-4d0b-82cf-cde1911ad5bc.eb876df3-5fb5-4885-9ab6-7dbfa6ba7427",
     "value": {
       "type": "StringReply",
-      "value": "本範例僅使用公開資料；若來源檔案包含可識別個人資訊，發布前會移除或匿名化。"
+      "value": "本範例僅使用公開資料；若來源檔案包含可識別個人資料，發布前會移除或匿名化。"
     }
   },
   {
@@ -1622,7 +1622,7 @@
     "path": "b1df3c74-0b1f-4574-81c4-4cc2d780c1af.cb7d17a8-30c0-489d-a43c-702b27d97611.0fd3cd1c-e0e8-41d5-9beb-3f1faba0fb91.06655161-9a91-47f4-af3b-9d2a5e6db19b",
     "value": {
       "type": "StringReply",
-      "value": "公開資料依各資料集標示的授權條款再使用，主要採 CC BY 4.0；原作者保留其作品權利。"
+      "value": "公開資料依各資料集標示的授權條款再次使用，主要採 CC BY 4.0；原作者保留其作品權利。"
     }
   },
   {
