@@ -429,10 +429,6 @@ def _build_unbalanced_html_fragment_groups(
         (additional_expertise_train_original, additional_expertise_train_replacement),
         (reference_data_version_original, reference_data_version_replacement),
         (
-            persistent_identifier_assignment_original,
-            persistent_identifier_assignment_replacement,
-        ),
-        (
             f"""
          {{{{" "}}}} available via:{{{{" "}}}}
             {nref_used_where_url_if}
@@ -517,6 +513,10 @@ def _build_unbalanced_html_fragment_groups(
         ),
     )
     localization_replacements = (
+        (
+            persistent_identifier_assignment_original,
+            persistent_identifier_assignment_replacement,
+        ),
         (information_risk_labels_original, information_risk_labels_replacement),
         (information_risk_join_original, information_risk_join_replacement),
         (information_low_risk_join_original, information_low_risk_join_replacement),

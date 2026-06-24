@@ -116,3 +116,14 @@ def test_science_europe_pid_negative_sentence_is_conditional() -> None:
         "                        <p>Within this repository, unique and persistent "
         "identifiers will not be applied.</p>"
     ) not in rewritten
+
+
+def test_science_europe_pid_negative_rewrite_is_local_patch() -> None:
+    """Compact-vs-expanded regression should not include local behavior patches."""
+
+    group = _build_unbalanced_html_fragment_groups(apply_localization_rewrites=False)[0]
+
+    assert not any(
+        "unique and persistent identifiers will not be applied" in original
+        for original, _replacement in group.replacements
+    )
