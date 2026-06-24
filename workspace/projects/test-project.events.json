@@ -191,7 +191,7 @@
     "path": "1e85da40-bbfc-4180-903e-6c569ed2da38.c3dabaaf-c946-4a0d-889c-ede966f97667.1aa9d9f4-f47a-4c91-b7c5-7b72a56fc9c2.353eeaca-45fa-4958-a33c-ec6de3075701.974a2bcb-29f1-4aad-9ebc-dd038bc537bb.b3d9b6ca-bd24-4fa3-a3bd-d15005b9ae8b",
     "value": {
       "type": "StringReply",
-      "value": "整理 DMP 範例、補充後設資料、檢查授權資訊並維護 depositar 資料集頁面所需的人力。"
+      "value": "整理 DMP 範例、補充後設資料、檢查授權資訊並維護 depositar 資料集頁面所需的人力"
     }
   },
   {
@@ -202,7 +202,7 @@
       "type": "IntegrationReply",
       "value": {
         "type": "PlainType",
-        "value": "New Taiwan Dollar, TWD"
+        "value": "新臺幣（TWD）"
       }
     }
   },
@@ -3084,7 +3084,7 @@
     "path": "d5b27482-b598-4b8c-b534-417d4ad27394.4e0c1edf-660c-4ebf-81f5-9fa959dead30.555f0620-d68c-512c-a9da-ccb7f712de39.205a886d-83d7-4359-ae63-7103e05357c3",
     "value": {
       "type": "StringReply",
-      "value": "包含公開簡報、課程連結與工作坊相關資料，可作為 RDM 教學與自學資源。"
+      "value": "包含公開簡報、課程連結與工作坊相關資料，可作為 RDM 教學與自學資源"
     }
   },
   {
