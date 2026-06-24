@@ -9,6 +9,12 @@ from dsw_document_template_tool._template_transform.rewrite_rules import (
     apply_reversible_replacement_groups,
     apply_reversible_replacements,
 )
+from dsw_document_template_tool._template_transform.science_europe_balanced_rules import (
+    _build_balanced_source_fragment_groups,
+)
+from dsw_document_template_tool._template_transform.science_europe_unbalanced_rules import (
+    _build_unbalanced_html_fragment_groups,
+)
 
 
 def test_reversible_replacement_wraps_original_source_for_compaction() -> None:
@@ -40,3 +46,23 @@ def test_reversible_replacement_groups_apply_in_order() -> None:
     assert "second" not in rewritten_text
     assert "beta" in rewritten_text
     assert "delta" in rewritten_text
+
+
+def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
+    """Science Europe exact rewrites should stay grouped and non-duplicated."""
+
+    balanced_groups = _build_balanced_source_fragment_groups()
+    unbalanced_groups = _build_unbalanced_html_fragment_groups()
+
+    assert [group.name for group in balanced_groups] == ["balanced_science_europe_sentence_blocks"]
+    assert [group.name for group in unbalanced_groups] == [
+        "unbalanced_science_europe_html_fragments"
+    ]
+    assert len(balanced_groups[0].replacements) == 26
+    assert len(unbalanced_groups[0].replacements) == 7
+
+    for group in (*balanced_groups, *unbalanced_groups):
+        originals = [original for original, _replacement in group.replacements]
+        assert all(original for original in originals)
+        assert all(replacement for _original, replacement in group.replacements)
+        assert len(originals) == len(set(originals))
