@@ -54,6 +54,15 @@ class MigrationConfig:
 
 
 @dataclass(frozen=True)
+class PublishConfig:
+    """Generated-template publishing policy."""
+
+    enabled: bool
+    target_repository: str
+    branch_prefix: str
+
+
+@dataclass(frozen=True)
 class ToolingConfig:
     """Tooling repository reference used by downstream workflows."""
 
@@ -69,6 +78,7 @@ class TranslationRepositoryConfig:
     translation: TranslationConfig
     branches: BranchConfig
     migration: MigrationConfig
+    publish: PublishConfig
     tooling: ToolingConfig
 
 
@@ -243,17 +253,36 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         ),
         auto_merge_when_clean=bool(migration_payload.get("auto_merge_when_clean", False)),
     )
+    publish_payload = payload.get("publish", {})
+    if publish_payload is None:
+        publish_payload = {}
+    if not isinstance(publish_payload, dict):
+        raise TranslationMigrationError("translation-config.yml publish must be a mapping")
+    publish = PublishConfig(
+        enabled=bool(publish_payload.get("enabled", False)),
+        target_repository=str(publish_payload.get("target_repository", "")),
+        branch_prefix=str(publish_payload.get("branch_prefix", "sync/")),
+    )
 
     if not template.supported_versions:
         raise TranslationMigrationError("template.supported_versions must not be empty")
     if migration.mode != "exact-only":
         raise TranslationMigrationError("Only exact-only migration is currently supported")
+    if publish.enabled and not publish.target_repository:
+        raise TranslationMigrationError(
+            "publish.target_repository is required when publish.enabled is true"
+        )
+    if publish.enabled and not publish.branch_prefix:
+        raise TranslationMigrationError(
+            "publish.branch_prefix is required when publish.enabled is true"
+        )
 
     return TranslationRepositoryConfig(
         template=template,
         translation=translation,
         branches=branches,
         migration=migration,
+        publish=publish,
         tooling=tooling,
     )
 
@@ -273,6 +302,15 @@ def migration_branch(config: TranslationRepositoryConfig, source: str, target: s
     if source == target:
         raise TranslationMigrationError("source and target versions must differ")
     return f"{config.migration.auto_pr_branch_prefix}-{source}-to-{target}"
+
+
+def publish_branch(config: TranslationRepositoryConfig, version: str) -> str:
+    """Return the target repository branch for a generated translated template."""
+
+    validate_supported_version(config, version)
+    if not config.publish.enabled:
+        raise TranslationMigrationError("Publishing is disabled for this translation repo")
+    return f"{config.publish.branch_prefix}{version}"
 
 
 def target_versions(

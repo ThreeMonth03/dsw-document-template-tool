@@ -3,6 +3,7 @@ name: DSW Document Template Translation Sync
 on:
   pull_request:
     branches: ["master"]
+  workflow_dispatch:
   schedule:
     # 04:00 Asia/Taipei every day.
     - cron: "0 20 * * *"
@@ -42,11 +43,15 @@ env:
   DSW_TDK_VERSION: "4.30.2"
   UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"
   UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"
+  PUBLISH_TARGET_REPOSITORY: ""
+  PUBLISH_TARGET_BRANCH: ""
+  PUBLISH_TARGET_BASE_BRANCH: main
 
 jobs:
   translation-sync:
     if: >-
-      (github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
 
@@ -348,6 +353,78 @@ jobs:
             template-repo/outputs/project-render/
             tooling-repo/outputs/ci-dsw/
           if-no-files-found: warn
+
+      - name: Check publish target token
+        if: >-
+          github.event_name == 'push' &&
+          env.PUBLISH_TARGET_REPOSITORY != '' &&
+          env.PUBLISH_TARGET_BRANCH != ''
+        env:
+          PUBLISH_TOKEN: ${{ secrets.DOCUMENT_TEMPLATE_PUBLISH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$PUBLISH_TOKEN" ]; then
+            echo "::error title=Missing publish token::Set DOCUMENT_TEMPLATE_PUBLISH_TOKEN with write access to $PUBLISH_TARGET_REPOSITORY."
+            exit 1
+          fi
+
+      - name: Checkout publish target repository
+        if: >-
+          github.event_name == 'push' &&
+          env.PUBLISH_TARGET_REPOSITORY != '' &&
+          env.PUBLISH_TARGET_BRANCH != ''
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.PUBLISH_TARGET_REPOSITORY }}
+          ref: ${{ env.PUBLISH_TARGET_BASE_BRANCH }}
+          path: publish-repo
+          fetch-depth: 0
+          token: ${{ secrets.DOCUMENT_TEMPLATE_PUBLISH_TOKEN }}
+
+      - name: Publish translated template source branch
+        if: >-
+          github.event_name == 'push' &&
+          env.PUBLISH_TARGET_REPOSITORY != '' &&
+          env.PUBLISH_TARGET_BRANCH != ''
+        working-directory: publish-repo
+        run: |
+          set -euo pipefail
+          HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
+          source_dir="$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR"
+
+          if [ ! -f "$source_dir/template.json" ]; then
+            echo "::error title=Translated template missing::Expected $source_dir/template.json"
+            exit 1
+          fi
+
+          git fetch origin "$PUBLISH_TARGET_BRANCH" || true
+          if git rev-parse --verify --quiet "origin/$PUBLISH_TARGET_BRANCH" >/dev/null; then
+            git checkout -B "$PUBLISH_TARGET_BRANCH" "origin/$PUBLISH_TARGET_BRANCH"
+          else
+            git checkout -B "$PUBLISH_TARGET_BRANCH"
+          fi
+
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$source_dir/." .
+
+          if [ -z "$(git status --short)" ]; then
+            echo "No publish changes for $PUBLISH_TARGET_REPOSITORY:$PUBLISH_TARGET_BRANCH."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: publish Science Europe zh-Hant v$TRANSLATED_TEMPLATE_VERSION"
+          git push origin "HEAD:$PUBLISH_TARGET_BRANCH"
+
+          {
+            echo "## Published translated template"
+            echo
+            echo "- Repository: \`$PUBLISH_TARGET_REPOSITORY\`"
+            echo "- Branch: \`$PUBLISH_TARGET_BRANCH\`"
+            echo "- Template version: \`v$TRANSLATED_TEMPLATE_VERSION\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Mark auto-repaired head as validated
         if: ${{ steps.auto_commit.outputs.repaired_sha != '' }}

@@ -13,6 +13,7 @@ from dsw_document_template_tool.translation_migration import (
     load_preview_runtimes,
     load_translation_repository_config,
     migration_branch,
+    publish_branch,
     preview_runtime_for_template,
     preview_runtime_for_version,
     preview_runtime_matrix,
@@ -60,6 +61,11 @@ migration:
   auto_pr_enabled: true
   auto_pr_branch_prefix: automation/migrate
   auto_merge_when_clean: false
+
+publish:
+  enabled: true
+  target_repository: depositar/science-europe-template-zh_Hant
+  branch_prefix: sync/
 """.lstrip(),
         encoding="utf-8",
     )
@@ -78,6 +84,7 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     assert migration_branch(config, "v1.30.0", "v1.30.1") == (
         "automation/migrate-v1.30.0-to-v1.30.1"
     )
+    assert publish_branch(config, "v1.30.1") == "sync/v1.30.1"
     assert paths.version_number == "1.30.1"
     assert paths.workspace_template_name == "dsw-science-europe-1.30.1"
     assert paths.compact_template_dir.as_posix() == (

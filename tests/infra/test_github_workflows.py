@@ -109,8 +109,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     workflow_text = workflow_path.read_text(encoding="utf-8")
 
     assert workflow["on"]["pull_request"]["branches"] == ["master"]
+    assert "workflow_dispatch" in workflow["on"]
     assert workflow["on"]["schedule"][0]["cron"] == "0 20 * * *"
-    assert "workflow_dispatch" not in workflow["on"]
     assert workflow["permissions"]["contents"] == "write"
     assert workflow["permissions"]["statuses"] == "write"
     assert workflow["permissions"]["actions"] == "write"
@@ -144,6 +144,14 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["DSW_TDK_VERSION"] == "4.30.2"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
+    assert workflow["env"]["PUBLISH_TARGET_REPOSITORY"] == ""
+    assert workflow["env"]["PUBLISH_TARGET_BRANCH"] == ""
+    assert workflow["env"]["PUBLISH_TARGET_BASE_BRANCH"] == "main"
+    assert "DOCUMENT_TEMPLATE_PUBLISH_TOKEN" in workflow_text
+    assert "Checkout publish target repository" in workflow_text
+    assert "Publish translated template source branch" in workflow_text
+    assert 'git push origin "HEAD:$PUBLISH_TARGET_BRANCH"' in workflow_text
+    assert "Published translated template" in workflow_text
     assert "dsw-tdk==$DSW_TDK_VERSION" in workflow_text
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
