@@ -113,6 +113,8 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         "開放（與任何人共享）{{ suffix }}\n"
         "{%- elif use_repo %}\n"
         "並使用通用型資料儲存庫。\n"
+        "資料集 （將發布）\n"
+        "<strong>資料集</strong> （將發布）\n"
         "自 2023-12-21 起： 可自由使用。\n"
         "並維護 depositar 資料集頁面所需的人力。.\n"
         "ORCID： 0000-0002-1825-0097\n"
@@ -133,6 +135,8 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         "開放（與任何人共享）並使用通用型資料儲存庫。"
         "開放（與任何人共享）{%- endif %}{% if use_repo %}並使用通用型資料儲存庫。"
         "開放（與任何人共享）{{ suffix }}{%- elif use_repo %}並使用通用型資料儲存庫。"
+        "資料集（將發布）\n"
+        "<strong>資料集</strong>（將發布）"
         "自 2023-12-21 起：可自由使用。"
         "並維護 depositar 資料集頁面所需的人力。\n"
         "ORCID： 0000-0002-1825-0097\n"
@@ -156,6 +160,18 @@ def test_polish_zh_hant_template_text_replaces_dot_filters_inside_chinese_senten
     assert "{%- set __tr_dot_value = projectCostItemDescriptionReply|trim -%}" in result
     assert '{{ "。" if __tr_dot_value[-1] not in ".。!！?？" else "" }}' in result
     assert "|dot" not in result
+
+
+def test_polish_zh_hant_template_text_collapses_silent_jinja_before_parenthesis() -> None:
+    """Silent Jinja between an inline tag and zh-Hant parenthesis must not emit spaces."""
+
+    source = (
+        "<strong>資料集</strong>\n{# status #}\n{% if published %}（將發布）\n{# end #}{% endif %}"
+    )
+
+    assert polish_zh_hant_template_text(source) == (
+        "<strong>資料集</strong>{# status #}{% if published %}（將發布）\n{# end #}{% endif %}"
+    )
 
 
 def _write_compact_template_file(

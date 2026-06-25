@@ -9,7 +9,7 @@ _CJK = "\u3400-\u9fff"
 _CJK_OR_JINJA_END_CLASS = _CJK + "）】》』」}"
 _FULLWIDTH_PUNCTUATION_BEFORE_CJK = "。：；，、）】》』」"
 _FULLWIDTH_BOUNDARY_BEFORE_SILENT_JINJA_CJK = "。：；）】》』」"
-_VISIBLE_BOUNDARY_BEFORE_SILENT_JINJA_CJK = _CJK_OR_JINJA_END_CLASS + "。：；"
+_VISIBLE_BOUNDARY_BEFORE_SILENT_JINJA_CJK = _CJK_OR_JINJA_END_CLASS + "。：；>"
 _FAIRSHARING_MACRO_LINE_PATTERN = re.compile(
     r"(?m)^([ \t]*):\s*(\{\{\s*macros\.integrationFairSharing\([^}\n]+\)\s*\}\})\."
 )
@@ -18,6 +18,7 @@ _JOIN_COMMA_PATTERN = re.compile(r'\|\s*join\(", "\)')
 _METADATA_SENTENCES_JOIN_SPACE_PATTERN = re.compile(r'metadataSentences\|\s*join\(" "\)')
 _INLINE_COLON_PREFIX_PATTERN = re.compile(r'\{\{\s*": "\s*~')
 _INLINE_PERIOD_FALLBACK_PATTERN = re.compile(r'\s+else\s+"\."\s*\}\}')
+_INLINE_TAG_BEFORE_FULLWIDTH_PAREN_PATTERN = re.compile(r"(</(?:em|span|strong)>)\s+（")
 _DOT_FILTER_PLACEHOLDERS_WITH_TRANSLATED_PUNCTUATION = (
     "swPIDReply",
     "publishedDataHowLongFixed",
@@ -98,7 +99,7 @@ def _collapse_fullwidth_spacing_before_cjk(text: str) -> str:
 
 
 def _collapse_silent_jinja_leading_spacing_before_cjk(text: str) -> str:
-    """Remove indentation emitted after silent Jinja branches before Chinese text."""
+    """Remove indentation emitted after silent Jinja branches before zh-Hant text."""
 
     result: list[str] = []
     index = 0
@@ -121,7 +122,11 @@ def _collapse_silent_jinja_leading_spacing_before_cjk(text: str) -> str:
                     next_tag_text, lookahead = next_silent_tag
                     silent_tags.append(next_tag_text)
 
-                if lookahead > tag_end and lookahead < len(text) and _is_cjk(text[lookahead]):
+                if (
+                    lookahead > tag_end
+                    and lookahead < len(text)
+                    and (_is_cjk(text[lookahead]) or text[lookahead] == "（")
+                ):
                     while result and result[-1].isspace():
                         result.pop()
                     result.extend(silent_tags)
@@ -181,6 +186,8 @@ def polish_zh_hant_template_text(text: str) -> str:
     )
     text = re.sub(r"(\{%-\s*else\s*-%})\.", r"\1。", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\s*:\s*", "：", text)
+    text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\s+（", "（", text)
+    text = _INLINE_TAG_BEFORE_FULLWIDTH_PAREN_PATTERN.sub(r"\1（", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\.", "。", text)
     text = text.replace("。.", "。")
     text = _collapse_silent_jinja_leading_spacing_before_cjk(text)
