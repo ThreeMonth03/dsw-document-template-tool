@@ -8,13 +8,123 @@ from pathlib import Path
 _CJK = "\u3400-\u9fff"
 _CJK_OR_JINJA_END_CLASS = _CJK + "）】》』」}"
 _FULLWIDTH_PUNCTUATION_BEFORE_CJK = "。：；，、）】》』」"
+_FULLWIDTH_BOUNDARY_BEFORE_SILENT_JINJA_CJK = "。：；）】》』」"
+_VISIBLE_BOUNDARY_BEFORE_SILENT_JINJA_CJK = _CJK_OR_JINJA_END_CLASS + "。：；"
 _FAIRSHARING_MACRO_LINE_PATTERN = re.compile(
     r"(?m)^([ \t]*):\s*(\{\{\s*macros\.integrationFairSharing\([^}\n]+\)\s*\}\})\."
 )
 _LOOP_COMMA_PERIOD_PATTERN = re.compile(r'\{\{\s*", "\s+if\s+not\s+loop\.last\s+else\s+"\."\s*\}\}')
 _JOIN_COMMA_PATTERN = re.compile(r'\|\s*join\(", "\)')
+_METADATA_SENTENCES_JOIN_SPACE_PATTERN = re.compile(r'metadataSentences\|\s*join\(" "\)')
 _INLINE_COLON_PREFIX_PATTERN = re.compile(r'\{\{\s*": "\s*~')
 _INLINE_PERIOD_FALLBACK_PATTERN = re.compile(r'\s+else\s+"\."\s*\}\}')
+
+
+def _is_cjk(char: str) -> bool:
+    return "\u3400" <= char <= "\u9fff"
+
+
+def _read_silent_jinja_tag(text: str, start: int) -> tuple[str, int] | None:
+    """Read a non-outputting Jinja tag at `start`, if one is present."""
+
+    if text.startswith("{%", start):
+        end_marker = "%}"
+    elif text.startswith("{#", start):
+        end_marker = "#}"
+    else:
+        return None
+
+    end = text.find(end_marker, start + 2)
+    if end == -1:
+        return None
+    end += len(end_marker)
+    return text[start:end], end
+
+
+def _collapse_fullwidth_spacing_before_cjk(text: str) -> str:
+    """Remove visible whitespace between Chinese punctuation and Chinese text.
+
+    Jinja control/comment tags do not emit visible text, but the surrounding
+    template newlines do. Keep those tags while stripping only the whitespace
+    that would become an unwanted half-width gap in rendered zh-Hant output.
+    """
+
+    result: list[str] = []
+    index = 0
+    while index < len(text):
+        char = text[index]
+        result.append(char)
+        index += 1
+
+        if char not in _FULLWIDTH_PUNCTUATION_BEFORE_CJK:
+            continue
+
+        lookahead = index
+        silent_tags: list[str] = []
+        allow_silent_tags = char in _FULLWIDTH_BOUNDARY_BEFORE_SILENT_JINJA_CJK
+        while True:
+            while lookahead < len(text) and text[lookahead] in " \t\r\n":
+                lookahead += 1
+
+            if not allow_silent_tags:
+                break
+
+            silent_tag = _read_silent_jinja_tag(text, lookahead)
+            if silent_tag is None:
+                break
+
+            tag_text, lookahead = silent_tag
+            silent_tags.append(tag_text)
+
+        if lookahead > index and lookahead < len(text) and _is_cjk(text[lookahead]):
+            result.extend(silent_tags)
+            index = lookahead
+
+    return "".join(result)
+
+
+def _collapse_silent_jinja_leading_spacing_before_cjk(text: str) -> str:
+    """Remove indentation emitted after silent Jinja branches before Chinese text."""
+
+    result: list[str] = []
+    index = 0
+    last_visible_char = ""
+    while index < len(text):
+        silent_tag = _read_silent_jinja_tag(text, index)
+        if silent_tag is not None:
+            tag_text, tag_end = silent_tag
+            if last_visible_char in _VISIBLE_BOUNDARY_BEFORE_SILENT_JINJA_CJK:
+                lookahead = tag_end
+                silent_tags = [tag_text]
+                while True:
+                    while lookahead < len(text) and text[lookahead] in " \t\r\n":
+                        lookahead += 1
+
+                    next_silent_tag = _read_silent_jinja_tag(text, lookahead)
+                    if next_silent_tag is None:
+                        break
+
+                    next_tag_text, lookahead = next_silent_tag
+                    silent_tags.append(next_tag_text)
+
+                if lookahead > tag_end and lookahead < len(text) and _is_cjk(text[lookahead]):
+                    while result and result[-1].isspace():
+                        result.pop()
+                    result.extend(silent_tags)
+                    index = lookahead
+                    continue
+
+            result.append(tag_text)
+            index = tag_end
+            continue
+
+        char = text[index]
+        result.append(char)
+        if not char.isspace():
+            last_visible_char = char
+        index += 1
+
+    return "".join(result)
 
 
 def polish_translated_output_dir(*, output_dir: Path, target_lang: str) -> None:
@@ -41,6 +151,7 @@ def polish_zh_hant_template_text(text: str) -> str:
     text = _FAIRSHARING_MACRO_LINE_PATTERN.sub(r"\1：\2。", text)
     text = _LOOP_COMMA_PERIOD_PATTERN.sub('{{ "、" if not loop.last else "。" }}', text)
     text = _JOIN_COMMA_PATTERN.sub('|join("、")', text)
+    text = _METADATA_SENTENCES_JOIN_SPACE_PATTERN.sub('metadataSentences|join("")', text)
     text = _INLINE_COLON_PREFIX_PATTERN.sub('{{ "：" ~', text)
     text = _INLINE_PERIOD_FALLBACK_PATTERN.sub(' else "。" }}', text)
     text = text.replace(
@@ -50,7 +161,8 @@ def polish_zh_hant_template_text(text: str) -> str:
     text = re.sub(r"(\{%-\s*else\s*-%})\.", r"\1。", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\s*:\s*", "：", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\.", "。", text)
-    text = re.sub(rf"(?<=[{_FULLWIDTH_PUNCTUATION_BEFORE_CJK}])[ \t]+(?=[{_CJK}])", "", text)
+    text = _collapse_silent_jinja_leading_spacing_before_cjk(text)
+    text = _collapse_fullwidth_spacing_before_cjk(text)
     text = re.sub(rf"(?<=[{_CJK}])、\s+", "、", text)
     text = re.sub(rf"(?<=[{_CJK}]),\s+(?=[{_CJK}])", "、", text)
     return text
