@@ -148,6 +148,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["PUBLISH_TARGET_BRANCH"] == ""
     assert workflow["env"]["PUBLISH_TARGET_BASE_BRANCH"] == "main"
     assert "DOCUMENT_TEMPLATE_PUBLISH_TOKEN" in workflow_text
+    assert "id: publish_token" in workflow_text
+    assert "Publish skipped" in workflow_text
+    assert "steps.publish_token.outputs.available == 'true'" in workflow_text
     assert "Checkout publish target repository" in workflow_text
     assert "Publish translated template source branch" in workflow_text
     assert 'git push origin "HEAD:$PUBLISH_TARGET_BRANCH"' in workflow_text

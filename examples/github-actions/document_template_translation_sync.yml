@@ -355,6 +355,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Check publish target token
+        id: publish_token
         if: >-
           github.event_name == 'push' &&
           env.PUBLISH_TARGET_REPOSITORY != '' &&
@@ -364,15 +365,24 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$PUBLISH_TOKEN" ]; then
-            echo "::error title=Missing publish token::Set DOCUMENT_TEMPLATE_PUBLISH_TOKEN with write access to $PUBLISH_TARGET_REPOSITORY."
-            exit 1
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Publish skipped::Set DOCUMENT_TEMPLATE_PUBLISH_TOKEN with write access to $PUBLISH_TARGET_REPOSITORY."
+            {
+              echo "## Publish skipped"
+              echo
+              echo "Set \`DOCUMENT_TEMPLATE_PUBLISH_TOKEN\` with write access to"
+              echo "\`$PUBLISH_TARGET_REPOSITORY\` to publish \`$PUBLISH_TARGET_BRANCH\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
+          echo "available=true" >> "$GITHUB_OUTPUT"
 
       - name: Checkout publish target repository
         if: >-
           github.event_name == 'push' &&
           env.PUBLISH_TARGET_REPOSITORY != '' &&
-          env.PUBLISH_TARGET_BRANCH != ''
+          env.PUBLISH_TARGET_BRANCH != '' &&
+          steps.publish_token.outputs.available == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ env.PUBLISH_TARGET_REPOSITORY }}
@@ -385,7 +395,8 @@ jobs:
         if: >-
           github.event_name == 'push' &&
           env.PUBLISH_TARGET_REPOSITORY != '' &&
-          env.PUBLISH_TARGET_BRANCH != ''
+          env.PUBLISH_TARGET_BRANCH != '' &&
+          steps.publish_token.outputs.available == 'true'
         working-directory: publish-repo
         run: |
           set -euo pipefail
