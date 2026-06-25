@@ -172,6 +172,12 @@ body {
     assert "data:font/ttf;base64" in expanded_style
     assert "content: '資料管理方案';" in expanded_style
     assert '"DSW Noto Sans TC", {% endif %}"Open Sans", sans-serif' in expanded_style
+    assert "/* zh-Hant PDF typography:start */" in expanded_style
+    assert "html body {" in expanded_style
+    assert "font-size: 10.5pt;" in expanded_style
+    assert "html body li {" in expanded_style
+    assert "padding-left: 1.45em;" in expanded_style
+    assert "text-underline-offset: 0.08em;" in expanded_style
     assert (expanded_dir / "src" / "fonts" / "NotoSansTC-Variable.ttf").is_file()
 
     compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
@@ -243,6 +249,7 @@ body {
     assert '"kmId": "root-zh-hant"' not in expanded_template_json
     assert '{%- set projects = "專案" -%}' not in expanded_globals
     assert "DSW Document Template Tool CJK font fallback:start" not in expanded_style
+    assert "/* zh-Hant PDF typography:start */" not in expanded_style
     assert "content: '資料管理方案';" not in expanded_style
     assert not (expanded_dir / "src" / "fonts" / "NotoSansTC-Variable.ttf").exists()
     assert '"post_expand_patches": []' in manifest

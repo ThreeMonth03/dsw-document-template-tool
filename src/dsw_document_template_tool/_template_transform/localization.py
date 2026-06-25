@@ -50,12 +50,97 @@ CJK_FONT_CSS = f"""{{% set dsw_document_format_uuid = ctx.document.formatUuid|de
 @font-face {{
   font-family: "DSW Noto Sans TC";
   src: url("data:font/ttf;base64,{{{{ dsw_noto_sans_tc_font.data_base64 }}}}") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  unicode-range: U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+3100-312F,
+    U+31C0-31EF, U+3200-32FF, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF;
+}}
+
+@font-face {{
+  font-family: "DSW Noto Sans TC";
+  src: url("data:font/ttf;base64,{{{{ dsw_noto_sans_tc_font.data_base64 }}}}") format("truetype");
   font-weight: 700;
   font-style: normal;
   unicode-range: U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+3100-312F,
     U+31C0-31EF, U+3200-32FF, U+3400-4DBF, U+4E00-9FFF,
     U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF;
 }}
+
+/* zh-Hant PDF typography:start */
+html body {{
+  font-size: 10.5pt;
+  line-height: 1.45;
+  font-weight: 400;
+}}
+
+html body p {{
+  line-height: 1.45;
+  margin-bottom: 0.45em;
+}}
+
+html body h1 {{
+  font-size: 22pt;
+  line-height: 1.25;
+  font-weight: 600;
+}}
+
+html body h2 {{
+  font-size: 17pt;
+  line-height: 1.3;
+  font-weight: 600;
+}}
+
+html body h3 {{
+  font-size: 14pt;
+  line-height: 1.35;
+  font-weight: 600;
+}}
+
+html body h4,
+html body h5,
+html body h6 {{
+  line-height: 1.4;
+  font-weight: 600;
+}}
+
+html body strong,
+html body b,
+html body dt,
+html body .contact-name,
+html body .contributor .name,
+html body dl .contact-name {{
+  font-weight: 600;
+}}
+
+html body ul {{
+  margin-top: 0.35em;
+  margin-bottom: 0.65em;
+  padding-left: 1.45em;
+}}
+
+html body li {{
+  line-height: 1.42;
+  margin-bottom: 0.28em;
+}}
+
+html body li > ul {{
+  margin-top: 0.25em;
+  margin-bottom: 0.35em;
+  padding-left: 1.45em;
+}}
+
+html body li li {{
+  margin-bottom: 0.18em;
+}}
+
+html body a {{
+  color: #005a9c;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-underline-offset: 0.08em;
+}}
+/* zh-Hant PDF typography:end */
 {CJK_FONT_CSS_END}
 {{% endif -%}}
 {{% endif -%}}
