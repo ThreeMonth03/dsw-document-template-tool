@@ -18,6 +18,20 @@ _JOIN_COMMA_PATTERN = re.compile(r'\|\s*join\(", "\)')
 _METADATA_SENTENCES_JOIN_SPACE_PATTERN = re.compile(r'metadataSentences\|\s*join\(" "\)')
 _INLINE_COLON_PREFIX_PATTERN = re.compile(r'\{\{\s*": "\s*~')
 _INLINE_PERIOD_FALLBACK_PATTERN = re.compile(r'\s+else\s+"\."\s*\}\}')
+_DOT_FILTER_PLACEHOLDERS_WITH_TRANSLATED_PUNCTUATION = (
+    "swPIDReply",
+    "publishedDataHowLongFixed",
+    "publishedDataIdentifierSpecifyReply",
+    "embargoPeriod",
+)
+_COST_DESCRIPTION_DOT_PATTERN = re.compile(
+    r'\{\{\s*" - "\s*\+\s*projectCostItemDescriptionReply\|dot\s*\}\}'
+)
+_COST_DESCRIPTION_DOT_REPLACEMENT = (
+    "{%- set __tr_dot_value = projectCostItemDescriptionReply|trim -%}"
+    '{%- if __tr_dot_value -%}{{ " - " + __tr_dot_value }}'
+    '{{ "。" if __tr_dot_value[-1] not in ".。!！?？" else "" }}{%- endif -%}'
+)
 
 
 def _is_cjk(char: str) -> bool:
@@ -148,6 +162,13 @@ def polish_translated_output_dir(*, output_dir: Path, target_lang: str) -> None:
 def polish_zh_hant_template_text(text: str) -> str:
     """Normalize punctuation patterns that are outside translation units."""
 
+    for placeholder in _DOT_FILTER_PLACEHOLDERS_WITH_TRANSLATED_PUNCTUATION:
+        text = re.sub(
+            r"\{\{\s*" + re.escape(placeholder) + r"\|dot\s*\}\}",
+            "{{ " + placeholder + "|trim }}",
+            text,
+        )
+    text = _COST_DESCRIPTION_DOT_PATTERN.sub(_COST_DESCRIPTION_DOT_REPLACEMENT, text)
     text = _FAIRSHARING_MACRO_LINE_PATTERN.sub(r"\1：\2。", text)
     text = _LOOP_COMMA_PERIOD_PATTERN.sub('{{ "、" if not loop.last else "。" }}', text)
     text = _JOIN_COMMA_PATTERN.sub('|join("、")', text)
@@ -161,6 +182,7 @@ def polish_zh_hant_template_text(text: str) -> str:
     text = re.sub(r"(\{%-\s*else\s*-%})\.", r"\1。", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\s*:\s*", "：", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\.", "。", text)
+    text = text.replace("。.", "。")
     text = _collapse_silent_jinja_leading_spacing_before_cjk(text)
     text = _collapse_fullwidth_spacing_before_cjk(text)
     text = re.sub(rf"(?<=[{_CJK}])、\s+", "、", text)

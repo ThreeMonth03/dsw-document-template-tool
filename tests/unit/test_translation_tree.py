@@ -114,6 +114,7 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         "{%- elif use_repo %}\n"
         "並使用通用型資料儲存庫。\n"
         "自 2023-12-21 起： 可自由使用。\n"
+        "並維護 depositar 資料集頁面所需的人力。.\n"
         "ORCID： 0000-0002-1825-0097\n"
         "此資源分配用於確保資料可被找到, 確保資料可被取用與支援資料管理。"
     )
@@ -132,10 +133,29 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         "開放（與任何人共享）並使用通用型資料儲存庫。"
         "開放（與任何人共享）{%- endif %}{% if use_repo %}並使用通用型資料儲存庫。"
         "開放（與任何人共享）{{ suffix }}{%- elif use_repo %}並使用通用型資料儲存庫。"
-        "自 2023-12-21 起：可自由使用。\n"
+        "自 2023-12-21 起：可自由使用。"
+        "並維護 depositar 資料集頁面所需的人力。\n"
         "ORCID： 0000-0002-1825-0097\n"
         "此資源分配用於確保資料可被找到、確保資料可被取用與支援資料管理。"
     )
+
+
+def test_polish_zh_hant_template_text_replaces_dot_filters_inside_chinese_sentences() -> None:
+    """The English `dot` filter can double-punctuate translated zh-Hant clauses."""
+
+    source = (
+        "<p>資料將可透過 {{ swPIDReply|dot }} 取得。</p>\n"
+        "<p>延後開放期限為 {{ embargoPeriod|dot }}</p>\n"
+        '<p>{{" - "+projectCostItemDescriptionReply|dot}}</p>\n'
+    )
+
+    result = polish_zh_hant_template_text(source)
+
+    assert "{{ swPIDReply|trim }}" in result
+    assert "{{ embargoPeriod|trim }}" in result
+    assert "{%- set __tr_dot_value = projectCostItemDescriptionReply|trim -%}" in result
+    assert '{{ "。" if __tr_dot_value[-1] not in ".。!！?？" else "" }}' in result
+    assert "|dot" not in result
 
 
 def _write_compact_template_file(
@@ -2124,6 +2144,38 @@ def test_audit_translated_template_structure_allows_text_and_literal_translation
         .replace('"questionnaires"', '"問卷"')
         .replace("Available via ", "可透過 ")
         .replace('{{ "(no name given)" }}', "（未提供名稱）"),
+        encoding="utf-8",
+    )
+
+    assert (
+        audit_translated_template_structure(
+            source_dir=expanded_dir,
+            output_dir=translated_dir,
+        )
+        == []
+    )
+
+
+def test_audit_translated_template_structure_allows_registered_output_polish(
+    tmp_path: Path,
+) -> None:
+    """Final zh-Hant punctuation polish should not fail structural audit."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Software PID: {{ swPIDReply|dot }}</p>
+<p>{{" - "+projectCostItemDescriptionReply|dot}}</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    translated_dir = tmp_path / "translated"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    shutil.copytree(expanded_dir, translated_dir)
+
+    translated_file = translated_dir / "src" / "index.html.j2"
+    translated_file.write_text(
+        polish_zh_hant_template_text(translated_file.read_text(encoding="utf-8")),
         encoding="utf-8",
     )
 

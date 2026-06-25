@@ -18,6 +18,7 @@ from .._template_transform.scanner import (
     JINJA_STRING_LITERAL_PATTERN,
 )
 from .models import TranslationTreeAuditIssue, TranslationTreeError
+from .output_polish import polish_zh_hant_template_text
 from .placeholders import literal_expr_to_text
 from .syntax import HTML_TAG_PATTERN, JINJA_COMMENT_OR_BLOCK_PATTERN, JINJA_EXPR_PATTERN
 from .workspace import validate_expanded_workspace
@@ -166,8 +167,12 @@ def _audit_translated_jinja_file_structure(
     output_path: Path,
     relative_path: str,
 ) -> list[TranslationTreeAuditIssue]:
-    source_text = source_path.read_text(encoding="utf-8")
-    output_text = output_path.read_text(encoding="utf-8")
+    source_text = _normalize_known_output_polish_for_structure_audit(
+        source_path.read_text(encoding="utf-8")
+    )
+    output_text = _normalize_known_output_polish_for_structure_audit(
+        output_path.read_text(encoding="utf-8")
+    )
     issues: list[TranslationTreeAuditIssue] = []
 
     source_control = _jinja_control_signature(source_text)
@@ -238,6 +243,17 @@ def _audit_translated_jinja_file_structure(
         )
 
     return issues
+
+
+def _normalize_known_output_polish_for_structure_audit(text: str) -> str:
+    """Apply registered safe output-polish rewrites before comparing structure.
+
+    The translated output may normalize punctuation around Jinja expressions after
+    syncing. Audit both sides through the same narrow normalization so these
+    registered language-boundary rewrites do not look like structural damage.
+    """
+
+    return polish_zh_hant_template_text(text)
 
 
 def _sequence_mismatch_issue(
