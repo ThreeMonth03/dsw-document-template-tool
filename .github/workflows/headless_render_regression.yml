@@ -188,13 +188,15 @@ jobs:
               --archive-dir "$workspace_dir=$workspace_asset" \
               --optional-archive-dir "$preview_dir=$preview_asset"
 
-            if gh release view "$release_tag" >/dev/null 2>&1; then
+            if gh release view "$release_tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
               gh release edit "$release_tag" \
+                --repo "$GITHUB_REPOSITORY" \
                 --title "$release_title" \
                 --notes-file "$release_dir/release-notes.md" \
                 --prerelease
             else
               gh release create "$release_tag" \
+                --repo "$GITHUB_REPOSITORY" \
                 --title "$release_title" \
                 --notes-file "$release_dir/release-notes.md" \
                 --prerelease \
@@ -202,7 +204,7 @@ jobs:
                 --target "$GITHUB_SHA"
             fi
 
-            gh release upload "$release_tag" "$release_dir"/* --clobber
+            gh release upload "$release_tag" "$release_dir"/* --repo "$GITHUB_REPOSITORY" --clobber
           done
 
       - name: Stop local DSW stack

@@ -74,7 +74,11 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "scripts/ci/stage_release_assets.py" in workflow_text
     assert "clean-scaffold-dsw-science-europe-$version_tag" in workflow_text
     assert "These are clean scaffolds for downstream translation maintenance" in workflow_text
-    assert 'gh release upload "$release_tag" "$release_dir"/* --clobber' in workflow_text
+    assert 'gh release view "$release_tag" --repo "$GITHUB_REPOSITORY"' in workflow_text
+    assert (
+        'gh release upload "$release_tag" "$release_dir"/* --repo "$GITHUB_REPOSITORY"'
+        in workflow_text
+    )
     assert "active-fallback-document-template" not in workflow_text
     assert "upstream-compat-smoke" not in workflow["jobs"]
     assert "Compatibility refs are advisory" not in workflow_text
@@ -290,7 +294,11 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "Stage translated template release assets" in workflow_text
     assert "Publish translated template release assets" in workflow_text
     assert "science-europe-zh-hant-v$TRANSLATED_TEMPLATE_VERSION" in workflow_text
-    assert 'gh release upload "$release_tag" "$release_dir"/* --clobber' in workflow_text
+    assert 'gh release view "$release_tag" --repo "$GITHUB_REPOSITORY"' in workflow_text
+    assert (
+        'gh release upload "$release_tag" "$release_dir"/* --repo "$GITHUB_REPOSITORY"'
+        in workflow_text
+    )
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "template-repo/outputs/project-render/" in workflow_text
     assert "if-no-files-found: warn" in workflow_text
