@@ -17,6 +17,13 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from resolve_upstream_refs import resolve_refs  # noqa: E402
 
+from dsw_document_template_tool.dsw_compat import (  # noqa: E402
+    OFFICIAL_TEMPLATE_METAMODEL_SPEC_URL,
+    DswCompatSourceError,
+    DswTemplateMetamodelSupport,
+    fetch_official_template_metamodel_support,
+    runtime_candidate_message,
+)
 from dsw_document_template_tool.translation_migration import (  # noqa: E402
     DswPreviewRuntime,
     TranslationMigrationError,
@@ -61,6 +68,19 @@ def main() -> None:
         type=Path,
         help="Optional GitHub step summary file to append a Markdown report to.",
     )
+    parser.add_argument(
+        "--metamodel-source-url",
+        default=OFFICIAL_TEMPLATE_METAMODEL_SPEC_URL,
+        help=(
+            "Official DSW document-template metamodel source used to suggest "
+            "candidate runtimes for unsupported metamodels."
+        ),
+    )
+    parser.add_argument(
+        "--no-runtime-suggestions",
+        action="store_true",
+        help="Do not fetch official metamodel mapping suggestions.",
+    )
     parser.add_argument("refs", nargs="+", help="Refs to scan, e.g. latest main v1.29.1+")
     args = parser.parse_args()
 
@@ -71,7 +91,24 @@ def main() -> None:
         results = [
             inspect_ref(args.cache, requested_ref=ref, runtimes=runtimes) for ref in resolved_refs
         ]
-        report = render_markdown_report(results, compat_path=args.compat)
+        failures = [result for result in results if result.error is not None]
+        support_by_metamodel: dict[str, DswTemplateMetamodelSupport] | None = None
+        support_error: str | None = None
+        if failures and not args.no_runtime_suggestions:
+            try:
+                support_by_metamodel = fetch_official_template_metamodel_support(
+                    args.metamodel_source_url,
+                )
+            except DswCompatSourceError as exc:
+                support_error = str(exc)
+
+        report = render_markdown_report(
+            results,
+            compat_path=args.compat,
+            metamodel_source_url=args.metamodel_source_url,
+            support_by_metamodel=support_by_metamodel,
+            support_error=support_error,
+        )
         print(report)
         if args.summary is not None:
             args.summary.parent.mkdir(parents=True, exist_ok=True)
@@ -79,7 +116,6 @@ def main() -> None:
                 summary_file.write(report)
                 summary_file.write("\n")
 
-        failures = [result for result in results if result.error is not None]
         if failures:
             raise SystemExit(1)
     except (OSError, subprocess.CalledProcessError, TranslationMigrationError, ValueError) as exc:
@@ -198,7 +234,14 @@ def resolve_checkout_ref(repo_dir: Path, requested_ref: str) -> str:
     raise ValueError(f"Could not resolve upstream ref {requested_ref!r}")
 
 
-def render_markdown_report(results: list[TemplateRefMetadata], *, compat_path: Path) -> str:
+def render_markdown_report(
+    results: list[TemplateRefMetadata],
+    *,
+    compat_path: Path,
+    metamodel_source_url: str = OFFICIAL_TEMPLATE_METAMODEL_SPEC_URL,
+    support_by_metamodel: dict[str, DswTemplateMetamodelSupport] | None = None,
+    support_error: str | None = None,
+) -> str:
     """Render a concise Markdown compatibility report."""
 
     lines = [
@@ -236,12 +279,19 @@ def render_markdown_report(results: list[TemplateRefMetadata], *, compat_path: P
                 "`config/dsw-compat.yml`. Add a runtime only after smoke-testing a "
                 "matching DSW server and dsw-tdk version.",
                 "",
+                f"Official metamodel source: {metamodel_source_url}",
+                "",
             ]
         )
+        if support_error:
+            lines.extend([f"Runtime suggestion source unavailable: {support_error}", ""])
         for result in unsupported:
             lines.append(
                 f"- `{result.version}` (`{result.requested_ref}`) uses "
                 f"`metamodelVersion={result.metamodel_version}`: {result.error}"
+            )
+            lines.append(
+                f"  - {runtime_candidate_message(result.metamodel_version, support_by_metamodel)}"
             )
     return "\n".join(lines)
 

@@ -195,6 +195,11 @@ def test_discover_dsw_compat_fails_unknown_metamodel(
         ],
     )
     summary = tmp_path / "summary.md"
+    metamodel_source = tmp_path / "metamodel-source.html"
+    metamodel_source.write_text(
+        "<h3>Version 19.0 (since 4.35.0)</h3>\n<h3>Version 18.0 (since 4.29.0)</h3>\n",
+        encoding="utf-8",
+    )
     result = subprocess.run(
         [
             sys.executable,
@@ -205,6 +210,8 @@ def test_discover_dsw_compat_fails_unknown_metamodel(
             str(tmp_path / "cache-unsupported"),
             "--summary",
             str(summary),
+            "--metamodel-source-url",
+            metamodel_source.as_uri(),
             "v1.30.0+",
         ],
         capture_output=True,
@@ -215,6 +222,8 @@ def test_discover_dsw_compat_fails_unknown_metamodel(
     assert result.returncode == 1
     assert "Unsupported Metamodels" in result.stdout
     assert "metamodelVersion=19.0" in result.stdout
+    assert "DSW 4.35.0" in result.stdout
+    assert metamodel_source.as_uri() in result.stdout
     assert summary.is_file()
     assert "v1.31.0" in summary.read_text(encoding="utf-8")
 

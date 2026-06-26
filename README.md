@@ -114,8 +114,9 @@ Use these docs instead of reverse-engineering the Makefile:
 The tooling supports Science Europe template versions from `v1.29.1` upward.
 The DSW runtime matrix is declared in [config/dsw-compat.yml](config/dsw-compat.yml).
 When upstream releases a new tag, CI discovers whether an existing runtime can
-handle it. If a new `metamodelVersion` appears, add a runtime only after
-smoke-testing the matching DSW and TDK versions.
+handle it. If a new `metamodelVersion` appears, CI reads the official DSW
+document-template metamodel notes and suggests the minimum DSW version to test.
+Add a runtime only after smoke-testing the matching DSW and TDK versions.
 
 ## Design Principles
 

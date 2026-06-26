@@ -82,9 +82,21 @@ When upstream adds a tag:
 
 1. Let `discover-upstream-compat` inspect its `template.json`.
 2. If the metamodel is already covered, CI should build artifacts automatically.
-3. If the metamodel is new, smoke-test an appropriate DSW server and TDK version.
-4. Add a new runtime row to `config/dsw-compat.yml`.
-5. Re-run CI and confirm artifacts are produced.
+3. If the metamodel is new, the discovery report checks the official DSW
+   document-template metamodel notes and suggests the minimum DSW version to
+   smoke-test.
+4. Smoke-test an appropriate DSW server and TDK version. Prefer the suggested
+   minimum version or a later patch/minor release if the exact image or TDK
+   package is unavailable.
+5. Add the proven runtime row to `config/dsw-compat.yml`.
+6. Re-run CI and confirm artifacts are produced.
+
+The source lookup is intentionally advisory. It parses the official DSW
+document-template specification at
+`https://guide.ds-wizard.org/en/latest/more/development/document-templates/specification.html`.
+That page tells us when a metamodel became supported, but it does not prove that
+our current import, preview, TDK, and PDF render path works for a specific image
+combination.
 
 ## Standard Checks
 

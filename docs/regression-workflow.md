@@ -103,8 +103,9 @@ Current policy:
 - `v1.30.0+` uses the DSW 4.30 runtime.
 
 If a future upstream tag introduces a new `metamodelVersion`, CI should fail
-clearly during compatibility discovery. Add a new runtime only after verifying
-the matching DSW server and TDK versions.
+clearly during compatibility discovery. The failure summary includes an
+advisory runtime hint from the official DSW document-template metamodel notes.
+Add a new runtime only after verifying the matching DSW server and TDK versions.
 
 ## Outputs
 
