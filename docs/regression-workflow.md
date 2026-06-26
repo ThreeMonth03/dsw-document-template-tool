@@ -97,6 +97,10 @@ The runtime matrix comes from:
 
 - `config/dsw-compat.yml`
 
+The checked-in workflow contains a generated matrix block. After changing the
+compatibility table, run `make sync-dsw-runtime-matrix` instead of editing that
+block by hand.
+
 Current policy:
 
 - `v1.29.1` uses the DSW 4.26 runtime.

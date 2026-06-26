@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import stat
+import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -43,6 +45,8 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     render_job = workflow["jobs"]["render-regression"]
     matrix_include = render_job["strategy"]["matrix"]["include"]
     assert matrix_include == preview_runtime_matrix()
+    assert "# BEGIN GENERATED DSW RUNTIME MATRIX" in workflow_text
+    assert "# END GENERATED DSW RUNTIME MATRIX" in workflow_text
     assert "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" in workflow_text
     assert (
         render_job["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"]
@@ -72,6 +76,67 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "outputs/upstream-workspaces/" in workflow_text
     assert "outputs/document-templates/dsw-science-europe/**/scaffold/" in workflow_text
     assert "outputs/project-render/dsw-science-europe/**/scaffold/" in workflow_text
+
+
+def test_dsw_runtime_matrix_sync_helper_detects_and_repairs_drift(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """The workflow runtime matrix should be generated from config."""
+
+    source = repo_root / ".github" / "workflows" / "headless_render_regression.yml"
+    workflow_copy = tmp_path / "workflow.yml"
+    workflow_copy.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "sync_dsw_runtime_matrix.py"),
+            "--workflow",
+            str(workflow_copy),
+            "--check",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    workflow_copy.write_text(
+        workflow_copy.read_text(encoding="utf-8").replace(
+            'tdk_version: "4.30.2"',
+            'tdk_version: "4.30.999"',
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "sync_dsw_runtime_matrix.py"),
+            "--workflow",
+            str(workflow_copy),
+            "--check",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 1
+    assert "DSW runtime matrix is out of sync" in result.stderr
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "sync_dsw_runtime_matrix.py"),
+            "--workflow",
+            str(workflow_copy),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert workflow_copy.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
 
 
 def test_ephemeral_dsw_compose_stack_is_checked_in(repo_root: Path) -> None:

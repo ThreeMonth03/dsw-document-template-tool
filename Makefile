@@ -59,7 +59,7 @@ DSW_COMPAT_CONFIG ?= config/dsw-compat.yml
 UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION ?= 18.0
 UPSTREAM_TEMPLATE_PREVIEW_STRICT ?= true
 
-.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags discover-upstream-compat build-upstream-artifacts render-upstream-artifact-previews publish-translated-template start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
+.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit check-dsw-runtime-matrix sync-dsw-runtime-matrix verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags discover-upstream-compat build-upstream-artifacts render-upstream-artifact-previews publish-translated-template start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
 venv: $(VENV_PYTHON)
 
@@ -79,6 +79,8 @@ help:
 	'  test              Run all pytest suites' \
 	'  test-infra        Run infrastructure/CLI pytest suites' \
 	'  test-unit         Run unit/regression helper pytest suites' \
+	'  sync-dsw-runtime-matrix Refresh workflow matrix from config/dsw-compat.yml' \
+	'  check-dsw-runtime-matrix Check workflow matrix matches config/dsw-compat.yml' \
 	'  clean             Remove generated outputs and local test/lint caches' \
 	'  verify-template   Run dsw-tdk verify for TEMPLATE_DIR=/path/to/template' \
 	'  verify-workspace  Run dsw-tdk verify for generated compact and expanded workspaces' \
@@ -115,11 +117,13 @@ compile: venv
 	$(PYTHON) -m compileall -q $(PYTHON_LINT_PATHS)
 
 format: venv
+	$(PYTHON) scripts/ci/sync_dsw_runtime_matrix.py
 	$(PYTHON) -m ruff check --config config/ruff.toml --fix $(PYTHON_LINT_PATHS)
 	$(PYTHON) -m ruff format --config config/ruff.toml $(PYTHON_LINT_PATHS)
 
 format-check: venv
 	$(PYTHON) -m ruff format --check --config config/ruff.toml $(PYTHON_LINT_PATHS)
+	$(PYTHON) scripts/ci/sync_dsw_runtime_matrix.py --check
 
 lint: venv
 	$(PYTHON) -m ruff check --config config/ruff.toml $(PYTHON_LINT_PATHS)
@@ -131,6 +135,12 @@ test-infra: venv
 
 test-unit: venv
 	$(PYTHON) -m pytest tests/unit
+
+sync-dsw-runtime-matrix: venv
+	$(PYTHON) scripts/ci/sync_dsw_runtime_matrix.py
+
+check-dsw-runtime-matrix: venv
+	$(PYTHON) scripts/ci/sync_dsw_runtime_matrix.py --check
 
 verify-template: venv
 	@test -n "$(TEMPLATE_DIR)" || (echo "Set TEMPLATE_DIR=/path/to/template" && exit 2)

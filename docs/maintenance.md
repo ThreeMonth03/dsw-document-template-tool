@@ -89,7 +89,9 @@ When upstream adds a tag:
    minimum version or a later patch/minor release if the exact image or TDK
    package is unavailable.
 5. Add the proven runtime row to `config/dsw-compat.yml`.
-6. Re-run CI and confirm artifacts are produced.
+6. Run `make sync-dsw-runtime-matrix` so the GitHub Actions matrix is refreshed
+   from `config/dsw-compat.yml`.
+7. Re-run CI and confirm artifacts are produced.
 
 The source lookup is intentionally advisory. It parses the official DSW
 document-template specification at
@@ -103,6 +105,7 @@ combination.
 Before pushing infra changes:
 
 ```shell
+make sync-dsw-runtime-matrix
 make format-check
 make lint
 make test
