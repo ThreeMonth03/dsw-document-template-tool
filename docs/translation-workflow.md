@@ -124,3 +124,19 @@ The helper reads `translation-config.yml`, checks out the matching
 `translation/v*` branch in a temporary worktree, copies the generated translated
 template source into the configured downstream repository, commits it, and
 pushes to a `sync/v*` branch.
+
+## Release Assets
+
+Translation CI can publish generated packages as GitHub Release assets before
+anything is copied to the public downstream repository. The release assets are
+for review and manual DSW import:
+
+- `dsw-science-europe-zh-hant-vX.Y.Z.zip`
+- `test-project-vX.Y.Z.pdf`
+- `test-project-vX.Y.Z.pdf.json`
+- `SHA256SUMS`
+
+The release tag is version-specific, for example
+`science-europe-zh-hant-v1.30.1`, and the assets are overwritten by later CI
+runs for the same version. The formal public source still lives in the
+downstream repository after a maintainer manually publishes or imports it.

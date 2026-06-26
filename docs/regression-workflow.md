@@ -125,3 +125,11 @@ Important output families:
   preview status files.
 - `outputs/preview/...`: raw and normalized HTML, diffs, fixture events, and
   regression reports.
+
+On non-PR runs, CI also stages the clean scaffold package, clean upstream
+workspace bundle, preview bundle, release notes, and `SHA256SUMS` under
+`outputs/release-assets/...`, then uploads them to a prerelease GitHub Release
+named like `clean-scaffold-dsw-science-europe-v1.30.1`.
+
+Those releases are convenience download buckets for downstream translation
+maintenance. They are not finished public translations.

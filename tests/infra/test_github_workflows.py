@@ -28,6 +28,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert workflow["on"]["push"]["branches"] == ["**"]
     assert workflow["on"]["pull_request"]["branches"] == ["**"]
     assert workflow["on"]["schedule"][0]["cron"] == "30 18 * * *"
+    assert workflow["permissions"]["contents"] == "write"
     assert "make install-dev" in workflow_text
     assert "v1.29.1+" in workflow_text
     assert "v1.30.0+" in workflow_text
@@ -69,6 +70,11 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "secrets.DSW_API_KEY" not in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
     assert workflow_text.count("include-hidden-files: true") == 2
+    assert "Publish clean scaffold release assets" in workflow_text
+    assert "scripts/ci/stage_release_assets.py" in workflow_text
+    assert "clean-scaffold-dsw-science-europe-$version_tag" in workflow_text
+    assert "These are clean scaffolds for downstream translation maintenance" in workflow_text
+    assert 'gh release upload "$release_tag" "$release_dir"/* --clobber' in workflow_text
     assert "active-fallback-document-template" not in workflow_text
     assert "upstream-compat-smoke" not in workflow["jobs"]
     assert "Compatibility refs are advisory" not in workflow_text
@@ -179,6 +185,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["permissions"]["contents"] == "write"
     assert workflow["permissions"]["statuses"] == "write"
     assert workflow["permissions"]["actions"] == "write"
+    assert "releases: write" not in workflow_text
     assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "github.event.pull_request.head.repo.full_name == github.repository" in workflow_text
     assert "github.actor != 'github-actions[bot]' &&" not in workflow_text
@@ -280,6 +287,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "Upload translated template package" in workflow_text
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "Upload sample project preview" in workflow_text
+    assert "Stage translated template release assets" in workflow_text
+    assert "Publish translated template release assets" in workflow_text
+    assert "science-europe-zh-hant-v$TRANSLATED_TEMPLATE_VERSION" in workflow_text
+    assert 'gh release upload "$release_tag" "$release_dir"/* --clobber' in workflow_text
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "template-repo/outputs/project-render/" in workflow_text
     assert "if-no-files-found: warn" in workflow_text

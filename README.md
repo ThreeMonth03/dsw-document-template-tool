@@ -90,6 +90,9 @@ make build-upstream-artifacts
 make render-upstream-artifact-previews
 ```
 
+On non-PR CI runs, clean scaffold artifacts are also published as prerelease
+GitHub Release assets for downstream translation maintenance.
+
 Manual public publishing after review:
 
 ```shell

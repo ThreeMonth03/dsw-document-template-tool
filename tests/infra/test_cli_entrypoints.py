@@ -374,6 +374,26 @@ def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Pat
     }
 
 
+def test_stage_release_assets_help(repo_root: Path) -> None:
+    """The release asset staging helper should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "stage_release_assets.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "GitHub Release assets" in result.stdout
+    assert "--asset" in result.stdout
+    assert "--archive-dir" in result.stdout
+
+
 def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
     """The clean scaffold artifact range should include all supported tags."""
 
