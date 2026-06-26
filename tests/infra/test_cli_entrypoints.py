@@ -261,6 +261,67 @@ def test_sync_translation_version_branches_help(repo_root: Path) -> None:
     assert "--github-output" in result.stdout
 
 
+def test_validate_translation_config_help(repo_root: Path) -> None:
+    """The translation config validator should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "validate_translation_config.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "translation configuration" in result.stdout
+    assert "--config" in result.stdout
+    assert "--summary" in result.stdout
+
+
+def test_download_clean_scaffold_artifacts_help(repo_root: Path) -> None:
+    """The clean scaffold downloader should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "download_clean_scaffold_artifacts.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "clean scaffold artifacts" in result.stdout
+    assert "--repo" in result.stdout
+    assert "--workflow" in result.stdout
+    assert "--artifact" in result.stdout
+
+
+def test_resolve_migration_source_help(repo_root: Path) -> None:
+    """The migration source resolver should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "resolve_migration_source.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "source version" in result.stdout
+    assert "--event-name" in result.stdout
+    assert "--github-output" in result.stdout
+
+
 def test_write_preview_status_records_ci_metadata(repo_root: Path, tmp_path: Path) -> None:
     """The scaffold-preview status helper should create machine-readable artifacts."""
 
