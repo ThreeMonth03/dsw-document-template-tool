@@ -304,15 +304,6 @@ def migration_branch(config: TranslationRepositoryConfig, source: str, target: s
     return f"{config.migration.auto_pr_branch_prefix}-{source}-to-{target}"
 
 
-def publish_branch(config: TranslationRepositoryConfig, version: str) -> str:
-    """Return the target repository branch for a generated translated template."""
-
-    validate_supported_version(config, version)
-    if not config.publish.enabled:
-        raise TranslationMigrationError("Publishing is disabled for this translation repo")
-    return f"{config.publish.branch_prefix}{version}"
-
-
 def target_versions(
     config: TranslationRepositoryConfig,
     source_version: str,

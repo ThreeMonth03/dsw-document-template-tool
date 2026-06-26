@@ -71,6 +71,22 @@ blocks and fall back to English source text. They are for migration, testing, an
 downstream translation repositories to consume; they are not completed
 translations.
 
+Publishing reviewed translated template source to a public downstream repository
+is a separate manual step. Once a translation branch has produced a reviewed
+artifact, use the helper below from this tooling repository:
+
+```shell
+make publish-translated-template \
+  TRANSLATION_REPO=/path/to/DSW-document-template-translation \
+  PUBLISH_VERSION=v1.30.1
+```
+
+The helper reads the translation repository's `translation-config.yml`, checks
+out the matching `translation/v*` branch in a temporary worktree, copies the
+generated translated template source to the configured target repository branch
+such as `sync/v1.30.1`, commits it, and pushes that branch. This keeps public
+publishing explicit while still avoiding hand-copied template directories.
+
 The `expand` and `export translation tree` steps in that example are guards for
 repositories that commit generated translation inputs. If your repository only
 wants to build output from already-committed translations, the minimal path is:

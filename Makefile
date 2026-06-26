@@ -40,6 +40,9 @@ PROJECT_UUID ?= $(DSW_PROJECT_UUID)
 PROJECT_RENDER_TEMPLATE_DIR ?= $(TRANSLATED_EXPANDED_TEMPLATE_DIR)
 PROJECT_RENDER_FORMAT_UUID ?= 68c26e34-5e77-4e15-9bf7-06ff92582257
 PROJECT_RENDER_OUTPUT ?= outputs/project-render/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/test-project.pdf
+TRANSLATION_REPO ?= ../DSW-document-template-translation-master-control
+PUBLISH_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
+PUBLISH_BASE_BRANCH ?= main
 UPSTREAM_TEMPLATE_REPOSITORY ?= https://github.com/ds-wizard/science-europe-template.git
 UPSTREAM_TEMPLATE_REMOTE ?= $(if $(filter http% git@% ssh://% git://% file://%,$(UPSTREAM_TEMPLATE_REPOSITORY)),$(UPSTREAM_TEMPLATE_REPOSITORY),https://github.com/$(UPSTREAM_TEMPLATE_REPOSITORY).git)
 UPSTREAM_TEMPLATE_REF ?= latest
@@ -56,7 +59,7 @@ DSW_COMPAT_CONFIG ?= config/dsw-compat.yml
 UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION ?= 18.0
 UPSTREAM_TEMPLATE_PREVIEW_STRICT ?= true
 
-.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags discover-upstream-compat build-upstream-artifacts render-upstream-artifact-previews start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
+.PHONY: help venv install-dev install-hooks compile format format-check lint test test-infra test-unit verify-template verify-workspace package-template transform compact-template export-translation-tree export-fresh-translation-tree merge-translation-tree audit-translation-tree sync-translation-tree audit-translated-template list-upstream-template-tags fetch-upstream-template test-upstream-tags discover-upstream-compat build-upstream-artifacts render-upstream-artifact-previews publish-translated-template start-ci-dsw stop-ci-dsw ci-dsw-logs render-project render-regression render-regression-ci clean
 
 venv: $(VENV_PYTHON)
 
@@ -94,6 +97,7 @@ help:
 	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
+	'  publish-translated-template Manually publish a translated version branch to its target repository' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
@@ -391,6 +395,13 @@ render-upstream-artifact-previews: venv
 			fi; \
 		fi; \
 	done
+
+publish-translated-template: venv
+	$(PYTHON) scripts/ci/publish_translated_template.py \
+		--translation-repo "$(TRANSLATION_REPO)" \
+		--version "$(PUBLISH_VERSION)" \
+		--base-branch "$(PUBLISH_BASE_BRANCH)" \
+		--push
 
 start-ci-dsw:
 	scripts/ci/start_dsw.sh

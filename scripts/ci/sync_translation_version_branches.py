@@ -24,7 +24,6 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     clean_artifact_versions,
     load_translation_repository_config,
     preview_runtime_for_version,
-    publish_branch,
     sorted_versions,
     version_branch,
     version_paths,
@@ -506,8 +505,6 @@ def write_version_branch_workflow(
 
     paths = version_paths(config, version)
     runtime = preview_runtime_for_version(version)
-    target_publish_repository = config.publish.target_repository if config.publish.enabled else ""
-    target_publish_branch = publish_branch(config, version) if config.publish.enabled else ""
     source = tooling_root / "examples" / "github-actions" / "document_template_translation_sync.yml"
     target = checkout / ".github" / "workflows" / "document_template_translation_sync.yml"
     workflow = source.read_text(encoding="utf-8")
@@ -540,10 +537,6 @@ def write_version_branch_workflow(
         'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"': (
             f'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "{str(runtime.strict_project_preview).lower()}"'
         ),
-        'PUBLISH_TARGET_REPOSITORY: ""': (
-            f"PUBLISH_TARGET_REPOSITORY: {target_publish_repository}"
-        ),
-        'PUBLISH_TARGET_BRANCH: ""': f"PUBLISH_TARGET_BRANCH: {target_publish_branch}",
         (
             "TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/"
             "v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0"

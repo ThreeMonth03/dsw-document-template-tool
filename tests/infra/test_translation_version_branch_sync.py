@@ -135,9 +135,9 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert "TRANSLATED_TEMPLATE_VERSION: 1.30.2" in workflow_text
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "PUBLISH_TARGET_REPOSITORY: depositar/science-europe-template-zh_Hant" in workflow_text
-    assert "PUBLISH_TARGET_BRANCH: sync/v1.30.2" in workflow_text
-    assert "Publish translated template source branch" in workflow_text
+    assert "PUBLISH_TARGET_REPOSITORY" not in workflow_text
+    assert "PUBLISH_TARGET_BRANCH" not in workflow_text
+    assert "Publish translated template source branch" not in workflow_text
     assert (
         "PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/"
         "v1.30.2/zh-Hant/test-project.pdf"
@@ -293,9 +293,9 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert "github.event_name == 'push'" in workflow_text
     assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "PUBLISH_TARGET_REPOSITORY: depositar/science-europe-template-zh_Hant" in workflow_text
-    assert "PUBLISH_TARGET_BRANCH: sync/v1.30.1" in workflow_text
-    assert "Publish translated template source branch" in workflow_text
+    assert "PUBLISH_TARGET_REPOSITORY" not in workflow_text
+    assert "PUBLISH_TARGET_BRANCH" not in workflow_text
+    assert "Publish translated template source branch" not in workflow_text
     assert "Dispatch control-plane migration" in workflow_text
     assert "gh workflow run document_template_translation_sync.yml" in workflow_text
     assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
@@ -335,7 +335,7 @@ def test_version_branch_workflow_uses_version_specific_preview_runtime(
     assert 'DSW_TDK_VERSION: "4.26.1"' in workflow_text
     assert 'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "17.1"' in workflow_text
     assert 'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"' in workflow_text
-    assert "PUBLISH_TARGET_BRANCH: sync/v1.29.1" in workflow_text
+    assert "PUBLISH_TARGET_BRANCH" not in workflow_text
     assert (
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.29.1"
     ) in workflow_text
@@ -388,7 +388,7 @@ def test_version_branch_workflow_runtime_injection_covers_metamodel_groups(
             checkout / ".github/workflows/document_template_translation_sync.yml"
         ).read_text(encoding="utf-8")
         assert f'branches: ["{branch}"]' in workflow_text
-        assert f"PUBLISH_TARGET_BRANCH: sync/{version}" in workflow_text
+        assert "PUBLISH_TARGET_BRANCH" not in workflow_text
         for expected_line in expected_lines:
             assert expected_line in workflow_text
 

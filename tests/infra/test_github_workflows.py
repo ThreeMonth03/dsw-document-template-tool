@@ -144,17 +144,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["DSW_TDK_VERSION"] == "4.30.2"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
-    assert workflow["env"]["PUBLISH_TARGET_REPOSITORY"] == ""
-    assert workflow["env"]["PUBLISH_TARGET_BRANCH"] == ""
-    assert workflow["env"]["PUBLISH_TARGET_BASE_BRANCH"] == "main"
-    assert "DOCUMENT_TEMPLATE_PUBLISH_TOKEN" in workflow_text
-    assert "id: publish_token" in workflow_text
-    assert "Publish skipped" in workflow_text
-    assert "steps.publish_token.outputs.available == 'true'" in workflow_text
-    assert "Checkout publish target repository" in workflow_text
-    assert "Publish translated template source branch" in workflow_text
-    assert 'git push origin "HEAD:$PUBLISH_TARGET_BRANCH"' in workflow_text
-    assert "Published translated template" in workflow_text
+    assert "PUBLISH_TARGET_REPOSITORY" not in workflow["env"]
+    assert "PUBLISH_TARGET_BRANCH" not in workflow["env"]
+    assert "DOCUMENT_TEMPLATE_PUBLISH_TOKEN" not in workflow_text
+    assert "Publish translated template source branch" not in workflow_text
     assert "dsw-tdk==$DSW_TDK_VERSION" in workflow_text
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
