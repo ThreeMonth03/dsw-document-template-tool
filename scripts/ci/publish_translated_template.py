@@ -145,7 +145,7 @@ def source_from_translation_repo(
     version: str,
     temp_root: Path,
     config_name: str,
-) -> tuple[Path, str | None, str]:
+) -> tuple[Path, str | None, str, Path]:
     config = load_translation_repository_config(translation_repo / config_name)
     branch = version_branch(config, version)
     checkout = temp_root / "translation-source"
@@ -157,7 +157,7 @@ def source_from_translation_repo(
     source_dir = checkout / paths.translated_template_dir
     target_repo = config.publish.target_repository
     target_branch = f"{config.publish.branch_prefix}{version}"
-    return source_dir, target_repo, target_branch
+    return source_dir, target_repo, target_branch, checkout
 
 
 def validate_source_dir(source_dir: Path) -> None:
@@ -217,52 +217,70 @@ def main() -> int:
     args = parse_args()
     with tempfile.TemporaryDirectory(prefix="dsw-template-publish-") as temp_name:
         temp_root = Path(temp_name)
+        translation_worktree: Path | None = None
 
-        config_target_repo: str | None = None
-        config_target_branch: str | None = None
-        if args.translation_repo:
-            if not args.version:
-                raise SystemExit("--version is required with --translation-repo")
-            source_dir, config_target_repo, config_target_branch = source_from_translation_repo(
-                args.translation_repo.resolve(),
-                args.version,
-                temp_root,
-                args.translation_config,
-            )
-        else:
-            source_dir = args.source_dir.resolve()
+        try:
+            config_target_repo: str | None = None
+            config_target_branch: str | None = None
+            if args.translation_repo:
+                if not args.version:
+                    raise SystemExit("--version is required with --translation-repo")
+                (
+                    source_dir,
+                    config_target_repo,
+                    config_target_branch,
+                    translation_worktree,
+                ) = source_from_translation_repo(
+                    args.translation_repo.resolve(),
+                    args.version,
+                    temp_root,
+                    args.translation_config,
+                )
+            else:
+                source_dir = args.source_dir.resolve()
 
-        target_repo_arg = args.target_repo or config_target_repo
-        target_branch = args.target_branch or config_target_branch
-        if not target_repo_arg:
-            raise SystemExit("--target-repo is required when no publish target exists in config")
-        if not target_branch:
-            raise SystemExit(
-                "--target-branch is required when no version/config default is available"
-            )
+            target_repo_arg = args.target_repo or config_target_repo
+            target_branch = args.target_branch or config_target_branch
+            if not target_repo_arg:
+                raise SystemExit(
+                    "--target-repo is required when no publish target exists in config"
+                )
+            if not target_branch:
+                raise SystemExit(
+                    "--target-branch is required when no version/config default is available"
+                )
 
-        validate_source_dir(source_dir)
-        target_repo = clone_or_use_target_repo(target_repo_arg, temp_root)
-        checkout_branch(target_repo, target_branch, args.base_branch)
-        clear_repository_content(target_repo)
-        copy_template_source(source_dir, target_repo)
+            validate_source_dir(source_dir)
+            target_repo = clone_or_use_target_repo(target_repo_arg, temp_root)
+            checkout_branch(target_repo, target_branch, args.base_branch)
+            clear_repository_content(target_repo)
+            copy_template_source(source_dir, target_repo)
 
-        if not has_changes(target_repo):
-            print(f"{target_branch} is already up to date.")
+            if not has_changes(target_repo):
+                print(f"{target_branch} is already up to date.")
+                return 0
+
+            version_suffix = f" {args.version}" if args.version else ""
+            message = args.message or f"chore: publish translated template{version_suffix}"
+            commit_changes(target_repo, message)
+
+            if args.push:
+                if not git_remote_exists(target_repo, "origin"):
+                    raise SystemExit(
+                        "--push requires the target repository to have an origin remote"
+                    )
+                git(["push", "origin", f"HEAD:{target_branch}"], cwd=target_repo)
+                print(f"Pushed translated template to {target_repo_arg}#{target_branch}.")
+            else:
+                print(f"Updated local target checkout {target_repo} on {target_branch}.")
             return 0
-
-        version_suffix = f" {args.version}" if args.version else ""
-        message = args.message or f"chore: publish translated template{version_suffix}"
-        commit_changes(target_repo, message)
-
-        if args.push:
-            if not git_remote_exists(target_repo, "origin"):
-                raise SystemExit("--push requires the target repository to have an origin remote")
-            git(["push", "origin", f"HEAD:{target_branch}"], cwd=target_repo)
-            print(f"Pushed translated template to {target_repo_arg}#{target_branch}.")
-        else:
-            print(f"Updated local target checkout {target_repo} on {target_branch}.")
-        return 0
+        finally:
+            if args.translation_repo and translation_worktree is not None:
+                git(
+                    ["worktree", "remove", "--force", str(translation_worktree)],
+                    cwd=args.translation_repo.resolve(),
+                    check=False,
+                )
 
 
 if __name__ == "__main__":
