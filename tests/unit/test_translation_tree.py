@@ -2382,6 +2382,11 @@ def test_sync_translation_tree_can_patch_output_template_metadata(tmp_path: Path
     assert payload["name"] == "Sample Template (zh-Hant)"
     assert payload["version"] == "1.0.0-zh-hant"
 
+    readme = (translated_expanded_dir / "README.md").read_text(encoding="utf-8")
+    assert readme.startswith("# Sample Template (zh-Hant)\n")
+    assert "Template ID: `dsw:sample-zh-hant:1.0.0-zh-hant`" in readme
+    assert "Translation Workspace" not in readme
+
 
 def test_export_translation_tree_recovers_deleted_and_malformed_documents(
     tmp_path: Path,
