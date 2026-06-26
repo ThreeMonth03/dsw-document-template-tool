@@ -150,6 +150,8 @@ def test_polish_zh_hant_template_text_replaces_dot_filters_inside_chinese_senten
     source = (
         "<p>資料將可透過 {{ swPIDReply|dot }} 取得。</p>\n"
         "<p>延後開放期限為 {{ embargoPeriod|dot }}</p>\n"
+        '<p>資料溯源紀錄{{ ": " ~ provenanceOther|dot if provenanceOther else "." }}</p>\n'
+        "<p>各資料夾將採用以下慣例：{{ scFSysAnalysisFoldersConvs|dot }}</p>\n"
         '<p>{{" - "+projectCostItemDescriptionReply|dot}}</p>\n'
     )
 
@@ -157,6 +159,8 @@ def test_polish_zh_hant_template_text_replaces_dot_filters_inside_chinese_senten
 
     assert "{{ swPIDReply|trim }}" in result
     assert "{{ embargoPeriod|trim }}" in result
+    assert '{{ "：" ~ provenanceOther|trim if provenanceOther else "。" }}' in result
+    assert "{{ scFSysAnalysisFoldersConvs|trim }}" in result
     assert "{%- set __tr_dot_value = projectCostItemDescriptionReply|trim -%}" in result
     assert '{{ "。" if __tr_dot_value[-1] not in ".。!！?？" else "" }}' in result
     assert "|dot" not in result

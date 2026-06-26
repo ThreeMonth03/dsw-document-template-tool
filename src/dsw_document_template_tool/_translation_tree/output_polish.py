@@ -33,6 +33,7 @@ _COST_DESCRIPTION_DOT_REPLACEMENT = (
     '{%- if __tr_dot_value -%}{{ " - " + __tr_dot_value }}'
     '{{ "。" if __tr_dot_value[-1] not in ".。!！?？" else "" }}{%- endif -%}'
 )
+_REMAINING_DOT_FILTER_PATTERN = re.compile(r"\|dot\b")
 
 
 def _is_cjk(char: str) -> bool:
@@ -174,6 +175,7 @@ def polish_zh_hant_template_text(text: str) -> str:
             text,
         )
     text = _COST_DESCRIPTION_DOT_PATTERN.sub(_COST_DESCRIPTION_DOT_REPLACEMENT, text)
+    text = _REMAINING_DOT_FILTER_PATTERN.sub("|trim", text)
     text = _FAIRSHARING_MACRO_LINE_PATTERN.sub(r"\1：\2。", text)
     text = _LOOP_COMMA_PERIOD_PATTERN.sub('{{ "、" if not loop.last else "。" }}', text)
     text = _JOIN_COMMA_PATTERN.sub('|join("、")', text)
