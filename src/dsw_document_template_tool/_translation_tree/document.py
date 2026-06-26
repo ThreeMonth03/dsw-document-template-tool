@@ -11,7 +11,7 @@ SOURCE_FENCE = "~~~jinja"
 TRANSLATION_DOC_NAME = "translation.md"
 TRANSLATION_SECTION_PATTERN = re.compile(
     r"### Translation \((?P<target_lang>[^)]+)\)\n\n~~~jinja\n"
-    r"(?P<translation_text>.*?)\n~~~\n?\Z",
+    r"(?P<translation_text>.*?)\n~~~(?:\n|\Z)",
     re.DOTALL,
 )
 SENTENCE_SECTION_PATTERN = re.compile(
@@ -35,13 +35,9 @@ def render_translation_document(
         [
             "# Translation Unit",
             "",
-            f"- Source File: `{unit.source_file}`",
-            f"- Wrapper Name: `{unit.wrapper_name}`",
-            f"- Wrapper Order: `{unit.wrapper_order}`",
-            f"- Wrapper Key: `{unit.wrapper_key}`",
-            f"- Unit Key: `{unit.unit_key}`",
-            f"- Source Hash: `{unit.unit_source_hash}`",
-            f"- Edit only the `Translation ({target_lang})` block below.",
+            f"Edit only the `Translation ({target_lang})` block. Keep every placeholder",
+            "shown in the source sentence, such as `{name}`, but reorder placeholders",
+            "when the target language needs it.",
             "",
             f"### Sentence ({source_lang})",
             "",
@@ -54,6 +50,20 @@ def render_translation_document(
             SOURCE_FENCE,
             translation_text,
             "~~~",
+            "",
+            "<details>",
+            "<summary>Machine metadata</summary>",
+            "",
+            f"- Source File: `{unit.source_file}`",
+            f"- Wrapper Name: `{unit.wrapper_name}`",
+            f"- Wrapper Order: `{unit.wrapper_order}`",
+            f"- Wrapper Key: `{unit.wrapper_key}`",
+            f"- Unit Key: `{unit.unit_key}`",
+            f"- Source Hash: `{unit.unit_source_hash}`",
+            "",
+            "Do not edit this section manually.",
+            "",
+            "</details>",
             "",
         ]
     )
@@ -117,7 +127,7 @@ def replace_translation_text(
         )
     replacement = f"### Translation ({target_lang})\n\n{SOURCE_FENCE}\n{translation_text}\n~~~\n"
     document_path.write_text(
-        markdown_text[: match.start()] + replacement,
+        markdown_text[: match.start()] + replacement + markdown_text[match.end() :],
         encoding="utf-8",
     )
 
@@ -131,14 +141,15 @@ def render_tree_readme(*, source_lang: str, target_lang: str) -> str:
             "template workspace.",
             "",
             f"- Each translation unit has its own `{TRANSLATION_DOC_NAME}` file.",
-            f"- Each file starts with a plain `Sentence ({source_lang})` section for",
-            "  translator review.",
+            f"- Each file starts with the source `Sentence ({source_lang})`, then the",
+            f"  editable `Translation ({target_lang})` block.",
             "- Wrapper-level blocks from the expanded workspace are split into smaller",
             "  translator-facing units whenever the source structure allows it.",
-            f"- Edit only `Translation ({target_lang})` sections.",
-            "- Keep every `{placeholder}` shown in the sentence. You may reorder",
-            "  placeholders for grammar; sync converts them back to Jinja variables.",
-            "- Source hashes in the metadata are machine guards; do not edit them.",
+            "- Keep every placeholder shown in the sentence, such as `{name}`. You",
+            "  may reorder placeholders for grammar; sync converts them back to Jinja",
+            "  variables.",
+            "- Machine metadata is collapsed at the bottom of each file and should not",
+            "  be edited manually.",
             "- If a translation file is deleted or its markdown block is broken, run",
             "  `make export-translation-tree` to rebuild the file skeleton.",
             "- Run `make sync-translation-tree` to apply translator edits back into a",

@@ -1,79 +1,96 @@
-## Usage
+# DSW Document Template Tool
 
-### What This Tool Solves
+This repository contains the shared infrastructure for validating and
+translating DSW document templates. It is intentionally a tooling repo: it owns
+the parser, template transforms, regression checks, fixture project, CI helpers,
+and packaging workflow. It does not own the finished public translated template.
 
-This repository is for template authors who want to validate DSW document
-template refactors in CI without running the browser client.
+The current production use case is the Traditional Chinese translation of the
+Science Europe DMP Template, but the code is organized so future template
+versions and downstream translation repositories can reuse the same pipeline.
 
-The workflow is intentionally headless:
+## Repository Roles
 
-- `dsw-tdk` manages local template projects and uploads draft templates
-- the DSW API creates fixture projects and requests previews/documents
-- this tool downloads the rendered output and compares normalized HTML
+There are three repositories in the workflow:
 
-The primary goal is to answer one question safely:
+- `ThreeMonth03/DSW-document-template-tool`: shared tooling, tests, clean
+  upstream scaffolds, demo project fixtures, and CI helpers.
+- `ThreeMonth03/DSW-document-template-translation`: translation control repo
+  with one `translation/v*` branch per supported upstream template version.
+- `depositar/science-europe-template-zh_Hant`: public downstream template source,
+  updated manually only after generated artifacts are reviewed.
 
-> Does the refactored template behave the same as the original template?
+Generated workspaces and PDFs are build artifacts. Keep them out of `master`
+unless a file is explicitly a small reusable fixture under `workspace/`.
 
-### Translation Workspace
+## What Gets Committed
 
-This tooling repository keeps only reusable fixtures and shared assets directly
-in git:
+Committed source:
 
-- `workspace/knowledge-models/`
-- `workspace/projects/`
-- `assets/fonts/`
+- `src/`: reusable Python package and CLI entrypoints
+- `scripts/ci/`: GitHub Actions helpers used by downstream repos
+- `config/`: regression and DSW compatibility configuration
+- `examples/`: copy-paste workflow templates
+- `workspace/knowledge-models/`: checked-in demo KM bundles
+- `workspace/projects/`: checked-in demo project references and events
+- `assets/fonts/`: shared fonts used by generated translated templates
 
-Document template workspaces under `workspace/document-templates/` are generated
-or maintained by downstream translation repositories, so this tooling repository
-ignores them. CI fetches the upstream Science Europe template directly and
-publishes clean scaffold artifacts instead of committing generated workspaces.
+Ignored generated files:
 
-The generated `expanded` tree is the machine-facing Jinja workspace that keeps
-the original file structure and marks translatable regions with generated Jinja
-comments. Those markers preserve larger units such as headings, paragraphs,
-list items, and cross-branch sentence groups so later string extraction can work
-on whole sentences instead of fragmented `if/else` shards. They are comments
-rather than `{% set %}` captures, so they do not change Jinja variable scope.
+- `outputs/`
+- `.cache/`
+- `workspace/document-templates/`
+- Python caches and local virtualenvs
 
-The generated `translation` tree is the human-facing collaboration layer. It
-exports one `translation.md` file per preserved translation unit, with separate
-`Sentence (en)` and `Translation (zh_Hant)` sections, and can sync translator
-edits back into a generated `expanded` template copy.
+## Quick Start
 
-That makes a downstream translation workspace reversible:
+Install the local development environment:
 
-- `compact` -> `expanded` with `make transform`
-- `expanded` -> `translation` with `make export-translation-tree`
-- `translation` -> translated `expanded` with `make sync-translation-tree`
-- `expanded` -> uploadable `compact` output with `make compact-template`
+```shell
+make install-dev
+```
 
-For external repositories, copy the workflow template from:
+Run the full local test suite:
 
-- `examples/github-actions/document_template_translation_sync.yml`
+```shell
+make test
+```
 
-That example checks out this tooling repo separately, refreshes the host repo's
-`expanded` and `translation` paths, syncs translations into an ignored `outputs/`
-template directory, packages it with `dsw-tdk`, and uploads the translated
-template as a GitHub Actions artifact.
+Run formatting and lint checks:
 
-Generated files under `outputs/` are intentionally build artifacts, not source
-files. Keep them out of `master`; download them from GitHub Actions artifacts or
-attach selected packages to a release. The default artifact layout includes the
-upstream template ID, upstream version tag, and locale:
+```shell
+make format-check
+make lint
+```
 
-- `outputs/upstream-workspaces/dsw-science-europe/v1.30.0/`
-- `outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/scaffold/`
-- `outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/scaffold/test-project.pdf`
+Start the local DSW stack and run render regression:
 
-These scaffold artifacts intentionally contain blank `Translation (zh_Hant)`
-blocks and fall back to English source text. They are for migration, testing, and
-downstream translation repositories to consume; they are not completed
-translations.
+```shell
+make start-ci-dsw
+make render-regression-ci
+make stop-ci-dsw
+```
 
-Publishing reviewed translated template source to a public downstream repository
-is a separate manual step. Once a translation branch has produced a reviewed
-artifact, use the helper below from this tooling repository:
+## Main Workflows
+
+Translation scaffolding:
+
+```shell
+make transform
+make export-translation-tree
+make merge-translation-tree
+make sync-translation-tree
+```
+
+Upstream version artifact generation:
+
+```shell
+make discover-upstream-compat
+make build-upstream-artifacts
+make render-upstream-artifact-previews
+```
+
+Manual public publishing after review:
 
 ```shell
 make publish-translated-template \
@@ -81,377 +98,32 @@ make publish-translated-template \
   PUBLISH_VERSION=v1.30.1
 ```
 
-The helper reads the translation repository's `translation-config.yml`, checks
-out the matching `translation/v*` branch in a temporary worktree, copies the
-generated translated template source to the configured target repository branch
-such as `sync/v1.30.1`, commits it, and pushes that branch. This keeps public
-publishing explicit while still avoiding hand-copied template directories.
-
-The `expand` and `export translation tree` steps in that example are guards for
-repositories that commit generated translation inputs. If your repository only
-wants to build output from already-committed translations, the minimal path is:
-
-- `translation` -> translated `expanded` with `src/translation_tree.py sync`
-- package the translated template with `dsw-tdk package`
-
-The example also shows how to render one preview document in CI. Put a portable
-project reference like `workspace/projects/test-project.json` in the host repo,
-next to a sanitized replayable event export such as
-`workspace/projects/test-project.events.json`. The reference points at a local
-knowledge-model bundle with `knowledge_model_package_id` and at the project
-events with `events_file`; optional `source_project` metadata records where the
-fixture was exported from. In GitHub Actions, this boots an ephemeral local DSW,
-creates a temporary project from the event payload, renders the translated
-template, and uploads the resulting PDF artifact.
-
-### Supported Regression Modes
-
-- `preview` mode:
-  compares two draft templates through
-  `/document-template-drafts/{id}/documents/preview`
-- `document` mode:
-  compares two released templates through `POST /documents`
-
-For day-to-day template refactoring, `preview` mode is the recommended default.
-It works well before release and does not require publishing candidate versions.
-
-### Important Constraint
-
-If you compare two local directories that originate from the same template
-coordinates, this tool stages them under temporary draft IDs automatically
-before upload. That means you can compare a pre-refactor tree and a
-post-refactor tree side by side without manually rewriting `template.json`.
-
-### For Template Authors
-
-#### 1. Install The Tooling Once
-
-```shell
-make install-dev
-```
-
-#### 2. Prepare A Regression Config
-
-Start from one of the shipped workflow configs:
-
-- `config/regression.ci.yml`
-- `config/regression.preview.yml`
-- `config/regression.document.yml`
-
-The most common setup is:
-
-- `baseline` = original local template directory
-- `candidate` = refactored local template directory
-- `fixtures` = one or more project-event payloads that exercise critical branches
-- `generated_fixtures` = optional deterministic random projects generated from
-  DSW's compiled questionnaire model
-
-`config/regression.ci.yml` is for the checked-in GitHub Actions workflow. It
-talks to an ephemeral local DSW stack started by `make start-ci-dsw` and uses
-the default local admin account (`albert.einstein@example.com` / `password`).
-No GitHub secret is required for that path.
-
-`config/regression.preview.yml` is for connecting to an already-running DSW
-instance. It uses environment variables for values that vary between
-environments:
-
-- `DSW_API_URL`
-- `DSW_API_KEY`
-
-When you run `config/regression.document.yml`, also set:
-
-- `DSW_BASELINE_TEMPLATE_ID`
-- `DSW_CANDIDATE_TEMPLATE_ID`
-
-By default the shipped configs point at generated upstream artifacts:
-
-- `../workspace/knowledge-models/root-zh-hant-2.7.0.km` from the config directory
-- `../outputs/upstream-workspaces/dsw-science-europe/v1.30.0/compact/dsw-science-europe-1.30.0`
-- `../outputs/upstream-workspaces/dsw-science-europe/v1.30.0/expanded/dsw-science-europe-1.30.0`
-
-Run `make build-upstream-artifacts` before invoking these configs locally. CI
-does that automatically before render regression.
-
-The shipped CI config keeps one `empty-project` fixture and adds 80 deterministic
-branch-sweeping fixtures with seed `20260522`. Those fixtures ask the local DSW
-API for the compiled questionnaire model, generate realistic `SetReplyEvent`
-payloads for options, lists, values, integrations, multi-choice questions, and
-item-select questions where possible, and then render both templates against the
-same generated answers. Nested follow-up questions use a local branch index, so
-child questions keep cycling through their own answers instead of getting stuck
-on the same parent-case parity.
-
-Knowledge-model package references can still be any of:
-
-- a package UUID
-- `org:km:version`
-- a local `.km` bundle path
-
-If you pass a local `.km` bundle path, the tool first tries to match an
-already-installed package with the same coordinates. If none exists, it uploads
-the bundle to DSW automatically and uses the returned package UUID.
-
-#### 3. Refresh The Expanded Machine Workspace
-
-```shell
-make transform
-```
-
-This regenerates an `expanded` tree from a local `compact` template source. In
-this tooling repository the default `workspace/document-templates/` paths are
-ignored; downstream translation repositories may choose to commit those paths.
-The generated workspace keeps:
-
-- the original `.j2` files in place
-- generated `__tr_block_####` comment markers around translatable units
-- a generated workspace `README.md`
-- the upstream template readme as `UPSTREAM-README.md`
-
-The external workflow example runs the same command in translation repositories
-and can auto-repair/commit generated translation inputs there.
-
-#### 4. Refresh The Translator-Facing Tree
-
-```shell
-make export-translation-tree
-```
-
-This exports one `translation.md` file per preserved translation unit under the
-configured `TRANSLATION_TREE_DIR`.
-
-Each translation file contains:
-
-- a readable source sentence in `Sentence (en)`
-- translator-edited target Jinja in `Translation (zh_Hant)`
-- metadata linking the unit back to its source file and wrapper
-
-If the tree already exists, unchanged unit translations are preserved by unit
-key when you re-export it.
-
-#### 5. Sync Translator Edits Back Into A Generated Template Copy
-
-```shell
-make sync-translation-tree
-```
-
-This writes a translated expanded workspace under:
-
-- `outputs/document-templates/<template-id>/<version-tag>/<locale>/`
-
-Blank translation sections fall back to the exported English source unit, so an
-untranslated tree still syncs back to the original expanded template.
-
-For CI or migration previews across supported upstream tags, run:
-
-```shell
-make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS='v1.29.1+'
-make render-upstream-artifact-previews
-```
-
-`build-upstream-artifacts` fetches matching upstream tags, exports clean
-`compact`, `expanded`, and `translation` workspaces, syncs a scaffold output
-template, and packages it. `render-upstream-artifact-previews` expects a running
-DSW API and renders the checked-in fixture project once per scaffold package.
-The checked-in CI workflow runs this in a metamodel-aware matrix: v1.29.1 uses
-the DSW 4.26 stack, and v1.30.0+ uses the DSW 4.30 stack. When running locally
-against a single DSW stack, scaffold packages whose template metamodel does not
-match `UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION` are skipped with a status
-JSON instead of being forced through an incompatible server.
-
-#### 6. Rebuild The Pre-Translation Compact Candidate For Regression
-
-```shell
-make compact-template
-```
-
-This writes the uploadable regression candidate under:
-
-- `outputs/document-templates/rebuilt/`
-
-This command strips the generated `__tr_block_####` comment markers and restores the
-upstream `README.md`. It exists so CI can verify that the machine-facing
-`expanded` workspace still compacts back to the original template before any
-translation is applied.
-
-The unit test suite also runs deterministic exhaustive fuzz checks with a fixed
-seed (`20260522`). The seed only controls the stable execution order; the test
-systematically enumerates 9,072 branch contexts and renders each context through
-six Jinja shapes, for 54,432 logical shape checks. Those checks exercise
-`if`/`elif`/`else`, `for`/`else`, `0/1/2/3+` list cardinalities, branch-closed
-HTML, nested lists, `{% set %}`, and `{% do %}` mutations, then verify that
-compact and expanded renders are identical. Rendering is chunked across a
-process pool in CI to keep the stronger coverage cheap.
-
-#### 7. Run The Regression Workflow
-
-```shell
-make render-regression CONFIG=config/regression.preview.yml
-```
-
-If the normalized HTML is identical for every fixture, the command exits
-successfully. When a mismatch is found, the command exits non-zero and writes:
-
-- raw rendered HTML for each side
-- normalized HTML for each side
-- generated fixture events and coverage stats for random fixtures
-- unified diff files
-- `regression_report.json`
-
-By default these artifacts are written under the configured `output_dir`.
-
-#### 8. Verify Or Package A Template Manually
-
-```shell
-make verify-template TEMPLATE_DIR=/path/to/template
-make verify-workspace
-make package-template TEMPLATE_DIR=/path/to/template PACKAGE_OUT=template.zip
-```
-
-These targets call `dsw-tdk` directly. `verify-workspace` checks the local
-compact/expanded workspace paths when you intentionally generate or maintain
-`workspace/document-templates/` locally.
-
-### Fixture Strategy
-
-This repository expects fixture data in the same logical shape used by DSW:
-
-- create a project from a released knowledge-model package reference
-- apply a stable list of project events via `PUT /projects/{uuid}/content`
-- render the template against that fixture project
-
-For `document` mode you can choose either of these fixture styles:
-
-- define `project` plus `events_file`, and let the tool resolve the latest
-  `project_event_uuid` automatically after applying the events
-- define `project_uuid` plus `project_event_uuid` directly when you want to pin
-  an already-existing snapshot
-
-Each fixture should cover one meaningful branch combination. For example:
-
-- happy path with minimal answers
-- external ownership path
-- optional section omitted
-- repeated item list populated
-
-Do not rely on only one fixture if the template contains branching language.
-For CI, prefer `generated_fixtures` for broad randomized coverage and keep a few
-hand-authored `fixtures` for exact bug reproductions or domain-specific paths.
-
-### Recommended CI Shape
-
-The most practical CI pipeline is:
-
-1. smoke-test supported upstream Science Europe refs
-2. run formatting, lint, and unit tests, including the exhaustive transform render matrix
-3. build clean upstream `compact`, `expanded`, `translation`, and scaffold output artifacts
-4. start an ephemeral local DSW stack
-5. run preview regression against generated upstream artifacts
-6. render demo PDFs for every scaffold package and upload everything as Actions artifacts
-
-The tool itself does not require the DSW web client. The shipped CI stack starts
-only PostgreSQL, MinIO, DSW server, and DSW document worker. It then logs in with
-the default local DSW administrator, uploads the local KM/generated template
-fixtures, and compares the rendered preview output.
-
-Useful local commands for the CI render layer are:
-
-```shell
-make start-ci-dsw
-make render-regression-ci
-make ci-dsw-logs
-make stop-ci-dsw
-```
-
-If ports `3000` or `9000` are already in use locally, override them while
-keeping the regression config pointed at the same API port:
-
-```shell
-export DSW_CI_API_PORT=3100
-export DSW_CI_MINIO_PORT=9100
-export DSW_API_URL=http://localhost:3100/wizard-api
-export DSW_EMAIL=albert.einstein@example.com
-export DSW_PASSWORD=password
-```
-
-In the shipped setup, preview regression compares:
-
-- baseline = generated upstream `compact` template under `outputs/upstream-workspaces/...`
-- candidate = generated upstream `expanded` template under `outputs/upstream-workspaces/...`
-- fixtures = one empty project plus 80 fixed-seed random questionnaire projects
-
-### GitHub Actions Workflow
-
-See:
-
-- `.github/workflows/headless_render_regression.yml`
-
-The workflow has two jobs:
-
-- `offline-checks` runs without Docker or DSW credentials
-- `render-regression` starts a temporary local DSW with Docker Compose and does
-  not use GitHub Actions secrets
-
-If you switch the workflow to `config/regression.document.yml`, you also need:
-
-- `DSW_BASELINE_TEMPLATE_ID`
-- `DSW_CANDIDATE_TEMPLATE_ID`
-
-### For Developers
-
-#### Show Available Targets
-
-```shell
-make help
-```
-
-#### Remove Generated Outputs And Caches
-
-```shell
-make clean
-```
-
-This removes generated artifacts such as `outputs/`, pytest/Ruff caches, and
-`__pycache__` directories without touching checked-in fixture files under
-`workspace/`.
-
-#### Install Dev Tools
-
-```shell
-make install-dev
-```
-
-#### Install Git Hooks
-
-```shell
-make install-hooks
-```
-
-#### Auto-Format Python Code
-
-```shell
-make format
-```
-
-#### Check Formatting
-
-```shell
-make format-check
-```
-
-#### Check Python Syntax
-
-```shell
-make compile
-```
-
-#### Run Lint
-
-```shell
-make lint
-```
-
-#### Run Tests
-
-```shell
-make test
-```
+## Documentation
+
+Use these docs instead of reverse-engineering the Makefile:
+
+- [Translation Workflow](docs/translation-workflow.md): compact/expanded trees,
+  translator-facing files, migration, and publishing.
+- [Regression Workflow](docs/regression-workflow.md): fixture projects,
+  headless DSW regression, upstream artifacts, and CI matrix behavior.
+- [Maintenance Guide](docs/maintenance.md): repository boundaries, generated
+  files, CI helpers, compatibility updates, and common checks.
+
+## Current Version Policy
+
+The tooling supports Science Europe template versions from `v1.29.1` upward.
+The DSW runtime matrix is declared in [config/dsw-compat.yml](config/dsw-compat.yml).
+When upstream releases a new tag, CI discovers whether an existing runtime can
+handle it. If a new `metamodelVersion` appears, add a runtime only after
+smoke-testing the matching DSW and TDK versions.
+
+## Design Principles
+
+- Keep translator files readable: source sentence first, editable translation
+  block second, machine metadata out of the way.
+- Keep generated outputs reproducible: CI artifacts are preferred over checked-in
+  `outputs/`.
+- Keep migration conservative: only exact-safe translations are copied across
+  versions automatically.
+- Keep YAML thin: workflow logic belongs in tested Python helpers whenever it
+  has branching, parsing, or cross-repository behavior.

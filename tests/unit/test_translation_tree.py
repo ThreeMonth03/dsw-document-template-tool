@@ -234,9 +234,42 @@ def test_export_translation_tree_creates_one_document_per_unit(tmp_path: Path) -
     assert "### Sentence (en)" in first_doc
     assert "### Source (en)" not in first_doc
     assert "### Translation (zh_Hant)" in first_doc
+    assert "<summary>Machine metadata</summary>" in first_doc
+    assert "Source Hash" in first_doc
     assert "Hello" in first_doc or "World." in first_doc
     assert "- [ ] [file] src/index.html.j2 (0/2)" in outline
     assert "[T] [translation](<tree/src/index.html.j2/" in outline
+
+
+def test_translation_document_preserves_collapsed_metadata_when_synced(
+    tmp_path: Path,
+) -> None:
+    """Translator-facing files should stay readable without losing metadata."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Hello {{ name }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    output_dir = tmp_path / "translated"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = _find_translation_doc(tree_dir, "Hello {name}.")
+    _write_translation_block(document_path, "你好 {name}。")
+
+    document_text = document_path.read_text(encoding="utf-8")
+    assert "你好 {name}。" in document_text
+    assert "<summary>Machine metadata</summary>" in document_text
+
+    sync_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir, output_dir=output_dir)
+
+    assert "你好 {{ name }}。" in (output_dir / "src" / "index.html.j2").read_text(
+        encoding="utf-8",
+    )
 
 
 def test_merge_translation_tree_reuses_exact_unit_key_matches(tmp_path: Path) -> None:
