@@ -14,7 +14,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from resolve_upstream_refs import resolve_refs  # noqa: E402
+from resolve_upstream_refs import normalize_git_remote, resolve_refs  # noqa: E402
 
 
 def main() -> None:
@@ -65,6 +65,8 @@ def main() -> None:
     previews.add_argument("--scaffold-template-id", required=True)
 
     args = parser.parse_args()
+    if hasattr(args, "remote"):
+        args.remote = normalize_git_remote(args.remote)
     if args.command == "list-tags":
         list_upstream_tags(args.remote)
     elif args.command == "fetch":

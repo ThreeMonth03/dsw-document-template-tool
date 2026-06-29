@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 
 
 def test_render_regression_help(repo_root) -> None:
@@ -269,6 +271,53 @@ def test_discover_dsw_compat_uses_env_report_paths(
     assert result.returncode == 0, result.stdout + result.stderr
     assert "DSW Compatibility Discovery" in summary.read_text(encoding="utf-8")
     assert "`v1.30.0`" in report.read_text(encoding="utf-8")
+
+
+def test_discover_dsw_compat_normalizes_remote_for_all_git_steps(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+    capsys,
+) -> None:
+    """GitHub owner/repo shorthand should be normalized before all git operations."""
+
+    module = _load_script_module(
+        repo_root / "scripts" / "ci" / "discover_dsw_compat.py",
+        "discover_dsw_compat_test",
+    )
+    seen: dict[str, str] = {}
+
+    monkeypatch.setattr(module, "load_preview_runtimes", lambda _: ())
+
+    def fake_resolve_refs(*, remote: str, refs: list[str]) -> list[str]:
+        seen["resolve"] = remote
+        assert refs == ["v1.30.0"]
+        return []
+
+    def fake_prepare_cache(cache: Path, remote: str) -> None:
+        seen["prepare"] = remote
+        assert cache == tmp_path / "cache"
+
+    monkeypatch.setattr(module, "resolve_refs", fake_resolve_refs)
+    monkeypatch.setattr(module, "prepare_cache", fake_prepare_cache)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "discover_dsw_compat.py",
+            "--remote",
+            "ds-wizard/science-europe-template",
+            "--cache",
+            str(tmp_path / "cache"),
+            "v1.30.0",
+        ],
+    )
+
+    module.main()
+
+    capsys.readouterr()
+    expected_remote = "https://github.com/ds-wizard/science-europe-template.git"
+    assert seen == {"resolve": expected_remote, "prepare": expected_remote}
 
 
 def test_discover_dsw_compat_fails_unknown_metamodel(
@@ -753,6 +802,40 @@ def test_upstream_template_artifacts_lists_and_fetches_local_tags(
     assert json.loads((cache / "template.json").read_text(encoding="utf-8"))["version"] == "1.30.1"
 
 
+def test_upstream_template_artifacts_normalizes_remote_for_subcommands(
+    repo_root: Path,
+    monkeypatch,
+    capsys,
+) -> None:
+    """Owner/repo shorthand should be normalized before upstream git operations."""
+
+    module = _load_script_module(
+        repo_root / "scripts" / "ci" / "upstream_template_artifacts.py",
+        "upstream_template_artifacts_test",
+    )
+    seen: dict[str, str] = {}
+
+    def fake_list_upstream_tags(remote: str) -> None:
+        seen["remote"] = remote
+
+    monkeypatch.setattr(module, "list_upstream_tags", fake_list_upstream_tags)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "upstream_template_artifacts.py",
+            "list-tags",
+            "--remote",
+            "ds-wizard/science-europe-template",
+        ],
+    )
+
+    module.main()
+
+    capsys.readouterr()
+    assert seen["remote"] == "https://github.com/ds-wizard/science-europe-template.git"
+
+
 def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path, tmp_path: Path) -> None:
     """The clean scaffold artifact range should include all supported tags."""
 
@@ -859,6 +942,16 @@ def _write_dsw_compat_discovery_report(path: Path) -> None:
         "| `v1.31.0` | `v1.31.0` | `19.0` | - | unsupported |\n",
         encoding="utf-8",
     )
+
+
+def _load_script_module(path: Path, name: str) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def _fake_gh_env(bin_dir: Path, *, log_path: Path | None = None) -> dict[str, str]:

@@ -16,7 +16,7 @@ REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from resolve_upstream_refs import resolve_refs  # noqa: E402
+from resolve_upstream_refs import normalize_git_remote, resolve_refs  # noqa: E402
 
 from dsw_document_template_tool.dsw_compat import (  # noqa: E402
     OFFICIAL_TEMPLATE_METAMODEL_SPEC_URL,
@@ -92,8 +92,9 @@ def main() -> None:
 
     try:
         runtimes = load_preview_runtimes(args.compat)
-        resolved_refs = resolve_refs(remote=args.remote, refs=args.refs)
-        prepare_cache(args.cache, args.remote)
+        remote = normalize_git_remote(args.remote)
+        resolved_refs = resolve_refs(remote=remote, refs=args.refs)
+        prepare_cache(args.cache, remote)
         results = [
             inspect_ref(args.cache, requested_ref=ref, runtimes=runtimes) for ref in resolved_refs
         ]
