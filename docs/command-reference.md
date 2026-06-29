@@ -176,7 +176,7 @@ Dry-run downstream branch refresh:
 
 ```shell
 python scripts/ci/sync_translation_version_branches.py \
-  --repo ../DSW-document-template-translation-master-control \
+  --repo ../DSW-document-template-translation \
   --tooling-root "$PWD" \
   --clean-artifact-root /tmp/clean-scaffolds \
   --dry-run \
