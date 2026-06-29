@@ -150,3 +150,130 @@ def test_publish_translated_template_can_read_translation_version_branch(
 
     worktree_list = run(["git", "worktree", "list", "--porcelain"], cwd=translation_repo).stdout
     assert "dsw-template-publish-" not in worktree_list
+
+
+def test_publish_translated_template_pushes_when_target_branch_is_open_elsewhere(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "template.json").write_text('{"name": "Translated"}\n', encoding="utf-8")
+
+    origin = tmp_path / "target-origin.git"
+    run(["git", "init", "--bare", str(origin)])
+    target = tmp_path / "target"
+    init_repo(target)
+    run(["git", "remote", "add", "origin", str(origin)], cwd=target)
+    (target / "README.md").write_text("base\n", encoding="utf-8")
+    run(["git", "add", "-A"], cwd=target)
+    run(["git", "commit", "-m", "base"], cwd=target)
+    run(["git", "push", "-u", "origin", "main"], cwd=target)
+
+    run(["git", "checkout", "-b", "sync/v1.30.1"], cwd=target)
+    (target / "old.txt").write_text("old\n", encoding="utf-8")
+    run(["git", "add", "-A"], cwd=target)
+    run(["git", "commit", "-m", "old sync branch"], cwd=target)
+    run(["git", "push", "-u", "origin", "sync/v1.30.1"], cwd=target)
+    run(["git", "checkout", "main"], cwd=target)
+
+    open_worktree = tmp_path / "open-sync-branch"
+    run(["git", "worktree", "add", str(open_worktree), "sync/v1.30.1"], cwd=target)
+    try:
+        result = run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--source-dir",
+                str(source),
+                "--target-repo",
+                str(target),
+                "--target-branch",
+                "sync/v1.30.1",
+                "--push",
+            ]
+        )
+    finally:
+        run(["git", "worktree", "remove", "--force", str(open_worktree)], cwd=target)
+
+    assert "Pushed translated template" in result.stdout
+    assert _git_show_bare(origin, "sync/v1.30.1:template.json") == '{"name": "Translated"}\n'
+    assert not _git_path_exists(origin, "sync/v1.30.1:old.txt")
+
+
+def test_publish_translated_template_local_mode_preserves_existing_local_branch(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "template.json").write_text('{"name": "Translated"}\n', encoding="utf-8")
+
+    origin = tmp_path / "target-origin.git"
+    run(["git", "init", "--bare", str(origin)])
+    target = tmp_path / "target"
+    init_repo(target)
+    run(["git", "remote", "add", "origin", str(origin)], cwd=target)
+    (target / "README.md").write_text("base\n", encoding="utf-8")
+    run(["git", "add", "-A"], cwd=target)
+    run(["git", "commit", "-m", "base"], cwd=target)
+    run(["git", "push", "-u", "origin", "main"], cwd=target)
+
+    run(["git", "checkout", "-b", "sync/v1.30.1"], cwd=target)
+    (target / "local-only.txt").write_text("local base\n", encoding="utf-8")
+    run(["git", "add", "-A"], cwd=target)
+    run(["git", "commit", "-m", "local sync branch"], cwd=target)
+    local_branch_sha = _git_output(target, "rev-parse", "sync/v1.30.1")
+
+    run(["git", "checkout", "main"], cwd=target)
+    run(["git", "checkout", "-b", "remote-sync", "main"], cwd=target)
+    (target / "remote-only.txt").write_text("remote base\n", encoding="utf-8")
+    run(["git", "add", "-A"], cwd=target)
+    run(["git", "commit", "-m", "remote sync branch"], cwd=target)
+    run(["git", "push", "origin", "remote-sync:refs/heads/sync/v1.30.1"], cwd=target)
+    run(["git", "checkout", "main"], cwd=target)
+
+    result = run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--source-dir",
+            str(source),
+            "--target-repo",
+            str(target),
+            "--target-branch",
+            "sync/v1.30.1",
+        ]
+    )
+
+    assert "Updated local target checkout" in result.stdout
+    assert _git_output(target, "rev-parse", "HEAD^") == local_branch_sha
+    assert not (target / "remote-only.txt").exists()
+    assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "sync/v1.30.1"
+
+
+def _git_show_bare(repo: Path, revision: str) -> str:
+    return subprocess.run(
+        ["git", "--git-dir", str(repo), "show", revision],
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout
+
+
+def _git_path_exists(repo: Path, revision: str) -> bool:
+    result = subprocess.run(
+        ["git", "--git-dir", str(repo), "cat-file", "-e", revision],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+def _git_output(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout.strip()

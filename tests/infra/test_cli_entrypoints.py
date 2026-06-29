@@ -460,17 +460,79 @@ def test_create_dsw_compat_pr_starts_new_branch_from_remote_base(
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    automation_parent = _git_output(worktree, "rev-parse", "automation/dsw-compat-review^")
+    automation_parent = _git_output(worktree, "rev-parse", "HEAD^")
     tree_files = _git_output(
         worktree,
         "ls-tree",
         "-r",
         "--name-only",
-        "automation/dsw-compat-review",
+        "HEAD",
     )
     assert automation_parent == base_commit
     assert automation_parent != feature_commit
     assert "feature.txt" not in tree_files
+    assert _git_show_bare(
+        origin,
+        "automation/dsw-compat-review:docs/compatibility/unsupported-metamodels.md",
+    )
+
+
+def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """The follow-up PR helper should not depend on checking out its local branch."""
+
+    origin = tmp_path / "origin.git"
+    worktree = tmp_path / "worktree"
+    open_worktree = tmp_path / "open-automation-branch"
+    report = tmp_path / "discovery.md"
+
+    _init_git_worktree_with_origin(worktree=worktree, origin=origin)
+    _git(worktree, "checkout", "-b", "automation/dsw-compat-review")
+    compatibility_report = worktree / "docs" / "compatibility" / "unsupported-metamodels.md"
+    compatibility_report.parent.mkdir(parents=True)
+    compatibility_report.write_text("old compatibility report\n", encoding="utf-8")
+    _git(worktree, "add", "docs/compatibility/unsupported-metamodels.md")
+    _git(worktree, "commit", "-m", "docs: old compatibility report")
+    _git(worktree, "push", "-u", "origin", "automation/dsw-compat-review")
+    _git(worktree, "checkout", "master")
+    _git(worktree, "worktree", "add", str(open_worktree), "automation/dsw-compat-review")
+
+    _write_dsw_compat_discovery_report(report)
+    env = _fake_gh_env(tmp_path / "bin")
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py"),
+                "--report",
+                str(report),
+                "--report-path",
+                "docs/compatibility/unsupported-metamodels.md",
+                "--repository",
+                "owner/repo",
+                "--base",
+                "master",
+                "--branch",
+                "automation/dsw-compat-review",
+            ],
+            cwd=worktree,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    finally:
+        _git(worktree, "worktree", "remove", "--force", str(open_worktree))
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    updated_report = _git_show_bare(
+        origin,
+        "automation/dsw-compat-review:docs/compatibility/unsupported-metamodels.md",
+    )
+    assert "Unsupported DSW Metamodel Compatibility" in updated_report
+    assert "old compatibility report" not in updated_report
 
 
 def test_create_dsw_compat_pr_reopens_pr_when_existing_branch_is_unchanged(
@@ -1015,3 +1077,12 @@ def _git_output(repo: Path, *args: str) -> str:
         stdout=subprocess.PIPE,
         text=True,
     ).stdout.strip()
+
+
+def _git_show_bare(repo: Path, revision: str) -> str:
+    return subprocess.run(
+        ["git", "--git-dir", str(repo), "show", revision],
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout

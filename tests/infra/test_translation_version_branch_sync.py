@@ -440,6 +440,179 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
     assert _workflow_triggers(workflow_text)["push"]["branches"] == ["translation/v1.30.1"]
 
 
+def test_create_new_branch_requires_push_when_branch_is_open_elsewhere(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Local branch creation should fail clearly instead of losing generated work."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    branch_worktree = tmp_path / "open-v1.30.2"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "config", "user.name", "Test User")
+    _run_git(translation_repo, "config", "user.email", "test@example.invalid")
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(translation_repo / "translation-config.yml")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initial control plane")
+    _run_git(translation_repo, "push", "-u", "origin", "master")
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "existing v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "master")
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.2")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "local stale v1.30.2")
+    _run_git(translation_repo, "checkout", "master")
+    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "translation/v1.30.2")
+    _write_clean_artifact(artifact_root, version="v1.30.2")
+
+    try:
+        with pytest.raises(SystemExit, match="checked out in another worktree"):
+            sync_module.sync_translation_versions(
+                repo=translation_repo,
+                tooling_root=repo_root,
+                config_path=translation_repo / "translation-config.yml",
+                clean_artifact_root=artifact_root,
+                tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+                push=False,
+                dry_run=False,
+            )
+    finally:
+        _run_git(translation_repo, "worktree", "remove", "--force", str(branch_worktree))
+
+
+def test_create_new_branch_requires_push_when_local_branch_already_exists(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Local creation should not reset a stale branch with the same name."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "config", "user.name", "Test User")
+    _run_git(translation_repo, "config", "user.email", "test@example.invalid")
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(translation_repo / "translation-config.yml")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initial control plane")
+    _run_git(translation_repo, "push", "-u", "origin", "master")
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "existing v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "master")
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.2")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "local stale v1.30.2")
+    stale_branch_sha = _git_output(translation_repo, "rev-parse", "translation/v1.30.2")
+    _run_git(translation_repo, "checkout", "master")
+    _write_clean_artifact(artifact_root, version="v1.30.2")
+
+    with pytest.raises(SystemExit, match="already exists locally"):
+        sync_module.sync_translation_versions(
+            repo=translation_repo,
+            tooling_root=repo_root,
+            config_path=translation_repo / "translation-config.yml",
+            clean_artifact_root=artifact_root,
+            tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+            push=False,
+            dry_run=False,
+        )
+
+    assert _git_output(translation_repo, "rev-parse", "translation/v1.30.2") == stale_branch_sha
+
+
+def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """CI branch creation should ignore stale local branches and push the remote."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    branch_worktree = tmp_path / "open-v1.30.2"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "config", "user.name", "Test User")
+    _run_git(translation_repo, "config", "user.email", "test@example.invalid")
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(translation_repo / "translation-config.yml")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initial control plane")
+    _run_git(translation_repo, "push", "-u", "origin", "master")
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "existing v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "master")
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.2")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "local stale v1.30.2")
+    _run_git(translation_repo, "checkout", "master")
+    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "translation/v1.30.2")
+    _write_clean_artifact(artifact_root, version="v1.30.2")
+
+    def fake_sync_blank_translation_output(
+        *,
+        checkout: Path,
+        config,
+        version: str,
+        **_: object,
+    ) -> None:
+        paths = sync_module.version_paths(config, version)
+        template_dir = checkout / paths.translated_template_dir
+        template_dir.mkdir(parents=True, exist_ok=True)
+        (template_dir / "template.json").write_text(
+            '{"id":"science-europe-zh-hant"}\n',
+            encoding="utf-8",
+        )
+        package_path = checkout / paths.translated_template_package
+        package_path.parent.mkdir(parents=True, exist_ok=True)
+        package_path.write_text("fake package\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        sync_module,
+        "sync_blank_translation_output",
+        fake_sync_blank_translation_output,
+    )
+
+    try:
+        result = sync_module.sync_translation_versions(
+            repo=translation_repo,
+            tooling_root=repo_root,
+            config_path=translation_repo / "translation-config.yml",
+            clean_artifact_root=artifact_root,
+            tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+            push=True,
+            dry_run=False,
+        )
+    finally:
+        _run_git(translation_repo, "worktree", "remove", "--force", str(branch_worktree))
+
+    assert result.created_branches == ("translation/v1.30.2",)
+    assert (
+        _git_show_bare(
+            origin,
+            (
+                "translation/v1.30.2:"
+                "workspace/document-templates/compact/dsw-science-europe-1.30.2/"
+                "artifact.txt"
+            ),
+        )
+        == "compact v1.30.2\n"
+    )
+
+
 def test_version_branch_workflow_uses_version_specific_preview_runtime(
     repo_root: Path,
     tmp_path: Path,
@@ -767,6 +940,17 @@ def _git_show_bare(repo: Path, revision: str) -> str:
         text=True,
     )
     return result.stdout
+
+
+def _git_output(repo: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
 
 
 def _git_path_exists(repo: Path, revision: str) -> bool:

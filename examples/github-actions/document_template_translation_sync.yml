@@ -147,7 +147,7 @@ jobs:
           git add "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" "$TRANSLATION_TREE_DIR/tree"
           git commit -m "chore(sync): refresh document template translations"
           echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          git push origin "HEAD:$TARGET_REF"
+          git push origin "HEAD:refs/heads/$TARGET_REF"
 
           {
             echo "## Auto-committed translation repairs"

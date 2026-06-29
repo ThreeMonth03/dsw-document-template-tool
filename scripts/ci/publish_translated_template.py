@@ -80,23 +80,82 @@ def ensure_clean_worktree(repo: Path) -> None:
         raise SystemExit(f"Target repository has uncommitted changes:\n{status}")
 
 
-def checkout_branch(repo: Path, branch: str, base_branch: str) -> None:
+def checkout_branch(repo: Path, branch: str, base_branch: str, *, detach: bool = False) -> None:
     has_origin = git_remote_exists(repo, "origin")
     if has_origin:
         git(["fetch", "origin", "--prune"], cwd=repo)
 
-    if has_origin and git_ref_exists(repo, f"refs/remotes/origin/{branch}"):
-        git(["checkout", "-B", branch, f"origin/{branch}"], cwd=repo)
-    elif git_ref_exists(repo, f"refs/heads/{branch}"):
-        git(["checkout", branch], cwd=repo)
-    elif has_origin and git_ref_exists(repo, f"refs/remotes/origin/{base_branch}"):
-        git(["checkout", "-B", branch, f"origin/{base_branch}"], cwd=repo)
-    elif git_ref_exists(repo, f"refs/heads/{base_branch}"):
-        git(["checkout", "-B", branch, base_branch], cwd=repo)
+    start_ref = publish_start_ref(
+        repo=repo,
+        branch=branch,
+        base_branch=base_branch,
+        has_origin=has_origin,
+        detach=detach,
+    )
+    if start_ref:
+        checkout_ref(repo, branch, start_ref, detach=detach)
     else:
         raise SystemExit(f"Cannot create {branch!r}: base branch {base_branch!r} was not found")
 
     ensure_clean_worktree(repo)
+
+
+def publish_start_ref(
+    *,
+    repo: Path,
+    branch: str,
+    base_branch: str,
+    has_origin: bool,
+    detach: bool,
+) -> str | None:
+    """Return the safest start ref for publishing.
+
+    Local publishing should preserve an existing local branch. Push publishing
+    starts from the remote branch when available because the resulting commit is
+    pushed back to that remote ref.
+    """
+
+    local_branch = git_ref_exists(repo, f"refs/heads/{branch}")
+    remote_branch = has_origin and git_ref_exists(repo, f"refs/remotes/origin/{branch}")
+    local_base = git_ref_exists(repo, f"refs/heads/{base_branch}")
+    remote_base = has_origin and git_ref_exists(repo, f"refs/remotes/origin/{base_branch}")
+
+    if detach:
+        if remote_branch:
+            return f"origin/{branch}"
+        if local_branch:
+            return branch
+        if remote_base:
+            return f"origin/{base_branch}"
+        if local_base:
+            return base_branch
+        return None
+    if local_branch:
+        return branch
+    if remote_branch:
+        return f"origin/{branch}"
+    if remote_base:
+        return f"origin/{base_branch}"
+    if local_base:
+        return base_branch
+    return None
+
+
+def checkout_ref(repo: Path, branch: str, start_ref: str, *, detach: bool) -> None:
+    """Check out a publishing start point.
+
+    Push publishes the generated commit directly to ``refs/heads/<branch>``, so
+    a detached checkout avoids local branch/worktree collisions. Local-only runs
+    keep a named branch because it is easier for operators to inspect.
+    """
+
+    if detach:
+        git(["checkout", "--detach", start_ref], cwd=repo)
+        return
+    if start_ref == branch:
+        git(["checkout", branch], cwd=repo)
+        return
+    git(["checkout", "-B", branch, start_ref], cwd=repo)
 
 
 def clear_repository_content(repo: Path) -> None:
@@ -252,7 +311,7 @@ def main() -> int:
 
             validate_source_dir(source_dir)
             target_repo = clone_or_use_target_repo(target_repo_arg, temp_root)
-            checkout_branch(target_repo, target_branch, args.base_branch)
+            checkout_branch(target_repo, target_branch, args.base_branch, detach=args.push)
             clear_repository_content(target_repo)
             copy_template_source(source_dir, target_repo)
 
@@ -269,7 +328,7 @@ def main() -> int:
                     raise SystemExit(
                         "--push requires the target repository to have an origin remote"
                     )
-                git(["push", "origin", f"HEAD:{target_branch}"], cwd=target_repo)
+                git(["push", "origin", f"HEAD:refs/heads/{target_branch}"], cwd=target_repo)
                 print(f"Pushed translated template to {target_repo_arg}#{target_branch}.")
             else:
                 print(f"Updated local target checkout {target_repo} on {target_branch}.")

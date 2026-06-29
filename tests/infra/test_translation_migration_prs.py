@@ -8,6 +8,119 @@ import sys
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 
+import pytest
+
+
+def test_create_pr_requires_push(repo_root: Path, monkeypatch) -> None:
+    """PR creation should fail early when no remote head branch will be pushed."""
+
+    module = _load_migration_pr_module(repo_root)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "create_translation_migration_prs.py",
+            "--tooling-root",
+            str(repo_root),
+            "--source-version",
+            "v1.30.1",
+            "--create-pr",
+        ],
+    )
+
+    with pytest.raises(SystemExit, match="--create-pr requires --push"):
+        module.main()
+
+
+def test_missing_clean_artifact_root_fails_early(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """A typo in the downloaded artifact path should not fail later per target."""
+
+    module = _load_migration_pr_module(repo_root)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "create_translation_migration_prs.py",
+            "--tooling-root",
+            str(repo_root),
+            "--source-version",
+            "v1.30.1",
+            "--clean-artifact-root",
+            str(tmp_path / "missing"),
+        ],
+    )
+
+    with pytest.raises(SystemExit, match="--clean-artifact-root does not exist"):
+        module.main()
+
+
+def test_add_detached_remote_worktree_ignores_open_local_branch(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Migration checkouts should not fail when a branch is open elsewhere."""
+
+    module = _load_migration_pr_module(repo_root)
+    origin = tmp_path / "origin.git"
+    repo = tmp_path / "repo"
+    open_worktree = tmp_path / "open-branch"
+    detached_worktree = tmp_path / "detached"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(repo))
+    _run_git(repo, "config", "user.name", "Test User")
+    _run_git(repo, "config", "user.email", "test@example.invalid")
+    _run_git(repo, "remote", "add", "origin", str(origin))
+    (repo / "README.md").write_text("translation repo\n", encoding="utf-8")
+    _run_git(repo, "add", "README.md")
+    _run_git(repo, "commit", "-m", "initial")
+    _run_git(repo, "push", "-u", "origin", "master")
+    _run_git(repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(repo, "commit", "--allow-empty", "-m", "version branch")
+    _run_git(repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(repo, "checkout", "master")
+    _run_git(repo, "worktree", "add", str(open_worktree), "translation/v1.30.1")
+
+    try:
+        module.add_detached_remote_worktree(
+            repo=repo,
+            checkout=detached_worktree,
+            branch="translation/v1.30.1",
+        )
+
+        assert _git_symbolic_ref(detached_worktree) is None
+        assert _git_show(detached_worktree, "HEAD:README.md") == "translation repo\n"
+    finally:
+        _run_git(repo, "worktree", "remove", "--force", str(open_worktree))
+        if detached_worktree.exists():
+            _run_git(repo, "worktree", "remove", "--force", str(detached_worktree))
+
+
+def test_add_detached_remote_worktree_reports_missing_branch(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Missing remote branches should produce a direct, actionable error."""
+
+    module = _load_migration_pr_module(repo_root)
+    origin = tmp_path / "origin.git"
+    repo = tmp_path / "repo"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(repo))
+    _run_git(repo, "remote", "add", "origin", str(origin))
+
+    with pytest.raises(SystemExit, match="Remote branch does not exist"):
+        module.add_detached_remote_worktree(
+            repo=repo,
+            checkout=tmp_path / "detached",
+            branch="translation/v9.99.9",
+        )
+
 
 def test_manual_pull_request_url_uses_github_environment(
     repo_root: Path,
@@ -225,3 +338,37 @@ def _load_migration_pr_module(repo_root: Path) -> ModuleType:
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
+
+
+def _git_show(repo: Path, revision: str) -> str:
+    result = subprocess.run(
+        ["git", "show", revision],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout
+
+
+def _git_symbolic_ref(repo: Path) -> str | None:
+    result = subprocess.run(
+        ["git", "symbolic-ref", "--quiet", "--short", "HEAD"],
+        cwd=repo,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip()
+
+
+def _run_git(cwd: Path, *args: str) -> None:
+    subprocess.run(
+        ["git", *args],
+        cwd=cwd,
+        check=True,
+        capture_output=True,
+        text=True,
+    )

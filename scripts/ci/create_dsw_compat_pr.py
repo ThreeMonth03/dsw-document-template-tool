@@ -86,7 +86,7 @@ def main() -> None:
 
     configure_git_identity()
     run(["git", "commit", "-m", "docs: record unsupported DSW metamodels"])
-    run(["git", "push", "--force-with-lease", "origin", f"HEAD:{args.branch}"])
+    run(["git", "push", "--force-with-lease", "origin", f"HEAD:refs/heads/{args.branch}"])
     create_or_update_pr(
         repository=args.repository,
         branch=args.branch,
@@ -143,13 +143,19 @@ def configure_git_identity() -> None:
 
 
 def checkout_start_ref(*, branch: str, base: str) -> bool:
-    """Check out the automation branch, reusing it when it already exists."""
+    """Check out the automation start point without binding a local branch.
+
+    The workflow pushes the generated commit with ``HEAD:refs/heads/<branch>``,
+    so a local branch is unnecessary. Staying detached avoids failures when a
+    maintainer already has the automation branch checked out in another
+    worktree.
+    """
 
     if remote_branch_exists(branch):
         run(["git", "fetch", "origin", f"refs/heads/{branch}:refs/remotes/origin/{branch}"])
-        run(["git", "checkout", "-B", branch, f"origin/{branch}"])
+        run(["git", "checkout", "--detach", f"origin/{branch}"])
         return True
-    run(["git", "checkout", "-B", branch, fetch_base_ref(base)])
+    run(["git", "checkout", "--detach", fetch_base_ref(base)])
     return False
 
 

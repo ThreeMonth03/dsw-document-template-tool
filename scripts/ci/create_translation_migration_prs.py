@@ -106,6 +106,14 @@ def main() -> None:
     """Run migration PR creation."""
 
     args = build_argument_parser().parse_args()
+    if args.create_pr and not args.push:
+        raise SystemExit("--create-pr requires --push so the PR head branch exists remotely.")
+    if args.clean_artifact_root and not Path(args.clean_artifact_root).is_dir():
+        raise SystemExit(
+            f"--clean-artifact-root does not exist or is not a directory: "
+            f"{args.clean_artifact_root}"
+        )
+
     repo = Path(args.repo).resolve()
     tooling_root = Path(args.tooling_root).resolve()
     config = load_translation_repository_config(repo / args.config)
@@ -173,28 +181,15 @@ def migrate_one_target(
     source_checkout = case_root / "source"
     target_checkout = case_root / "target"
 
-    _run(
-        [
-            "git",
-            "worktree",
-            "add",
-            "--detach",
-            str(source_checkout),
-            f"origin/{source_branch}",
-        ],
-        cwd=repo,
+    add_detached_remote_worktree(
+        repo=repo,
+        checkout=source_checkout,
+        branch=source_branch,
     )
-    _run(
-        [
-            "git",
-            "worktree",
-            "add",
-            "-B",
-            bot_branch,
-            str(target_checkout),
-            f"origin/{target_branch}",
-        ],
-        cwd=repo,
+    add_detached_remote_worktree(
+        repo=repo,
+        checkout=target_checkout,
+        branch=target_branch,
     )
 
     try:
@@ -256,7 +251,7 @@ def migrate_one_target(
 
         if push:
             _run(
-                ["git", "push", "--force-with-lease", "origin", f"HEAD:{bot_branch}"],
+                ["git", "push", "--force-with-lease", "origin", f"HEAD:refs/heads/{bot_branch}"],
                 cwd=target_checkout,
             )
         if create_pr:
@@ -637,6 +632,32 @@ def find_pull_request_number(*, checkout: Path, bot_branch: str, target_branch: 
         ],
         cwd=checkout,
     ).strip()
+
+
+def add_detached_remote_worktree(*, repo: Path, checkout: Path, branch: str) -> None:
+    """Add a detached worktree from ``origin/<branch>``.
+
+    Migration runs generate temporary commits and push HEAD to an automation
+    branch. They do not need a local branch checkout, and avoiding one prevents
+    stale local automation branches or already-open worktrees from blocking CI.
+    """
+
+    if not remote_branch_exists(repo=repo, branch=branch):
+        raise SystemExit(f"Remote branch does not exist: origin/{branch}")
+    _run(["git", "worktree", "add", "--detach", str(checkout), f"origin/{branch}"], cwd=repo)
+
+
+def remote_branch_exists(*, repo: Path, branch: str) -> bool:
+    """Return whether ``origin/<branch>`` exists."""
+
+    result = subprocess.run(
+        ["git", "ls-remote", "--exit-code", "--heads", "origin", branch],
+        cwd=repo,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return result.returncode == 0
 
 
 def is_auto_merge_safe(

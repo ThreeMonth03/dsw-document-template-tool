@@ -290,7 +290,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
         '"$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" "$TRANSLATION_TREE_DIR/tree"'
         in workflow_text
     )
-    assert 'git push origin "HEAD:$TARGET_REF"' in workflow_text
+    assert 'git push origin "HEAD:refs/heads/$TARGET_REF"' in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
     assert 'src/translation_tree.py" audit-output' in workflow_text
     assert "--template-organization-id" in workflow_text

@@ -187,7 +187,7 @@ def sync_translation_versions(
                 cwd=repo,
             )
             if push:
-                _run(["git", "push", "origin", "HEAD:master"], cwd=repo)
+                _run(["git", "push", "origin", "HEAD:refs/heads/master"], cwd=repo)
             config = load_translation_repository_config(config_path)
 
     _run(["git", "fetch", "--prune", "origin"], cwd=repo)
@@ -326,7 +326,7 @@ def refresh_version_branch(
             cwd=checkout,
         )
         if push:
-            _run(["git", "push", "origin", f"HEAD:{branch}"], cwd=checkout)
+            _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
         return True
     finally:
         _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
@@ -349,7 +349,12 @@ def create_version_branch(
     checkout = temp_root / branch.replace("/", "-")
     if checkout.exists():
         shutil.rmtree(checkout)
-    _run(["git", "worktree", "add", "-B", branch, str(checkout), "HEAD"], cwd=repo)
+    add_new_branch_worktree(
+        repo=repo,
+        checkout=checkout,
+        branch=branch,
+        push=push,
+    )
     try:
         restore_clean_workspace(
             checkout=checkout,
@@ -381,7 +386,7 @@ def create_version_branch(
             cwd=checkout,
         )
         if push:
-            _run(["git", "push", "origin", f"HEAD:{branch}"], cwd=checkout)
+            _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
     finally:
         _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
 
@@ -824,17 +829,61 @@ def add_existing_branch_worktree(
     and push HEAD back to the remote branch.
     """
 
-    if branch_checked_out_in_worktree(repo, branch):
-        if not push:
-            raise SystemExit(
-                f"{branch} is checked out in another worktree; rerun with --push "
-                "or remove that worktree before refreshing locally."
-            )
+    if push:
         _run(["git", "worktree", "add", "--detach", str(checkout), f"origin/{branch}"], cwd=repo)
         return True
+    if branch_checked_out_in_worktree(repo, branch):
+        raise SystemExit(
+            f"{branch} is checked out in another worktree; rerun with --push "
+            "or remove that worktree before refreshing locally."
+        )
+    if local_branch_exists(repo, branch):
+        _run(["git", "worktree", "add", str(checkout), branch], cwd=repo)
+        return False
 
     _run(["git", "worktree", "add", "-B", branch, str(checkout), f"origin/{branch}"], cwd=repo)
     return False
+
+
+def add_new_branch_worktree(
+    *,
+    repo: Path,
+    checkout: Path,
+    branch: str,
+    push: bool,
+) -> None:
+    """Check out the start point for a newly generated version branch.
+
+    CI pushes the detached commit directly to ``refs/heads/<branch>``, so it
+    does not need to create or reset a local branch. Local non-push runs keep a
+    named branch because that is easier to inspect and continue manually.
+    """
+
+    if push:
+        _run(["git", "worktree", "add", "--detach", str(checkout), "HEAD"], cwd=repo)
+        return
+    if branch_checked_out_in_worktree(repo, branch):
+        raise SystemExit(
+            f"{branch} is checked out in another worktree; rerun with --push "
+            "or remove that worktree before creating it locally."
+        )
+    if local_branch_exists(repo, branch):
+        raise SystemExit(
+            f"{branch} already exists locally; rerun with --push or remove that "
+            "local branch before creating it locally."
+        )
+    _run(["git", "worktree", "add", "-B", branch, str(checkout), "HEAD"], cwd=repo)
+
+
+def local_branch_exists(repo: Path, branch: str) -> bool:
+    """Return whether a local branch ref exists."""
+
+    result = subprocess.run(
+        ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{branch}"],
+        cwd=repo,
+        check=False,
+    )
+    return result.returncode == 0
 
 
 def branch_checked_out_in_worktree(repo: Path, branch: str) -> bool:
