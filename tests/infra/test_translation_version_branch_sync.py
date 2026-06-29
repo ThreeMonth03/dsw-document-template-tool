@@ -139,28 +139,9 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
-    workflow_text = _git_show(
+    assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
-    )
-    workflow_env = _workflow_env(workflow_text)
-    workflow_triggers = _workflow_triggers(workflow_text)
-    assert workflow_triggers["pull_request"]["branches"] == ["translation/v1.30.2"]
-    assert workflow_triggers["push"]["branches"] == ["translation/v1.30.2"]
-    assert "github.event_name == 'push'" in workflow_text
-    assert (
-        workflow_env["COMPACT_TEMPLATE_DIR"]
-        == "workspace/document-templates/compact/dsw-science-europe-1.30.2"
-    )
-    assert workflow_env["TRANSLATED_TEMPLATE_VERSION"] == "1.30.2"
-    assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "PUBLISH_TARGET_REPOSITORY" not in workflow_env
-    assert "PUBLISH_TARGET_BRANCH" not in workflow_env
-    assert "Publish translated template source branch" not in workflow_text
-    assert (
-        workflow_env["PROJECT_RENDER_OUTPUT"]
-        == "outputs/project-render/dsw-science-europe/v1.30.2/zh-Hant/test-project.pdf"
     )
 
 
@@ -319,23 +300,10 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "translation/v1.30.1:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
-    workflow_text = _git_show(
+    assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
-    workflow_env = _workflow_env(workflow_text)
-    workflow_triggers = _workflow_triggers(workflow_text)
-    assert workflow_triggers["pull_request"]["branches"] == ["translation/v1.30.1"]
-    assert workflow_triggers["push"]["branches"] == ["translation/v1.30.1"]
-    assert "github.event_name == 'push'" in workflow_text
-    assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "PUBLISH_TARGET_REPOSITORY" not in workflow_env
-    assert "PUBLISH_TARGET_BRANCH" not in workflow_env
-    assert "Publish translated template source branch" not in workflow_text
-    assert "Dispatch control-plane migration" in workflow_text
-    assert "gh workflow run document_template_translation_sync.yml" in workflow_text
-    assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
 
 
 def test_refresh_existing_branch_requires_push_when_branch_is_open_elsewhere(
@@ -461,11 +429,10 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
         )
         == "compact v1.30.1\n"
     )
-    workflow_text = _git_show_bare(
+    assert not _git_path_exists_bare(
         origin,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
-    assert _workflow_triggers(workflow_text)["push"]["branches"] == ["translation/v1.30.1"]
 
 
 def test_create_new_branch_requires_push_when_branch_is_open_elsewhere(
@@ -641,176 +608,6 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
     )
 
 
-def test_version_branch_workflow_uses_version_specific_preview_runtime(
-    repo_root: Path,
-    tmp_path: Path,
-) -> None:
-    """Older metamodel branches should preview with a compatible DSW runtime."""
-
-    sync_module = _load_sync_module(repo_root)
-    checkout = tmp_path / "checkout"
-    checkout.mkdir()
-    _write_translation_config(
-        checkout / "translation-config.yml",
-        supported_versions=("v1.29.1", "v1.30.0"),
-    )
-    config = sync_module.load_translation_repository_config(checkout / "translation-config.yml")
-
-    sync_module.write_version_branch_workflow(
-        checkout=checkout,
-        tooling_root=repo_root,
-        config=config,
-        version="v1.29.1",
-        branch="translation/v1.29.1",
-    )
-
-    workflow_text = (
-        checkout / ".github/workflows/document_template_translation_sync.yml"
-    ).read_text(encoding="utf-8")
-    assert sync_module.preview_runtime_for_version("v1.29.1").dsw_version == "4.26"
-    assert sync_module.preview_runtime_for_version("v1.30.0").dsw_version == "4.30"
-    workflow_env = _workflow_env(workflow_text)
-    workflow_triggers = _workflow_triggers(workflow_text)
-    assert workflow_triggers["pull_request"]["branches"] == ["translation/v1.29.1"]
-    assert workflow_triggers["push"]["branches"] == ["translation/v1.29.1"]
-    assert workflow_env["PROJECT_REF"] == "tooling-repo/fixtures/projects/demo/test-project.json"
-    assert workflow_env["DSW_VERSION"] == "4.26"
-    assert workflow_env["DSW_TDK_VERSION"] == "4.26.1"
-    assert workflow_env["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "17.1"
-    assert workflow_env["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
-    assert "PUBLISH_TARGET_BRANCH" not in workflow_env
-    assert (
-        workflow_env["COMPACT_TEMPLATE_DIR"]
-        == "workspace/document-templates/compact/dsw-science-europe-1.29.1"
-    )
-    assert workflow_env["TRANSLATED_TEMPLATE_VERSION"] == "1.29.1"
-    assert "document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
-    assert "Dispatch control-plane migration" in workflow_text
-    assert "gh workflow run document_template_translation_sync.yml" in workflow_text
-
-
-def test_version_branch_workflow_runtime_injection_covers_metamodel_groups(
-    repo_root: Path,
-    tmp_path: Path,
-) -> None:
-    """Generated branch workflows should stay aligned with the tooling runtime matrix."""
-
-    sync_module = _load_sync_module(repo_root)
-    checkout = tmp_path / "checkout"
-    checkout.mkdir()
-    _write_translation_config(
-        checkout / "translation-config.yml",
-        supported_versions=("v1.29.1", "v1.30.0"),
-    )
-    config = sync_module.load_translation_repository_config(checkout / "translation-config.yml")
-
-    expectations = {
-        "v1.29.1": {
-            "DSW_VERSION": "4.26",
-            "DSW_TDK_VERSION": "4.26.1",
-            "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION": "17.1",
-            "UPSTREAM_TEMPLATE_PREVIEW_STRICT": "true",
-        },
-        "v1.30.0": {
-            "DSW_VERSION": "4.30",
-            "DSW_TDK_VERSION": "4.30.2",
-            "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION": "18.0",
-            "UPSTREAM_TEMPLATE_PREVIEW_STRICT": "true",
-        },
-    }
-    for version, expected_env in expectations.items():
-        branch = f"translation/{version}"
-        sync_module.write_version_branch_workflow(
-            checkout=checkout,
-            tooling_root=repo_root,
-            config=config,
-            version=version,
-            branch=branch,
-        )
-        workflow_text = (
-            checkout / ".github/workflows/document_template_translation_sync.yml"
-        ).read_text(encoding="utf-8")
-        workflow_triggers = _workflow_triggers(workflow_text)
-        workflow_env = _workflow_env(workflow_text)
-        assert workflow_triggers["pull_request"]["branches"] == [branch]
-        assert workflow_triggers["push"]["branches"] == [branch]
-        assert "PUBLISH_TARGET_BRANCH" not in workflow_env
-        for key, expected_value in expected_env.items():
-            assert workflow_env[key] == expected_value
-
-
-def test_version_branch_workflow_uses_translation_config_metadata(
-    repo_root: Path,
-    tmp_path: Path,
-) -> None:
-    """Generated workflows should follow translation-config.yml, not hard-coded defaults."""
-
-    sync_module = _load_sync_module(repo_root)
-    checkout = tmp_path / "checkout"
-    checkout.mkdir()
-    _write_translation_config(
-        checkout / "translation-config.yml",
-        tooling_repository="depositar/custom-template-tool",
-        tooling_ref="release/v2",
-        translated_template_id="custom-zh-hant",
-        translated_template_name="Custom Template: zh-Hant",
-    )
-    config = sync_module.load_translation_repository_config(checkout / "translation-config.yml")
-
-    sync_module.write_version_branch_workflow(
-        checkout=checkout,
-        tooling_root=repo_root,
-        config=config,
-        version="v1.30.1",
-        branch="translation/v1.30.1",
-    )
-
-    workflow_env = _workflow_env(
-        (checkout / ".github/workflows/document_template_translation_sync.yml").read_text(
-            encoding="utf-8"
-        )
-    )
-    assert workflow_env["TOOLING_REPOSITORY"] == "depositar/custom-template-tool"
-    assert workflow_env["TOOLING_REF"] == "release/v2"
-    assert workflow_env["TRANSLATED_TEMPLATE_ID"] == "custom-zh-hant"
-    assert workflow_env["TRANSLATED_TEMPLATE_NAME"] == "Custom Template: zh-Hant"
-    assert workflow_env["TRANSLATED_TEMPLATE_DIR"] == (
-        "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/dsw-custom-zh-hant-1.30.1"
-    )
-
-
-def test_version_branch_workflow_validation_rejects_mismatched_env(
-    repo_root: Path,
-    tmp_path: Path,
-) -> None:
-    """The generator should fail before committing a half-rewritten workflow."""
-
-    sync_module = _load_sync_module(repo_root)
-    checkout = tmp_path / "checkout"
-    checkout.mkdir()
-    _write_translation_config(checkout / "translation-config.yml")
-    config = sync_module.load_translation_repository_config(checkout / "translation-config.yml")
-    workflow = sync_module.render_version_branch_workflow(
-        tooling_root=repo_root,
-        config=config,
-        version="v1.30.1",
-        branch="translation/v1.30.1",
-    )
-    broken_workflow = workflow.replace(
-        'COMPACT_TEMPLATE_DIR: "workspace/document-templates/compact/dsw-science-europe-1.30.1"',
-        'COMPACT_TEMPLATE_DIR: "workspace/document-templates/compact/dsw-science-europe-1.30.0"',
-    )
-
-    with pytest.raises(SystemExit, match="COMPACT_TEMPLATE_DIR"):
-        sync_module.validate_version_branch_workflow(
-            broken_workflow,
-            config=config,
-            version="v1.30.1",
-            branch="translation/v1.30.1",
-        )
-
-
 def test_sync_translation_versions_uses_semantic_previous_latest(
     repo_root: Path,
     tmp_path: Path,
@@ -910,26 +707,6 @@ publish:
     )
 
 
-def _workflow_env(workflow_text: str) -> dict[str, str]:
-    payload = _load_workflow(workflow_text)
-    env = payload["env"]
-    assert isinstance(env, dict)
-    return env
-
-
-def _workflow_triggers(workflow_text: str) -> dict[str, object]:
-    payload = _load_workflow(workflow_text)
-    triggers = payload["on"]
-    assert isinstance(triggers, dict)
-    return triggers
-
-
-def _load_workflow(workflow_text: str) -> dict[str, object]:
-    payload = yaml.load(workflow_text, Loader=yaml.BaseLoader)
-    assert isinstance(payload, dict)
-    return payload
-
-
 def _write_clean_artifact(artifact_root: Path, *, version: str) -> None:
     workspace_root = artifact_root / "upstream-workspaces" / "dsw-science-europe" / version
     template_name = f"dsw-science-europe-{version.removeprefix('v')}"
@@ -985,6 +762,16 @@ def _git_path_exists(repo: Path, revision: str) -> bool:
     result = subprocess.run(
         ["git", "cat-file", "-e", revision],
         cwd=repo,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+def _git_path_exists_bare(repo: Path, revision: str) -> bool:
+    result = subprocess.run(
+        ["git", "--git-dir", str(repo), "cat-file", "-e", revision],
         check=False,
         capture_output=True,
         text=True,
