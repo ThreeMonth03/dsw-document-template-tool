@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Checkout template repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: >-
             ${{ github.event_name == 'pull_request' &&
@@ -66,14 +66,14 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout DSW document-template tooling
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ env.TOOLING_REPOSITORY }}
           ref: ${{ env.TOOLING_REF }}
           path: tooling-repo
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -270,7 +270,7 @@ jobs:
             --force
 
       - name: Upload translated template package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}
           path: |
@@ -343,7 +343,7 @@ jobs:
 
       - name: Upload sample project preview
         if: ${{ always() && env.PROJECT_REF != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}
           path: |
