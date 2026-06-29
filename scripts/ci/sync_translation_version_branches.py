@@ -146,7 +146,7 @@ def sync_translation_versions(
 
     config = load_translation_repository_config(config_path)
     existing_versions = tuple(config.template.supported_versions)
-    previous_latest = existing_versions[-1]
+    previous_latest = sorted_versions(existing_versions)[-1]
     artifact_versions = tuple(
         clean_artifact_versions(config=config, artifact_root=clean_artifact_root)
     )

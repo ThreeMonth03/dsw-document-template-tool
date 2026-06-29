@@ -393,6 +393,41 @@ def test_version_branch_workflow_runtime_injection_covers_metamodel_groups(
             assert expected_line in workflow_text
 
 
+def test_sync_translation_versions_uses_semantic_previous_latest(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Migration source metadata should not depend on YAML list order."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(
+        translation_repo / "translation-config.yml",
+        supported_versions=("v1.30.1", "v1.29.1"),
+    )
+    _write_clean_artifact(artifact_root, version="v1.30.2")
+
+    result = sync_module.sync_translation_versions(
+        repo=translation_repo,
+        tooling_root=repo_root,
+        config_path=translation_repo / "translation-config.yml",
+        clean_artifact_root=artifact_root,
+        tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+        push=False,
+        dry_run=True,
+    )
+
+    assert result.previous_latest_version == "v1.30.1"
+    assert result.current_latest_version == "v1.30.2"
+    assert result.added_versions == ("v1.30.2",)
+
+
 def _load_sync_module(repo_root: Path) -> ModuleType:
     module_path = repo_root / "scripts" / "ci" / "sync_translation_version_branches.py"
     spec = importlib.util.spec_from_file_location("sync_translation_version_branches", module_path)
