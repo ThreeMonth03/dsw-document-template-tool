@@ -6,9 +6,9 @@ or changes `metamodelVersion`.
 ## Current Support Model
 
 - Supported upstream versions start at `v1.29.1`.
-- Tool repo clean scaffold assets are built from upstream tags.
-- Translation repo versions are explicit branches such as `translation/v1.30.1`.
-- depositar import is manual after review.
+- Clean scaffold assets are built from upstream tags.
+- Downstream translation repositories consume those scaffolds and own their own
+  version branches and publication policy.
 
 `config/dsw-compat.yml` may split that support range across multiple runtime
 rows. For example, `v1.29.1` currently uses a DSW 4.26 runtime, while
@@ -28,10 +28,9 @@ The tool repo CI:
 6. renders preview PDFs when the matching DSW runtime supports the metamodel
 7. refreshes clean scaffold GitHub Release assets
 
-The translation repo does not become fully version-aware by magic. A new version
-must be added to `translation-config.yml`, must get a `translation/v*` branch,
-and must publish its own package/PDF release assets before it is considered
-ready for manual depositar import.
+Downstream repositories do not become fully version-aware by magic. A clean
+scaffold release means this repo can transform and package the upstream tag; it
+does not mean any downstream translation branch exists yet.
 
 ## Known Metamodel
 
@@ -45,17 +44,8 @@ If CI finds that the new upstream tag uses an already configured metamodel:
      --repo ThreeMonth03/DSW-document-template-tool
    ```
 
-3. Update the translation repo control config to include `vX.Y.Z`.
-4. Run or let the translation control workflow create or refresh the matching
-   `translation/vX.Y.Z` branch.
-5. Confirm the branch CI publishes:
-
-   ```shell
-   gh release view science-europe-zh-hant-vX.Y.Z \
-     --repo ThreeMonth03/DSW-document-template-translation
-   ```
-
-6. Review migration results and demo PDF before manual depositar import.
+3. Hand the scaffold to the downstream translation repository using
+   [Downstream Integration](downstream-integration.md).
 
 Do not stop after the tool repo release is green. A green clean scaffold means
 the upstream template can be transformed and packaged; it does not mean the
@@ -109,12 +99,6 @@ Tool repo release assets are named like:
 clean-scaffold-dsw-science-europe-v1.30.1
 ```
 
-Translation repo release assets are named like:
-
-```text
-science-europe-zh-hant-v1.30.1
-```
-
-Assets refresh when CI runs successfully for the relevant branch/version. The
+Assets refresh when CI runs successfully for the relevant upstream tag. The
 release Git tag is only a version download bucket; check release notes and
 checksums for generated asset provenance.

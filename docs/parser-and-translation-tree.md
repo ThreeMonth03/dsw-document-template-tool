@@ -98,8 +98,9 @@ translators to continue.
   asset, link, or static source drift.
 - Render previews catch runtime DSW/TDK/template integration issues.
 
-No single audit proves translation wording is good. Use the PDF preview and QA
-checklist for wording, glossary, and layout review.
+No single audit proves translation wording is good. Downstream translation
+repositories should review wording, glossary, and layout against their own QA
+checklist.
 
 ## Known zh-Hant Output Concerns
 

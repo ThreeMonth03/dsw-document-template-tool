@@ -57,7 +57,8 @@ Use `make clean` when generated files make local review noisy.
   with `--clobber`.
 - Release tags are not the source of truth for generated asset provenance. The
   release notes, checksums, workflow run, and asset names are.
-- depositar/DSW import is manual unless a future policy explicitly changes this.
+- downstream publication or DSW import policy belongs in the downstream
+  translation repository
 
 ## Standard Checks
 

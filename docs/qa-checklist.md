@@ -1,6 +1,8 @@
 # QA Checklist
 
-Use this before asking someone to import a translated package into DSW/depositar.
+Use this before trusting tool-generated clean scaffold artifacts or parser
+changes. Translation wording, glossary review, and manual DSW/depositar import
+belong in the downstream translation repository.
 
 ## Structural Checks
 
@@ -12,7 +14,7 @@ make lint
 make test
 ```
 
-For a translated template:
+For a generated translation tree or synced output:
 
 ```shell
 make audit-translation-tree
@@ -32,19 +34,20 @@ Confirm:
 For each target version:
 
 ```shell
-gh release view science-europe-zh-hant-vX.Y.Z \
-  --repo ThreeMonth03/DSW-document-template-translation
+gh release view clean-scaffold-dsw-science-europe-vX.Y.Z \
+  --repo ThreeMonth03/DSW-document-template-tool
 ```
 
 Expected assets:
 
-- `dsw-science-europe-zh-hant-vX.Y.Z.zip`
-- `test-project-vX.Y.Z.pdf`
-- `test-project-vX.Y.Z.pdf.json`
+- clean workspace bundle
+- scaffold package
+- preview bundle or preview status file
 - `SHA256SUMS`
 - `release-notes.md`
 
-Download and verify the checksum before manual import.
+Download and verify the checksum before using a clean scaffold artifact for
+downstream migration.
 
 ## PDF Review
 
@@ -53,34 +56,31 @@ Open the demo PDF and inspect:
 - cover page title, project name, and metadata
 - table/list rendering
 - representative conditional sections
-- punctuation near translated optional text
-- glossary terms and i10n wording
-- obvious fallback English text
+- punctuation near optional text
 - font readability and heading/body hierarchy
 
-Do not make layout changes only because the Chinese PDF has a different visual
-texture from the English PDF. Change layout only when the output loses structure
-or readability.
+Do not make layout changes only because a generated scaffold preview looks
+visually different from another language. Change layout only when the output
+loses structure or readability.
 
 ## Version Coverage
 
 For all supported versions:
 
 - tool repo clean scaffold release exists
-- translation branch exists
-- translation branch CI is green
-- translation release asset exists
-- demo PDF exists or a clear `failed.json` / `skipped.json` explains why
+- clean scaffold artifact includes compact, expanded, and translation trees
+- scaffold package exists
+- preview PDF exists or a clear `failed.json` / `skipped.json` explains why
 
-## Manual Import
+## Downstream Handoff
 
-Before importing into DSW/depositar:
+Before handing artifacts to a translation repository:
 
-1. Download the versioned zip from the translation repo release.
+1. Download the clean scaffold release assets.
 2. Verify `SHA256SUMS`.
-3. Import into a test DSW environment when possible.
-4. Render the demo project or a representative real project.
-5. Only then import into the intended target environment.
+3. Confirm the artifact version matches the upstream tag.
+4. Confirm the tree passes structure audits.
+5. Confirm the downstream repository documents translation QA and manual import.
 
-Do not import from local `outputs/` unless you intentionally built and reviewed
-that local output.
+Do not hand off local `outputs/` unless you intentionally built and reviewed
+that exact local output.

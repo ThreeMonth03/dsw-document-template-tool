@@ -13,10 +13,8 @@ source.
 
 - `ThreeMonth03/DSW-document-template-tool`: shared tooling, tests, clean
   upstream scaffolds, fixture projects, and CI helpers.
-- `ThreeMonth03/DSW-document-template-translation`: translation control repo
-  with one `translation/v*` branch per supported upstream template version.
-- `depositar/science-europe-template-zh_Hant`: public downstream template source,
-  updated manually after generated artifacts are reviewed.
+- Downstream translation repositories: own translator-facing version branches,
+  translated release assets, and public import or publication policy.
 
 Generated workspaces, generated packages, render outputs, and caches are build
 artifacts. Keep them out of `master` unless a file is explicitly a reusable
@@ -69,7 +67,7 @@ maintenance documents are:
 - [Development Guidelines](docs/development-guidelines.md)
 - [Translation Workflow](docs/translation-workflow.md)
 - [Regression Workflow](docs/regression-workflow.md)
-- [Downstream Translation Repo](docs/downstream-translation-repo.md)
+- [Downstream Integration](docs/downstream-integration.md)
 - [QA Checklist](docs/qa-checklist.md)
 - [Security And Permissions](docs/security-and-permissions.md)
 
@@ -84,5 +82,5 @@ as `clean-scaffold-dsw-science-europe-v1.30.1`. These releases are download
 buckets for downstream maintenance. Their assets are refreshed by CI; the Git
 tag itself is not the source of truth for the generated files.
 
-The translation repo publishes version-specific release assets such as
-`science-europe-zh-hant-v1.30.1`. depositar/DSW import remains manual.
+Downstream translation repositories consume these scaffold releases and publish
+their own translated packages.
