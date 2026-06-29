@@ -1113,6 +1113,69 @@ __NON_REFERENCE_URL_CONDITION__
     ) in rewritten
 
 
+def test_science_europe_nref_known_reason_rewrite_preserves_upstream_periods() -> None:
+    """Known non-reference no-use reasons must not gain punctuation."""
+
+    nref_url_condition = (
+        '            {%- if nrefDataWhere.startswith("http://") or '
+        'nrefDataWhere.startswith("https://") or '
+        'nrefDataWhere.startswith("ftp://") -%}'
+    )
+    nref_other_reason_elif = (
+        "{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoReasonAUuid "
+        "and nrefDataUseNoOtherReasonReply -%}"
+    )
+    source = """
+          <p>We considered reusing this non-reference data\x20
+          {%- if nrefDataWhere -%}
+          {{+" "}}available via:{{" "}}
+__NON_REFERENCE_URL_CONDITION__
+              <a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+
+          {# no usage reason #}
+          {%- if nrefDataUseNoReply -%}
+            , but decided not to reuse it
+            {%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}
+              {{" "}}because it misses data we need
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}
+              {{" "}}becauseit misses required aspects
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}
+              {{" "}}becauseit is not sufficient quality
+            {%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}
+              {{" "}}because its conditions of use do not allow us to use it
+            __NON_REFERENCE_OTHER_REASON_ELIF__
+              {{" "}}because: {{nrefDataUseNoOtherReasonReply|markdown}}
+            {%- else -%}
+             .
+            {%- endif -%}
+
+          {%- else -%}
+          .</p>
+          {%- endif -%}
+""".replace("__NON_REFERENCE_URL_CONDITION__", nref_url_condition).replace(
+        "__NON_REFERENCE_OTHER_REASON_ELIF__",
+        nref_other_reason_elif,
+    )
+
+    rewritten = rewrite_science_europe_balanced_source_fragments(source)
+
+    assert "nrefDataWhere and nrefDataUseNoReply" in rewritten
+    assert "but decided not to reuse it becauseit misses required aspects\n" in rewritten
+    assert (
+        "but decided not to reuse it because its conditions of use do not allow us to use it\n"
+        in rewritten
+    )
+    assert "but decided not to reuse it becauseit misses required aspects." not in rewritten
+    assert (
+        "but decided not to reuse it because its conditions of use do not allow us to use it."
+        not in rewritten
+    )
+
+
 def test_expand_keeps_branch_closed_sentence_group_as_one_block(tmp_path: Path) -> None:
     """Branch-specific endings of one sentence should stay in one wrapper block."""
 

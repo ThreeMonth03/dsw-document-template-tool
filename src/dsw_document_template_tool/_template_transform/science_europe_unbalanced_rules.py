@@ -497,15 +497,15 @@ def _build_unbalanced_html_fragment_groups(
 """,
             f"""
             {{%- if nrefDataUseNoReply == uuids.nrefDataUseNoDataAUuid -%}}
-            , but decided not to reuse it{{{{" "}}}}because it misses data we need.
+            , but decided not to reuse it{{{{" "}}}}because it misses data we need
             {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoAspectAUuid -%}}
-            , but decided not to reuse it{{{{" "}}}}becauseit misses required aspects.
+            , but decided not to reuse it{{{{" "}}}}becauseit misses required aspects
             {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoQualityAUuid -%}}
-            , but decided not to reuse it{{{{" "}}}}becauseit is not sufficient quality.
+            , but decided not to reuse it{{{{" "}}}}becauseit is not sufficient quality
             {{%- elif nrefDataUseNoReply == uuids.nrefDataUseNoCondAUuid -%}}
-            {nref_no_cond_sentence}.
+            {nref_no_cond_sentence}
             {nref_no_reason_other_elif}
-            {nref_no_reason_other_sentence}.
+            {nref_no_reason_other_sentence}
             {{%- else -%}}
             , but decided not to reuse it.
             {{%- endif -%}}
