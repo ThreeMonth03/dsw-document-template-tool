@@ -11,6 +11,9 @@ from typing import Any
 
 from jinja2 import Environment, StrictUndefined
 
+from dsw_document_template_tool._template_transform.science_europe_balanced_rules import (
+    rewrite_science_europe_balanced_source_fragments,
+)
 from dsw_document_template_tool.template_transform import (
     compact_template_dir,
     expand_template_dir,
@@ -1044,6 +1047,70 @@ def test_expand_keeps_one_paragraph_with_inner_condition_as_one_block(tmp_path: 
     assert expanded_text.count(":start #}") == 1
     assert "This dataset will be collected by an external party." in expanded_text
     assert "The project partners acquire full ownership of the data." in expanded_text
+
+
+def test_science_europe_url_usage_rewrite_preserves_anchor_period() -> None:
+    """Expanded URL+usage sentences must keep the upstream anchor period."""
+
+    ref_url_condition = (
+        '              {%- if refDataWhere.startswith("http://") or '
+        'refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}'
+    )
+    nref_url_condition = (
+        '            {%- if nrefDataWhere.startswith("http://") or '
+        'nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}'
+    )
+    source = """
+            <p>We will re-use this standard reference data
+            {%- if refDataWhere -%}
+              {{" "}}available via:{{" "}}
+__STANDARD_REFERENCE_URL_CONDITION__
+                <a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.
+              {%- else -%}
+                {{ refDataWhere }}
+             {%- endif -%}
+            {%- endif -%}
+\x20\x20\x20\x20
+            {# usage #}
+            {%- set refDataUsageQ = [ refDataUsedPrefix, uuids.refDataUsageQUuid]|reply_path -%}
+            {%- set refDataUsageReply = repliesMap[refDataUsageQ]|reply_str_value  -%}
+            {%- if refDataUsageReply -%}
+                {{+" "}}in order to "{{ refDataUsageReply}}"
+            {%- endif -%}
+            .</p>
+
+          <p>We will re-use this non-referece data\x20
+          {%- if nrefDataWhere -%}
+         {{" "}} available via:{{" "}}
+__NON_REFERENCE_URL_CONDITION__
+              <a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.
+            {%- else -%}
+              {{ nrefDataWhere }}
+            {%- endif -%}
+          {%- endif -%}
+\x20\x20\x20\x20
+          {# usage #}
+          {%- set nrefDataUsageQ = [nrefDataUsedPrefix, uuids.nrefDataUsageQUuid]|reply_path  -%}
+          {%- set nrefDataUsageReply = repliesMap[nrefDataUsageQ]|reply_str_value -%}
+          {%- if nrefDataUsageReply -%}
+            {{+" "}}in order to "{{ nrefDataUsageReply}}"
+          {%- endif -%}
+          .</p>
+""".replace("__STANDARD_REFERENCE_URL_CONDITION__", ref_url_condition).replace(
+        "__NON_REFERENCE_URL_CONDITION__",
+        nref_url_condition,
+    )
+
+    rewritten = rewrite_science_europe_balanced_source_fragments(source)
+
+    assert (
+        '<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.{{+" "}}'
+        'in order to "{{ refDataUsageReply}}".'
+    ) in rewritten
+    assert (
+        '<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.{{+" "}}'
+        'in order to "{{ nrefDataUsageReply}}".'
+    ) in rewritten
 
 
 def test_expand_keeps_branch_closed_sentence_group_as_one_block(tmp_path: Path) -> None:

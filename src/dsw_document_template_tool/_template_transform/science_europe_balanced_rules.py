@@ -356,7 +356,7 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
             {%- if refDataWhere -%}
               {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
                 {%- if refDataUsageReply -%}
-                  <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>{{+" "}}in order to "{{ refDataUsageReply}}".</p>
+                  <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.{{+" "}}in order to "{{ refDataUsageReply}}".</p>
                 {%- else -%}
                   <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.</p>
                 {%- endif -%}
@@ -404,7 +404,7 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
             {%- if refDataWhere -%}
               {%- if refDataWhere.startswith("http://") or refDataWhere.startswith("https://") or refDataWhere.startswith("ftp://") -%}
                 {%- if refDataUsageReply -%}
-                  <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>{{+" "}}in order to {{ refDataUsageReply|markdown }}</p>
+                  <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.{{+" "}}in order to {{ refDataUsageReply|markdown }}</p>
                 {%- else -%}
                   <p>We will re-use this standard reference data available via:{{" "}}<a href="{{ refDataWhere }}" target="_blank">{{ refDataWhere }} </a>.</p>
                 {%- endif -%}
@@ -448,7 +448,7 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
           {%- if nrefDataWhere -%}
             {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
               {%- if nrefDataUsageReply -%}
-                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>{{+" "}}in order to "{{ nrefDataUsageReply}}".</p>
+                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.{{+" "}}in order to "{{ nrefDataUsageReply}}".</p>
               {%- else -%}
                 <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.</p>
               {%- endif -%}
@@ -496,7 +496,7 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
           {%- if nrefDataWhere -%}
             {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
               {%- if nrefDataUsageReply -%}
-                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>{{+" "}}in order to {{ nrefDataUsageReply|markdown }}.</p>
+                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.{{+" "}}in order to {{ nrefDataUsageReply|markdown }}.</p>
               {%- else -%}
                 <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ nrefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.</p>
               {%- endif -%}
@@ -540,7 +540,7 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
           {%- if nrefDataWhere -%}
             {%- if nrefDataWhere.startswith("http://") or nrefDataWhere.startswith("https://") or nrefDataWhere.startswith("ftp://") -%}
               {%- if nrefDataUsageReply -%}
-                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>{{+" "}}in order to "{{ nrefDataUsageReply}}".</p>
+                <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.{{+" "}}in order to "{{ nrefDataUsageReply}}".</p>
               {%- else -%}
                 <p>We will re-use this non-referece data available via:{{" "}}<a href="{{ rnefDataWhere }}" target="_blank">{{ nrefDataWhere }} </a>.</p>
               {%- endif -%}
