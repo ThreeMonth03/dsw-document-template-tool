@@ -86,6 +86,9 @@ def resolve_migration_source(
     if not source_version:
         source_version = previous_latest_version.strip() or current_latest_version.strip()
 
+    if not source_version:
+        return MigrationSourceResult(skip=True)
+
     return MigrationSourceResult(skip=False, source_version=source_version)
 
 

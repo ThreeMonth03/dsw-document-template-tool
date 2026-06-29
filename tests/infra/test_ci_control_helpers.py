@@ -263,6 +263,32 @@ def test_resolve_migration_source_skips_non_translation_workflow_run(
     assert output.read_text(encoding="utf-8").splitlines() == ["skip=true"]
 
 
+def test_resolve_migration_source_skips_when_no_source_version_exists(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Migration fan-out should not run with an empty source version."""
+
+    output = tmp_path / "github-output.txt"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "resolve_migration_source.py"),
+            "--event-name",
+            "schedule",
+            "--github-output",
+            str(output),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "skipping" in result.stdout
+    assert output.read_text(encoding="utf-8").splitlines() == ["skip=true"]
+
+
 def _build_tagged_remote(tmp_path: Path, tags: tuple[str, ...]) -> str:
     remote = tmp_path / "upstream-template"
     remote.mkdir()
