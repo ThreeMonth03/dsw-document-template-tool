@@ -169,6 +169,60 @@ def test_publish_clean_scaffold_releases_stages_assets_in_dry_run(tmp_path: Path
     assert "not finished public translations" in notes
 
 
+def test_publish_clean_scaffold_releases_uses_source_template_id_in_asset_names(
+    tmp_path: Path,
+) -> None:
+    """Custom source template ids should not inherit Science Europe asset names."""
+
+    outputs = tmp_path / "outputs"
+    package = (
+        outputs
+        / "document-templates"
+        / "custom-template"
+        / "v2.0.0"
+        / "zh-Hant"
+        / "scaffold"
+        / "custom-template-zh-hant-scaffold-2.0.0.zip"
+    )
+    package.parent.mkdir(parents=True)
+    package.write_text("package\n", encoding="utf-8")
+    workspace = outputs / "upstream-workspaces" / "custom-template" / "v2.0.0"
+    workspace.mkdir(parents=True)
+    (workspace / "upstream.json").write_text("{}\n", encoding="utf-8")
+
+    result = run(
+        [
+            sys.executable,
+            str(PUBLISH_SCRIPT),
+            "--outputs-root",
+            str(outputs),
+            "--release-root",
+            str(outputs / "release-assets" / "clean-scaffold"),
+            "--repository",
+            "owner/repo",
+            "--run-id",
+            "123",
+            "--commit-sha",
+            "abc123",
+            "--source-template-id",
+            "custom-template",
+            "--dry-run",
+        ],
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    release_dir = outputs / "release-assets" / "clean-scaffold" / "v2.0.0"
+    assert sorted(path.name for path in release_dir.iterdir()) == [
+        "SHA256SUMS",
+        "clean-workspace-custom-template-v2.0.0.zip",
+        "custom-template-zh-hant-scaffold-2.0.0.zip",
+        "release-notes.md",
+    ]
+    assert "Clean custom-template scaffold v2.0.0" in (release_dir / "release-notes.md").read_text(
+        encoding="utf-8"
+    )
+
+
 def test_publish_clean_scaffold_releases_succeeds_without_packages(tmp_path: Path) -> None:
     """Missing packages should be a no-op for runtimes that produced no artifacts."""
 

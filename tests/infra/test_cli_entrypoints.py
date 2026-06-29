@@ -157,6 +157,36 @@ def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path, tmp_path:
     assert "v1.29.1" not in refs
 
 
+def test_resolve_upstream_refs_rejects_empty_version_ranges(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Version ranges should fail loudly when upstream has no matching tags."""
+
+    remote = _build_upstream_template_remote(
+        tmp_path,
+        [
+            ("v1.29.1", "1.29.1", "17.1"),
+            ("v1.30.1", "1.30.1", "18.0"),
+        ],
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "resolve_upstream_refs.py"),
+            "--remote",
+            str(remote),
+            "v9.99.0+",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "did not match any upstream tags" in result.stderr
+
+
 def test_resolve_upstream_refs_normalizes_github_owner_repo() -> None:
     """GitHub owner/repo shorthand should be accepted by the resolver."""
 

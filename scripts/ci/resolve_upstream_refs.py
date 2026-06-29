@@ -81,11 +81,14 @@ def resolve_refs(remote: str, refs: Iterable[str]) -> list[str]:
                 raise ValueError(f"Invalid version range ref: {ref}")
             if remote_tags is None:
                 remote_tags = list_remote_version_tags(remote)
-            resolved_refs.extend(
+            matched_tags = [
                 tag
                 for tag in remote_tags
                 if (version := parse_version_tag(tag)) is not None and version >= min_version
-            )
+            ]
+            if not matched_tags:
+                raise ValueError(f"Version range {ref} did not match any upstream tags")
+            resolved_refs.extend(matched_tags)
         else:
             resolved_refs.append(ref)
     return dedupe_preserving_order(resolved_refs)

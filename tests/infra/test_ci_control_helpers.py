@@ -45,6 +45,58 @@ def test_validate_translation_config_accepts_existing_upstream_tags(
     )
 
 
+def test_validate_translation_config_normalizes_github_owner_repo(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Translation config validation should accept GitHub owner/repo shorthand."""
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    git_log = tmp_path / "git-args.txt"
+    fake_git = fake_bin / "git"
+    fake_git.write_text(
+        f"""#!/usr/bin/env python3
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+Path({str(git_log)!r}).write_text(" ".join(sys.argv[1:]) + "\\n", encoding="utf-8")
+if sys.argv[1:4] == ["ls-remote", "--exit-code", "--tags"]:
+    raise SystemExit(0)
+raise SystemExit(f"unexpected git args: {{sys.argv[1:]}}")
+""",
+        encoding="utf-8",
+    )
+    fake_git.chmod(fake_git.stat().st_mode | stat.S_IXUSR)
+    config = _write_translation_config(
+        tmp_path / "translation-config.yml",
+        upstream="ds-wizard/science-europe-template",
+        supported_versions=("v1.29.1",),
+    )
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "validate_translation_config.py"),
+            "--config",
+            str(config),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "https://github.com/ds-wizard/science-europe-template.git" in git_log.read_text(
+        encoding="utf-8",
+    )
+
+
 def test_validate_translation_config_rejects_missing_upstream_tags(
     repo_root: Path,
     tmp_path: Path,

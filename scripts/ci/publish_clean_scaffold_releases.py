@@ -105,8 +105,8 @@ class CleanScaffoldRelease:
         self.commit_sha = commit_sha
         self.source_template_id = source_template_id
         self.translation_locale = translation_locale
-        self.release_tag = f"clean-scaffold-dsw-science-europe-{version_tag}"
-        self.release_title = f"Clean Science Europe scaffold {version_tag}"
+        self.release_tag = f"clean-scaffold-{source_template_id}-{version_tag}"
+        self.release_title = f"Clean {source_template_id} scaffold {version_tag}"
         self.release_dir = release_root / version_tag
         self.workspace_dir = outputs_root / "upstream-workspaces" / source_template_id / version_tag
         self.preview_dir = (
@@ -149,14 +149,14 @@ def stage_clean_scaffold_release(release: CleanScaffoldRelease) -> None:
             AssetSpec(source=release.package, name=release.package.name), release.release_dir
         )
     ]
-    workspace_asset = f"clean-workspace-dsw-science-europe-{release.version_tag}.zip"
+    workspace_asset = f"clean-workspace-{release.source_template_id}-{release.version_tag}.zip"
     staged_files.append(
         stage_directory_archive(
             AssetSpec(source=release.workspace_dir, name=workspace_asset),
             release.release_dir,
         )
     )
-    preview_asset = f"clean-preview-dsw-science-europe-{release.version_tag}.zip"
+    preview_asset = f"clean-preview-{release.source_template_id}-{release.version_tag}.zip"
     staged_preview = stage_directory_archive(
         AssetSpec(source=release.preview_dir, name=preview_asset, optional=True),
         release.release_dir,
