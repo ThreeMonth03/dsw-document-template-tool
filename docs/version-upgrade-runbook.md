@@ -59,7 +59,9 @@ If CI reports an unsupported metamodel:
 2. On scheduled runs, manual `workflow_dispatch` runs, or `master` pushes,
    check whether CI opened or updated a DSW compatibility follow-up PR. The PR
    records the discovery report and smoke-test checklist. Feature-branch pushes
-   intentionally do not open these automation PRs.
+   intentionally do not open these automation PRs. The automation branch is
+   based on the repository default branch, not the branch that happened to
+   trigger the workflow.
 3. Check the official DSW document-template metamodel notes linked in the CI
    report.
 4. Pick a DSW server image and matching `dsw-tdk` version to smoke-test.

@@ -307,6 +307,139 @@ def test_create_dsw_compat_pr_helper_dry_run(repo_root: Path, tmp_path: Path) ->
     assert "Maintainer Checklist" in rendered
 
 
+def test_create_dsw_compat_pr_starts_new_branch_from_remote_base(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """The compatibility PR branch should not inherit a non-base checkout HEAD."""
+
+    origin = tmp_path / "origin.git"
+    worktree = tmp_path / "worktree"
+    report = tmp_path / "discovery.md"
+
+    _init_git_worktree_with_origin(worktree=worktree, origin=origin)
+    base_commit = _git_output(worktree, "rev-parse", "master")
+
+    _git(worktree, "checkout", "-b", "feature")
+    (worktree / "feature.txt").write_text(
+        "must not leak into automation branch\n",
+        encoding="utf-8",
+    )
+    _git(worktree, "add", "feature.txt")
+    _git(worktree, "commit", "-m", "feature")
+    feature_commit = _git_output(worktree, "rev-parse", "feature")
+    subprocess.run(
+        ["git", "-C", str(worktree), "update-ref", "-d", "refs/remotes/origin/master"],
+        check=False,
+    )
+
+    _write_dsw_compat_discovery_report(report)
+    env = _fake_gh_env(tmp_path / "bin")
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py"),
+            "--report",
+            str(report),
+            "--report-path",
+            "docs/compatibility/unsupported-metamodels.md",
+            "--repository",
+            "owner/repo",
+            "--base",
+            "master",
+            "--branch",
+            "automation/dsw-compat-review",
+        ],
+        cwd=worktree,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    automation_parent = _git_output(worktree, "rev-parse", "automation/dsw-compat-review^")
+    tree_files = _git_output(
+        worktree,
+        "ls-tree",
+        "-r",
+        "--name-only",
+        "automation/dsw-compat-review",
+    )
+    assert automation_parent == base_commit
+    assert automation_parent != feature_commit
+    assert "feature.txt" not in tree_files
+
+
+def test_create_dsw_compat_pr_reopens_pr_when_existing_branch_is_unchanged(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """An unchanged automation branch should still ensure an open PR exists."""
+
+    origin = tmp_path / "origin.git"
+    worktree = tmp_path / "worktree"
+    gh_log = tmp_path / "gh.log"
+    report = tmp_path / "discovery.md"
+    rendered_report = tmp_path / "rendered-report.md"
+
+    _init_git_worktree_with_origin(worktree=worktree, origin=origin)
+    _write_dsw_compat_discovery_report(report)
+    subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py"),
+            "--report",
+            str(report),
+            "--report-path",
+            str(rendered_report),
+            "--repository",
+            "owner/repo",
+            "--dry-run",
+        ],
+        check=True,
+    )
+
+    _git(worktree, "checkout", "-b", "automation/dsw-compat-review")
+    compatibility_report = worktree / "docs" / "compatibility" / "unsupported-metamodels.md"
+    compatibility_report.parent.mkdir(parents=True)
+    compatibility_report.write_text(rendered_report.read_text(encoding="utf-8"), encoding="utf-8")
+    _git(worktree, "add", "docs/compatibility/unsupported-metamodels.md")
+    _git(worktree, "commit", "-m", "docs: record unsupported DSW metamodels")
+    _git(worktree, "push", "-u", "origin", "automation/dsw-compat-review")
+    existing_branch_commit = _git_output(worktree, "rev-parse", "automation/dsw-compat-review")
+
+    _git(worktree, "checkout", "master")
+    env = _fake_gh_env(tmp_path / "bin", log_path=gh_log)
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py"),
+            "--report",
+            str(report),
+            "--repository",
+            "owner/repo",
+            "--base",
+            "master",
+            "--branch",
+            "automation/dsw-compat-review",
+        ],
+        cwd=worktree,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "ensuring PR exists" in result.stdout
+    assert (
+        _git_output(worktree, "rev-parse", "automation/dsw-compat-review") == existing_branch_commit
+    )
+    assert "pr view automation/dsw-compat-review" in gh_log.read_text(encoding="utf-8")
+    assert "pr create" in gh_log.read_text(encoding="utf-8")
+
+
 def test_create_translation_migration_prs_help(repo_root: Path) -> None:
     """The migration PR helper should expose a working help screen."""
 
@@ -643,6 +776,49 @@ def test_dsw_tdk_verify_command_is_available() -> None:
     assert "Usage: dsw-tdk verify" in result.stdout
 
 
+def _init_git_worktree_with_origin(*, worktree: Path, origin: Path) -> None:
+    _git(origin.parent, "init", "--bare", "--initial-branch=master", str(origin))
+    worktree.mkdir()
+    _git(worktree, "init", "--initial-branch=master")
+    _git(worktree, "config", "user.name", "Test Bot")
+    _git(worktree, "config", "user.email", "test@example.com")
+    (worktree / "README.md").write_text("base\n", encoding="utf-8")
+    _git(worktree, "add", "README.md")
+    _git(worktree, "commit", "-m", "base")
+    _git(worktree, "remote", "add", "origin", str(origin))
+    _git(worktree, "push", "-u", "origin", "master")
+
+
+def _write_dsw_compat_discovery_report(path: Path) -> None:
+    path.write_text(
+        "## DSW Compatibility Discovery\n\n"
+        "| Ref | Version | metamodelVersion | Runtime | Status |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| `v1.31.0` | `v1.31.0` | `19.0` | - | unsupported |\n",
+        encoding="utf-8",
+    )
+
+
+def _fake_gh_env(bin_dir: Path, *, log_path: Path | None = None) -> dict[str, str]:
+    bin_dir.mkdir()
+    fake_gh = bin_dir / "gh"
+    log_line = f'printf "%s\\n" "$*" >> "{log_path}"\n' if log_path else ""
+    fake_gh.write_text(
+        "#!/usr/bin/env bash\n"
+        f"{log_line}"
+        'if [ "$1" = "pr" ] && [ "$2" = "view" ]; then\n'
+        "  exit 1\n"
+        "fi\n"
+        "exit 0\n",
+        encoding="utf-8",
+    )
+    fake_gh.chmod(0o755)
+
+    env = os.environ.copy()
+    env["PATH"] = f"{bin_dir}:{env['PATH']}"
+    return env
+
+
 def _build_upstream_template_remote(
     tmp_path: Path,
     versions: list[tuple[str, str, str]],
@@ -675,3 +851,12 @@ def _build_upstream_template_remote(
 
 def _git(repo: Path, *args: str) -> None:
     subprocess.run(["git", "-C", str(repo), *args], check=True)
+
+
+def _git_output(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout.strip()

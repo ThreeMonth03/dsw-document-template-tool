@@ -64,14 +64,24 @@ def main() -> None:
         print(f"INFO: wrote {args.report_path} (dry run)")
         return
 
-    checkout_start_ref(branch=args.branch, base=args.base)
+    branch_existed = checkout_start_ref(branch=args.branch, base=args.base)
     args.report_path.parent.mkdir(parents=True, exist_ok=True)
     args.report_path.write_text(rendered_report, encoding="utf-8")
 
     run(["git", "add", str(args.report_path)])
 
     if not has_staged_changes():
-        print("INFO: Compatibility follow-up report is unchanged; no PR update needed.")
+        if branch_existed:
+            print("INFO: Compatibility follow-up report is unchanged; ensuring PR exists.")
+            create_or_update_pr(
+                repository=args.repository,
+                branch=args.branch,
+                base=args.base,
+                title=args.title,
+                body=render_pr_body(args.report_path),
+            )
+            return
+        print("INFO: Compatibility follow-up report is unchanged; no remote branch to update.")
         return
 
     configure_git_identity()
@@ -132,25 +142,31 @@ def configure_git_identity() -> None:
     run(["git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"])
 
 
-def checkout_start_ref(*, branch: str, base: str) -> None:
+def checkout_start_ref(*, branch: str, base: str) -> bool:
     """Check out the automation branch, reusing it when it already exists."""
 
     if remote_branch_exists(branch):
         run(["git", "fetch", "origin", f"refs/heads/{branch}:refs/remotes/origin/{branch}"])
         run(["git", "checkout", "-B", branch, f"origin/{branch}"])
-        return
-    run(["git", "checkout", "-B", branch, resolve_base_ref(base)])
+        return True
+    run(["git", "checkout", "-B", branch, fetch_base_ref(base)])
+    return False
 
 
-def resolve_base_ref(base: str) -> str:
-    """Resolve the local ref used to start a new automation branch."""
+def fetch_base_ref(base: str) -> str:
+    """Fetch and return the origin ref used to start a new automation branch."""
 
-    if git_ref_exists(base):
-        return base
     origin_ref = f"origin/{base}"
-    if git_ref_exists(origin_ref):
-        return origin_ref
-    return "HEAD"
+    fetch_result = subprocess.run(
+        ["git", "fetch", "origin", f"refs/heads/{base}:refs/remotes/{origin_ref}"],
+        check=False,
+    )
+    if fetch_result.returncode != 0 or not git_ref_exists(origin_ref):
+        raise SystemExit(
+            f"Base branch origin/{base} does not exist or could not be fetched. "
+            "Refusing to create a compatibility PR from the current checkout HEAD."
+        )
+    return origin_ref
 
 
 def remote_branch_exists(branch: str) -> bool:
