@@ -34,8 +34,10 @@ Confirm:
 For each target version:
 
 ```shell
+TOOL_REPO=owner/document-template-tool
+
 gh release view clean-scaffold-dsw-science-europe-vX.Y.Z \
-  --repo ThreeMonth03/DSW-document-template-tool
+  --repo "$TOOL_REPO"
 ```
 
 Expected assets:

@@ -3,6 +3,14 @@
 This page is intentionally command-focused. See the workflow and runbook
 documents for context.
 
+Use shell variables for repository locations so commands survive repo moves:
+
+```shell
+TOOL_REPO=owner/document-template-tool
+TRANSLATION_REPO=owner/document-template-translation
+TOOLING_ROOT=$PWD
+```
+
 ## Setup and Checks
 
 ```shell
@@ -84,6 +92,9 @@ make render-upstream-artifact-previews
 `UPSTREAM_TEMPLATE_TEST_*` variables are for the current-metamodel smoke test.
 `UPSTREAM_TEMPLATE_ARTIFACT_*` variables are for clean scaffold assets across
 all configured runtimes.
+Run `make build-upstream-artifacts` before any regression config that points at
+`outputs/upstream-workspaces/...`; those workspaces are generated outputs, not
+checked-in source files.
 
 Write a compatibility discovery report for follow-up automation:
 
@@ -107,7 +118,7 @@ matrix block in `.github/workflows/headless_render_regression.yml`.
 
 ```shell
 make render-project \
-  PROJECT_REF=workspace/projects/test-project.json \
+  PROJECT_REF=fixtures/projects/demo/test-project.json \
   PROJECT_RENDER_TEMPLATE_DIR=outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/dsw-science-europe-zh-hant-1.30.1 \
   PROJECT_RENDER_OUTPUT=outputs/project-render/dsw-science-europe/v1.30.1/zh-Hant/test-project.pdf
 ```
@@ -128,7 +139,7 @@ Preview clean scaffold release staging without uploading to GitHub:
 
 ```shell
 python scripts/ci/publish_clean_scaffold_releases.py \
-  --repository ThreeMonth03/DSW-document-template-tool \
+  --repository "$TOOL_REPO" \
   --run-id local \
   --commit-sha "$(git rev-parse HEAD)" \
   --dry-run
@@ -138,7 +149,7 @@ Manually copy reviewed translated source to a target repository branch:
 
 ```shell
 make publish-translated-template \
-  TRANSLATION_REPO=/path/to/DSW-document-template-translation \
+  TRANSLATION_REPO=/path/to/translation-repo \
   PUBLISH_VERSION=v1.30.1
 ```
 
@@ -146,7 +157,7 @@ Download clean scaffold artifacts from the latest successful tool CI run:
 
 ```shell
 python scripts/ci/download_clean_scaffold_artifacts.py \
-  --repo ThreeMonth03/DSW-document-template-tool \
+  --repo "$TOOL_REPO" \
   --workflow headless_render_regression.yml \
   --output-dir /tmp/clean-scaffolds
 ```
@@ -156,7 +167,7 @@ Download clean scaffold artifacts from an exact tool CI run:
 ```shell
 TOOLING_RUN_ID=28346995193
 python scripts/ci/download_clean_scaffold_artifacts.py \
-  --repo ThreeMonth03/DSW-document-template-tool \
+  --repo "$TOOL_REPO" \
   --run-id "$TOOLING_RUN_ID" \
   --output-dir /tmp/clean-scaffolds
 ```
@@ -167,7 +178,7 @@ triggering tool run id instead:
 ```yaml
 run: |
   python scripts/ci/download_clean_scaffold_artifacts.py \
-    --repo ThreeMonth03/DSW-document-template-tool \
+    --repo "$TOOL_REPO" \
     --run-id "${{ github.event.workflow_run.id }}" \
     --output-dir /tmp/clean-scaffolds
 ```
@@ -176,8 +187,8 @@ Dry-run downstream branch refresh:
 
 ```shell
 python scripts/ci/sync_translation_version_branches.py \
-  --repo ../DSW-document-template-translation \
-  --tooling-root "$PWD" \
+  --repo "$TRANSLATION_REPO" \
+  --tooling-root "$TOOLING_ROOT" \
   --clean-artifact-root /tmp/clean-scaffolds \
   --dry-run \
   --refresh-existing
@@ -188,6 +199,6 @@ Dry-run an unsupported metamodel follow-up report:
 ```shell
 python scripts/ci/create_dsw_compat_pr.py \
   --report outputs/upstream-compat/discovery.md \
-  --repository ThreeMonth03/DSW-document-template-tool \
+  --repository "$TOOL_REPO" \
   --dry-run
 ```

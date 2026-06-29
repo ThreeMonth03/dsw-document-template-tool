@@ -21,8 +21,8 @@ concurrency:
 
 env:
   # Pin this to a released branch/tag in production.
-  TOOLING_REPOSITORY: ThreeMonth03/DSW-document-template-tool
-  TOOLING_REF: master
+  TOOLING_REPOSITORY: owner/document-template-tool
+  TOOLING_REF: main
 
   # Change only these paths for the host repository.
   COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0
@@ -36,7 +36,7 @@ env:
   TRANSLATION_TARGET_LANG: zh_Hant
   TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0
   TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip
-  PROJECT_REF: tooling-repo/workspace/projects/test-project.json
+  PROJECT_REF: tooling-repo/fixtures/projects/demo/test-project.json
   PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf
   PROJECT_RENDER_FORMAT_UUID: 68c26e34-5e77-4e15-9bf7-06ff92582257
   DSW_VERSION: "4.30"

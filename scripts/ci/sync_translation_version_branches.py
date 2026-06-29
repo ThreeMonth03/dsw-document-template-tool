@@ -31,6 +31,8 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
 )
 
 BRANCH_LOCAL_DEMO_ASSET_DIRS = (
+    Path("fixtures") / "knowledge-models",
+    Path("fixtures") / "projects" / "demo",
     Path("workspace") / "knowledge-models",
     Path("workspace") / "projects",
 )
@@ -546,11 +548,11 @@ def render_version_branch_workflow(
         "github.event_name == 'schedule' ||": (
             "github.event_name == 'push' ||\n      github.event_name == 'schedule' ||"
         ),
-        "TOOLING_REPOSITORY: ThreeMonth03/DSW-document-template-tool": _workflow_env_line(
+        "TOOLING_REPOSITORY: owner/document-template-tool": _workflow_env_line(
             "TOOLING_REPOSITORY",
             config.tooling.repository,
         ),
-        "TOOLING_REF: master": _workflow_env_line("TOOLING_REF", config.tooling.ref),
+        "TOOLING_REF: main": _workflow_env_line("TOOLING_REF", config.tooling.ref),
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0": (
             _workflow_env_line("COMPACT_TEMPLATE_DIR", paths.compact_template_dir.as_posix())
         ),
@@ -686,7 +688,7 @@ def validate_version_branch_workflow(
         "TRANSLATION_TARGET_LANG": config.translation.target_language,
         "TRANSLATED_TEMPLATE_DIR": paths.translated_template_dir.as_posix(),
         "TRANSLATED_TEMPLATE_PACKAGE": paths.translated_template_package.as_posix(),
-        "PROJECT_REF": "tooling-repo/workspace/projects/test-project.json",
+        "PROJECT_REF": "tooling-repo/fixtures/projects/demo/test-project.json",
         "PROJECT_RENDER_OUTPUT": (
             f"outputs/project-render/{paths.source_template_id}/{version}/"
             f"{config.translation.target_language_label}/test-project.pdf"

@@ -13,8 +13,7 @@ Commit source and fixtures:
 - `examples/`
 - `tests/`
 - `docs/`
-- `workspace/knowledge-models/`
-- `workspace/projects/`
+- `fixtures/`
 - `assets/fonts/`
 
 Do not commit generated outputs:

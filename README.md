@@ -11,14 +11,14 @@ source.
 
 ## Repository Roles
 
-- `ThreeMonth03/DSW-document-template-tool`: shared tooling, tests, clean
-  upstream scaffolds, fixture projects, and CI helpers.
+- This repository: shared tooling, tests, clean upstream scaffolds, fixture
+  projects, and CI helpers.
 - Downstream translation repositories: own translator-facing version branches,
   translated release assets, and public import or publication policy.
 
 Generated workspaces, generated packages, render outputs, and caches are build
 artifacts. Keep them out of `master` unless a file is explicitly a reusable
-fixture under `workspace/`.
+fixture under `fixtures/`.
 
 ## Quick Start
 
@@ -32,10 +32,19 @@ make test
 Run a local DSW render regression:
 
 ```shell
+make build-upstream-artifacts
 make start-ci-dsw
 make render-regression-ci
 make stop-ci-dsw
 ```
+
+`make build-upstream-artifacts` creates the `outputs/upstream-workspaces/...`
+baseline and candidate template directories consumed by `render-regression-ci`.
+The regression command then boots an ephemeral local DSW stack, renders the
+configured fixture projects with those generated templates, and compares
+normalized output. Use this sequence when changing transform/parser behavior and
+you want to prove the generated template still renders like the upstream
+template.
 
 Build clean upstream scaffold artifacts:
 
@@ -44,6 +53,14 @@ make discover-upstream-compat
 make build-upstream-artifacts
 make render-upstream-artifact-previews
 ```
+
+This checks upstream tags against the configured DSW runtime matrix, builds
+clean compact/expanded/translation scaffolds, packages scaffold templates, and
+renders demo previews. Use it when upstream tags, fixture inputs, or scaffold
+release assets need to be refreshed for downstream translation repositories.
+This is also the setup step for local render regression, because the regression
+config points at generated `outputs/upstream-workspaces/...` directories rather
+than committed template files.
 
 ## Common Tasks
 

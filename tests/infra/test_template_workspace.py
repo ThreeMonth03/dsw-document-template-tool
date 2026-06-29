@@ -47,13 +47,21 @@ def test_document_template_workspace_is_generated_and_ignored(repo_root: Path) -
 def test_fixture_assets_exist(repo_root: Path) -> None:
     """The repository should keep non-template fixtures that are needed for generation."""
 
-    km_path = repo_root / "workspace" / "knowledge-models" / "root-zh-hant-2.7.0.km"
-    project_ref_path = repo_root / "workspace" / "projects" / "test-project.json"
+    km_path = repo_root / "fixtures" / "knowledge-models" / "root-zh-hant-2.7.0.km"
+    project_ref_path = repo_root / "fixtures" / "projects" / "demo" / "test-project.json"
+    smoke_events_path = (
+        repo_root / "fixtures" / "projects" / "regression" / "empty-project.events.json"
+    )
+    wrapped_smoke_events_path = (
+        repo_root / "fixtures" / "projects" / "regression" / "wrapped-empty-project.events.json"
+    )
     font_path = repo_root / "assets" / "fonts" / "NotoSansTC-Variable.ttf"
     font_license_path = repo_root / "assets" / "fonts" / "OFL.txt"
 
     assert km_path.is_file()
     assert project_ref_path.is_file()
+    assert smoke_events_path.is_file()
+    assert wrapped_smoke_events_path.is_file()
     assert font_path.is_file()
     assert font_license_path.is_file()
 
@@ -80,9 +88,15 @@ def test_shipped_preview_config_targets_generated_upstream_workspace(
         ).resolve()
     )
     assert Path(config.fixtures[0].project.knowledge_model_package_id).is_file()
+    assert [fixture.name for fixture in config.fixtures] == [
+        "empty-project",
+        "wrapped-empty-project",
+        "filled-demo-project",
+    ]
     assert config.regression.output_dir == (repo_root / "outputs" / "preview").resolve()
-    assert config.fixtures[0].events_file is not None
-    assert config.fixtures[0].events_file.is_file()
+    for fixture in config.fixtures:
+        assert fixture.events_file is not None
+        assert fixture.events_file.is_file()
 
 
 def test_shipped_ci_config_includes_random_render_fixtures(repo_root: Path, monkeypatch) -> None:
@@ -94,7 +108,12 @@ def test_shipped_ci_config_includes_random_render_fixtures(repo_root: Path, monk
 
     config = load_workflow_config(repo_root / "config" / "regression.ci.yml")
 
-    assert config.fixtures[0].name == "empty-project"
+    assert [fixture.name for fixture in config.fixtures] == [
+        "empty-project",
+        "wrapped-empty-project",
+        "filled-demo-project",
+    ]
+    assert all(fixture.events_file and fixture.events_file.is_file() for fixture in config.fixtures)
     assert len(config.generated_fixtures) == 1
     generated = config.generated_fixtures[0]
     assert generated.name_prefix == "random-project"

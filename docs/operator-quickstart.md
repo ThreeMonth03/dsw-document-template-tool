@@ -19,11 +19,18 @@ publication. Those live in the downstream translation repository.
 
 ## Daily Health Check
 
+Set repository names once before copying commands:
+
+```shell
+TOOL_REPO=owner/document-template-tool
+TRANSLATION_REPO=owner/document-template-translation
+```
+
 1. Check the latest tool CI run:
 
    ```shell
    gh run list \
-     --repo ThreeMonth03/DSW-document-template-tool \
+     --repo "$TOOL_REPO" \
      --workflow headless_render_regression.yml \
      --branch master \
      --limit 3
@@ -39,11 +46,11 @@ publication. Those live in the downstream translation repository.
 
    ```shell
    gh release view clean-scaffold-dsw-science-europe-v1.29.1 \
-     --repo ThreeMonth03/DSW-document-template-tool
+     --repo "$TOOL_REPO"
    gh release view clean-scaffold-dsw-science-europe-v1.30.0 \
-     --repo ThreeMonth03/DSW-document-template-tool
+     --repo "$TOOL_REPO"
    gh release view clean-scaffold-dsw-science-europe-v1.30.1 \
-     --repo ThreeMonth03/DSW-document-template-tool
+     --repo "$TOOL_REPO"
    ```
 
 If all three checks pass, the tooling side is healthy.
@@ -94,12 +101,12 @@ Then run a downstream dry-run against the translation repository:
 
 ```shell
 python scripts/ci/download_clean_scaffold_artifacts.py \
-  --repo ThreeMonth03/DSW-document-template-tool \
+  --repo "$TOOL_REPO" \
   --workflow headless_render_regression.yml \
   --output-dir /tmp/clean-scaffolds
 
 python scripts/ci/sync_translation_version_branches.py \
-  --repo ../DSW-document-template-translation \
+  --repo "$TRANSLATION_REPO" \
   --tooling-root "$PWD" \
   --clean-artifact-root /tmp/clean-scaffolds \
   --dry-run \

@@ -34,11 +34,17 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     _write_translation_config(translation_repo / "translation-config.yml")
     (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
     control_project = translation_repo / "workspace/projects/test-project.json"
-    control_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
+    control_demo_fixture = translation_repo / "fixtures/projects/demo/test-project.json"
+    control_fixture_km = translation_repo / "fixtures/knowledge-models/root-zh-hant-2.7.0.km"
+    control_workspace_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
     control_project.parent.mkdir(parents=True)
-    control_km.parent.mkdir(parents=True)
+    control_demo_fixture.parent.mkdir(parents=True)
+    control_fixture_km.parent.mkdir(parents=True)
+    control_workspace_km.parent.mkdir(parents=True)
     control_project.write_text("stale downstream project\n", encoding="utf-8")
-    control_km.write_text("stale downstream km\n", encoding="utf-8")
+    control_demo_fixture.write_text("stale downstream demo fixture\n", encoding="utf-8")
+    control_fixture_km.write_text("stale downstream fixture km\n", encoding="utf-8")
+    control_workspace_km.write_text("stale downstream workspace km\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial control plane")
     _run_git(translation_repo, "push", "-u", "origin", "master")
@@ -123,6 +129,14 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     )
     assert not _git_path_exists(
         translation_repo,
+        "translation/v1.30.2:fixtures/projects/demo/test-project.json",
+    )
+    assert not _git_path_exists(
+        translation_repo,
+        "translation/v1.30.2:fixtures/knowledge-models/root-zh-hant-2.7.0.km",
+    )
+    assert not _git_path_exists(
+        translation_repo,
         "translation/v1.30.2:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
     workflow_text = _git_show(
@@ -183,15 +197,21 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         / "workspace/document-templates/translation/dsw-science-europe-1.30.1/translator.txt"
     )
     stale_project = translation_repo / "workspace/projects/test-project.json"
-    stale_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
+    stale_demo_fixture = translation_repo / "fixtures/projects/demo/test-project.json"
+    stale_fixture_km = translation_repo / "fixtures/knowledge-models/root-zh-hant-2.7.0.km"
+    stale_workspace_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
     old_compact.parent.mkdir(parents=True, exist_ok=True)
     old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
     stale_project.parent.mkdir(parents=True, exist_ok=True)
-    stale_km.parent.mkdir(parents=True, exist_ok=True)
+    stale_demo_fixture.parent.mkdir(parents=True, exist_ok=True)
+    stale_fixture_km.parent.mkdir(parents=True, exist_ok=True)
+    stale_workspace_km.parent.mkdir(parents=True, exist_ok=True)
     old_compact.write_text("old compact\n", encoding="utf-8")
     old_translation_marker.write_text("manual translation\n", encoding="utf-8")
     stale_project.write_text("stale branch-local project\n", encoding="utf-8")
-    stale_km.write_text("stale branch-local km\n", encoding="utf-8")
+    stale_demo_fixture.write_text("stale branch-local demo fixture\n", encoding="utf-8")
+    stale_fixture_km.write_text("stale branch-local fixture km\n", encoding="utf-8")
+    stale_workspace_km.write_text("stale branch-local workspace km\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
     _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
@@ -286,6 +306,14 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.1:workspace/projects/test-project.json",
+    )
+    assert not _git_path_exists(
+        translation_repo,
+        "translation/v1.30.1:fixtures/projects/demo/test-project.json",
+    )
+    assert not _git_path_exists(
+        translation_repo,
+        "translation/v1.30.1:fixtures/knowledge-models/root-zh-hant-2.7.0.km",
     )
     assert not _git_path_exists(
         translation_repo,
@@ -645,7 +673,7 @@ def test_version_branch_workflow_uses_version_specific_preview_runtime(
     workflow_triggers = _workflow_triggers(workflow_text)
     assert workflow_triggers["pull_request"]["branches"] == ["translation/v1.29.1"]
     assert workflow_triggers["push"]["branches"] == ["translation/v1.29.1"]
-    assert workflow_env["PROJECT_REF"] == "tooling-repo/workspace/projects/test-project.json"
+    assert workflow_env["PROJECT_REF"] == "tooling-repo/fixtures/projects/demo/test-project.json"
     assert workflow_env["DSW_VERSION"] == "4.26"
     assert workflow_env["DSW_TDK_VERSION"] == "4.26.1"
     assert workflow_env["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "17.1"

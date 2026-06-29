@@ -237,8 +237,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "github.actor != 'github-actions[bot]' &&" not in workflow_text
     assert "if: ${{ github.actor != 'github-actions[bot]' }}" in workflow_text
     assert "skip-fork-pr" in workflow["jobs"]
-    assert workflow["env"]["TOOLING_REPOSITORY"] == "ThreeMonth03/DSW-document-template-tool"
-    assert workflow["env"]["TOOLING_REF"] == "master"
+    assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
+    assert workflow["env"]["TOOLING_REF"] == "main"
     assert workflow["env"]["COMPACT_TEMPLATE_DIR"].startswith(
         "workspace/document-templates/compact/"
     )
@@ -254,7 +254,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["TRANSLATION_SOURCE_LANG"] == "en"
     assert workflow["env"]["TRANSLATION_TARGET_LANG"] == "zh_Hant"
     assert "science-europe-zh-hant-1.30.0.zip" in workflow["env"]["TRANSLATED_TEMPLATE_PACKAGE"]
-    assert workflow["env"]["PROJECT_REF"] == "tooling-repo/workspace/projects/test-project.json"
+    assert workflow["env"]["PROJECT_REF"] == (
+        "tooling-repo/fixtures/projects/demo/test-project.json"
+    )
     assert workflow["env"]["PROJECT_RENDER_OUTPUT"].startswith(
         "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/"
     )

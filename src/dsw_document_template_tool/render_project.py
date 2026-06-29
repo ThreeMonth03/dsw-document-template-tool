@@ -29,7 +29,7 @@ DEFAULT_TEMPLATE_DIR = (
     "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
     "dsw-science-europe-zh-hant-1.30.0"
 )
-DEFAULT_PROJECT_REF = "workspace/projects/test-project.json"
+DEFAULT_PROJECT_REF = "fixtures/projects/demo/test-project.json"
 DEFAULT_OUTPUT = "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf"
 PDF_FORMAT_UUID = "68c26e34-5e77-4e15-9bf7-06ff92582257"
 

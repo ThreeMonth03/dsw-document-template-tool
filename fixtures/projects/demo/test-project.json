@@ -1,6 +1,6 @@
 {
   "name": "研究資料管理實務資料集與教學資源（範例）",
-  "knowledge_model_package_id": "../knowledge-models/root-zh-hant-2.7.0.km",
+  "knowledge_model_package_id": "../../knowledge-models/root-zh-hant-2.7.0.km",
   "events_file": "test-project.events.json",
   "question_tag_uuids": [],
   "visibility": "PrivateProjectVisibility",

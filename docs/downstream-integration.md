@@ -59,11 +59,19 @@ repo should only document the artifact contract and helper commands.
 
 ## Helper Scripts Used By Downstream
 
+Set repository paths once:
+
+```shell
+TOOL_REPO=owner/document-template-tool
+TRANSLATION_REPO=/path/to/translation-repo
+TOOLING_ROOT=/path/to/document-template-tool
+```
+
 Download clean scaffold artifacts:
 
 ```shell
 python scripts/ci/download_clean_scaffold_artifacts.py \
-  --repo ThreeMonth03/DSW-document-template-tool \
+  --repo "$TOOL_REPO" \
   --workflow headless_render_regression.yml \
   --output-dir /tmp/clean-scaffolds
 ```
@@ -75,7 +83,7 @@ successful lookup only for manual repair or exploratory maintenance.
 ```yaml
 run: |
   python scripts/ci/download_clean_scaffold_artifacts.py \
-    --repo ThreeMonth03/DSW-document-template-tool \
+    --repo "$TOOL_REPO" \
     --run-id "${{ github.event.workflow_run.id }}" \
     --output-dir /tmp/clean-scaffolds
 ```
@@ -84,14 +92,48 @@ Refresh version branches from downloaded artifacts:
 
 ```shell
 python scripts/ci/sync_translation_version_branches.py \
-  --repo /path/to/DSW-document-template-translation \
-  --tooling-root /path/to/DSW-document-template-tool \
+  --repo "$TRANSLATION_REPO" \
+  --tooling-root "$TOOLING_ROOT" \
   --clean-artifact-root /tmp/clean-scaffolds \
   --refresh-existing
 ```
 
 Use `--dry-run` first when changing parser logic, supported versions, or branch
 automation.
+
+## Manual Downstream Sync
+
+If the downstream translation repository uses the control-plane workflow from
+this repo, operators can trigger a branch refresh without waiting for the daily
+schedule:
+
+```shell
+TRANSLATION_REPO=owner/document-template-translation
+
+gh workflow run document_template_translation_sync.yml \
+  --repo "$TRANSLATION_REPO" \
+  --ref master
+```
+
+That run downloads the latest clean scaffold artifacts from the tool repo,
+refreshes supported `translation/v*` branches, updates generated branch
+workflows, and may create migration PRs.
+
+To choose the source branch used for migration fan-out, pass `source_version`:
+
+```shell
+TRANSLATION_REPO=owner/document-template-translation
+
+gh workflow run document_template_translation_sync.yml \
+  --repo "$TRANSLATION_REPO" \
+  --ref master \
+  -f source_version=v1.30.1
+```
+
+Use this after tool-repo workflow template changes, parser changes, fixture
+changes, or clean scaffold release refreshes. It is still downstream-owned:
+review the translation repo Actions run, migration PRs, and release assets
+there.
 
 ## Workflow Template
 

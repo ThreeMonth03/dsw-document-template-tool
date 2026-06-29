@@ -39,30 +39,32 @@ Fixtures use the same logical shape as DSW projects:
 - a stable list of project events
 - a render request using a document template
 
-The repo keeps a shared demo project under `workspace/projects/` and a checked-in
-KM bundle under `workspace/knowledge-models/`. CI can recreate the project in an
-ephemeral local DSW stack, render a PDF, and upload that preview as an artifact.
+The repo keeps project fixtures under `fixtures/projects/` and the checked-in KM
+bundle under `fixtures/knowledge-models/`. CI can recreate those projects in an
+ephemeral local DSW stack, render PDFs, and upload previews as artifacts.
 
 For broad regression coverage, generated fixtures ask the DSW API for the
 compiled questionnaire model and produce deterministic event payloads. The
-checked-in CI config uses one empty fixture plus fixed-seed generated fixtures.
+checked-in CI config uses an empty smoke fixture, the filled demo fixture, and
+fixed-seed generated fixtures.
 
 ## Local Commands
 
-Build clean upstream artifacts:
+Run the same local sequence that CI uses for preview regression:
 
 ```shell
 make build-upstream-artifacts
-```
-
-Run CI-style regression locally:
-
-```shell
 make start-ci-dsw
 make render-regression-ci
 make ci-dsw-logs
 make stop-ci-dsw
 ```
+
+`make build-upstream-artifacts` must run first. It fetches the upstream template
+refs and creates the generated baseline and candidate directories under
+`outputs/upstream-workspaces/...`. The checked-in regression configs point at
+those generated directories, so `render-regression-ci` is intentionally not a
+standalone command on a clean checkout.
 
 If ports conflict locally:
 
@@ -79,6 +81,9 @@ Run regression against a custom config:
 ```shell
 make render-regression CONFIG=config/regression.preview.yml
 ```
+
+The same rule applies to custom configs: if their `subjects` point at
+`outputs/upstream-workspaces/...`, build those artifacts before rendering.
 
 ## CI Shape
 

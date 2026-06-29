@@ -40,8 +40,10 @@ If CI finds that the new upstream tag uses an already configured metamodel:
 2. Confirm a clean scaffold release exists:
 
    ```shell
+   TOOL_REPO=owner/document-template-tool
+
    gh release view clean-scaffold-dsw-science-europe-vX.Y.Z \
-     --repo ThreeMonth03/DSW-document-template-tool
+     --repo "$TOOL_REPO"
    ```
 
 3. Hand the scaffold to the downstream translation repository using

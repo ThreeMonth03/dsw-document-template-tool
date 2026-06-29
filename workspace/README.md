@@ -1,13 +1,12 @@
 ## Workspace
 
-This directory keeps small, checked-in fixture assets used by local regression
-runs and GitHub Actions:
+This directory is reserved for local/generated document-template workspaces.
+Checked-in test inputs live under `fixtures/` instead:
 
-- `knowledge-models/`
+- `fixtures/knowledge-models/`
   stores KM bundles used by fixture projects and CI regression
-- `projects/`
-  stores portable project references and exported project events used for demo
-  rendering
+- `fixtures/projects/`
+  stores demo and regression project fixtures
 
 Document template workspaces are intentionally not committed in this tooling
 repository. The path `workspace/document-templates/` is ignored by Git and is

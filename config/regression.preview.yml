@@ -31,8 +31,24 @@ fixtures:
   - name: empty-project
     project:
       name: science-europe empty project
-      knowledge_model_package_id: ../workspace/knowledge-models/root-zh-hant-2.7.0.km
+      knowledge_model_package_id: ../fixtures/knowledge-models/root-zh-hant-2.7.0.km
       question_tag_uuids: []
       visibility: PrivateProjectVisibility
       sharing: RestrictedProjectSharing
-    events_file: ../fixtures/empty-project.events.json
+    events_file: ../fixtures/projects/regression/empty-project.events.json
+  - name: wrapped-empty-project
+    project:
+      name: science-europe wrapped empty project
+      knowledge_model_package_id: ../fixtures/knowledge-models/root-zh-hant-2.7.0.km
+      question_tag_uuids: []
+      visibility: PrivateProjectVisibility
+      sharing: RestrictedProjectSharing
+    events_file: ../fixtures/projects/regression/wrapped-empty-project.events.json
+  - name: filled-demo-project
+    project:
+      name: science-europe filled demo project
+      knowledge_model_package_id: ../fixtures/knowledge-models/root-zh-hant-2.7.0.km
+      question_tag_uuids: []
+      visibility: PrivateProjectVisibility
+      sharing: RestrictedProjectSharing
+    events_file: ../fixtures/projects/demo/test-project.events.json
