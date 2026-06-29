@@ -42,9 +42,10 @@ def main() -> int:
     if not commit_sha and not args.dry_run:
         raise SystemExit("--commit-sha is required when GITHUB_SHA is not set")
     repository = repository or "unknown/repository"
+    package_root = args.outputs_root / "document-templates" / args.source_template_id
 
     for package in packages:
-        version_tag = version_tag_from_path(package)
+        version_tag = version_tag_from_path(package, package_root=package_root)
         release = CleanScaffoldRelease(
             version_tag=version_tag,
             package=package,
@@ -131,13 +132,29 @@ def find_packages(
     return sorted(package_root.glob(f"v*/{translation_locale}/scaffold/*.zip"))
 
 
-def version_tag_from_path(path: Path) -> str:
-    """Extract the vX.Y.Z path component from an artifact path."""
+def version_tag_from_path(path: Path, *, package_root: Path | None = None) -> str:
+    """Extract the vX.Y.Z package-root path component from an artifact path."""
+
+    if package_root is not None:
+        try:
+            version_tag = path.relative_to(package_root).parts[0]
+        except (IndexError, ValueError) as exc:
+            raise SystemExit(f"Could not infer version tag from package path: {path}") from exc
+        if is_version_tag(version_tag):
+            return version_tag
+        raise SystemExit(f"Could not infer version tag from package path: {path}")
 
     for part in path.parts:
-        if part.startswith("v") and len(part) > 1 and part[1].isdigit():
+        if is_version_tag(part):
             return part
     raise SystemExit(f"Could not infer version tag from package path: {path}")
+
+
+def is_version_tag(value: str) -> bool:
+    """Return whether a path component looks like vX.Y.Z."""
+
+    parts = value.removeprefix("v").split(".")
+    return value.startswith("v") and len(parts) == 3 and all(part.isdigit() for part in parts)
 
 
 def stage_clean_scaffold_release(release: CleanScaffoldRelease) -> None:

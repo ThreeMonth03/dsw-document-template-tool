@@ -206,6 +206,15 @@ def test_ephemeral_dsw_compose_stack_is_checked_in(repo_root: Path) -> None:
         assert script_path.is_file()
         assert script_path.stat().st_mode & stat.S_IXUSR
 
+    start_script = (repo_root / "scripts" / "ci" / "start_dsw.sh").read_text(
+        encoding="utf-8",
+    )
+    assert 'DSW_CI_API_PORT="${DSW_CI_API_PORT:-3000}"' in start_script
+    assert (
+        'DSW_API_URL="${DSW_API_URL:-http://localhost:${DSW_CI_API_PORT}/wizard-api}"'
+        in start_script
+    )
+
 
 def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     """The copy-paste external workflow should expose path-based translation/output wiring."""

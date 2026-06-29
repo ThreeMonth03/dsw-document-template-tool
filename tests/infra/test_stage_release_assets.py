@@ -223,6 +223,50 @@ def test_publish_clean_scaffold_releases_uses_source_template_id_in_asset_names(
     )
 
 
+def test_publish_clean_scaffold_releases_infers_version_below_package_root(
+    tmp_path: Path,
+) -> None:
+    """Version-like parent directories should not affect release version inference."""
+
+    outputs = tmp_path / "v9-run" / "outputs"
+    package = (
+        outputs
+        / "document-templates"
+        / "dsw-science-europe"
+        / "v1.30.1"
+        / "zh-Hant"
+        / "scaffold"
+        / "dsw-science-europe-zh-hant-scaffold-1.30.1.zip"
+    )
+    package.parent.mkdir(parents=True)
+    package.write_text("package\n", encoding="utf-8")
+    workspace = outputs / "upstream-workspaces" / "dsw-science-europe" / "v1.30.1"
+    workspace.mkdir(parents=True)
+    (workspace / "upstream.json").write_text("{}\n", encoding="utf-8")
+
+    result = run(
+        [
+            sys.executable,
+            str(PUBLISH_SCRIPT),
+            "--outputs-root",
+            str(outputs),
+            "--release-root",
+            str(outputs / "release-assets" / "clean-scaffold"),
+            "--repository",
+            "owner/repo",
+            "--run-id",
+            "123",
+            "--commit-sha",
+            "abc123",
+            "--dry-run",
+        ],
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (outputs / "release-assets" / "clean-scaffold" / "v1.30.1").is_dir()
+    assert not (outputs / "release-assets" / "clean-scaffold" / "v9-run").exists()
+
+
 def test_publish_clean_scaffold_releases_succeeds_without_packages(tmp_path: Path) -> None:
     """Missing packages should be a no-op for runtimes that produced no artifacts."""
 
