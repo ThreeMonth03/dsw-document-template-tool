@@ -99,6 +99,140 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     )
 
 
+def test_translation_config_rejects_duplicate_supported_versions(tmp_path: Path) -> None:
+    """Supported template versions should be unambiguous."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "    - v1.30.1",
+            "    - v1.30.1\n    - v1.30.1",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="duplicate"):
+        load_translation_repository_config(config_path)
+
+
+def test_translation_config_rejects_invalid_supported_versions(tmp_path: Path) -> None:
+    """Supported versions should use explicit upstream tag names."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace("    - v1.30.1", "    - 1.30.1"),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="Expected a version tag"):
+        load_translation_repository_config(config_path)
+
+
+def test_translation_config_rejects_unknown_non_exact_policy(tmp_path: Path) -> None:
+    """Migration policy names should be allowlisted, not silently accepted."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "non_exact_policy: leave_empty_needs_translation",
+            "non_exact_policy: copy_if_similar",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="non-exact migration policy"):
+        load_translation_repository_config(config_path)
+
+
+def test_translation_config_rejects_string_booleans(tmp_path: Path) -> None:
+    """Quoted booleans should fail instead of being coerced by Python truthiness."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "auto_merge_when_clean: false",
+            'auto_merge_when_clean: "false"',
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="Expected boolean"):
+        load_translation_repository_config(config_path)
+
+
+def test_translation_config_rejects_publish_string_booleans(tmp_path: Path) -> None:
+    """Publish flags should also reject quoted booleans."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "enabled: true",
+            'enabled: "true"',
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="Expected boolean"):
+        load_translation_repository_config(config_path)
+
+
+def test_translation_config_rejects_empty_bot_branch_prefix(tmp_path: Path) -> None:
+    """Migration bot branches need a stable non-empty namespace."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "auto_pr_branch_prefix: automation/migrate",
+            "auto_pr_branch_prefix: ''",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="auto_pr_branch_prefix"):
+        load_translation_repository_config(config_path)
+
+
+def test_translation_config_rejects_empty_publish_branch_prefix(tmp_path: Path) -> None:
+    """Publish branches should remain namespaced even when auto-publish is disabled."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "branch_prefix: sync/",
+            "branch_prefix: ''",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="publish.branch_prefix"):
+        load_translation_repository_config(config_path)
+
+
+def test_preview_runtime_config_rejects_string_booleans(tmp_path: Path) -> None:
+    """DSW runtime flags should fail loudly when YAML values are quoted."""
+
+    compat_path = tmp_path / "dsw-compat.yml"
+    compat_path.write_text(
+        """
+schema_version: 1
+runtimes:
+  - metamodel_key: "18-0"
+    metamodel_version: "18.0"
+    dsw_version: "4.30"
+    tdk_version: "4.30.2"
+    min_version: "v1.30.0"
+    max_version: null
+    upstream_template_artifact_refs: "v1.30.0+"
+    run_preview_regression: "false"
+    strict_project_preview: true
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="Expected boolean"):
+        load_preview_runtimes(compat_path)
+
+
 def test_clean_artifact_version_paths_follow_ci_artifact_layout(tmp_path: Path) -> None:
     """Downloaded clean artifacts should expose generated workspace inputs by version."""
 

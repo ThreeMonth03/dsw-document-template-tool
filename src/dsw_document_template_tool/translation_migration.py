@@ -167,8 +167,16 @@ def _load_preview_runtime(payload: object) -> DswPreviewRuntime:
             payload,
             "upstream_template_artifact_refs",
         ),
-        run_preview_regression=bool(payload.get("run_preview_regression", False)),
-        strict_project_preview=bool(payload.get("strict_project_preview", False)),
+        run_preview_regression=_optional_bool(
+            payload,
+            "run_preview_regression",
+            default=False,
+        ),
+        strict_project_preview=_optional_bool(
+            payload,
+            "strict_project_preview",
+            default=False,
+        ),
     )
 
 
@@ -187,6 +195,7 @@ def _validate_preview_runtimes(runtimes: tuple[DswPreviewRuntime, ...]) -> None:
                 f"duplicate {runtime.metamodel_version!r}"
             )
         seen_metamodels.add(runtime.metamodel_version)
+        version_sort_key(runtime.min_version)
         if runtime.max_version is not None and (
             version_sort_key(runtime.max_version) < version_sort_key(runtime.min_version)
         ):
@@ -217,7 +226,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         organization_id=_required_str(template_payload, "organization_id"),
         template_id=_required_str(template_payload, "template_id"),
         upstream_repository=_required_str(template_payload, "upstream_repository"),
-        supported_ref_spec=str(template_payload.get("supported_ref_spec", "")),
+        supported_ref_spec=_optional_str(template_payload, "supported_ref_spec"),
         supported_versions=tuple(_required_str_list(template_payload, "supported_versions")),
     )
     translation = TranslationConfig(
@@ -247,11 +256,17 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
     migration = MigrationConfig(
         mode=_required_str(migration_payload, "mode"),
         non_exact_policy=_required_str(migration_payload, "non_exact_policy"),
-        auto_pr_enabled=bool(migration_payload.get("auto_pr_enabled", False)),
-        auto_pr_branch_prefix=str(
-            migration_payload.get("auto_pr_branch_prefix", "automation/migrate")
+        auto_pr_enabled=_optional_bool(migration_payload, "auto_pr_enabled", default=False),
+        auto_pr_branch_prefix=_optional_str(
+            migration_payload,
+            "auto_pr_branch_prefix",
+            default="automation/migrate",
         ),
-        auto_merge_when_clean=bool(migration_payload.get("auto_merge_when_clean", False)),
+        auto_merge_when_clean=_optional_bool(
+            migration_payload,
+            "auto_merge_when_clean",
+            default=False,
+        ),
     )
     publish_payload = payload.get("publish", {})
     if publish_payload is None:
@@ -259,23 +274,35 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
     if not isinstance(publish_payload, dict):
         raise TranslationMigrationError("translation-config.yml publish must be a mapping")
     publish = PublishConfig(
-        enabled=bool(publish_payload.get("enabled", False)),
-        target_repository=str(publish_payload.get("target_repository", "")),
-        branch_prefix=str(publish_payload.get("branch_prefix", "sync/")),
+        enabled=_optional_bool(publish_payload, "enabled", default=False),
+        target_repository=_optional_str(publish_payload, "target_repository"),
+        branch_prefix=_optional_str(publish_payload, "branch_prefix", default="sync/"),
     )
 
     if not template.supported_versions:
         raise TranslationMigrationError("template.supported_versions must not be empty")
+    duplicate_versions = _duplicate_items(template.supported_versions)
+    if duplicate_versions:
+        duplicates = ", ".join(duplicate_versions)
+        raise TranslationMigrationError(
+            f"template.supported_versions contains duplicate entries: {duplicates}"
+        )
+    for version in template.supported_versions:
+        version_sort_key(version)
     if migration.mode != "exact-only":
         raise TranslationMigrationError("Only exact-only migration is currently supported")
+    if migration.non_exact_policy != "leave_empty_needs_translation":
+        raise TranslationMigrationError(
+            "Only leave_empty_needs_translation non-exact migration policy is currently supported"
+        )
+    if not migration.auto_pr_branch_prefix:
+        raise TranslationMigrationError("migration.auto_pr_branch_prefix must not be empty")
     if publish.enabled and not publish.target_repository:
         raise TranslationMigrationError(
             "publish.target_repository is required when publish.enabled is true"
         )
-    if publish.enabled and not publish.branch_prefix:
-        raise TranslationMigrationError(
-            "publish.branch_prefix is required when publish.enabled is true"
-        )
+    if not publish.branch_prefix:
+        raise TranslationMigrationError("publish.branch_prefix must not be empty")
 
     return TranslationRepositoryConfig(
         template=template,
@@ -498,6 +525,36 @@ def _required_str_list(payload: object, key: str) -> list[str]:
     if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
         raise TranslationMigrationError(f"Expected non-empty string list at {key!r}")
     return value
+
+
+def _optional_bool(payload: object, key: str, *, default: bool) -> bool:
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError(f"Expected mapping while reading {key!r}")
+    value = payload.get(key, default)
+    if not isinstance(value, bool):
+        raise TranslationMigrationError(f"Expected boolean at {key!r}")
+    return value
+
+
+def _optional_str(payload: object, key: str, *, default: str = "") -> str:
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError(f"Expected mapping while reading {key!r}")
+    value = payload.get(key, default)
+    if value is None:
+        return default
+    if not isinstance(value, str):
+        raise TranslationMigrationError(f"Expected string at {key!r}")
+    return value
+
+
+def _duplicate_items(items: tuple[str, ...]) -> list[str]:
+    seen: set[str] = set()
+    duplicates: list[str] = []
+    for item in items:
+        if item in seen and item not in duplicates:
+            duplicates.append(item)
+        seen.add(item)
+    return duplicates
 
 
 DSW_PREVIEW_RUNTIMES = load_preview_runtimes()
