@@ -151,6 +151,27 @@ python scripts/ci/download_clean_scaffold_artifacts.py \
   --output-dir /tmp/clean-scaffolds
 ```
 
+Download clean scaffold artifacts from an exact tool CI run:
+
+```shell
+TOOLING_RUN_ID=28346995193
+python scripts/ci/download_clean_scaffold_artifacts.py \
+  --repo ThreeMonth03/DSW-document-template-tool \
+  --run-id "$TOOLING_RUN_ID" \
+  --output-dir /tmp/clean-scaffolds
+```
+
+In a downstream `workflow_run` job triggered by the tool repository, pass the
+triggering tool run id instead:
+
+```yaml
+run: |
+  python scripts/ci/download_clean_scaffold_artifacts.py \
+    --repo ThreeMonth03/DSW-document-template-tool \
+    --run-id "${{ github.event.workflow_run.id }}" \
+    --output-dir /tmp/clean-scaffolds
+```
+
 Dry-run downstream branch refresh:
 
 ```shell

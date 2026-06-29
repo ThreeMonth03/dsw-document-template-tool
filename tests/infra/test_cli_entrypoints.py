@@ -561,6 +561,7 @@ def test_download_clean_scaffold_artifacts_help(repo_root: Path) -> None:
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert "clean scaffold artifacts" in result.stdout
+    assert "--run-id" in result.stdout
     assert "--repo" in result.stdout
     assert "--workflow" in result.stdout
     assert "--artifact" in result.stdout

@@ -137,6 +137,68 @@ raise SystemExit(f"unexpected gh args: {args}")
     assert (output_dir / "upstream-workspaces/dsw-science-europe/artifact-b").is_dir()
 
 
+def test_download_clean_scaffold_artifacts_accepts_exact_run_id(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """workflow_run consumers should download artifacts from the triggering run."""
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_gh = fake_bin / "gh"
+    fake_gh.write_text(
+        """#!/usr/bin/env python3
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+args = sys.argv[1:]
+if args[:2] == ["run", "list"]:
+    raise SystemExit("run list should not be called when --run-id is provided")
+if args[:2] == ["run", "download"]:
+    run_id = args[2]
+    name = args[args.index("--name") + 1]
+    output_dir = Path(args[args.index("--dir") + 1])
+    marker = output_dir / "upstream-workspaces" / "dsw-science-europe" / name
+    marker.mkdir(parents=True, exist_ok=True)
+    (marker / "artifact.txt").write_text(run_id + ":" + name + "\\n", encoding="utf-8")
+    raise SystemExit(0)
+raise SystemExit(f"unexpected gh args: {args}")
+""",
+        encoding="utf-8",
+    )
+    fake_gh.chmod(fake_gh.stat().st_mode | stat.S_IXUSR)
+
+    output_dir = tmp_path / "tooling-artifacts"
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "download_clean_scaffold_artifacts.py"),
+            "--repo",
+            "owner/tool",
+            "--run-id",
+            "67890",
+            "--output-dir",
+            str(output_dir),
+            "--artifact",
+            "artifact-a",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "owner/tool run 67890" in result.stdout
+    marker = output_dir / "upstream-workspaces" / "dsw-science-europe" / "artifact-a"
+    assert (marker / "artifact.txt").read_text(encoding="utf-8") == "67890:artifact-a\n"
+    assert (output_dir / "upstream-workspaces/dsw-science-europe/artifact-a").is_dir()
+
+
 def test_resolve_migration_source_prefers_manual_input(repo_root: Path, tmp_path: Path) -> None:
     """Manual workflow dispatch input should be the migration source."""
 

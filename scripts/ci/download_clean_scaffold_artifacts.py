@@ -20,14 +20,23 @@ def main() -> None:
     """CLI entrypoint."""
 
     parser = argparse.ArgumentParser(
-        description="download clean scaffold artifacts from the latest successful tooling CI run",
+        description="download clean scaffold artifacts from a tooling CI run",
     )
     parser.add_argument("--repo", required=True, help="GitHub repository, e.g. owner/repo.")
-    parser.add_argument("--workflow", required=True, help="Workflow file name or workflow id.")
+    parser.add_argument(
+        "--workflow",
+        default="",
+        help="Workflow file name or workflow id. Required unless --run-id is provided.",
+    )
     parser.add_argument(
         "--branch",
         default="master",
         help="Tooling branch to read successful workflow runs from.",
+    )
+    parser.add_argument(
+        "--run-id",
+        default="",
+        help="Exact tooling workflow run id to download from.",
     )
     parser.add_argument(
         "--output-dir",
@@ -48,7 +57,7 @@ def main() -> None:
 
     try:
         artifacts = tuple(args.artifacts or default_clean_artifact_names())
-        run_id = latest_successful_run_id(
+        run_id = args.run_id.strip() or latest_successful_run_id(
             repo=args.repo,
             workflow=args.workflow,
             branch=args.branch,
@@ -90,6 +99,9 @@ def default_clean_artifact_names() -> list[str]:
 
 def latest_successful_run_id(*, repo: str, workflow: str, branch: str) -> str:
     """Return the latest successful workflow run database id."""
+
+    if not workflow:
+        raise RuntimeError("--workflow is required when --run-id is not provided")
 
     result = subprocess.run(
         [

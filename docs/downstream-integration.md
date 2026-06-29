@@ -68,6 +68,18 @@ python scripts/ci/download_clean_scaffold_artifacts.py \
   --output-dir /tmp/clean-scaffolds
 ```
 
+When a downstream workflow is triggered by a specific tool-repo `workflow_run`,
+prefer `--run-id` so it downloads artifacts from that exact run. Use the latest
+successful lookup only for manual repair or exploratory maintenance.
+
+```yaml
+run: |
+  python scripts/ci/download_clean_scaffold_artifacts.py \
+    --repo ThreeMonth03/DSW-document-template-tool \
+    --run-id "${{ github.event.workflow_run.id }}" \
+    --output-dir /tmp/clean-scaffolds
+```
+
 Refresh version branches from downloaded artifacts:
 
 ```shell
