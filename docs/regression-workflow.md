@@ -61,10 +61,12 @@ make stop-ci-dsw
 ```
 
 `make build-upstream-artifacts` must run first. It fetches the upstream template
-refs and creates the generated baseline and candidate directories under
-`outputs/upstream-workspaces/...`. The checked-in regression configs point at
-those generated directories, so `render-regression-ci` is intentionally not a
-standalone command on a clean checkout.
+refs and creates versioned baseline and candidate directories under
+`outputs/upstream-workspaces/...`. `render-regression-ci` generates
+`config/.generated-regression.ci.yml` from the checked-in CI config template and
+points it at the latest built version for the active DSW metamodel matrix. The
+regression command is therefore intentionally not standalone on a clean
+checkout.
 
 If ports conflict locally:
 
@@ -85,6 +87,13 @@ make render-regression CONFIG=config/regression.preview.yml
 The same rule applies to custom configs: if their `subjects` point at
 `outputs/upstream-workspaces/...`, build those artifacts before rendering.
 
+To debug an older built version instead of the latest one, pass an explicit
+version:
+
+```shell
+make render-regression-ci UPSTREAM_TEMPLATE_REGRESSION_VERSION=v1.30.0
+```
+
 ## CI Shape
 
 The GitHub Actions workflow is:
@@ -96,7 +105,8 @@ It has two jobs:
 - `offline-checks`: install dependencies, smoke-test upstream refs, discover DSW
   compatibility, run format/lint/tests.
 - `render-regression`: run a metamodel-aware DSW matrix, build clean scaffold
-  artifacts, render demo previews, and upload artifacts.
+  artifacts, run full regression against the latest built version for each
+  matrix, render demo previews, and upload artifacts.
 
 The runtime matrix comes from:
 

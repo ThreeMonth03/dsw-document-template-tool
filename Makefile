@@ -10,6 +10,7 @@ DSW_COMPAT_CONFIG ?= config/dsw-compat.yml
 DSW_TDK ?= $(VENV_DIR)/bin/dsw-tdk
 EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPLATE_NAME)
 FRESH_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/fresh/$(WORKSPACE_TEMPLATE_NAME)
+GENERATED_CI_CONFIG ?= config/.generated-regression.ci.yml
 MERGED_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/merged/$(WORKSPACE_TEMPLATE_NAME)
 PACKAGE_OUT ?= template.zip
 PROJECT_REF ?= fixtures/projects/demo/test-project.json
@@ -52,6 +53,7 @@ UPSTREAM_TEMPLATE_DISCOVERY_REPORT ?=
 UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION ?= 18.0
 UPSTREAM_TEMPLATE_PREVIEW_STRICT ?= true
 UPSTREAM_TEMPLATE_REF ?= latest
+UPSTREAM_TEMPLATE_REGRESSION_VERSION ?= latest
 UPSTREAM_TEMPLATE_REMOTE ?= $(if $(filter http% git@% ssh://% git://% file://%,$(UPSTREAM_TEMPLATE_REPOSITORY)),$(UPSTREAM_TEMPLATE_REPOSITORY),https://github.com/$(UPSTREAM_TEMPLATE_REPOSITORY).git)
 UPSTREAM_TEMPLATE_REPOSITORY ?= https://github.com/ds-wizard/science-europe-template.git
 UPSTREAM_TEMPLATE_TEST_METAMODEL_VERSION ?=
@@ -64,7 +66,7 @@ WORKSPACE_TEMPLATE_NAME ?= $(SOURCE_TEMPLATE_ID)-$(SOURCE_TEMPLATE_VERSION)
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree fetch-upstream-template format format-check help install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree fetch-upstream-template format format-check generate-regression-config help install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -103,6 +105,7 @@ help:
 	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
 	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
+	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  publish-translated-template Manually publish a translated version branch to its target repository' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
@@ -110,7 +113,7 @@ help:
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
 	'  render-project    Render PROJECT_UUID or $(PROJECT_REF) with $(PROJECT_RENDER_TEMPLATE_DIR)' \
 	'  render-regression Run the DSW headless regression workflow using CONFIG=$(CONFIG)' \
-	'  render-regression-ci Run regression against the ephemeral local DSW using CI_CONFIG=$(CI_CONFIG)'
+	'  render-regression-ci Generate latest-version CI config and run local DSW regression'
 
 install-dev: venv
 	$(PIP) install -r config/requirements.txt
@@ -249,6 +252,15 @@ build-upstream-artifacts: venv
 		--scaffold-template-id "$(SCAFFOLD_TEMPLATE_ID)" \
 		--scaffold-template-name "$(SCAFFOLD_TEMPLATE_NAME)"
 
+generate-regression-config: venv
+	$(PYTHON) scripts/ci/generate_regression_config.py \
+		--base-config "$(CI_CONFIG)" \
+		--output "$(GENERATED_CI_CONFIG)" \
+		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)" \
+		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
+		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
+		--version "$(UPSTREAM_TEMPLATE_REGRESSION_VERSION)"
+
 render-upstream-artifact-previews: venv
 	$(PYTHON) scripts/ci/upstream_template_artifacts.py render-previews \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
@@ -289,12 +301,12 @@ render-project: venv
 render-regression: venv
 	$(PYTHON) src/render_regression.py --config $(CONFIG)
 
-render-regression-ci: venv
+render-regression-ci: generate-regression-config
 	DSW_API_URL=$${DSW_API_URL:-http://localhost:$${DSW_CI_API_PORT:-3000}/wizard-api} \
 	DSW_EMAIL=$${DSW_EMAIL:-albert.einstein@example.com} \
 	DSW_PASSWORD=$${DSW_PASSWORD:-password} \
 	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
-	$(PYTHON) src/render_regression.py --config $(CI_CONFIG)
+	$(PYTHON) src/render_regression.py --config "$(GENERATED_CI_CONFIG)"
 
 clean:
 	rm -rf outputs dist build .pytest_cache .ruff_cache

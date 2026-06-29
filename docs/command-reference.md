@@ -86,6 +86,8 @@ make test-upstream-tags \
   UPSTREAM_TEMPLATE_TEST_METAMODEL_VERSION=18.0
 make discover-upstream-compat UPSTREAM_TEMPLATE_DISCOVERY_REFS="v1.29.1+"
 make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS="v1.29.1+"
+make generate-regression-config
+make render-regression-ci
 make render-upstream-artifact-previews
 ```
 
@@ -95,6 +97,13 @@ all configured runtimes.
 Run `make build-upstream-artifacts` before any regression config that points at
 `outputs/upstream-workspaces/...`; those workspaces are generated outputs, not
 checked-in source files.
+`make render-regression-ci` calls `generate-regression-config` automatically and
+uses the latest built upstream version for the active metamodel. To inspect an
+older built version, set `UPSTREAM_TEMPLATE_REGRESSION_VERSION`, for example:
+
+```shell
+make render-regression-ci UPSTREAM_TEMPLATE_REGRESSION_VERSION=v1.30.0
+```
 
 Write a compatibility discovery report for follow-up automation:
 

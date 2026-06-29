@@ -3,6 +3,11 @@ api:
   email: ${DSW_EMAIL}
   password: ${DSW_PASSWORD}
 
+# This file is the reusable CI regression template. `make render-regression-ci`
+# generates config/.generated-regression.ci.yml from it so the baseline and
+# candidate subjects point at the latest built upstream workspace for the
+# current DSW metamodel matrix.
+
 tdk:
   executable: ../.venv/bin/dsw-tdk
 

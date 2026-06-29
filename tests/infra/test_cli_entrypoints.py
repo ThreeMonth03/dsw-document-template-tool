@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
+import yaml
+
 
 def test_render_regression_help(repo_root) -> None:
     """The main regression CLI should expose a working help screen."""
@@ -833,6 +835,105 @@ def test_upstream_template_artifacts_help(repo_root: Path) -> None:
     assert "render-previews" in result.stdout
 
 
+def test_generate_regression_config_help(repo_root: Path) -> None:
+    """The regression config generator should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "generate_regression_config.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "version-aware regression config" in result.stdout
+    assert "--workspace-root" in result.stdout
+    assert "--version" in result.stdout
+
+
+def test_generate_regression_config_selects_latest_matching_workspace(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """CI regression should target the newest built workspace for the matrix."""
+
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    base_config = config_dir / "regression.ci.yml"
+    base_config.write_text(
+        """
+api:
+  url: ${DSW_API_URL}
+  email: ${DSW_EMAIL}
+  password: ${DSW_PASSWORD}
+subjects:
+  baseline:
+    kind: local_dir
+    value: old-baseline
+  candidate:
+    kind: local_dir
+    value: old-candidate
+regression:
+  mode: preview
+  format_uuid: html-format-uuid
+  output_dir: ../outputs/preview
+fixtures:
+  - name: empty
+    project_uuid: 11111111-1111-4111-8111-111111111111
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    workspace_root = tmp_path / "outputs" / "upstream-workspaces" / "dsw-science-europe"
+    _write_regression_workspace(workspace_root, "dsw-science-europe", "1.29.1", "17.1")
+    _write_regression_workspace(workspace_root, "dsw-science-europe", "1.30.0", "18.0")
+    _write_regression_workspace(workspace_root, "dsw-science-europe", "1.30.1", "18.0")
+    generated_config = config_dir / ".generated-regression.ci.yml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "generate_regression_config.py"),
+            "--base-config",
+            str(base_config),
+            "--output",
+            str(generated_config),
+            "--workspace-root",
+            str(workspace_root),
+            "--source-template-id",
+            "dsw-science-europe",
+            "--metamodel-version",
+            "18.0",
+            "--version",
+            "latest",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "v1.30.1" in result.stdout
+    payload = yaml.safe_load(generated_config.read_text(encoding="utf-8"))
+    assert (
+        payload["subjects"]["baseline"]["value"]
+        == "../outputs/upstream-workspaces/dsw-science-europe/v1.30.1/compact/"
+        "dsw-science-europe-1.30.1"
+    )
+    assert (
+        payload["subjects"]["candidate"]["value"]
+        == "../outputs/upstream-workspaces/dsw-science-europe/v1.30.1/"
+        "expanded-regression/dsw-science-europe-1.30.1"
+    )
+    assert payload["subjects"]["baseline"]["stage_id"] == "ci:science-europe-compact:1.30.1"
+    assert payload["subjects"]["candidate"]["stage_id"] == "ci:science-europe-expanded:1.30.1"
+
+
 def test_upstream_template_artifacts_lists_and_fetches_local_tags(
     repo_root: Path,
     tmp_path: Path,
@@ -1086,6 +1187,31 @@ def _build_upstream_template_remote(
         _git(remote, "commit", "-m", f"template {version}")
         _git(remote, "tag", tag)
     return remote
+
+
+def _write_regression_workspace(
+    workspace_root: Path,
+    source_template_id: str,
+    version: str,
+    metamodel_version: str,
+) -> None:
+    template_name = f"{source_template_id}-{version}"
+    for stage in ("compact", "expanded-regression"):
+        template_dir = workspace_root / f"v{version}" / stage / template_name
+        template_dir.mkdir(parents=True)
+        (template_dir / "template.json").write_text(
+            json.dumps(
+                {
+                    "organizationId": "dsw",
+                    "templateId": "science-europe",
+                    "version": version,
+                    "metamodelVersion": metamodel_version,
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
 
 def _git(repo: Path, *args: str) -> None:

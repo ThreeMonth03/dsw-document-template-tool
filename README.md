@@ -38,10 +38,11 @@ make render-regression-ci
 make stop-ci-dsw
 ```
 
-`make build-upstream-artifacts` creates the `outputs/upstream-workspaces/...`
-baseline and candidate template directories consumed by `render-regression-ci`.
-The regression command then boots an ephemeral local DSW stack, renders the
-configured fixture projects with those generated templates, and compares
+`make build-upstream-artifacts` creates versioned
+`outputs/upstream-workspaces/...` baseline and candidate template directories.
+`make render-regression-ci` then generates a local
+`config/.generated-regression.ci.yml` pointing at the latest built version for
+the current DSW metamodel, renders the configured fixture projects, and compares
 normalized output. Use this sequence when changing transform/parser behavior and
 you want to prove the generated template still renders like the upstream
 template.
