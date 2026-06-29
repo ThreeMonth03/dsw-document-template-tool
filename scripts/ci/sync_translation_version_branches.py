@@ -268,7 +268,12 @@ def refresh_version_branch(
     if merged_tree.exists():
         shutil.rmtree(merged_tree)
 
-    _run(["git", "worktree", "add", "-B", branch, str(checkout), f"origin/{branch}"], cwd=repo)
+    add_existing_branch_worktree(
+        repo=repo,
+        checkout=checkout,
+        branch=branch,
+        push=push,
+    )
     try:
         paths = version_paths(config, version)
         existing_translation_tree = checkout / paths.translation_tree_dir
@@ -802,6 +807,48 @@ def remote_branch_exists(repo: Path, branch: str) -> bool:
         check=False,
     )
     return result.returncode == 0
+
+
+def add_existing_branch_worktree(
+    *,
+    repo: Path,
+    checkout: Path,
+    branch: str,
+    push: bool,
+) -> bool:
+    """Check out an existing remote branch for refresh work.
+
+    A local branch can only be checked out by one worktree at a time. During
+    day-to-day maintenance it is common to already have a translation/v...
+    branch open elsewhere, so CI-safe refresh runs can use a detached worktree
+    and push HEAD back to the remote branch.
+    """
+
+    if branch_checked_out_in_worktree(repo, branch):
+        if not push:
+            raise SystemExit(
+                f"{branch} is checked out in another worktree; rerun with --push "
+                "or remove that worktree before refreshing locally."
+            )
+        _run(["git", "worktree", "add", "--detach", str(checkout), f"origin/{branch}"], cwd=repo)
+        return True
+
+    _run(["git", "worktree", "add", "-B", branch, str(checkout), f"origin/{branch}"], cwd=repo)
+    return False
+
+
+def branch_checked_out_in_worktree(repo: Path, branch: str) -> bool:
+    """Return whether a local branch is already attached to any worktree."""
+
+    result = subprocess.run(
+        ["git", "worktree", "list", "--porcelain"],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    branch_marker = f"branch refs/heads/{branch}"
+    return any(line.strip() == branch_marker for line in result.stdout.splitlines())
 
 
 def replace_tree(source: Path, destination: Path) -> None:
