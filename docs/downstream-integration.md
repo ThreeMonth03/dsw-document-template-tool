@@ -44,7 +44,7 @@ These releases are download buckets. Assets may be overwritten by later CI runs
 for the same upstream tag; use release notes, checksums, and workflow metadata
 for provenance.
 
-## What The Translation Repo Owns
+## What the Translation Repo Owns
 
 A downstream translation repository owns:
 

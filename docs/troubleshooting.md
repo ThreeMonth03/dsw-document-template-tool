@@ -69,7 +69,7 @@ Actions:
    make audit-translation-tree
    ```
 
-## Sync Or Output Audit Fails
+## Sync or Output Audit Fails
 
 Symptoms:
 

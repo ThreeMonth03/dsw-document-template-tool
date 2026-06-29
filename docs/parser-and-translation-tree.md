@@ -1,4 +1,4 @@
-# Parser And Translation Tree
+# Parser and Translation Tree
 
 Use this runbook when changing sentence extraction, marker placement, Markdown
 translation files, migration, sync, or output structure audits.
@@ -90,7 +90,7 @@ When a parser change is broad, refresh downstream `translation/v*` branches with
 clean scaffold artifacts and inspect what became untranslated before asking
 translators to continue.
 
-## Audits To Trust
+## Audits to Trust
 
 - `translation_tree.py audit` catches unsafe translator-facing blocks.
 - `translation_tree.py sync` catches missing or changed placeholders.

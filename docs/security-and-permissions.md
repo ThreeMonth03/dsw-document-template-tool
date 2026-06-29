@@ -1,4 +1,4 @@
-# Security And Permissions
+# Security and Permissions
 
 This document records credentials and permissions required by this tooling
 repository.

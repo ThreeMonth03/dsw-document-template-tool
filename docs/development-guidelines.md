@@ -3,7 +3,7 @@
 These rules keep the infrastructure maintainable as parser logic, supported
 template versions, and downstream translation branches evolve.
 
-## Source And Generated Files
+## Source and Generated Files
 
 Commit source and fixtures:
 
@@ -39,7 +39,7 @@ Use `make clean` when generated files make local review noisy.
 - Add focused behavior tests under `tests/infra/` or `tests/unit/` when a helper
   makes decisions.
 
-## Parser And Translation Safety
+## Parser and Translation Safety
 
 - Prefer complete translator-facing sentences over small Jinja fragments.
 - Do not expose raw `{% ... %}` or `{{ ... }}` as editable translation text.
@@ -50,7 +50,7 @@ Use `make clean` when generated files make local review noisy.
 - If a fix requires target-language word order, first check whether the expanded
   transform should produce a better translation unit.
 
-## Release And Publication Policy
+## Release and Publication Policy
 
 - GitHub Actions artifacts are run-scoped and temporary.
 - GitHub Release assets are stable download buckets and may be overwritten by CI

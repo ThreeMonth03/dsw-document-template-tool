@@ -3,7 +3,7 @@
 This page is intentionally command-focused. See the workflow and runbook
 documents for context.
 
-## Setup And Checks
+## Setup and Checks
 
 ```shell
 make install-dev
@@ -32,7 +32,7 @@ export DSW_CI_MINIO_PORT=9100
 export DSW_API_URL=http://localhost:3100/wizard-api
 ```
 
-## Transform And Translation Tree
+## Transform and Translation Tree
 
 ```shell
 make transform
@@ -68,7 +68,7 @@ python src/translation_tree.py sync --tree translation --source expanded --outpu
   --template-version 1.30.1
 ```
 
-## Upstream Tags And Clean Scaffold Artifacts
+## Upstream Tags and Clean Scaffold Artifacts
 
 ```shell
 make list-upstream-template-tags
@@ -112,7 +112,7 @@ make render-project \
   PROJECT_RENDER_OUTPUT=outputs/project-render/dsw-science-europe/v1.30.1/zh-Hant/test-project.pdf
 ```
 
-## Release And Publish Helpers
+## Release and Publish Helpers
 
 Stage release assets locally:
 
@@ -124,7 +124,7 @@ python scripts/ci/stage_release_assets.py \
   --optional-asset path/to/test-project.pdf=test-project.pdf
 ```
 
-Stage clean scaffold release assets without uploading to GitHub:
+Preview clean scaffold release staging without uploading to GitHub:
 
 ```shell
 python scripts/ci/publish_clean_scaffold_releases.py \

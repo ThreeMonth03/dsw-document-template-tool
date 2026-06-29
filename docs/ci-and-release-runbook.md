@@ -1,4 +1,4 @@
-# CI And Release Runbook
+# CI and Release Runbook
 
 This runbook explains what this repository's GitHub Actions produce and how
 clean scaffold release assets refresh.

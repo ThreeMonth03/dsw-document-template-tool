@@ -94,7 +94,7 @@ release assets can still refresh while the new runtime is being investigated.
 
 If the upstream tag forces transform or translation tree changes:
 
-1. Follow [Parser And Translation Tree](parser-and-translation-tree.md).
+1. Follow [Parser and Translation Tree](parser-and-translation-tree.md).
 2. Refresh clean scaffold artifacts.
 3. Run exact-only migration into the new branch.
 4. Inspect untranslated or changed units.

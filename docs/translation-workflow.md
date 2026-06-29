@@ -74,7 +74,7 @@ Translator-facing tree rules enforced by this tooling:
 The generated `outline.md` gives reviewers a compact progress view of all
 translation units.
 
-## Sync And Audit
+## Sync and Audit
 
 `make sync-translation-tree` applies translator edits into a generated translated
 expanded workspace and packages it. During sync, the tooling checks that

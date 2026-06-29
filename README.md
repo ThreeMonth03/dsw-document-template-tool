@@ -48,13 +48,15 @@ make render-upstream-artifact-previews
 ## Common Tasks
 
 - Change parser or tree logic: read
-  [Parser And Translation Tree](docs/parser-and-translation-tree.md).
+  [Parser and Translation Tree](docs/parser-and-translation-tree.md).
+- Take over routine operations: read
+  [Operator Quickstart](docs/operator-quickstart.md).
 - Handle a new upstream template tag: read
   [Version Upgrade Runbook](docs/version-upgrade-runbook.md).
 - Debug GitHub Actions, DSW, release assets, or render failures: read
   [Troubleshooting](docs/troubleshooting.md).
 - Publish reviewed translated source manually: read
-  [CI And Release Runbook](docs/ci-and-release-runbook.md).
+  [CI and Release Runbook](docs/ci-and-release-runbook.md).
 - Find a command quickly: read
   [Command Reference](docs/command-reference.md).
 
@@ -64,14 +66,15 @@ Start with the [Documentation Index](docs/README.md). The most important
 maintenance documents are:
 
 - [Architecture](docs/architecture.md)
+- [Operator Quickstart](docs/operator-quickstart.md)
 - [Development Guidelines](docs/development-guidelines.md)
 - [Translation Workflow](docs/translation-workflow.md)
 - [Regression Workflow](docs/regression-workflow.md)
 - [Downstream Integration](docs/downstream-integration.md)
 - [QA Checklist](docs/qa-checklist.md)
-- [Security And Permissions](docs/security-and-permissions.md)
+- [Security and Permissions](docs/security-and-permissions.md)
 
-## Version And Release Policy
+## Version and Release Policy
 
 The tooling supports Science Europe template versions from `v1.29.1` upward.
 The DSW runtime matrix is declared in

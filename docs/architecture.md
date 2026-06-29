@@ -88,7 +88,7 @@ CLI entry point:
 src/dsw_document_template_tool/cli/translation_tree.py
 ```
 
-## Render And Regression Layer
+## Render and Regression Layer
 
 - `render_project.py`: imports KM/template/project fixtures into DSW and renders
   a PDF preview.
@@ -106,7 +106,7 @@ src/render_project.py
 src/render_regression.py
 ```
 
-## Compatibility And Automation Layer
+## Compatibility and Automation Layer
 
 - `dsw_compat.py`: reads `config/dsw-compat.yml` and maps template metamodels to
   DSW/TDK runtimes.
