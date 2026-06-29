@@ -17,9 +17,16 @@ The tool repo owns reusable infrastructure:
 The clean scaffold releases are inputs for downstream repositories. They are not
 finished translations.
 
+If upstream publishes a tag with an unsupported metamodel, scheduled/manual tool
+repo CI may open a compatibility follow-up PR instead of producing a clean
+scaffold release for that tag. Downstream repositories should wait for the
+version-specific clean scaffold release before creating or refreshing a matching
+translation branch.
+
 ## Clean Scaffold Releases
 
-On successful non-PR CI runs, this repo publishes release assets named like:
+On successful scheduled runs, manual `workflow_dispatch` runs, and `master`
+pushes, this repo publishes release assets named like:
 
 ```text
 clean-scaffold-dsw-science-europe-v1.30.1

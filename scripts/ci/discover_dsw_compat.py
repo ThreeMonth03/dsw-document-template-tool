@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -69,6 +70,11 @@ def main() -> None:
         help="Optional GitHub step summary file to append a Markdown report to.",
     )
     parser.add_argument(
+        "--report",
+        type=Path,
+        help="Optional Markdown report file to write for follow-up automation.",
+    )
+    parser.add_argument(
         "--metamodel-source-url",
         default=OFFICIAL_TEMPLATE_METAMODEL_SPEC_URL,
         help=(
@@ -110,11 +116,16 @@ def main() -> None:
             support_error=support_error,
         )
         print(report)
-        if args.summary is not None:
-            args.summary.parent.mkdir(parents=True, exist_ok=True)
-            with args.summary.open("a", encoding="utf-8") as summary_file:
+        summary_path = args.summary or env_path("GITHUB_STEP_SUMMARY")
+        report_path = args.report or env_path("UPSTREAM_TEMPLATE_DISCOVERY_REPORT")
+        if summary_path is not None:
+            summary_path.parent.mkdir(parents=True, exist_ok=True)
+            with summary_path.open("a", encoding="utf-8") as summary_file:
                 summary_file.write(report)
                 summary_file.write("\n")
+        if report_path is not None:
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(report + "\n", encoding="utf-8")
 
         if failures:
             raise SystemExit(1)
@@ -140,6 +151,13 @@ def prepare_cache(cache_dir: Path, remote: str) -> None:
         "origin",
         "+refs/heads/*:refs/remotes/origin/*",
     )
+
+
+def env_path(name: str) -> Path | None:
+    """Return a non-empty environment variable as a path."""
+
+    value = os.environ.get(name, "").strip()
+    return Path(value) if value else None
 
 
 def inspect_ref(

@@ -32,16 +32,22 @@ Symptoms:
 
 - `discover-upstream-compat` fails
 - CI says a template `metamodelVersion` is not covered
+- scheduled CI opens or updates an `automation/dsw-compat-review` pull request
 
 Actions:
 
 1. Read the CI summary.
-2. Check the official DSW metamodel notes linked in the summary.
-3. Smoke-test the suggested DSW server and TDK version.
-4. Update `config/dsw-compat.yml`.
-5. Run `make sync-dsw-runtime-matrix`.
+2. Open the generated compatibility follow-up PR if one exists.
+3. Check the official DSW metamodel notes linked in the summary.
+4. Smoke-test the suggested DSW server and TDK version.
+5. Update `config/dsw-compat.yml`.
+6. Run `make sync-dsw-runtime-matrix`.
 
 Do not guess a runtime only from version numbers.
+
+Existing release assets are not deleted by this failure. The new upstream tag is
+blocked until a runtime is proven, while already-supported metamodel ranges can
+continue refreshing.
 
 ## Translation Audit Fails
 
@@ -129,7 +135,8 @@ you need to refresh version branches.
 
 Remember:
 
-- release assets are refreshed by successful CI runs
+- release assets are refreshed only by successful scheduled runs, manual
+  `workflow_dispatch` runs, and `master` pushes
 - release Git tags are version buckets and may still point at an older commit
 - provenance should be checked in release notes, checksums, and workflow run
   metadata

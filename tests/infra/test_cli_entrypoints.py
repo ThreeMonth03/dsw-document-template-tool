@@ -181,6 +181,43 @@ def test_discover_dsw_compat_reports_supported_refs(repo_root: Path, tmp_path: P
     assert "covered" in result.stdout
 
 
+def test_discover_dsw_compat_uses_env_report_paths(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """The discovery helper should keep Makefile report handling thin."""
+
+    remote = _build_upstream_template_remote(
+        tmp_path,
+        [("v1.30.0", "1.30.0", "18.0")],
+    )
+    summary = tmp_path / "summary.md"
+    report = tmp_path / "report.md"
+    env = os.environ.copy()
+    env["GITHUB_STEP_SUMMARY"] = str(summary)
+    env["UPSTREAM_TEMPLATE_DISCOVERY_REPORT"] = str(report)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "discover_dsw_compat.py"),
+            "--remote",
+            str(remote),
+            "--cache",
+            str(tmp_path / "cache-env-report"),
+            "v1.30.0",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "DSW Compatibility Discovery" in summary.read_text(encoding="utf-8")
+    assert "`v1.30.0`" in report.read_text(encoding="utf-8")
+
+
 def test_discover_dsw_compat_fails_unknown_metamodel(
     repo_root: Path,
     tmp_path: Path,
@@ -195,6 +232,7 @@ def test_discover_dsw_compat_fails_unknown_metamodel(
         ],
     )
     summary = tmp_path / "summary.md"
+    report = tmp_path / "compat-report.md"
     metamodel_source = tmp_path / "metamodel-source.html"
     metamodel_source.write_text(
         "<h3>Version 19.0 (since 4.35.0)</h3>\n<h3>Version 18.0 (since 4.29.0)</h3>\n",
@@ -210,6 +248,8 @@ def test_discover_dsw_compat_fails_unknown_metamodel(
             str(tmp_path / "cache-unsupported"),
             "--summary",
             str(summary),
+            "--report",
+            str(report),
             "--metamodel-source-url",
             metamodel_source.as_uri(),
             "v1.30.0+",
@@ -226,6 +266,45 @@ def test_discover_dsw_compat_fails_unknown_metamodel(
     assert metamodel_source.as_uri() in result.stdout
     assert summary.is_file()
     assert "v1.31.0" in summary.read_text(encoding="utf-8")
+    assert report.is_file()
+    assert "Unsupported Metamodels" in report.read_text(encoding="utf-8")
+
+
+def test_create_dsw_compat_pr_helper_dry_run(repo_root: Path, tmp_path: Path) -> None:
+    """The compatibility PR helper should render a reviewable investigation file."""
+
+    report = tmp_path / "discovery.md"
+    output = tmp_path / "unsupported-metamodels.md"
+    report.write_text(
+        "## DSW Compatibility Discovery\n\n"
+        "| Ref | Version | metamodelVersion | Runtime | Status |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| `v1.31.0` | `v1.31.0` | `19.0` | - | unsupported |\n",
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py"),
+            "--report",
+            str(report),
+            "--report-path",
+            str(output),
+            "--repository",
+            "owner/repo",
+            "--dry-run",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    rendered = output.read_text(encoding="utf-8")
+    assert "Unsupported DSW Metamodel Compatibility" in rendered
+    assert "v1.31.0" in rendered
+    assert "Maintainer Checklist" in rendered
 
 
 def test_create_translation_migration_prs_help(repo_root: Path) -> None:
@@ -248,6 +327,26 @@ def test_create_translation_migration_prs_help(repo_root: Path) -> None:
     assert "--target-version" in result.stdout
     assert "--create-pr" in result.stdout
     assert "--clean-artifact-root" in result.stdout
+
+
+def test_create_dsw_compat_pr_help(repo_root: Path) -> None:
+    """The DSW compatibility follow-up PR helper should expose a help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "DSW compatibility follow-up" in result.stdout
+    assert "--report" in result.stdout
+    assert "--dry-run" in result.stdout
 
 
 def test_sync_translation_version_branches_help(repo_root: Path) -> None:
@@ -394,6 +493,79 @@ def test_stage_release_assets_help(repo_root: Path) -> None:
     assert "--archive-dir" in result.stdout
 
 
+def test_upstream_template_artifacts_help(repo_root: Path) -> None:
+    """The upstream artifact helper should own the heavy Makefile workflow logic."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "upstream_template_artifacts.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "clean upstream Science Europe scaffold artifacts" in result.stdout
+    assert "build-artifacts" in result.stdout
+    assert "render-previews" in result.stdout
+
+
+def test_upstream_template_artifacts_lists_and_fetches_local_tags(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """The upstream helper should replace Makefile shell fetch/list logic."""
+
+    remote = _build_upstream_template_remote(
+        tmp_path,
+        [
+            ("v1.29.1", "1.29.1", "17.1"),
+            ("v1.30.1", "1.30.1", "18.0"),
+        ],
+    )
+
+    list_result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "upstream_template_artifacts.py"),
+            "list-tags",
+            "--remote",
+            str(remote),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert list_result.returncode == 0, list_result.stdout + list_result.stderr
+    assert list_result.stdout.strip().splitlines() == ["v1.29.1", "v1.30.1"]
+
+    cache = tmp_path / "cache"
+    fetch_result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "upstream_template_artifacts.py"),
+            "fetch",
+            "--remote",
+            str(remote),
+            "--ref",
+            "latest",
+            "--cache",
+            str(cache),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert fetch_result.returncode == 0, fetch_result.stdout + fetch_result.stderr
+    assert "resolved to v1.30.1" in fetch_result.stdout
+    assert json.loads((cache / "template.json").read_text(encoding="utf-8"))["version"] == "1.30.1"
+
+
 def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
     """The clean scaffold artifact range should include all supported tags."""
 
@@ -415,6 +587,45 @@ def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
     assert refs[0] == "v1.29.1"
     assert "v1.30.1" in refs
     assert "v1.29.0" not in refs
+
+
+def test_makefile_defaults_are_dictionary_sorted(repo_root: Path) -> None:
+    """User-overridable Makefile defaults should stay easy to scan."""
+
+    makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
+    variables = [
+        line.split("?", 1)[0].strip()
+        for line in makefile.splitlines()
+        if "?=" in line and not line.startswith("\t")
+    ]
+
+    assert variables == sorted(variables)
+    assert "UPSTREAM_TEMPLATE_MIN_SUPPORTED_REF" not in variables
+    assert "UPSTREAM_TEMPLATE_ARTIFACT_MIN_REF" in variables
+    assert "UPSTREAM_TEMPLATE_TEST_MIN_REF" in variables
+
+
+def test_makefile_phony_targets_are_dictionary_sorted(repo_root: Path) -> None:
+    """The Makefile target registry should avoid hand-ordered drift."""
+
+    makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
+    phony_line = next(line for line in makefile.splitlines() if line.startswith(".PHONY:"))
+    targets = phony_line.split(":", 1)[1].split()
+
+    assert targets == sorted(targets)
+
+
+def test_makefile_keeps_upstream_workflows_in_python_helpers(repo_root: Path) -> None:
+    """Makefile should stay a thin command router, not a shell workflow script."""
+
+    makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
+
+    assert "scripts/ci/upstream_template_artifacts.py" in makefile
+    assert "for ref in $$refs" not in makefile
+    assert "report_args" not in makefile
+    assert "summary_args" not in makefile
+    assert "shopt -s nullglob" not in makefile
+    assert "python3 -c 'import json" not in makefile
 
 
 def test_dsw_tdk_verify_command_is_available() -> None:

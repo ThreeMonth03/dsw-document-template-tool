@@ -29,6 +29,9 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert workflow["on"]["pull_request"]["branches"] == ["**"]
     assert workflow["on"]["schedule"][0]["cron"] == "30 18 * * *"
     assert workflow["permissions"]["contents"] == "write"
+    assert workflow["permissions"]["pull-requests"] == "write"
+    assert list(workflow["env"]) == sorted(workflow["env"])
+    assert workflow["env"]["UPSTREAM_TEMPLATE_TEST_METAMODEL_VERSION"] == "18.0"
     assert "make install-dev" in workflow_text
     assert "v1.29.1+" in workflow_text
     assert "v1.30.0+" in workflow_text
@@ -38,10 +41,34 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
         == "v1.29.1+"
     )
     assert "make test-upstream-tags" in workflow_text
+    assert "UPSTREAM_TEMPLATE_TEST_METAMODEL_VERSION" in workflow_text
     assert "make discover-upstream-compat" in workflow_text
     assert "UPSTREAM_TEMPLATE_DISCOVERY_REFS" in workflow_text
+    assert "UPSTREAM_TEMPLATE_DISCOVERY_REPORT" in workflow_text
+    assert "continue-on-error: true" in workflow_text
+    assert "Open DSW compatibility follow-up PR" in workflow_text
+    offline_steps = workflow["jobs"]["offline-checks"]["steps"]
+    compat_pr_step = next(
+        step for step in offline_steps if step["name"] == "Open DSW compatibility follow-up PR"
+    )
+    assert compat_pr_step["if"] == (
+        "steps.discover_compat.outcome == 'failure' && "
+        "(github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || "
+        "github.ref == 'refs/heads/master')"
+    )
+    assert "github.event_name == 'schedule'" in workflow_text
+    assert "github.event_name == 'workflow_dispatch'" in workflow_text
+    assert "github.ref == 'refs/heads/master'" in workflow_text
+    assert (
+        "steps.discover_compat.outcome == 'failure' && github.event_name != 'pull_request'"
+        not in workflow_text
+    )
+    assert '--base "$DEFAULT_BRANCH"' in workflow_text
+    assert "scripts/ci/create_dsw_compat_pr.py" in workflow_text
+    assert "Fail pull request on unsupported upstream metamodel" in workflow_text
     assert "make test-upstream-compat-tags" not in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
+    assert "UPSTREAM_TEMPLATE_ARTIFACT_METAMODEL_VERSION" in workflow_text
     assert "make render-upstream-artifact-previews" in workflow_text
     render_job = workflow["jobs"]["render-regression"]
     matrix_include = render_job["strategy"]["matrix"]["include"]
@@ -71,14 +98,20 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "actions/upload-artifact@v4" in workflow_text
     assert workflow_text.count("include-hidden-files: true") == 2
     assert "Publish clean scaffold release assets" in workflow_text
-    assert "scripts/ci/stage_release_assets.py" in workflow_text
-    assert "clean-scaffold-dsw-science-europe-$version_tag" in workflow_text
-    assert "These are clean scaffolds for downstream translation maintenance" in workflow_text
-    assert 'gh release view "$release_tag" --repo "$GITHUB_REPOSITORY"' in workflow_text
-    assert (
-        'gh release upload "$release_tag" "$release_dir"/* --repo "$GITHUB_REPOSITORY"'
-        in workflow_text
+    render_steps = render_job["steps"]
+    publish_step = next(
+        step for step in render_steps if step["name"] == "Publish clean scaffold release assets"
     )
+    assert publish_step["if"] == (
+        "github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || "
+        "github.ref == 'refs/heads/master'"
+    )
+    assert "scripts/ci/publish_clean_scaffold_releases.py" in workflow_text
+    assert "scripts/ci/stage_release_assets.py" not in workflow_text
+    assert "for package in" not in workflow_text
+    assert "gh release view" not in workflow_text
+    assert "gh release upload" not in workflow_text
+    assert "python3 -c" not in workflow_text
     assert "active-fallback-document-template" not in workflow_text
     assert "upstream-compat-smoke" not in workflow["jobs"]
     assert "Compatibility refs are advisory" not in workflow_text

@@ -73,10 +73,24 @@ python src/translation_tree.py sync --tree translation --source expanded --outpu
 ```shell
 make list-upstream-template-tags
 make fetch-upstream-template UPSTREAM_TEMPLATE_REF=v1.30.1
-make test-upstream-tags UPSTREAM_TEMPLATE_TEST_REFS="latest main v1.29.1+"
+make test-upstream-tags \
+  UPSTREAM_TEMPLATE_TEST_REFS="latest main v1.30.0+" \
+  UPSTREAM_TEMPLATE_TEST_METAMODEL_VERSION=18.0
 make discover-upstream-compat UPSTREAM_TEMPLATE_DISCOVERY_REFS="v1.29.1+"
 make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS="v1.29.1+"
 make render-upstream-artifact-previews
+```
+
+`UPSTREAM_TEMPLATE_TEST_*` variables are for the current-metamodel smoke test.
+`UPSTREAM_TEMPLATE_ARTIFACT_*` variables are for clean scaffold assets across
+all configured runtimes.
+
+Write a compatibility discovery report for follow-up automation:
+
+```shell
+make discover-upstream-compat \
+  UPSTREAM_TEMPLATE_DISCOVERY_REFS="v1.29.1+" \
+  UPSTREAM_TEMPLATE_DISCOVERY_REPORT=outputs/upstream-compat/discovery.md
 ```
 
 ## DSW Runtime Matrix
@@ -110,6 +124,16 @@ python scripts/ci/stage_release_assets.py \
   --optional-asset path/to/test-project.pdf=test-project.pdf
 ```
 
+Stage clean scaffold release assets without uploading to GitHub:
+
+```shell
+python scripts/ci/publish_clean_scaffold_releases.py \
+  --repository ThreeMonth03/DSW-document-template-tool \
+  --run-id local \
+  --commit-sha "$(git rev-parse HEAD)" \
+  --dry-run
+```
+
 Manually copy reviewed translated source to a target repository branch:
 
 ```shell
@@ -136,4 +160,13 @@ python scripts/ci/sync_translation_version_branches.py \
   --clean-artifact-root /tmp/clean-scaffolds \
   --dry-run \
   --refresh-existing
+```
+
+Dry-run an unsupported metamodel follow-up report:
+
+```shell
+python scripts/ci/create_dsw_compat_pr.py \
+  --report outputs/upstream-compat/discovery.md \
+  --repository ThreeMonth03/DSW-document-template-tool \
+  --dry-run
 ```

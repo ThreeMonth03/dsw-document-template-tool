@@ -56,17 +56,21 @@ translated version exists or has passed translation QA.
 If CI reports an unsupported metamodel:
 
 1. Read the `discover-upstream-compat` summary.
-2. Check the official DSW document-template metamodel notes linked in the CI
+2. On scheduled runs, manual `workflow_dispatch` runs, or `master` pushes,
+   check whether CI opened or updated a DSW compatibility follow-up PR. The PR
+   records the discovery report and smoke-test checklist. Feature-branch pushes
+   intentionally do not open these automation PRs.
+3. Check the official DSW document-template metamodel notes linked in the CI
    report.
-3. Pick a DSW server image and matching `dsw-tdk` version to smoke-test.
-4. Add a runtime row to `config/dsw-compat.yml`.
-5. Regenerate the workflow matrix:
+4. Pick a DSW server image and matching `dsw-tdk` version to smoke-test.
+5. Add a runtime row to `config/dsw-compat.yml`.
+6. Regenerate the workflow matrix:
 
    ```shell
    make sync-dsw-runtime-matrix
    ```
 
-6. Run:
+7. Run:
 
    ```shell
    make format-check
@@ -74,11 +78,15 @@ If CI reports an unsupported metamodel:
    make test
    ```
 
-7. Push and confirm tool CI builds clean scaffold release assets for the new tag.
+8. Push and confirm tool CI builds clean scaffold release assets for the new tag.
 
 The metamodel notes are advisory. They say when a metamodel became supported,
 but they do not prove that upload, preview, package, and PDF render all work for
 our exact workflow.
+
+Unsupported metamodels should not break already-supported versions. Matrix jobs
+filter artifact builds by their configured metamodel, so existing clean scaffold
+release assets can still refresh while the new runtime is being investigated.
 
 ## Parser Changes During Upgrade
 
