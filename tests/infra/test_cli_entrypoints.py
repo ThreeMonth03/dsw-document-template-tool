@@ -124,15 +124,23 @@ def test_translation_tree_help(repo_root) -> None:
     assert "--allow-sentence-matches" in result.stdout
 
 
-def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path) -> None:
+def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path, tmp_path: Path) -> None:
     """The CI helper should resolve semantic version ranges from an upstream remote."""
 
+    remote = _build_upstream_template_remote(
+        tmp_path,
+        [
+            ("v1.29.1", "1.29.1", "17.1"),
+            ("v1.30.0", "1.30.0", "18.0"),
+            ("v1.30.1", "1.30.1", "18.0"),
+        ],
+    )
     result = subprocess.run(
         [
             sys.executable,
             str(repo_root / "scripts" / "ci" / "resolve_upstream_refs.py"),
             "--remote",
-            "https://github.com/ds-wizard/science-europe-template.git",
+            str(remote),
             "latest",
             "v1.30.0+",
         ],
@@ -147,6 +155,21 @@ def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path) -> None:
     assert "v1.30.0" in refs
     assert "v1.30.1" in refs
     assert "v1.29.1" not in refs
+
+
+def test_resolve_upstream_refs_normalizes_github_owner_repo() -> None:
+    """GitHub owner/repo shorthand should be accepted by the resolver."""
+
+    from scripts.ci.resolve_upstream_refs import normalize_git_remote
+
+    assert (
+        normalize_git_remote("ds-wizard/science-europe-template")
+        == "https://github.com/ds-wizard/science-europe-template.git"
+    )
+    assert (
+        normalize_git_remote("https://github.com/ds-wizard/science-europe-template.git")
+        == "https://github.com/ds-wizard/science-europe-template.git"
+    )
 
 
 def test_discover_dsw_compat_reports_supported_refs(repo_root: Path, tmp_path: Path) -> None:
@@ -699,15 +722,23 @@ def test_upstream_template_artifacts_lists_and_fetches_local_tags(
     assert json.loads((cache / "template.json").read_text(encoding="utf-8"))["version"] == "1.30.1"
 
 
-def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path) -> None:
+def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path, tmp_path: Path) -> None:
     """The clean scaffold artifact range should include all supported tags."""
 
+    remote = _build_upstream_template_remote(
+        tmp_path,
+        [
+            ("v1.29.0", "1.29.0", "17.0"),
+            ("v1.29.1", "1.29.1", "17.1"),
+            ("v1.30.1", "1.30.1", "18.0"),
+        ],
+    )
     result = subprocess.run(
         [
             sys.executable,
             str(repo_root / "scripts" / "ci" / "resolve_upstream_refs.py"),
             "--remote",
-            "https://github.com/ds-wizard/science-europe-template.git",
+            str(remote),
             "v1.29.1+",
         ],
         capture_output=True,
