@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import subprocess
 import sys
@@ -503,10 +504,29 @@ def write_version_branch_workflow(
 ) -> None:
     """Write the version-specific translation sync workflow into a branch checkout."""
 
+    workflow = render_version_branch_workflow(
+        tooling_root=tooling_root,
+        config=config,
+        version=version,
+        branch=branch,
+    )
+    target = checkout / ".github" / "workflows" / "document_template_translation_sync.yml"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(workflow, encoding="utf-8")
+
+
+def render_version_branch_workflow(
+    *,
+    tooling_root: Path,
+    config: TranslationRepositoryConfig,
+    version: str,
+    branch: str,
+) -> str:
+    """Render a version-specific translation sync workflow."""
+
     paths = version_paths(config, version)
     runtime = preview_runtime_for_version(version)
     source = tooling_root / "examples" / "github-actions" / "document_template_translation_sync.yml"
-    target = checkout / ".github" / "workflows" / "document_template_translation_sync.yml"
     workflow = source.read_text(encoding="utf-8")
 
     replacements = {
@@ -516,42 +536,83 @@ def write_version_branch_workflow(
         "github.event_name == 'schedule' ||": (
             "github.event_name == 'push' ||\n      github.event_name == 'schedule' ||"
         ),
+        "TOOLING_REPOSITORY: ThreeMonth03/DSW-document-template-tool": _workflow_env_line(
+            "TOOLING_REPOSITORY",
+            config.tooling.repository,
+        ),
+        "TOOLING_REF: master": _workflow_env_line("TOOLING_REF", config.tooling.ref),
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0": (
-            f"COMPACT_TEMPLATE_DIR: {paths.compact_template_dir.as_posix()}"
+            _workflow_env_line("COMPACT_TEMPLATE_DIR", paths.compact_template_dir.as_posix())
         ),
         "EXPANDED_TEMPLATE_DIR: workspace/document-templates/expanded/dsw-science-europe-1.30.0": (
-            f"EXPANDED_TEMPLATE_DIR: {paths.expanded_template_dir.as_posix()}"
+            _workflow_env_line("EXPANDED_TEMPLATE_DIR", paths.expanded_template_dir.as_posix())
         ),
         (
             "TRANSLATION_TREE_DIR: workspace/document-templates/translation/"
             "dsw-science-europe-1.30.0"
-        ): f"TRANSLATION_TREE_DIR: {paths.translation_tree_dir.as_posix()}",
-        "TRANSLATED_TEMPLATE_VERSION: 1.30.0": (
-            f"TRANSLATED_TEMPLATE_VERSION: {paths.version_number}"
+        ): _workflow_env_line("TRANSLATION_TREE_DIR", paths.translation_tree_dir.as_posix()),
+        "TRANSLATED_TEMPLATE_ORGANIZATION_ID: dsw": _workflow_env_line(
+            "TRANSLATED_TEMPLATE_ORGANIZATION_ID",
+            config.translation.translated_template_organization_id,
         ),
-        'DSW_VERSION: "4.30"': f'DSW_VERSION: "{runtime.dsw_version}"',
-        'DSW_TDK_VERSION: "4.30.2"': f'DSW_TDK_VERSION: "{runtime.tdk_version}"',
+        "TRANSLATED_TEMPLATE_ID: science-europe-zh-hant": _workflow_env_line(
+            "TRANSLATED_TEMPLATE_ID",
+            config.translation.translated_template_id,
+        ),
+        "TRANSLATED_TEMPLATE_VERSION: 1.30.0": (
+            _workflow_env_line("TRANSLATED_TEMPLATE_VERSION", paths.version_number)
+        ),
+        "TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)": (
+            _workflow_env_line(
+                "TRANSLATED_TEMPLATE_NAME",
+                config.translation.translated_template_name,
+            )
+        ),
+        "TRANSLATION_SOURCE_LANG: en": _workflow_env_line(
+            "TRANSLATION_SOURCE_LANG",
+            config.translation.source_language,
+        ),
+        "TRANSLATION_TARGET_LANG: zh_Hant": _workflow_env_line(
+            "TRANSLATION_TARGET_LANG",
+            config.translation.target_language,
+        ),
+        'DSW_VERSION: "4.30"': _workflow_env_line("DSW_VERSION", runtime.dsw_version),
+        'DSW_TDK_VERSION: "4.30.2"': _workflow_env_line(
+            "DSW_TDK_VERSION",
+            runtime.tdk_version,
+        ),
         'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"': (
-            f'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "{runtime.metamodel_version}"'
+            _workflow_env_line(
+                "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION",
+                runtime.metamodel_version,
+            )
         ),
         'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"': (
-            f'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "{str(runtime.strict_project_preview).lower()}"'
+            _workflow_env_line(
+                "UPSTREAM_TEMPLATE_PREVIEW_STRICT",
+                str(runtime.strict_project_preview).lower(),
+            )
         ),
         (
             "TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/"
             "v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0"
-        ): f"TRANSLATED_TEMPLATE_DIR: {paths.translated_template_dir.as_posix()}",
+        ): _workflow_env_line("TRANSLATED_TEMPLATE_DIR", paths.translated_template_dir.as_posix()),
         (
             "TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/"
             "v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip"
-        ): f"TRANSLATED_TEMPLATE_PACKAGE: {paths.translated_template_package.as_posix()}",
+        ): _workflow_env_line(
+            "TRANSLATED_TEMPLATE_PACKAGE",
+            paths.translated_template_package.as_posix(),
+        ),
         (
             "PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/"
             "v1.30.0/zh-Hant/test-project.pdf"
-        ): (
-            "PROJECT_RENDER_OUTPUT: "
-            f"outputs/project-render/{paths.source_template_id}/{version}/"
-            f"{config.translation.target_language_label}/test-project.pdf"
+        ): _workflow_env_line(
+            "PROJECT_RENDER_OUTPUT",
+            (
+                f"outputs/project-render/{paths.source_template_id}/{version}/"
+                f"{config.translation.target_language_label}/test-project.pdf"
+            ),
         ),
     }
     for old, new in replacements.items():
@@ -563,8 +624,105 @@ def write_version_branch_workflow(
         expected_count=3,
     )
 
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(workflow, encoding="utf-8")
+    validate_version_branch_workflow(
+        workflow,
+        config=config,
+        version=version,
+        branch=branch,
+    )
+    return workflow
+
+
+def validate_version_branch_workflow(
+    workflow: str,
+    *,
+    config: TranslationRepositoryConfig,
+    version: str,
+    branch: str,
+) -> None:
+    """Validate a generated version-branch workflow before committing it."""
+
+    paths = version_paths(config, version)
+    runtime = preview_runtime_for_version(version)
+    payload = yaml.safe_load(workflow)
+    if not isinstance(payload, dict):
+        raise SystemExit("Generated translation workflow must be a YAML mapping")
+
+    trigger_payload = payload.get("on", payload.get(True))
+    if not isinstance(trigger_payload, dict):
+        raise SystemExit("Generated translation workflow must define mapping triggers")
+    _expect_branch_trigger(trigger_payload, "pull_request", branch)
+    _expect_branch_trigger(trigger_payload, "push", branch)
+    for trigger_name in ("workflow_dispatch", "schedule"):
+        if trigger_name not in trigger_payload:
+            raise SystemExit(f"Generated translation workflow is missing {trigger_name!r} trigger")
+
+    env = payload.get("env")
+    if not isinstance(env, dict):
+        raise SystemExit("Generated translation workflow must define mapping env")
+    expected_env = {
+        "TOOLING_REPOSITORY": config.tooling.repository,
+        "TOOLING_REF": config.tooling.ref,
+        "COMPACT_TEMPLATE_DIR": paths.compact_template_dir.as_posix(),
+        "EXPANDED_TEMPLATE_DIR": paths.expanded_template_dir.as_posix(),
+        "TRANSLATION_TREE_DIR": paths.translation_tree_dir.as_posix(),
+        "TRANSLATED_TEMPLATE_ORGANIZATION_ID": (
+            config.translation.translated_template_organization_id
+        ),
+        "TRANSLATED_TEMPLATE_ID": config.translation.translated_template_id,
+        "TRANSLATED_TEMPLATE_VERSION": paths.version_number,
+        "TRANSLATED_TEMPLATE_NAME": config.translation.translated_template_name,
+        "TRANSLATION_SOURCE_LANG": config.translation.source_language,
+        "TRANSLATION_TARGET_LANG": config.translation.target_language,
+        "TRANSLATED_TEMPLATE_DIR": paths.translated_template_dir.as_posix(),
+        "TRANSLATED_TEMPLATE_PACKAGE": paths.translated_template_package.as_posix(),
+        "PROJECT_REF": "tooling-repo/workspace/projects/test-project.json",
+        "PROJECT_RENDER_OUTPUT": (
+            f"outputs/project-render/{paths.source_template_id}/{version}/"
+            f"{config.translation.target_language_label}/test-project.pdf"
+        ),
+        "DSW_VERSION": runtime.dsw_version,
+        "DSW_TDK_VERSION": runtime.tdk_version,
+        "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION": runtime.metamodel_version,
+        "UPSTREAM_TEMPLATE_PREVIEW_STRICT": str(runtime.strict_project_preview).lower(),
+    }
+    for key, expected_value in expected_env.items():
+        actual_value = env.get(key)
+        if actual_value != expected_value:
+            raise SystemExit(
+                f"Generated translation workflow env {key}={actual_value!r}; "
+                f"expected {expected_value!r}"
+            )
+
+    for forbidden_key in ("PUBLISH_TARGET_REPOSITORY", "PUBLISH_TARGET_BRANCH"):
+        if forbidden_key in env or forbidden_key in workflow:
+            raise SystemExit(f"Generated version-branch workflow must not contain {forbidden_key}")
+    if "github.event.pull_request.head.ref || 'master'" in workflow:
+        raise SystemExit("Generated version-branch workflow still falls back to master")
+    if "github.event_name == 'push'" not in workflow:
+        raise SystemExit("Generated version-branch workflow must handle push events")
+
+
+def _expect_branch_trigger(
+    trigger_payload: dict[object, object],
+    trigger_name: str,
+    branch: str,
+) -> None:
+    trigger = trigger_payload.get(trigger_name)
+    if not isinstance(trigger, dict):
+        raise SystemExit(
+            f"Generated translation workflow trigger {trigger_name!r} must be a mapping"
+        )
+    branches = trigger.get("branches")
+    if branches != [branch]:
+        raise SystemExit(
+            f"Generated translation workflow trigger {trigger_name!r} branches are "
+            f"{branches!r}; expected {[branch]!r}"
+        )
+
+
+def _workflow_env_line(key: str, value: str) -> str:
+    return f"{key}: {json.dumps(value, ensure_ascii=False)}"
 
 
 def merge_preserved_translations(
