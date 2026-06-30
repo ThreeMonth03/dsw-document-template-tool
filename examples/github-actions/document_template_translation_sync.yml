@@ -412,7 +412,7 @@ jobs:
             -f description="Auto-repaired translation inputs were validated." \
             -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
-      - name: Dispatch control-plane migration
+      - name: Dispatch operations migration
         if: >-
           github.event_name == 'push' &&
           github.actor != 'github-actions[bot]'
@@ -426,9 +426,9 @@ jobs:
             -f source_version="v$TRANSLATED_TEMPLATE_VERSION"
 
           {
-            echo "## Control-plane migration dispatched"
+            echo "## Operations migration dispatched"
             echo
-            echo "Requested master control-plane migration from"
+            echo "Requested master operations migration from"
             echo "\`v$TRANSLATED_TEMPLATE_VERSION\` after this version branch passed."
           } >> "$GITHUB_STEP_SUMMARY"
 

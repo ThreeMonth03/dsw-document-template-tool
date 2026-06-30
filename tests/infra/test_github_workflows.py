@@ -305,12 +305,12 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "Mark auto-repaired head as validated" in workflow_text
     assert "translation-sync / repaired head" in workflow_text
     assert "statuses/$REPAIRED_SHA" in workflow_text
-    assert "Dispatch control-plane migration" in workflow_text
+    assert "Dispatch operations migration" in workflow_text
     assert "github.event_name == 'push' &&" in workflow_text
     assert "gh workflow run document_template_translation_sync.yml" in workflow_text
     assert "--ref master" in workflow_text
     assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
-    assert "Control-plane migration dispatched" in workflow_text
+    assert "Operations migration dispatched" in workflow_text
     assert "::error title=Translation sync failed::" in workflow_text
     assert "::error title=Translated output structure audit failed::" in workflow_text
     assert 'dsw-tdk" package' in workflow_text

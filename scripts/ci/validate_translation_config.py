@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a translation control-plane configuration."""
+"""Validate a translation workflow configuration."""
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
 
     versions = ", ".join(config.template.supported_versions)
     lines = [
-        "## Translation control plane",
+        "## Translation workflow",
         "",
         f"- Upstream repository: `{config.template.upstream_repository}`",
         f"- Supported versions: `{versions}`",

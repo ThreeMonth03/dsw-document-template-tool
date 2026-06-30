@@ -86,7 +86,7 @@ Download clean scaffold artifacts:
 ```
 
 Downstream repositories normally cannot receive a cross-repository
-`workflow_run` event from this tool repository. The control-plane workflow
+`workflow_run` event from this tool repository. The operations workflow
 therefore downloads the latest successful tool-repo run by workflow name. If an
 operator passes an exact tool run id manually, prefer `--run-id` so the
 downloaded artifacts are tied to that exact run:
@@ -115,7 +115,7 @@ automation.
 
 ## Manual Downstream Sync
 
-If the downstream translation repository uses the control-plane workflow from
+If the downstream translation repository uses the operations workflow from
 this repo, operators can trigger a branch refresh without waiting for the daily
 schedule:
 
