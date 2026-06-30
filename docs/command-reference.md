@@ -6,9 +6,10 @@ documents for context.
 Use shell variables for repository locations so commands survive repo moves:
 
 ```shell
-TOOL_REPO=owner/document-template-tool
-TRANSLATION_REPO=owner/document-template-translation
-TOOLING_ROOT=$PWD
+TOOL_GITHUB_REPO=owner/document-template-tool
+TRANSLATION_GITHUB_REPO=owner/document-template-translation
+TOOL_REPO_DIR=$PWD
+TRANSLATION_REPO_DIR=/path/to/document-template-translation
 ```
 
 ## Setup and Checks
@@ -66,10 +67,10 @@ TRANSLATION_TREE_DIR=workspace/document-templates/translation/dsw-science-europe
 Direct CLI examples:
 
 ```shell
-python src/transform_template.py expand --source compact --output expanded
-python src/translation_tree.py export --source expanded --output translation
-python src/translation_tree.py merge --old-tree old --new-tree fresh --output merged
-python src/translation_tree.py sync --tree translation --source expanded --output output \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/transform_template.py" expand --source compact --output expanded
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export --source expanded --output translation
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" merge --old-tree old --new-tree fresh --output merged
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" sync --tree translation --source expanded --output output \
   --template-organization-id dsw \
   --template-id science-europe-zh-hant \
   --template-name "Science Europe DMP Template (zh-Hant)" \
@@ -137,7 +138,7 @@ make render-project \
 Stage release assets locally:
 
 ```shell
-python scripts/ci/stage_release_assets.py \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/stage_release_assets.py" \
   --output-dir outputs/release-assets/demo \
   --notes-title "Demo release" \
   --asset path/to/template.zip=template.zip \
@@ -147,8 +148,8 @@ python scripts/ci/stage_release_assets.py \
 Preview clean scaffold release staging without uploading to GitHub:
 
 ```shell
-python scripts/ci/publish_clean_scaffold_releases.py \
-  --repository "$TOOL_REPO" \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/publish_clean_scaffold_releases.py" \
+  --repository "$TOOL_GITHUB_REPO" \
   --run-id local \
   --commit-sha "$(git rev-parse HEAD)" \
   --dry-run
@@ -158,15 +159,15 @@ Manually copy reviewed translated source to a target repository branch:
 
 ```shell
 make publish-translated-template \
-  TRANSLATION_REPO=/path/to/translation-repo \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
   PUBLISH_VERSION=v1.30.1
 ```
 
 Download clean scaffold artifacts from the latest successful tool CI run:
 
 ```shell
-python scripts/ci/download_clean_scaffold_artifacts.py \
-  --repo "$TOOL_REPO" \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
+  --repo "$TOOL_GITHUB_REPO" \
   --workflow headless_render_regression.yml \
   --output-dir /tmp/clean-scaffolds
 ```
@@ -175,29 +176,18 @@ Download clean scaffold artifacts from an exact tool CI run:
 
 ```shell
 TOOLING_RUN_ID=28346995193
-python scripts/ci/download_clean_scaffold_artifacts.py \
-  --repo "$TOOL_REPO" \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
+  --repo "$TOOL_GITHUB_REPO" \
   --run-id "$TOOLING_RUN_ID" \
   --output-dir /tmp/clean-scaffolds
-```
-
-In a downstream `workflow_run` job triggered by the tool repository, pass the
-triggering tool run id instead:
-
-```yaml
-run: |
-  python scripts/ci/download_clean_scaffold_artifacts.py \
-    --repo "$TOOL_REPO" \
-    --run-id "${{ github.event.workflow_run.id }}" \
-    --output-dir /tmp/clean-scaffolds
 ```
 
 Dry-run downstream branch refresh:
 
 ```shell
-python scripts/ci/sync_translation_version_branches.py \
-  --repo "$TRANSLATION_REPO" \
-  --tooling-root "$TOOLING_ROOT" \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/sync_translation_version_branches.py" \
+  --repo "$TRANSLATION_REPO_DIR" \
+  --tooling-root "$TOOL_REPO_DIR" \
   --clean-artifact-root /tmp/clean-scaffolds \
   --dry-run \
   --refresh-existing
@@ -206,8 +196,8 @@ python scripts/ci/sync_translation_version_branches.py \
 Dry-run an unsupported metamodel follow-up report:
 
 ```shell
-python scripts/ci/create_dsw_compat_pr.py \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/create_dsw_compat_pr.py" \
   --report outputs/upstream-compat/discovery.md \
-  --repository "$TOOL_REPO" \
+  --repository "$TOOL_GITHUB_REPO" \
   --dry-run
 ```

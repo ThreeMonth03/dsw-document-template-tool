@@ -40,14 +40,16 @@ If CI finds that the new upstream tag uses an already configured metamodel:
 2. Confirm a clean scaffold release exists:
 
    ```shell
-   TOOL_REPO=owner/document-template-tool
+   TOOL_GITHUB_REPO=owner/document-template-tool
 
    gh release view clean-scaffold-dsw-science-europe-vX.Y.Z \
-     --repo "$TOOL_REPO"
+     --repo "$TOOL_GITHUB_REPO"
    ```
 
-3. Hand the scaffold to the downstream translation repository using
-   [Downstream Integration](downstream-integration.md).
+3. If you also operate the translation control repository, trigger its sync
+   workflow using [Downstream Integration](downstream-integration.md). Otherwise,
+   hand off the clean scaffold release link and checksum to that repository's
+   operator.
 
 Do not stop after the tool repo release is green. A green clean scaffold means
 the upstream template can be transformed and packaged; it does not mean the

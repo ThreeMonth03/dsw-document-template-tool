@@ -14,19 +14,27 @@ The tool repo owns reusable infrastructure:
 - helper scripts under `scripts/ci/`
 - copy-paste workflow templates under `examples/`
 
-The clean scaffold releases are inputs for downstream repositories. They are not
+The clean scaffold outputs are inputs for downstream repositories. They are not
 finished translations.
 
-If upstream publishes a tag with an unsupported metamodel, scheduled/manual tool
-repo CI may open a compatibility follow-up PR instead of producing a clean
-scaffold release for that tag. Downstream repositories should wait for the
-version-specific clean scaffold release before creating or refreshing a matching
-translation branch.
+This repo exposes those outputs in two places:
 
-## Clean Scaffold Releases
+- GitHub Actions artifacts from `headless_render_regression.yml`, which the
+  translation control workflow downloads during automated sync.
+- GitHub Release assets named `clean-scaffold-dsw-science-europe-vX.Y.Z`, which
+  are stable human-facing download buckets for review and handoff.
+
+If upstream publishes a tag with an unsupported metamodel, scheduled/manual tool
+repo CI may open a compatibility follow-up PR instead of producing clean
+scaffold outputs for that tag. Downstream repositories should wait for a
+successful tool-repo run, and preferably the matching version-specific release,
+before creating or refreshing a matching translation branch.
+
+## Clean Scaffold Outputs
 
 On successful scheduled runs, manual `workflow_dispatch` runs, and `master`
-pushes, this repo publishes release assets named like:
+pushes, this repo uploads Actions artifacts and publishes release assets named
+like:
 
 ```text
 clean-scaffold-dsw-science-europe-v1.30.1
@@ -62,38 +70,42 @@ repo should only document the artifact contract and helper commands.
 Set repository paths once:
 
 ```shell
-TOOL_REPO=owner/document-template-tool
-TRANSLATION_REPO=/path/to/translation-repo
-TOOLING_ROOT=/path/to/document-template-tool
+TOOL_GITHUB_REPO=owner/document-template-tool
+TRANSLATION_GITHUB_REPO=owner/document-template-translation
+TOOL_REPO_DIR=/path/to/document-template-tool
+TRANSLATION_REPO_DIR=/path/to/document-template-translation
 ```
 
 Download clean scaffold artifacts:
 
 ```shell
-python scripts/ci/download_clean_scaffold_artifacts.py \
-  --repo "$TOOL_REPO" \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
+  --repo "$TOOL_GITHUB_REPO" \
   --workflow headless_render_regression.yml \
   --output-dir /tmp/clean-scaffolds
 ```
 
-When a downstream workflow is triggered by a specific tool-repo `workflow_run`,
-prefer `--run-id` so it downloads artifacts from that exact run. Use the latest
-successful lookup only for manual repair or exploratory maintenance.
+Downstream repositories normally cannot receive a cross-repository
+`workflow_run` event from this tool repository. The control-plane workflow
+therefore downloads the latest successful tool-repo run by workflow name. If an
+operator passes an exact tool run id manually, prefer `--run-id` so the
+downloaded artifacts are tied to that exact run:
 
-```yaml
-run: |
-  python scripts/ci/download_clean_scaffold_artifacts.py \
-    --repo "$TOOL_REPO" \
-    --run-id "${{ github.event.workflow_run.id }}" \
-    --output-dir /tmp/clean-scaffolds
+```shell
+TOOLING_RUN_ID=123456789
+
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
+  --repo "$TOOL_GITHUB_REPO" \
+  --run-id "$TOOLING_RUN_ID" \
+  --output-dir /tmp/clean-scaffolds
 ```
 
 Refresh version branches from downloaded artifacts:
 
 ```shell
-python scripts/ci/sync_translation_version_branches.py \
-  --repo "$TRANSLATION_REPO" \
-  --tooling-root "$TOOLING_ROOT" \
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/sync_translation_version_branches.py" \
+  --repo "$TRANSLATION_REPO_DIR" \
+  --tooling-root "$TOOL_REPO_DIR" \
   --clean-artifact-root /tmp/clean-scaffolds \
   --refresh-existing
 ```
@@ -108,10 +120,8 @@ this repo, operators can trigger a branch refresh without waiting for the daily
 schedule:
 
 ```shell
-TRANSLATION_REPO=owner/document-template-translation
-
 gh workflow run document_template_translation_sync.yml \
-  --repo "$TRANSLATION_REPO" \
+  --repo "$TRANSLATION_GITHUB_REPO" \
   --ref master
 ```
 
@@ -122,10 +132,8 @@ workflows, and may create migration PRs.
 To choose the source branch used for migration fan-out, pass `source_version`:
 
 ```shell
-TRANSLATION_REPO=owner/document-template-translation
-
 gh workflow run document_template_translation_sync.yml \
-  --repo "$TRANSLATION_REPO" \
+  --repo "$TRANSLATION_GITHUB_REPO" \
   --ref master \
   -f source_version=v1.30.1
 ```

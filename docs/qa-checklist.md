@@ -34,10 +34,10 @@ Confirm:
 For each target version:
 
 ```shell
-TOOL_REPO=owner/document-template-tool
+TOOL_GITHUB_REPO=owner/document-template-tool
 
 gh release view clean-scaffold-dsw-science-europe-vX.Y.Z \
-  --repo "$TOOL_REPO"
+  --repo "$TOOL_GITHUB_REPO"
 ```
 
 Expected assets:
