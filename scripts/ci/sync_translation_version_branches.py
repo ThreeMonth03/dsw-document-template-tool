@@ -527,9 +527,10 @@ def write_version_branch_workflow(
         "EXPANDED_TEMPLATE_DIR: workspace/document-templates/expanded/dsw-science-europe-1.30.0": (
             f"EXPANDED_TEMPLATE_DIR: {_yaml_scalar(paths.expanded_template_dir.as_posix())}"
         ),
-        "TRANSLATION_TREE_DIR: workspace/document-templates/translation/dsw-science-europe-1.30.0": (
-            f"TRANSLATION_TREE_DIR: {_yaml_scalar(paths.translation_tree_dir.as_posix())}"
-        ),
+        (
+            "TRANSLATION_TREE_DIR: "
+            "workspace/document-templates/translation/dsw-science-europe-1.30.0"
+        ): (f"TRANSLATION_TREE_DIR: {_yaml_scalar(paths.translation_tree_dir.as_posix())}"),
         "TRANSLATED_TEMPLATE_ORGANIZATION_ID: dsw": (
             "TRANSLATED_TEMPLATE_ORGANIZATION_ID: "
             f"{_yaml_scalar(config.translation.translated_template_organization_id)}"
@@ -549,11 +550,18 @@ def write_version_branch_workflow(
         "TRANSLATION_TARGET_LANG: zh_Hant": (
             f"TRANSLATION_TARGET_LANG: {_yaml_scalar(config.translation.target_language)}"
         ),
-        "TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0": (
-            f"TRANSLATED_TEMPLATE_DIR: {_yaml_scalar(paths.translated_template_dir.as_posix())}"
-        ),
-        "TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip": (
-            f"TRANSLATED_TEMPLATE_PACKAGE: {_yaml_scalar(paths.translated_template_package.as_posix())}"
+        (
+            "TRANSLATED_TEMPLATE_DIR: "
+            "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
+            "dsw-science-europe-zh-hant-1.30.0"
+        ): (f"TRANSLATED_TEMPLATE_DIR: {_yaml_scalar(paths.translated_template_dir.as_posix())}"),
+        (
+            "TRANSLATED_TEMPLATE_PACKAGE: "
+            "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
+            "dsw-science-europe-zh-hant-1.30.0.zip"
+        ): (
+            "TRANSLATED_TEMPLATE_PACKAGE: "
+            f"{_yaml_scalar(paths.translated_template_package.as_posix())}"
         ),
         'DSW_VERSION: "4.30"': f"DSW_VERSION: {_yaml_scalar(runtime.dsw_version)}",
         'DSW_TDK_VERSION: "4.30.2"': f"DSW_TDK_VERSION: {_yaml_scalar(runtime.tdk_version)}",

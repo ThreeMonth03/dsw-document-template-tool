@@ -36,10 +36,10 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     (translation_repo / "docs").mkdir()
     (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
     (translation_repo / ".github" / "workflows").mkdir(parents=True)
-    (translation_repo / ".github" / "workflows" / "document_template_translation_sync.yml").write_text(
-        "name: operations workflow\n",
-        encoding="utf-8",
+    operations_workflow = (
+        translation_repo / ".github" / "workflows" / "document_template_translation_sync.yml"
     )
+    operations_workflow.write_text("name: operations workflow\n", encoding="utf-8")
     control_project = translation_repo / "workspace/projects/test-project.json"
     control_demo_fixture = translation_repo / "fixtures/projects/demo/test-project.json"
     control_fixture_km = translation_repo / "fixtures/knowledge-models/root-zh-hant-2.7.0.km"
@@ -113,14 +113,17 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    assert "TRANSLATED_TEMPLATE_VERSION: \"1.30.2\"" in _git_show(
+    assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    assert "control" not in _git_show(
-        translation_repo,
-        "translation/v1.30.2:README.md",
-    ).lower()
+    assert (
+        "control"
+        not in _git_show(
+            translation_repo,
+            "translation/v1.30.2:README.md",
+        ).lower()
+    )
     assert (
         _git_show(
             translation_repo,
