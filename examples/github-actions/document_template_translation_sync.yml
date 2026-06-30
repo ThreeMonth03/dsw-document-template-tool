@@ -3,6 +3,8 @@ name: DSW Document Template Translation Sync
 on:
   pull_request:
     branches: ["master"]
+  push:
+    branches: ["master"]
   workflow_dispatch:
   schedule:
     # 04:00 Asia/Taipei every day.
@@ -48,6 +50,7 @@ jobs:
   translation-sync:
     if: >-
       (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
       github.event_name == 'schedule' ||
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest

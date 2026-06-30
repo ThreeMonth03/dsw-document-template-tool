@@ -33,6 +33,13 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     _run_git(translation_repo, "remote", "add", "origin", str(origin))
     _write_translation_config(translation_repo / "translation-config.yml")
     (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
+    (translation_repo / "docs").mkdir()
+    (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
+    (translation_repo / ".github" / "workflows").mkdir(parents=True)
+    (translation_repo / ".github" / "workflows" / "document_template_translation_sync.yml").write_text(
+        "name: operations workflow\n",
+        encoding="utf-8",
+    )
     control_project = translation_repo / "workspace/projects/test-project.json"
     control_demo_fixture = translation_repo / "fixtures/projects/demo/test-project.json"
     control_fixture_km = translation_repo / "fixtures/knowledge-models/root-zh-hant-2.7.0.km"
@@ -100,7 +107,20 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     )
     assert config["template"]["supported_versions"] == ["v1.30.1", "v1.30.2"]
 
-    assert _git_show(translation_repo, "translation/v1.30.2:translation-config.yml")
+    assert not _git_path_exists(translation_repo, "translation/v1.30.2:translation-config.yml")
+    assert not _git_path_exists(translation_repo, "translation/v1.30.2:docs/ops.md")
+    assert "translation/v1.30.2" in _git_show(
+        translation_repo,
+        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert "TRANSLATED_TEMPLATE_VERSION: \"1.30.2\"" in _git_show(
+        translation_repo,
+        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert "control" not in _git_show(
+        translation_repo,
+        "translation/v1.30.2:README.md",
+    ).lower()
     assert (
         _git_show(
             translation_repo,
@@ -112,16 +132,13 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         )
         == "compact v1.30.2\n"
     )
-    assert (
-        _git_show(
-            translation_repo,
-            (
-                "translation/v1.30.2:"
-                "outputs/document-templates/dsw-science-europe/v1.30.2/zh-Hant/"
-                "dsw-science-europe-zh-hant-1.30.2.zip"
-            ),
-        )
-        == "fake package\n"
+    assert not _git_path_exists(
+        translation_repo,
+        (
+            "translation/v1.30.2:"
+            "outputs/document-templates/dsw-science-europe/v1.30.2/zh-Hant/"
+            "dsw-science-europe-zh-hant-1.30.2.zip"
+        ),
     )
     assert not _git_path_exists(
         translation_repo,
@@ -139,10 +156,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
-    assert not _git_path_exists(
-        translation_repo,
-        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
-    )
+    assert not _git_path_exists(translation_repo, "translation/v1.30.2:outputs")
 
 
 def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact(
@@ -164,6 +178,8 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     _run_git(translation_repo, "remote", "add", "origin", str(origin))
     _write_translation_config(translation_repo / "translation-config.yml")
     (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
+    (translation_repo / "docs").mkdir()
+    (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
@@ -284,6 +300,20 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         )
         == "manual translation\n"
     )
+    assert not _git_path_exists(translation_repo, "translation/v1.30.1:translation-config.yml")
+    assert not _git_path_exists(translation_repo, "translation/v1.30.1:docs/ops.md")
+    assert not _git_path_exists(
+        translation_repo,
+        (
+            "translation/v1.30.1:"
+            "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/"
+            "dsw-science-europe-zh-hant-1.30.1.zip"
+        ),
+    )
+    assert "translation/v1.30.1" in _git_show(
+        translation_repo,
+        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+    )
     assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.1:workspace/projects/test-project.json",
@@ -300,10 +330,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "translation/v1.30.1:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
-    assert not _git_path_exists(
-        translation_repo,
-        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
-    )
+    assert not _git_path_exists(translation_repo, "translation/v1.30.1:outputs")
 
 
 def test_refresh_existing_branch_requires_push_when_branch_is_open_elsewhere(
@@ -429,10 +456,11 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
         )
         == "compact v1.30.1\n"
     )
-    assert not _git_path_exists_bare(
+    assert _git_path_exists_bare(
         origin,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
+    assert not _git_path_exists_bare(origin, "translation/v1.30.1:outputs")
 
 
 def test_create_new_branch_requires_push_when_branch_is_open_elsewhere(
@@ -606,6 +634,11 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
         )
         == "compact v1.30.2\n"
     )
+    assert _git_path_exists_bare(
+        origin,
+        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert not _git_path_exists_bare(origin, "translation/v1.30.2:outputs")
 
 
 def test_sync_translation_versions_uses_semantic_previous_latest(
