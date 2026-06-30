@@ -23,6 +23,7 @@ from dsw_document_template_tool.translation_migration import version_sort_key
 DEFAULT_SOURCE_LANG = "en"
 DEFAULT_TARGET_LANG = "zh_Hant"
 LEDGER_SCHEMA_VERSION = 1
+REGRESSION_PLAN_SCHEMA_VERSION = 1
 
 
 class CompatLedgerError(RuntimeError):
@@ -77,6 +78,8 @@ def write_compat_ledger(
     stale_ledger_paths = [
         *output_dir.glob("v*.json"),
         output_dir / "index.json",
+        output_dir / "regression-plan.json",
+        output_dir / "regression-plan.md",
         output_dir / "summary.md",
     ]
     for stale_path in stale_ledger_paths:
@@ -104,6 +107,15 @@ def write_compat_ledger(
     )
     (output_dir / "summary.md").write_text(
         render_compat_ledger_summary(entries),
+        encoding="utf-8",
+    )
+    regression_plan = build_regression_plan(entries)
+    (output_dir / "regression-plan.json").write_text(
+        json.dumps(regression_plan, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (output_dir / "regression-plan.md").write_text(
+        render_regression_plan_summary(regression_plan),
         encoding="utf-8",
     )
     return entries
@@ -332,6 +344,123 @@ def render_compat_ledger_summary(entries: list[dict[str, Any]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def build_regression_plan(entries: list[dict[str, Any]]) -> dict[str, Any]:
+    """Recommend high-value DSW regression candidates from ledger entries."""
+
+    sorted_entries = sorted(entries, key=lambda entry: version_sort_key(str(entry["version"])))
+    latest_by_metamodel = {
+        _metamodel_version(entry): str(entry["version"]) for entry in sorted_entries
+    }
+    previous_signature_by_metamodel: dict[str, dict[str, Any]] = {}
+    candidates: list[dict[str, Any]] = []
+    for entry in sorted_entries:
+        metamodel_version = _metamodel_version(entry)
+        version = str(entry["version"])
+        signature = structure_signature(entry)
+        reasons: list[str] = []
+
+        previous_signature = previous_signature_by_metamodel.get(metamodel_version)
+        if previous_signature is None:
+            reasons.append("first_for_metamodel")
+        elif signature != previous_signature:
+            reasons.append("structure_signature_changed")
+
+        if version == latest_by_metamodel[metamodel_version]:
+            reasons.append("latest_for_metamodel")
+
+        if not entry.get("scaffold_packages"):
+            reasons.append("missing_scaffold_package")
+
+        candidates.append(
+            {
+                "version": version,
+                "metamodel_version": metamodel_version,
+                "recommended": bool(reasons),
+                "reasons": reasons,
+                "structure_signature_digest": digest_json(signature),
+            }
+        )
+        previous_signature_by_metamodel[metamodel_version] = signature
+
+    return {
+        "schema_version": REGRESSION_PLAN_SCHEMA_VERSION,
+        "recommended_versions": [
+            candidate["version"] for candidate in candidates if candidate["recommended"]
+        ],
+        "candidates": candidates,
+    }
+
+
+def structure_signature(entry: dict[str, Any]) -> dict[str, Any]:
+    """Return the low-noise expanded/tree structure signature for one version."""
+
+    expanded = entry["expanded"]
+    regression_expanded = entry["regression_expanded"]
+    tree = entry["translation_tree"]
+    return {
+        "expanded": {
+            "file_count": expanded["file_count"],
+            "generated_block_count": expanded["generated_block_count"],
+            "generated_block_files": expanded["generated_block_files"],
+            "jinja_file_count": expanded["jinja_file_count"],
+        },
+        "regression_expanded": {
+            "file_count": regression_expanded["file_count"],
+            "generated_block_count": regression_expanded["generated_block_count"],
+            "generated_block_files": regression_expanded["generated_block_files"],
+            "jinja_file_count": regression_expanded["jinja_file_count"],
+        },
+        "translation_tree": {
+            "manifest_version": tree["manifest_version"],
+            "placeholder_inventory": tree["placeholder_inventory"],
+            "source_file_count": tree["source_file_count"],
+            "unit_count": tree["unit_count"],
+            "units_by_source_file": tree["units_by_source_file"],
+            "units_with_placeholders": tree["units_with_placeholders"],
+            "wrapper_count": tree["wrapper_count"],
+        },
+    }
+
+
+def render_regression_plan_summary(plan: dict[str, Any]) -> str:
+    """Render a maintainer-facing regression candidate plan."""
+
+    lines = [
+        "# Recommended Regression Plan",
+        "",
+        "This plan is generated from the offline compatibility ledger. It selects",
+        "versions that give good coverage without blindly running full DSW",
+        "regression for every upstream tag.",
+        "",
+        "| Version | Metamodel | Recommended | Reasons | Signature |",
+        "| --- | ---: | --- | --- | --- |",
+    ]
+    for candidate in plan["candidates"]:
+        reasons = ", ".join(candidate["reasons"]) if candidate["reasons"] else "-"
+        lines.append(
+            "| {version} | {metamodel} | {recommended} | {reasons} | `{digest}` |".format(
+                version=candidate["version"],
+                metamodel=candidate["metamodel_version"],
+                recommended="yes" if candidate["recommended"] else "no",
+                reasons=reasons,
+                digest=candidate["structure_signature_digest"][:12],
+            )
+        )
+    lines.append("")
+    lines.append("## Policy")
+    lines.append("")
+    lines.append("- Always include the first and latest version for each metamodel runtime.")
+    lines.append(
+        "- Include any version whose expanded/tree structure signature changed "
+        "within the same metamodel."
+    )
+    lines.append("- Treat missing scaffold packages as a packaging issue to investigate.")
+    lines.append(
+        "- This is a planning layer; full DSW render regression remains the final behavior check."
+    )
+    return "\n".join(lines) + "\n"
+
+
 def digest_file_tree(root: Path) -> str:
     """Return a deterministic digest for paths and contents below ``root``."""
 
@@ -343,6 +472,13 @@ def digest_file_tree(root: Path) -> str:
         digest.update(digest_file(path).encode("ascii"))
         digest.update(b"\0")
     return digest.hexdigest()
+
+
+def digest_json(payload: Any) -> str:
+    """Return a deterministic SHA-256 digest for JSON-compatible data."""
+
+    serialized = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
 def digest_file(path: Path) -> str:
@@ -380,3 +516,10 @@ def _required_str(payload: dict[str, Any], key: str, tree_dir: Path) -> str:
     if not isinstance(value, str):
         raise CompatLedgerError(f"Invalid manifest field {key!r} in {tree_dir}")
     return value
+
+
+def _metamodel_version(entry: dict[str, Any]) -> str:
+    metamodel_version = entry.get("template", {}).get("metamodel_version")
+    if not isinstance(metamodel_version, str) or not metamodel_version:
+        raise CompatLedgerError(f"Ledger entry has no metamodel version: {entry!r}")
+    return metamodel_version

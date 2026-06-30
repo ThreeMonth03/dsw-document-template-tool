@@ -101,7 +101,9 @@ Run `make build-upstream-artifacts` before any regression config that points at
 checked-in source files.
 Run `make generate-compat-ledger` after building upstream artifacts when you
 want a fast offline fingerprint of compact, expanded, expanded-regression, and
-translation-tree structure across all built versions.
+translation-tree structure across all built versions. The same target also
+writes a regression candidate plan for maintainers who want broader coverage
+than the default latest-version matrix regression.
 `make render-regression-ci` calls `generate-regression-config` automatically and
 uses the latest built upstream version for the active metamodel. To inspect an
 older built version, set `UPSTREAM_TEMPLATE_REGRESSION_VERSION`, for example:

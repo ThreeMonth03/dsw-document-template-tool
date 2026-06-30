@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -35,6 +36,23 @@ def main() -> None:
     )
     versions = ", ".join(str(entry["version"]) for entry in entries)
     print(f"SUCCESS: Compatibility ledger written for {versions} at {args.output_dir}")
+    append_step_summary(
+        summary_path=os.environ.get("GITHUB_STEP_SUMMARY"),
+        output_dir=args.output_dir,
+    )
+
+
+def append_step_summary(*, summary_path: str | None, output_dir: Path) -> None:
+    """Append maintainer-facing ledger summaries to a GitHub step summary."""
+
+    if not summary_path:
+        return
+    summary_file = Path(summary_path)
+    with summary_file.open("a", encoding="utf-8") as handle:
+        handle.write("\n\n")
+        handle.write((output_dir / "summary.md").read_text(encoding="utf-8"))
+        handle.write("\n")
+        handle.write((output_dir / "regression-plan.md").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

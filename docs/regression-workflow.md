@@ -78,11 +78,23 @@ generation and full DSW rendering. It reads the generated workspaces under
 - `outputs/compat-ledger/<template-id>/summary.md`
 - `outputs/compat-ledger/<template-id>/index.json`
 - `outputs/compat-ledger/<template-id>/vX.Y.Z.json`
+- `outputs/compat-ledger/<template-id>/regression-plan.md`
+- `outputs/compat-ledger/<template-id>/regression-plan.json`
 
 The ledger records file-tree digests, expanded generated-block counts,
 translation-tree unit counts, placeholder inventories, and scaffold package
 checksums for every built upstream version. Use it to spot cross-version drift
 before spending CI time on DSW preview/PDF rendering.
+
+The regression plan recommends high-value full-regression candidates: the first
+and latest version for each metamodel runtime, plus any version whose
+expanded/tree structure signature changed within the same metamodel. This gives
+maintainers a reviewable path toward testing fewer redundant versions without
+blindly trusting tag numbers.
+
+In GitHub Actions, `make generate-compat-ledger` also appends both reports to
+the step summary, so maintainers can review the drift and candidate plan before
+downloading artifacts.
 
 The ledger is not a substitute for render regression. It proves that generated
 files and translator-facing trees have stable fingerprints; only the DSW
@@ -156,8 +168,9 @@ Important output families:
 
 - `outputs/upstream-workspaces/...`: clean compact, expanded, and translation
   scaffolds for each upstream version.
-- `outputs/compat-ledger/...`: offline cross-version fingerprints for compact,
-  expanded, expanded-regression, translation-tree, and scaffold package outputs.
+- `outputs/compat-ledger/...`: offline cross-version fingerprints and regression
+  candidate plans for compact, expanded, expanded-regression, translation-tree,
+  and scaffold package outputs.
 - `outputs/document-templates/...`: packaged scaffold templates.
 - `outputs/project-render/...`: demo PDFs or `skipped.json` / `failed.json`
   preview status files.
