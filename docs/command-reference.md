@@ -119,6 +119,16 @@ recommended versions for the active metamodel. It writes versioned preview
 outputs such as `outputs/preview/v1.30.1/...` so repeated runs do not overwrite
 each other.
 
+The plan runner uses two fixture profiles. `full` keeps the base config fixture
+counts. `smoke` keeps all fixed fixtures but caps generated random fixtures to
+`REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT` (default: `20`). Boundary versions,
+such as the first version for a metamodel runtime, usually use smoke; latest or
+structure-changing versions use full.
+
+```shell
+make render-regression-ci-plan REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT=40
+```
+
 Validate the plan/config wiring without a DSW server:
 
 ```shell
@@ -128,6 +138,7 @@ Validate the plan/config wiring without a DSW server:
   --generated-config-dir config \
   --metamodel-version 18.0 \
   --plan outputs/compat-ledger/dsw-science-europe/regression-plan.json \
+  --smoke-generated-fixture-count 20 \
   --source-template-id dsw-science-europe \
   --workspace-root outputs/upstream-workspaces/dsw-science-europe
 ```

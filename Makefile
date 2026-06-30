@@ -26,6 +26,7 @@ PYTHON ?= $(VENV_PYTHON)
 PYTHON_LINT_PATHS ?= src tests scripts/ci/*.py
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
 REGRESSION_PLAN_PATH ?= $(COMPAT_LEDGER_DIR)/regression-plan.json
+REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT ?= 20
 SCAFFOLD_ARTIFACT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)
 SCAFFOLD_TEMPLATE_ID ?= $(TRANSLATED_TEMPLATE_ID)-scaffold
 SCAFFOLD_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_NAME) Scaffold
@@ -332,6 +333,7 @@ render-regression-ci-plan: venv
 		--plan "$(REGRESSION_PLAN_PATH)" \
 		--python "$(PYTHON)" \
 		--render-script "src/render_regression.py" \
+		--smoke-generated-fixture-count "$(REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT)" \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
 		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"
 

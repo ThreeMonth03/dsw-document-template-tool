@@ -65,10 +65,9 @@ make stop-ci-dsw
 refs and creates versioned baseline and candidate directories under
 `outputs/upstream-workspaces/...`. `generate-compat-ledger` writes the
 regression candidate plan. `render-regression-ci-plan` reads that plan,
-generates one versioned config per recommended version, and runs full DSW
-regression without overwriting preview artifacts from other versions. The
-regression command is therefore intentionally not standalone on a clean
-checkout.
+generates one versioned config per recommended version, and runs DSW regression
+without overwriting preview artifacts from other versions. The regression
+command is therefore intentionally not standalone on a clean checkout.
 
 ## Compatibility Ledger
 
@@ -87,11 +86,20 @@ translation-tree unit counts, placeholder inventories, and scaffold package
 checksums for every built upstream version. Use it to spot cross-version drift
 before spending CI time on DSW preview/PDF rendering.
 
-The regression plan recommends high-value full-regression candidates: the first
-and latest version for each metamodel runtime, plus any version whose
-expanded/tree structure signature changed within the same metamodel. This gives
-maintainers a reviewable path toward testing fewer redundant versions without
-blindly trusting tag numbers.
+The regression plan recommends high-value candidates: the first and latest
+version for each metamodel runtime, plus any version whose expanded/tree
+structure signature changed within the same metamodel. The plan runner maps
+those candidates to fixture profiles:
+
+- `full`: latest versions, fallback runs, and versions with structure-signature
+  changes. This keeps the generated fixture count from the base config.
+- `smoke`: boundary versions that are useful for compatibility coverage but do
+  not otherwise show structure drift. This keeps all fixed fixtures and caps
+  generated random fixtures to `REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT`
+  (default: `20`).
+
+This gives maintainers a reviewable path toward testing fewer redundant
+versions without blindly trusting tag numbers.
 
 In GitHub Actions, `make generate-compat-ledger` also appends both reports to
 the step summary, so maintainers can review the drift and candidate plan before
