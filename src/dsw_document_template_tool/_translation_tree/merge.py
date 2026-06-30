@@ -16,6 +16,7 @@ from .document import (
 from .filesystem import reset_dir
 from .manifest import TREE_MANIFEST_PATH, load_tree_manifest
 from .models import TranslationTreeError
+from .outline import refresh_outline_markdown
 from .placeholders import (
     contains_raw_jinja_in_translation,
     extract_translator_placeholder_names,
@@ -164,6 +165,11 @@ def merge_translation_tree(
     report_path.write_text(
         json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
+    )
+    refresh_outline_markdown(
+        tree_dir=output_dir,
+        source_lang=source_lang,
+        target_lang=target_lang,
     )
     return report
 

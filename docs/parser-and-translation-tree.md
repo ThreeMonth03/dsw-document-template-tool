@@ -72,7 +72,9 @@ Bad units:
    ```
 
 5. Inspect generated `outline.md`, `merge-report.json`, and representative
-   `translation.md` files.
+   `translation.md` files. The outline is regenerated from the current
+   translation blocks, so its checked counts should match the migrated and
+   preserved translations reported by the merge step.
 6. Sync translations and render a demo PDF.
 7. Confirm no translator-facing files contain raw Jinja or unnatural fragments.
 

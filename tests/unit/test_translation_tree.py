@@ -309,6 +309,9 @@ def test_merge_translation_tree_reuses_exact_unit_key_matches(tmp_path: Path) ->
         output_tree_dir,
         "Hello {name}.",
     ).read_text(encoding="utf-8")
+    outline = (output_tree_dir / "outline.md").read_text(encoding="utf-8")
+    assert "- [x] [file] src/index.html.j2 (1/1)" in outline
+    assert "- [x] [unit]" in outline
 
 
 def test_merge_translation_tree_reuses_unique_source_hash_matches(tmp_path: Path) -> None:

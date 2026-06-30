@@ -72,7 +72,9 @@ Translator-facing tree rules enforced by this tooling:
 - broken or deleted translation block skeletons can be regenerated
 
 The generated `outline.md` gives reviewers a compact progress view of all
-translation units.
+translation units. It is committed, but it is not edited by hand: export, merge,
+and CI refreshes recalculate it from the current `translation.md` blocks so a
+filled translation block automatically becomes a checked item.
 
 ## Sync and Audit
 

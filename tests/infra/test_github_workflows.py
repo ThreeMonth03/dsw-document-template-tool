@@ -287,11 +287,11 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "id: auto_commit" in workflow_text
     assert "chore(sync): refresh document template translations" in workflow_text
     assert 'echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"' in workflow_text
-    assert (
-        'git add "$EXPANDED_TEMPLATE_DIR" '
-        '"$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" "$TRANSLATION_TREE_DIR/tree"'
-        in workflow_text
-    )
+    assert "git add \\" in workflow_text
+    assert '"$EXPANDED_TEMPLATE_DIR" \\' in workflow_text
+    assert '"$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \\' in workflow_text
+    assert '"$TRANSLATION_TREE_DIR/outline.md" \\' in workflow_text
+    assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
     assert 'git push origin "HEAD:refs/heads/$TARGET_REF"' in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
     assert 'src/translation_tree.py" audit-output' in workflow_text

@@ -137,6 +137,7 @@ jobs:
           required_paths=(
             "$EXPANDED_TEMPLATE_DIR"
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json"
+            "$TRANSLATION_TREE_DIR/outline.md"
             "$TRANSLATION_TREE_DIR/tree"
           )
 
@@ -147,7 +148,11 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$EXPANDED_TEMPLATE_DIR" "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" "$TRANSLATION_TREE_DIR/tree"
+          git add \
+            "$EXPANDED_TEMPLATE_DIR" \
+            "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
+            "$TRANSLATION_TREE_DIR/outline.md" \
+            "$TRANSLATION_TREE_DIR/tree"
           git commit -m "chore(sync): refresh document template translations"
           echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           git push origin "HEAD:refs/heads/$TARGET_REF"
@@ -163,18 +168,20 @@ jobs:
         working-directory: template-repo
         run: |
           set -euo pipefail
-          # `outline.md` is a generated progress view. Let CI refresh it without
-          # requiring translators to commit checkbox churn before opening a PR.
+          # `outline.md` is a generated progress view. Keep it committed so
+          # translators and reviewers can trust its checkbox state.
           # `merge-report.json` is diagnostic metadata; it can change match
           # classification after the first repaired commit without changing any
           # translation content or executable template structure.
           git diff --exit-code -- \
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
+            "$TRANSLATION_TREE_DIR/outline.md" \
             "$TRANSLATION_TREE_DIR/tree"
           test -z "$(git status --short -- \
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
+            "$TRANSLATION_TREE_DIR/outline.md" \
             "$TRANSLATION_TREE_DIR/tree")"
 
       - name: Audit translation blocks

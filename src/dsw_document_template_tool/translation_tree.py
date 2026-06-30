@@ -36,10 +36,9 @@ from ._translation_tree.merge import (
 )
 from ._translation_tree.metadata import patch_template_metadata
 from ._translation_tree.models import (
-    OutlineUnit,
     TranslationTreeError,
 )
-from ._translation_tree.outline import render_outline_markdown
+from ._translation_tree.outline import refresh_outline_markdown
 from ._translation_tree.output_polish import polish_translated_output_dir
 from ._translation_tree.output_readme import write_public_output_readme
 from ._translation_tree.source_text import (
@@ -95,8 +94,6 @@ def export_translation_tree(
     tree_root.mkdir(parents=True, exist_ok=True)
 
     manifest_units: list[dict[str, str | int]] = []
-    outline_units: list[OutlineUnit] = []
-
     for source_path in sorted(source_dir.rglob("*.j2")):
         relative_path = source_path.relative_to(source_dir)
         relative_posix = relative_path.as_posix()
@@ -138,29 +135,10 @@ def export_translation_tree(
                 }
             )
 
-            outline_units.append(
-                OutlineUnit(
-                    source_file=unit.source_file,
-                    wrapper_order=unit.wrapper_order,
-                    wrapper_folder_name=unit.wrapper_folder_name,
-                    unit_folder_name=unit.unit_folder_name,
-                    document_path=document_path,
-                    sentence_text=_extract_sentence_text(unit.source_text),
-                    is_translated=bool(translation_text.strip()),
-                )
-            )
-
     (output_dir / "README.md").write_text(
         render_tree_readme(
             source_lang=source_lang,
             target_lang=target_lang,
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / "outline.md").write_text(
-        render_outline_markdown(
-            outline_units=outline_units,
-            output_outline=output_dir / "outline.md",
         ),
         encoding="utf-8",
     )
@@ -180,6 +158,11 @@ def export_translation_tree(
         )
         + "\n",
         encoding="utf-8",
+    )
+    refresh_outline_markdown(
+        tree_dir=output_dir,
+        source_lang=source_lang,
+        target_lang=target_lang,
     )
     return output_dir
 
