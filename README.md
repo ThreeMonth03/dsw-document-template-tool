@@ -3,24 +3,27 @@
 Shared tooling for transforming, validating, translating, packaging, and
 preview-rendering DSW document templates.
 
-The current production use case is the Traditional Chinese translation of the
-Science Europe DMP Template. The repository is intentionally infrastructure
-focused: it owns parser logic, CI helpers, compatibility checks, demo fixtures,
-and release automation. It does not own the final public translated template
-source.
+The current production use case is the Traditional Chinese translation workflow
+for the Science Europe DMP Template. This repository is infrastructure focused:
+it provides parser logic, CI helpers, compatibility checks, demo fixtures, and
+release automation for clean upstream scaffolds.
 
-## Repository Roles
+## What This Repository Produces
 
-- This repository: shared tooling, tests, clean upstream scaffolds, fixture
-  projects, and CI helpers.
-- Downstream translation repositories: own translator-facing version branches,
-  translated release assets, and public import or publication policy.
+| Output | Purpose |
+| --- | --- |
+| Parser, transform, migration, render, and CI helper code | Shared infrastructure for document-template translation workflows. |
+| Clean scaffold release assets | Versioned upstream-derived workspaces, packages, checksums, and previews published from CI. |
+| Demo KM/project fixtures | Stable inputs for local and CI render previews. |
+| Example workflows and helper scripts | Reusable automation templates for repositories that consume the clean scaffold assets. |
 
 Generated workspaces, generated packages, render outputs, and caches are build
 artifacts. Keep them out of `master` unless a file is explicitly a reusable
 fixture under `fixtures/`.
 
-## Quick Start
+## First Five Minutes
+
+For a local development sanity check:
 
 ```shell
 make install-dev
@@ -29,79 +32,29 @@ make lint
 make test
 ```
 
-Run a local DSW render regression:
+For anything beyond that, start from the task map below. The root README is only
+an entry point; operational detail lives in `docs/`.
 
-```shell
-make build-upstream-artifacts
-make start-ci-dsw
-make render-regression-ci
-make stop-ci-dsw
-```
+## Start Here
 
-`make build-upstream-artifacts` creates versioned
-`outputs/upstream-workspaces/...` baseline and candidate template directories.
-`make render-regression-ci` then generates a local
-`config/.generated-regression.ci.yml` pointing at the latest built version for
-the current DSW metamodel, renders the configured fixture projects, and compares
-normalized output. Use this sequence when changing transform/parser behavior and
-you want to prove the generated template still renders like the upstream
-template.
+If you are new to the project, start with the
+[Documentation Index](docs/README.md). For common follow-up tasks:
 
-Build clean upstream scaffold artifacts:
+| Task | Read |
+| --- | --- |
+| Day-to-day operation | [Operator Quickstart](docs/operator-quickstart.md) |
+| Code layout and module ownership | [Architecture](docs/architecture.md) |
+| Parser or translation tree changes | [Parser and Translation Tree](docs/parser-and-translation-tree.md) |
+| CI, DSW, render, or release debugging | [Troubleshooting](docs/troubleshooting.md) |
 
-```shell
-make discover-upstream-compat
-make build-upstream-artifacts
-make render-upstream-artifact-previews
-```
-
-This checks upstream tags against the configured DSW runtime matrix, builds
-clean compact/expanded/translation scaffolds, packages scaffold templates, and
-renders demo previews. Use it when upstream tags, fixture inputs, or scaffold
-release assets need to be refreshed for downstream translation repositories.
-This is also the setup step for local render regression, because the regression
-config points at generated `outputs/upstream-workspaces/...` directories rather
-than committed template files.
-
-## Common Tasks
-
-- Change parser or tree logic: read
-  [Parser and Translation Tree](docs/parser-and-translation-tree.md).
-- Take over routine operations: read
-  [Operator Quickstart](docs/operator-quickstart.md).
-- Handle a new upstream template tag: read
-  [Version Upgrade Runbook](docs/version-upgrade-runbook.md).
-- Debug GitHub Actions, DSW, release assets, or render failures: read
-  [Troubleshooting](docs/troubleshooting.md).
-- Publish reviewed translated source manually: read
-  [CI and Release Runbook](docs/ci-and-release-runbook.md).
-- Find a command quickly: read
-  [Command Reference](docs/command-reference.md).
-
-## Documentation
-
-Start with the [Documentation Index](docs/README.md). The most important
-maintenance documents are:
-
-- [Architecture](docs/architecture.md)
-- [Operator Quickstart](docs/operator-quickstart.md)
-- [Development Guidelines](docs/development-guidelines.md)
-- [Translation Workflow](docs/translation-workflow.md)
-- [Regression Workflow](docs/regression-workflow.md)
-- [Downstream Integration](docs/downstream-integration.md)
-- [QA Checklist](docs/qa-checklist.md)
-- [Security and Permissions](docs/security-and-permissions.md)
-
-## Version and Release Policy
+## Version Support
 
 The tooling supports Science Europe template versions from `v1.29.1` upward.
 The DSW runtime matrix is declared in
 [config/dsw-compat.yml](config/dsw-compat.yml).
 
-On non-PR CI runs, the tool repo publishes clean scaffold prerelease assets such
-as `clean-scaffold-dsw-science-europe-v1.30.1`. These releases are download
-buckets for downstream maintenance. Their assets are refreshed by CI; the Git
-tag itself is not the source of truth for the generated files.
-
-Downstream translation repositories consume these scaffold releases and publish
-their own translated packages.
+On non-PR CI runs, this repository publishes clean scaffold prerelease assets
+such as `clean-scaffold-dsw-science-europe-v1.30.1`. These are download buckets
+for downstream maintenance, not finished translations. Their assets are
+refreshed by CI; the Git tag commit is not the source of truth for generated
+files.
