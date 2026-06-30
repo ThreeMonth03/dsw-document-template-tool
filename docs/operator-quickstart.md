@@ -58,7 +58,9 @@ TRANSLATION_GITHUB_REPO=owner/document-template-translation
    clean-scaffold-dsw-science-europe-vX.Y.Z
    ```
 
-If all three checks pass, the tooling side is healthy.
+If these checks pass, the tool repo has a healthy baseline for versions already
+covered by `config/dsw-compat.yml`. New upstream tags and downstream translation
+sync still need the upgrade and handoff flow below.
 
 ## When Upstream Publishes a New Tag
 
