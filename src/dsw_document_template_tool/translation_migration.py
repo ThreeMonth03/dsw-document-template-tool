@@ -93,6 +93,7 @@ class VersionWorkspacePaths:
     compact_template_dir: Path
     expanded_template_dir: Path
     translation_tree_dir: Path
+    project_render_output: Path
     translated_template_dir: Path
     translated_template_package: Path
     migration_report_dir: Path
@@ -366,6 +367,14 @@ def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionW
         / version
         / config.translation.target_language_label
     )
+    project_render_output = (
+        Path("outputs")
+        / "project-render"
+        / source_template_id
+        / version
+        / config.translation.target_language_label
+        / "test-project.pdf"
+    )
     return VersionWorkspacePaths(
         version=version,
         version_number=version_number,
@@ -383,6 +392,7 @@ def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionW
         / "document-templates"
         / "translation"
         / workspace_template_name,
+        project_render_output=project_render_output,
         translated_template_dir=output_root / translated_workspace_name,
         translated_template_package=output_root / f"{translated_workspace_name}.zip",
         migration_report_dir=Path("migration-reports"),

@@ -117,6 +117,14 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
+    workflow_text = _git_show(
+        translation_repo,
+        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert (
+        'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.2/'
+        'zh-Hant/test-project.pdf"'
+    ) in workflow_text
     assert (
         "control"
         not in _git_show(
@@ -317,6 +325,14 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
+    workflow_text = _git_show(
+        translation_repo,
+        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert (
+        'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.1/'
+        'zh-Hant/test-project.pdf"'
+    ) in workflow_text
     assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.1:workspace/projects/test-project.json",

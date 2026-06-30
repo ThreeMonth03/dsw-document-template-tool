@@ -563,6 +563,10 @@ def write_version_branch_workflow(
             "TRANSLATED_TEMPLATE_PACKAGE: "
             f"{_yaml_scalar(paths.translated_template_package.as_posix())}"
         ),
+        (
+            "PROJECT_RENDER_OUTPUT: "
+            "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf"
+        ): (f"PROJECT_RENDER_OUTPUT: {_yaml_scalar(paths.project_render_output.as_posix())}"),
         'DSW_VERSION: "4.30"': f"DSW_VERSION: {_yaml_scalar(runtime.dsw_version)}",
         'DSW_TDK_VERSION: "4.30.2"': f"DSW_TDK_VERSION: {_yaml_scalar(runtime.tdk_version)}",
         'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"': (
