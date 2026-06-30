@@ -32,18 +32,21 @@ Symptoms:
 
 - `discover-upstream-compat` fails
 - CI says a template `metamodelVersion` is not covered
-- scheduled CI opens or updates an `automation/dsw-compat-review` pull request
+- scheduled CI opens or updates an `automation/dsw-compat-probe-*` pull request
 
 Actions:
 
 1. Read the CI summary.
-2. Open the generated compatibility follow-up PR if one exists.
-3. Check the official DSW metamodel notes linked in the summary.
-4. Smoke-test the suggested DSW server and TDK version.
-5. Update `config/dsw-compat.yml`.
-6. Run `make sync-dsw-runtime-matrix`.
+2. Open the generated compatibility probe PR if one exists.
+3. Confirm the PR copied the intended previous DSW/TDK runtime into
+   `config/dsw-compat.yml`.
+4. Let CI smoke-test the candidate. If it fails, check the official DSW
+   metamodel notes linked in the summary, then update the DSW server image,
+   matching TDK version, or compatibility code.
+5. Run `make sync-dsw-runtime-matrix` after any manual config edit.
 
-Do not guess a runtime only from version numbers.
+Do not merge a probe only because the version number looks plausible. The probe
+is useful because CI tests the assumption.
 
 Existing release assets are not deleted by this failure. The new upstream tag is
 blocked until a runtime is proven, while already-supported metamodel ranges can

@@ -46,10 +46,10 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "UPSTREAM_TEMPLATE_DISCOVERY_REFS" in workflow_text
     assert "UPSTREAM_TEMPLATE_DISCOVERY_REPORT" in workflow_text
     assert "continue-on-error: true" in workflow_text
-    assert "Open DSW compatibility follow-up PR" in workflow_text
+    assert "Open DSW compatibility probe PR" in workflow_text
     offline_steps = workflow["jobs"]["offline-checks"]["steps"]
     compat_pr_step = next(
-        step for step in offline_steps if step["name"] == "Open DSW compatibility follow-up PR"
+        step for step in offline_steps if step["name"] == "Open DSW compatibility probe PR"
     )
     assert compat_pr_step["if"] == (
         "steps.discover_compat.outcome == 'failure' && "

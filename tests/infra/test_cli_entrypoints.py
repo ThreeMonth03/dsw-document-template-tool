@@ -397,14 +397,16 @@ def test_discover_dsw_compat_fails_unknown_metamodel(
 
 
 def test_create_dsw_compat_pr_helper_dry_run(repo_root: Path, tmp_path: Path) -> None:
-    """The compatibility PR helper should render a reviewable investigation file."""
+    """The compatibility PR helper should render a reviewable probe file."""
 
     report = tmp_path / "discovery.md"
-    output = tmp_path / "unsupported-metamodels.md"
+    output = tmp_path / "dsw-compatibility-probe.md"
     report.write_text(
         "## DSW Compatibility Discovery\n\n"
         "| Ref | Version | metamodelVersion | Runtime | Status |\n"
         "| --- | --- | --- | --- | --- |\n"
+        "| `v1.30.0` | `v1.30.0` | `18.0` | 18-0 / DSW 4.30 / TDK 4.30.2 | covered |\n"
+        "| `v1.30.1` | `v1.30.1` | `18.0` | 18-0 / DSW 4.30 / TDK 4.30.2 | covered |\n"
         "| `v1.31.0` | `v1.31.0` | `19.0` | - | unsupported |\n",
         encoding="utf-8",
     )
@@ -428,9 +430,77 @@ def test_create_dsw_compat_pr_helper_dry_run(repo_root: Path, tmp_path: Path) ->
 
     assert result.returncode == 0, result.stdout + result.stderr
     rendered = output.read_text(encoding="utf-8")
-    assert "Unsupported DSW Metamodel Compatibility" in rendered
+    assert "DSW Metamodel Compatibility Probe" in rendered
     assert "v1.31.0" in rendered
+    assert "reuses metamodel `18.0` runtime" in rendered
     assert "Maintainer Checklist" in rendered
+
+
+def test_create_dsw_compat_pr_defaults_to_metamodel_specific_branch(repo_root: Path) -> None:
+    """The workflow path should use a stable branch name without passing --branch."""
+
+    module = _load_script_module(
+        repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py",
+        "create_dsw_compat_pr_defaults_test",
+    )
+    plan = module.ProbePlan(
+        runtimes=(),
+        changes=(
+            module.ProbeChange(
+                metamodel_version="19.0",
+                min_version="v1.31.0",
+                previous_metamodel_version="18.0",
+                previous_dsw_version="4.30",
+                previous_tdk_version="4.30.2",
+            ),
+        ),
+    )
+
+    assert module.default_branch_for_plan(plan) == "automation/dsw-compat-probe-19-0"
+    assert (
+        module.default_title_for_plan(plan)
+        == "Probe DSW document-template metamodel 19.0 compatibility"
+    )
+
+
+def test_create_dsw_compat_pr_can_probe_multiple_new_metamodels(repo_root: Path) -> None:
+    """A long gap with multiple new metamodels should still generate probe rows."""
+
+    module = _load_script_module(
+        repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py",
+        "create_dsw_compat_pr_test",
+    )
+    report = (
+        "## DSW Compatibility Discovery\n\n"
+        "| Ref | Version | metamodelVersion | Runtime | Status |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| `v1.30.1` | `v1.30.1` | `18.0` | 18-0 / DSW 4.30 / TDK 4.30.2 | covered |\n"
+        "| `v1.31.0` | `v1.31.0` | `19.0` | - | unsupported |\n"
+        "| `v1.32.0` | `v1.32.0` | `20.0` | - | unsupported |\n"
+    )
+    compat = """
+schema_version: 1
+runtimes:
+  - metamodel_key: "18-0"
+    metamodel_version: "18.0"
+    dsw_version: "4.30"
+    tdk_version: "4.30.2"
+    min_version: "v1.30.0"
+    max_version: null
+    upstream_template_artifact_refs: "v1.30.0+"
+    run_preview_regression: true
+    strict_project_preview: true
+"""
+
+    plan = module.build_probe_plan(report=report, compat_text=compat)
+    rendered_config = module.render_compat_config(plan.runtimes)
+
+    assert len(plan.changes) == 2
+    assert 'metamodel_version: "19.0"' in rendered_config
+    assert 'min_version: "v1.31.0"' in rendered_config
+    assert 'max_version: "v1.31.0"' in rendered_config
+    assert 'metamodel_version: "20.0"' in rendered_config
+    assert 'min_version: "v1.32.0"' in rendered_config
 
 
 def test_create_dsw_compat_pr_starts_new_branch_from_remote_base(
@@ -468,13 +538,13 @@ def test_create_dsw_compat_pr_starts_new_branch_from_remote_base(
             "--report",
             str(report),
             "--report-path",
-            "docs/compatibility/unsupported-metamodels.md",
+            "docs/compatibility/dsw-compatibility-probe.md",
             "--repository",
             "owner/repo",
             "--base",
             "master",
             "--branch",
-            "automation/dsw-compat-review",
+            "automation/dsw-compat-probe-19-0",
         ],
         cwd=worktree,
         env=env,
@@ -497,15 +567,24 @@ def test_create_dsw_compat_pr_starts_new_branch_from_remote_base(
     assert "feature.txt" not in tree_files
     assert _git_show_bare(
         origin,
-        "automation/dsw-compat-review:docs/compatibility/unsupported-metamodels.md",
+        "automation/dsw-compat-probe-19-0:docs/compatibility/dsw-compatibility-probe.md",
     )
+    updated_config = _git_show_bare(
+        origin,
+        "automation/dsw-compat-probe-19-0:config/dsw-compat.yml",
+    )
+    assert 'metamodel_version: "19.0"' in updated_config
+    assert 'dsw_version: "4.30"' in updated_config
+    assert 'tdk_version: "4.30.2"' in updated_config
+    assert 'max_version: "v1.30.1"' in updated_config
+    assert 'upstream_template_artifact_refs: "v1.30.0 v1.30.1"' in updated_config
 
 
 def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
     repo_root: Path,
     tmp_path: Path,
 ) -> None:
-    """The follow-up PR helper should not depend on checking out its local branch."""
+    """The probe PR helper should not depend on checking out its local branch."""
 
     origin = tmp_path / "origin.git"
     worktree = tmp_path / "worktree"
@@ -513,15 +592,15 @@ def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
     report = tmp_path / "discovery.md"
 
     _init_git_worktree_with_origin(worktree=worktree, origin=origin)
-    _git(worktree, "checkout", "-b", "automation/dsw-compat-review")
-    compatibility_report = worktree / "docs" / "compatibility" / "unsupported-metamodels.md"
+    _git(worktree, "checkout", "-b", "automation/dsw-compat-probe-19-0")
+    compatibility_report = worktree / "docs" / "compatibility" / "dsw-compatibility-probe.md"
     compatibility_report.parent.mkdir(parents=True)
     compatibility_report.write_text("old compatibility report\n", encoding="utf-8")
-    _git(worktree, "add", "docs/compatibility/unsupported-metamodels.md")
+    _git(worktree, "add", "docs/compatibility/dsw-compatibility-probe.md")
     _git(worktree, "commit", "-m", "docs: old compatibility report")
-    _git(worktree, "push", "-u", "origin", "automation/dsw-compat-review")
+    _git(worktree, "push", "-u", "origin", "automation/dsw-compat-probe-19-0")
     _git(worktree, "checkout", "master")
-    _git(worktree, "worktree", "add", str(open_worktree), "automation/dsw-compat-review")
+    _git(worktree, "worktree", "add", str(open_worktree), "automation/dsw-compat-probe-19-0")
 
     _write_dsw_compat_discovery_report(report)
     env = _fake_gh_env(tmp_path / "bin")
@@ -533,13 +612,13 @@ def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
                 "--report",
                 str(report),
                 "--report-path",
-                "docs/compatibility/unsupported-metamodels.md",
+                "docs/compatibility/dsw-compatibility-probe.md",
                 "--repository",
                 "owner/repo",
                 "--base",
                 "master",
                 "--branch",
-                "automation/dsw-compat-review",
+                "automation/dsw-compat-probe-19-0",
             ],
             cwd=worktree,
             env=env,
@@ -553,9 +632,9 @@ def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
     assert result.returncode == 0, result.stdout + result.stderr
     updated_report = _git_show_bare(
         origin,
-        "automation/dsw-compat-review:docs/compatibility/unsupported-metamodels.md",
+        "automation/dsw-compat-probe-19-0:docs/compatibility/dsw-compatibility-probe.md",
     )
-    assert "Unsupported DSW Metamodel Compatibility" in updated_report
+    assert "DSW Metamodel Compatibility Probe" in updated_report
     assert "old compatibility report" not in updated_report
 
 
@@ -569,36 +648,39 @@ def test_create_dsw_compat_pr_reopens_pr_when_existing_branch_is_unchanged(
     worktree = tmp_path / "worktree"
     gh_log = tmp_path / "gh.log"
     report = tmp_path / "discovery.md"
-    rendered_report = tmp_path / "rendered-report.md"
 
     _init_git_worktree_with_origin(worktree=worktree, origin=origin)
     _write_dsw_compat_discovery_report(report)
-    subprocess.run(
+    env = _fake_gh_env(tmp_path / "bin-first")
+    first_result = subprocess.run(
         [
             sys.executable,
             str(repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py"),
             "--report",
             str(report),
-            "--report-path",
-            str(rendered_report),
             "--repository",
             "owner/repo",
-            "--dry-run",
+            "--base",
+            "master",
+            "--branch",
+            "automation/dsw-compat-probe-19-0",
         ],
-        check=True,
+        cwd=worktree,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
     )
 
-    _git(worktree, "checkout", "-b", "automation/dsw-compat-review")
-    compatibility_report = worktree / "docs" / "compatibility" / "unsupported-metamodels.md"
-    compatibility_report.parent.mkdir(parents=True)
-    compatibility_report.write_text(rendered_report.read_text(encoding="utf-8"), encoding="utf-8")
-    _git(worktree, "add", "docs/compatibility/unsupported-metamodels.md")
-    _git(worktree, "commit", "-m", "docs: record unsupported DSW metamodels")
-    _git(worktree, "push", "-u", "origin", "automation/dsw-compat-review")
-    existing_branch_commit = _git_output(worktree, "rev-parse", "automation/dsw-compat-review")
+    assert first_result.returncode == 0, first_result.stdout + first_result.stderr
+    existing_branch_commit = _git_output(
+        worktree,
+        "rev-parse",
+        "origin/automation/dsw-compat-probe-19-0",
+    )
 
     _git(worktree, "checkout", "master")
-    env = _fake_gh_env(tmp_path / "bin", log_path=gh_log)
+    env = _fake_gh_env(tmp_path / "bin-second", log_path=gh_log)
     result = subprocess.run(
         [
             sys.executable,
@@ -610,7 +692,7 @@ def test_create_dsw_compat_pr_reopens_pr_when_existing_branch_is_unchanged(
             "--base",
             "master",
             "--branch",
-            "automation/dsw-compat-review",
+            "automation/dsw-compat-probe-19-0",
         ],
         cwd=worktree,
         env=env,
@@ -622,9 +704,10 @@ def test_create_dsw_compat_pr_reopens_pr_when_existing_branch_is_unchanged(
     assert result.returncode == 0, result.stdout + result.stderr
     assert "ensuring PR exists" in result.stdout
     assert (
-        _git_output(worktree, "rev-parse", "automation/dsw-compat-review") == existing_branch_commit
+        _git_output(worktree, "rev-parse", "origin/automation/dsw-compat-probe-19-0")
+        == existing_branch_commit
     )
-    assert "pr view automation/dsw-compat-review" in gh_log.read_text(encoding="utf-8")
+    assert "pr view automation/dsw-compat-probe-19-0" in gh_log.read_text(encoding="utf-8")
     assert "pr create" in gh_log.read_text(encoding="utf-8")
 
 
@@ -651,7 +734,7 @@ def test_create_translation_migration_prs_help(repo_root: Path) -> None:
 
 
 def test_create_dsw_compat_pr_help(repo_root: Path) -> None:
-    """The DSW compatibility follow-up PR helper should expose a help screen."""
+    """The DSW compatibility probe PR helper should expose a help screen."""
 
     result = subprocess.run(
         [
@@ -665,8 +748,9 @@ def test_create_dsw_compat_pr_help(repo_root: Path) -> None:
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "DSW compatibility follow-up" in result.stdout
+    assert "DSW compatibility probe" in result.stdout
     assert "--report" in result.stdout
+    assert "--compat" in result.stdout
     assert "--dry-run" in result.stdout
 
 
@@ -1113,7 +1197,35 @@ def _init_git_worktree_with_origin(*, worktree: Path, origin: Path) -> None:
     _git(worktree, "config", "user.name", "Test Bot")
     _git(worktree, "config", "user.email", "test@example.com")
     (worktree / "README.md").write_text("base\n", encoding="utf-8")
+    config_dir = worktree / "config"
+    config_dir.mkdir()
+    (config_dir / "dsw-compat.yml").write_text(
+        """
+schema_version: 1
+runtimes:
+  - metamodel_key: "17-1"
+    metamodel_version: "17.1"
+    dsw_version: "4.26"
+    tdk_version: "4.26.1"
+    min_version: "v1.29.1"
+    max_version: "v1.29.1"
+    upstream_template_artifact_refs: "v1.29.1"
+    run_preview_regression: false
+    strict_project_preview: true
+  - metamodel_key: "18-0"
+    metamodel_version: "18.0"
+    dsw_version: "4.30"
+    tdk_version: "4.30.2"
+    min_version: "v1.30.0"
+    max_version: "v1.30.0"
+    upstream_template_artifact_refs: "v1.30.0+"
+    run_preview_regression: true
+    strict_project_preview: true
+""".lstrip(),
+        encoding="utf-8",
+    )
     _git(worktree, "add", "README.md")
+    _git(worktree, "add", "config/dsw-compat.yml")
     _git(worktree, "commit", "-m", "base")
     _git(worktree, "remote", "add", "origin", str(origin))
     _git(worktree, "push", "-u", "origin", "master")
@@ -1124,6 +1236,8 @@ def _write_dsw_compat_discovery_report(path: Path) -> None:
         "## DSW Compatibility Discovery\n\n"
         "| Ref | Version | metamodelVersion | Runtime | Status |\n"
         "| --- | --- | --- | --- | --- |\n"
+        "| `v1.30.0` | `v1.30.0` | `18.0` | 18-0 / DSW 4.30 / TDK 4.30.2 | covered |\n"
+        "| `v1.30.1` | `v1.30.1` | `18.0` | 18-0 / DSW 4.30 / TDK 4.30.2 | covered |\n"
         "| `v1.31.0` | `v1.31.0` | `19.0` | - | unsupported |\n",
         encoding="utf-8",
     )

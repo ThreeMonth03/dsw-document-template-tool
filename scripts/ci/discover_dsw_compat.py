@@ -72,7 +72,7 @@ def main() -> None:
     parser.add_argument(
         "--report",
         type=Path,
-        help="Optional Markdown report file to write for follow-up automation.",
+        help="Optional Markdown report file to write for probe automation.",
     )
     parser.add_argument(
         "--metamodel-source-url",

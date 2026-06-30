@@ -21,11 +21,13 @@ Main jobs:
 
 Compatibility discovery is intentionally non-destructive on scheduled runs,
 manual `workflow_dispatch` runs, and `master` pushes. If a new upstream tag uses
-an unsupported `metamodelVersion`, the workflow records a report and opens or
-updates a follow-up PR, but matrix jobs continue refreshing artifacts for
-already-supported metamodels. Ordinary feature-branch pushes do not open
-automation PRs. Pull requests still fail on unsupported metamodels so
-maintainers notice the missing runtime.
+an unsupported `metamodelVersion`, the workflow opens or updates a compatibility
+probe PR. That PR records the discovery report, copies the closest previous
+DSW/TDK runtime into a candidate `config/dsw-compat.yml` row, and lets CI test
+the assumption. Matrix jobs continue refreshing artifacts for already-supported
+metamodels. Ordinary feature-branch pushes do not open automation PRs. Pull
+requests still fail on unsupported metamodels so maintainers notice the missing
+runtime.
 
 The upstream smoke test and clean scaffold build both filter refs by the
 metamodel handled by the current runtime. This prevents a future unsupported tag

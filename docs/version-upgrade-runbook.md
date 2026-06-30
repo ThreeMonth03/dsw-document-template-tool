@@ -61,22 +61,24 @@ If CI reports an unsupported metamodel:
 
 1. Read the `discover-upstream-compat` summary.
 2. On scheduled runs, manual `workflow_dispatch` runs, or `master` pushes,
-   check whether CI opened or updated a DSW compatibility follow-up PR. The PR
-   records the discovery report and smoke-test checklist. Feature-branch pushes
-   intentionally do not open these automation PRs. The automation branch is
-   based on the repository default branch, not the branch that happened to
-   trigger the workflow.
-3. Check the official DSW document-template metamodel notes linked in the CI
-   report.
-4. Pick a DSW server image and matching `dsw-tdk` version to smoke-test.
-5. Add a runtime row to `config/dsw-compat.yml`.
-6. Regenerate the workflow matrix:
+   check whether CI opened or updated a DSW compatibility probe PR. The PR
+   records the discovery report, adds an optimistic `config/dsw-compat.yml`
+   runtime row, and asks CI to test whether the closest previous DSW/TDK runtime
+   still works. Feature-branch pushes intentionally do not open these automation
+   PRs. The automation branch is based on the repository default branch, not the
+   branch that happened to trigger the workflow.
+3. Review the generated runtime row. It is a probe, not a compatibility
+   guarantee. If CI fails, replace the copied DSW/TDK versions with a better
+   candidate or patch the compatibility layer.
+4. Check the official DSW document-template metamodel notes linked in the CI
+   report. They are hints, not proof.
+5. Regenerate the workflow matrix if you changed `config/dsw-compat.yml`:
 
    ```shell
    make sync-dsw-runtime-matrix
    ```
 
-7. Run:
+6. Run:
 
    ```shell
    make format-check
@@ -84,7 +86,9 @@ If CI reports an unsupported metamodel:
    make test
    ```
 
-8. Push and confirm tool CI builds clean scaffold release assets for the new tag.
+7. Push and confirm tool CI builds clean scaffold release assets for the new tag.
+8. Inspect the clean scaffold artifacts and preview output before merging the
+   probe PR.
 
 The metamodel notes are advisory. They say when a metamodel became supported,
 but they do not prove that upload, preview, package, and PDF render all work for

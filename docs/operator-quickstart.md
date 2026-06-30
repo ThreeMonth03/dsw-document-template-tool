@@ -121,10 +121,15 @@ handoff details.
 ## When CI Finds an Unsupported Metamodel
 
 1. Read the `discover-upstream-compat` summary in the tool CI run.
-2. Check whether CI opened a compatibility follow-up PR.
-3. Smoke-test a DSW server image and matching `dsw-tdk`.
-4. Add the runtime to `config/dsw-compat.yml`.
-5. Run:
+2. Check whether CI opened a compatibility probe PR, usually named
+   `automation/dsw-compat-probe-*`.
+3. Review the probe PR. It copies the closest previous DSW/TDK runtime into a
+   new `config/dsw-compat.yml` row and lets CI test the assumption that the API,
+   import, package, preview, and PDF paths still behave the same way.
+4. If CI passes, inspect the clean scaffold artifacts and preview output before
+   merging. If CI fails, update the probe row with a newer DSW server image,
+   matching `dsw-tdk`, or code compatibility fix.
+5. Before merging the probe PR, make sure it also ran:
 
    ```shell
    make sync-dsw-runtime-matrix
@@ -133,9 +138,9 @@ handoff details.
    make test
    ```
 
-Then push and confirm CI can build the clean scaffold release for the new tag.
-Only after that should the translation repository create or refresh a matching
-version branch.
+Then merge only after human review. A green probe means the tool repo has a
+tested runtime candidate; it is not an auto-merge signal. Only after that should
+the translation repository create or refresh a matching version branch.
 
 ## When Parser or Translation-Tree Logic Changes
 

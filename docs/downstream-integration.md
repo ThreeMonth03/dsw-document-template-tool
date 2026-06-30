@@ -25,10 +25,10 @@ This repo exposes those outputs in two places:
   are stable human-facing download buckets for review and handoff.
 
 If upstream publishes a tag with an unsupported metamodel, scheduled/manual tool
-repo CI may open a compatibility follow-up PR instead of producing clean
-scaffold outputs for that tag. Downstream repositories should wait for a
-successful tool-repo run, and preferably the matching version-specific release,
-before creating or refreshing a matching translation branch.
+repo CI may open a compatibility probe PR instead of producing clean scaffold
+outputs for that tag. Downstream repositories should wait for a successful
+tool-repo run, and preferably the matching version-specific release, before
+creating or refreshing a matching translation branch.
 
 ## Clean Scaffold Outputs
 

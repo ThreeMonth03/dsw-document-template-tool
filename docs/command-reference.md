@@ -106,7 +106,7 @@ older built version, set `UPSTREAM_TEMPLATE_REGRESSION_VERSION`, for example:
 make render-regression-ci UPSTREAM_TEMPLATE_REGRESSION_VERSION=v1.30.0
 ```
 
-Write a compatibility discovery report for follow-up automation:
+Write a compatibility discovery report for probe automation:
 
 ```shell
 make discover-upstream-compat \
@@ -193,7 +193,7 @@ Dry-run downstream branch refresh:
   --refresh-existing
 ```
 
-Dry-run an unsupported metamodel follow-up report:
+Dry-run an unsupported metamodel probe report:
 
 ```shell
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/create_dsw_compat_pr.py" \
