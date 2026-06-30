@@ -90,7 +90,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "git status --short -- workspace/document-templates/translation" not in workflow_text
     assert "make verify-workspace" not in workflow_text
     assert "make start-ci-dsw" in workflow_text
-    assert "make render-regression-ci" in workflow_text
+    assert "run: make render-regression-ci-plan" in workflow_text
     assert "make render-project" not in workflow_text
     assert "make ci-dsw-logs" in workflow_text
     assert "make stop-ci-dsw" in workflow_text

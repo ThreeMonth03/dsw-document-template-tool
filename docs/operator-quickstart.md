@@ -160,7 +160,7 @@ cross-version changes in expanded blocks, translation units, placeholders, or
 missing scaffold packages before handing artifacts to the translation repo.
 Then review `outputs/compat-ledger/dsw-science-europe/regression-plan.md` to see
 which versions deserve full DSW regression if you need deeper compatibility
-coverage than the default latest-version matrix run.
+coverage than the automated plan-recommended matrix run.
 
 Then run a downstream dry-run against the translation repository:
 

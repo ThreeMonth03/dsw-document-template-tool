@@ -12,6 +12,7 @@ DSW_TDK ?= $(VENV_DIR)/bin/dsw-tdk
 EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPLATE_NAME)
 FRESH_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/fresh/$(WORKSPACE_TEMPLATE_NAME)
 GENERATED_CI_CONFIG ?= config/.generated-regression.ci.yml
+GENERATED_CI_CONFIG_DIR ?= config
 MERGED_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/merged/$(WORKSPACE_TEMPLATE_NAME)
 PACKAGE_OUT ?= template.zip
 PROJECT_REF ?= fixtures/projects/demo/test-project.json
@@ -24,6 +25,7 @@ PUBLISH_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
 PYTHON ?= $(VENV_PYTHON)
 PYTHON_LINT_PATHS ?= src tests scripts/ci/*.py
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
+REGRESSION_PLAN_PATH ?= $(COMPAT_LEDGER_DIR)/regression-plan.json
 SCAFFOLD_ARTIFACT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)
 SCAFFOLD_TEMPLATE_ID ?= $(TRANSLATED_TEMPLATE_ID)-scaffold
 SCAFFOLD_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_NAME) Scaffold
@@ -68,7 +70,7 @@ WORKSPACE_TEMPLATE_NAME ?= $(SOURCE_TEMPLATE_ID)-$(SOURCE_TEMPLATE_VERSION)
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -116,7 +118,8 @@ help:
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
 	'  render-project    Render PROJECT_UUID or $(PROJECT_REF) with $(PROJECT_RENDER_TEMPLATE_DIR)' \
 	'  render-regression Run the DSW headless regression workflow using CONFIG=$(CONFIG)' \
-	'  render-regression-ci Generate latest-version CI config and run local DSW regression'
+	'  render-regression-ci Generate latest-version CI config and run local DSW regression' \
+	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions'
 
 install-dev: venv
 	$(PIP) install -r config/requirements.txt
@@ -319,6 +322,18 @@ render-regression-ci: generate-regression-config
 	DSW_PASSWORD=$${DSW_PASSWORD:-password} \
 	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
 	$(PYTHON) src/render_regression.py --config "$(GENERATED_CI_CONFIG)"
+
+render-regression-ci-plan: venv
+	$(PYTHON) scripts/ci/run_regression_plan.py \
+		--base-config "$(CI_CONFIG)" \
+		--fallback-version "$(UPSTREAM_TEMPLATE_REGRESSION_VERSION)" \
+		--generated-config-dir "$(GENERATED_CI_CONFIG_DIR)" \
+		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
+		--plan "$(REGRESSION_PLAN_PATH)" \
+		--python "$(PYTHON)" \
+		--render-script "src/render_regression.py" \
+		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
+		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"
 
 clean:
 	rm -rf outputs dist build .pytest_cache .ruff_cache

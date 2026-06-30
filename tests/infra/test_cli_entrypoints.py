@@ -959,6 +959,27 @@ def test_generate_compat_ledger_help(repo_root: Path) -> None:
     assert "--output-dir" in result.stdout
 
 
+def test_run_regression_plan_help(repo_root: Path) -> None:
+    """The regression-plan runner should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "run_regression_plan.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "versions recommended by a compatibility plan" in result.stdout
+    assert "--dry-run" in result.stdout
+    assert "--metamodel-version" in result.stdout
+    assert "--plan" in result.stdout
+
+
 def test_generate_regression_config_selects_latest_matching_workspace(
     repo_root: Path,
     tmp_path: Path,
@@ -1036,6 +1057,190 @@ fixtures:
     )
     assert payload["subjects"]["baseline"]["stage_id"] == "ci:science-europe-compact:1.30.1"
     assert payload["subjects"]["candidate"]["stage_id"] == "ci:science-europe-expanded:1.30.1"
+
+
+def test_generate_regression_config_can_version_output_dir(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Multi-version regression runs should not overwrite preview artifacts."""
+
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    base_config = config_dir / "regression.ci.yml"
+    base_config.write_text(
+        """
+subjects:
+  baseline:
+    kind: local_dir
+    value: old-baseline
+  candidate:
+    kind: local_dir
+    value: old-candidate
+regression:
+  output_dir: ../outputs/preview
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    workspace_root = tmp_path / "outputs" / "upstream-workspaces" / "dsw-science-europe"
+    _write_regression_workspace(workspace_root, "dsw-science-europe", "1.30.1", "18.0")
+    generated_config = config_dir / ".generated-regression.ci.v1.30.1.yml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "generate_regression_config.py"),
+            "--base-config",
+            str(base_config),
+            "--output",
+            str(generated_config),
+            "--workspace-root",
+            str(workspace_root),
+            "--source-template-id",
+            "dsw-science-europe",
+            "--metamodel-version",
+            "18.0",
+            "--version",
+            "v1.30.1",
+            "--output-dir-suffix",
+            "v1.30.1",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = yaml.safe_load(generated_config.read_text(encoding="utf-8"))
+    assert payload["regression"]["output_dir"] == "../outputs/preview/v1.30.1"
+
+
+def test_run_regression_plan_selects_recommended_versions_for_metamodel(
+    repo_root: Path,
+) -> None:
+    """The plan runner should only select recommended versions for its runtime."""
+
+    module = _load_script_module(
+        repo_root / "scripts" / "ci" / "run_regression_plan.py",
+        "run_regression_plan_test",
+    )
+    plan = {
+        "candidates": [
+            {
+                "version": "v1.29.1",
+                "metamodel_version": "17.1",
+                "recommended": True,
+                "reasons": ["first_for_metamodel"],
+            },
+            {
+                "version": "v1.30.0",
+                "metamodel_version": "18.0",
+                "recommended": True,
+                "reasons": ["first_for_metamodel"],
+            },
+            {
+                "version": "v1.30.1",
+                "metamodel_version": "18.0",
+                "recommended": False,
+                "reasons": [],
+            },
+        ]
+    }
+
+    selected = module.select_planned_regressions(
+        plan=plan,
+        metamodel_version="18.0",
+        fallback_version="latest",
+    )
+
+    assert [item.version for item in selected] == ["v1.30.0"]
+    assert selected[0].reasons == ("first_for_metamodel",)
+
+
+def test_run_regression_plan_dry_run_writes_versioned_configs(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Dry-run mode should validate the plan without requiring a DSW server."""
+
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    base_config = config_dir / "regression.ci.yml"
+    base_config.write_text(
+        """
+subjects:
+  baseline:
+    kind: local_dir
+    value: old-baseline
+  candidate:
+    kind: local_dir
+    value: old-candidate
+regression:
+  output_dir: ../outputs/preview
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    workspace_root = tmp_path / "outputs" / "upstream-workspaces" / "dsw-science-europe"
+    _write_regression_workspace(workspace_root, "dsw-science-europe", "1.30.0", "18.0")
+    _write_regression_workspace(workspace_root, "dsw-science-europe", "1.30.1", "18.0")
+    plan_path = tmp_path / "regression-plan.json"
+    plan_path.write_text(
+        json.dumps(
+            {
+                "candidates": [
+                    {
+                        "version": "v1.30.0",
+                        "metamodel_version": "18.0",
+                        "recommended": True,
+                        "reasons": ["first_for_metamodel"],
+                    },
+                    {
+                        "version": "v1.30.1",
+                        "metamodel_version": "18.0",
+                        "recommended": True,
+                        "reasons": ["latest_for_metamodel"],
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "run_regression_plan.py"),
+            "--base-config",
+            str(base_config),
+            "--dry-run",
+            "--generated-config-dir",
+            str(config_dir),
+            "--metamodel-version",
+            "18.0",
+            "--plan",
+            str(plan_path),
+            "--source-template-id",
+            "dsw-science-europe",
+            "--workspace-root",
+            str(workspace_root),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    first_config = yaml.safe_load(
+        (config_dir / ".generated-regression.ci.18-0.v1.30.0.yml").read_text(encoding="utf-8")
+    )
+    latest_config = yaml.safe_load(
+        (config_dir / ".generated-regression.ci.18-0.v1.30.1.yml").read_text(encoding="utf-8")
+    )
+    assert first_config["regression"]["output_dir"] == "../outputs/preview/v1.30.0"
+    assert latest_config["regression"]["output_dir"] == "../outputs/preview/v1.30.1"
+    assert "Dry run" in result.stdout
 
 
 def test_upstream_template_artifacts_lists_and_fetches_local_tags(

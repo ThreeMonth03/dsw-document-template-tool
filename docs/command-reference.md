@@ -90,6 +90,7 @@ make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS="v1.29.1+"
 make generate-compat-ledger
 make generate-regression-config
 make render-regression-ci
+make render-regression-ci-plan
 make render-upstream-artifact-previews
 ```
 
@@ -103,13 +104,32 @@ Run `make generate-compat-ledger` after building upstream artifacts when you
 want a fast offline fingerprint of compact, expanded, expanded-regression, and
 translation-tree structure across all built versions. The same target also
 writes a regression candidate plan for maintainers who want broader coverage
-than the default latest-version matrix regression.
+than a single latest-version regression.
 `make render-regression-ci` calls `generate-regression-config` automatically and
 uses the latest built upstream version for the active metamodel. To inspect an
 older built version, set `UPSTREAM_TEMPLATE_REGRESSION_VERSION`, for example:
 
 ```shell
 make render-regression-ci UPSTREAM_TEMPLATE_REGRESSION_VERSION=v1.30.0
+```
+
+`make render-regression-ci-plan` reads
+`outputs/compat-ledger/<template-id>/regression-plan.json` and runs the
+recommended versions for the active metamodel. It writes versioned preview
+outputs such as `outputs/preview/v1.30.1/...` so repeated runs do not overwrite
+each other.
+
+Validate the plan/config wiring without a DSW server:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/run_regression_plan.py" \
+  --base-config config/regression.ci.yml \
+  --dry-run \
+  --generated-config-dir config \
+  --metamodel-version 18.0 \
+  --plan outputs/compat-ledger/dsw-science-europe/regression-plan.json \
+  --source-template-id dsw-science-europe \
+  --workspace-root outputs/upstream-workspaces/dsw-science-europe
 ```
 
 Write a compatibility discovery report for probe automation:

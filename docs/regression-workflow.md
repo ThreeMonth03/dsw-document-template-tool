@@ -56,16 +56,17 @@ Run the same local sequence that CI uses for preview regression:
 make build-upstream-artifacts
 make generate-compat-ledger
 make start-ci-dsw
-make render-regression-ci
+make render-regression-ci-plan
 make ci-dsw-logs
 make stop-ci-dsw
 ```
 
 `make build-upstream-artifacts` must run first. It fetches the upstream template
 refs and creates versioned baseline and candidate directories under
-`outputs/upstream-workspaces/...`. `render-regression-ci` generates
-`config/.generated-regression.ci.yml` from the checked-in CI config template and
-points it at the latest built version for the active DSW metamodel matrix. The
+`outputs/upstream-workspaces/...`. `generate-compat-ledger` writes the
+regression candidate plan. `render-regression-ci-plan` reads that plan,
+generates one versioned config per recommended version, and runs full DSW
+regression without overwriting preview artifacts from other versions. The
 regression command is therefore intentionally not standalone on a clean
 checkout.
 
@@ -121,7 +122,7 @@ The same rule applies to custom configs: if their `subjects` point at
 `outputs/upstream-workspaces/...`, build those artifacts before rendering.
 
 To debug an older built version instead of the latest one, pass an explicit
-version:
+version to the single-version target:
 
 ```shell
 make render-regression-ci UPSTREAM_TEMPLATE_REGRESSION_VERSION=v1.30.0
@@ -138,7 +139,7 @@ It has two jobs:
 - `offline-checks`: install dependencies, smoke-test upstream refs, discover DSW
   compatibility, run format/lint/tests.
 - `render-regression`: run a metamodel-aware DSW matrix, build clean scaffold
-  artifacts, run full regression against the latest built version for each
+  artifacts, run full regression against the plan-recommended versions for each
   matrix, render demo previews, and upload artifacts.
 
 The runtime matrix comes from:

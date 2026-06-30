@@ -149,7 +149,7 @@ jobs:
 
       - name: Run preview regression
         if: matrix.run_preview_regression == 'true'
-        run: make render-regression-ci
+        run: make render-regression-ci-plan
 
       - name: Render clean upstream version previews
         env:
