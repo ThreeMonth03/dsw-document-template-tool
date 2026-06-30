@@ -141,6 +141,9 @@ jobs:
             UPSTREAM_TEMPLATE_ARTIFACT_REFS="${{ github.event.inputs.upstream_template_artifact_refs || matrix.upstream_template_artifact_refs }}" \
             UPSTREAM_TEMPLATE_ARTIFACT_METAMODEL_VERSION="${{ matrix.metamodel_version }}"
 
+      - name: Generate expanded compatibility ledger
+        run: make generate-compat-ledger
+
       - name: Start local DSW stack
         run: make start-ci-dsw
 
@@ -175,6 +178,7 @@ jobs:
           name: clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}
           include-hidden-files: true
           path: |
+            outputs/compat-ledger/
             outputs/upstream-workspaces/
             outputs/document-templates/dsw-science-europe/**/scaffold/
             outputs/project-render/dsw-science-europe/**/scaffold/

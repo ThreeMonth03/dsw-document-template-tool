@@ -152,7 +152,12 @@ make lint
 make test
 make discover-upstream-compat
 make build-upstream-artifacts
+make generate-compat-ledger
 ```
+
+Review `outputs/compat-ledger/dsw-science-europe/summary.md` for unexpected
+cross-version changes in expanded blocks, translation units, placeholders, or
+missing scaffold packages before handing artifacts to the translation repo.
 
 Then run a downstream dry-run against the translation repository:
 

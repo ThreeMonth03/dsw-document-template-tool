@@ -54,6 +54,7 @@ Run the same local sequence that CI uses for preview regression:
 
 ```shell
 make build-upstream-artifacts
+make generate-compat-ledger
 make start-ci-dsw
 make render-regression-ci
 make ci-dsw-logs
@@ -67,6 +68,26 @@ refs and creates versioned baseline and candidate directories under
 points it at the latest built version for the active DSW metamodel matrix. The
 regression command is therefore intentionally not standalone on a clean
 checkout.
+
+## Compatibility Ledger
+
+`make generate-compat-ledger` is the fast offline layer between scaffold
+generation and full DSW rendering. It reads the generated workspaces under
+`outputs/upstream-workspaces/...` and writes:
+
+- `outputs/compat-ledger/<template-id>/summary.md`
+- `outputs/compat-ledger/<template-id>/index.json`
+- `outputs/compat-ledger/<template-id>/vX.Y.Z.json`
+
+The ledger records file-tree digests, expanded generated-block counts,
+translation-tree unit counts, placeholder inventories, and scaffold package
+checksums for every built upstream version. Use it to spot cross-version drift
+before spending CI time on DSW preview/PDF rendering.
+
+The ledger is not a substitute for render regression. It proves that generated
+files and translator-facing trees have stable fingerprints; only the DSW
+regression jobs prove that those templates still render correctly through the
+DSW API.
 
 If ports conflict locally:
 
@@ -135,6 +156,8 @@ Important output families:
 
 - `outputs/upstream-workspaces/...`: clean compact, expanded, and translation
   scaffolds for each upstream version.
+- `outputs/compat-ledger/...`: offline cross-version fingerprints for compact,
+  expanded, expanded-regression, translation-tree, and scaffold package outputs.
 - `outputs/document-templates/...`: packaged scaffold templates.
 - `outputs/project-render/...`: demo PDFs or `skipped.json` / `failed.json`
   preview status files.

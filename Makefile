@@ -5,6 +5,7 @@ SHELL := bash
 BOOTSTRAP_PYTHON ?= python3
 CI_CONFIG ?= config/regression.ci.yml
 COMPACT_TEMPLATE_DIR ?= workspace/document-templates/compact/$(WORKSPACE_TEMPLATE_NAME)
+COMPAT_LEDGER_DIR ?= outputs/compat-ledger/$(SOURCE_TEMPLATE_ID)
 CONFIG ?= config/regression.preview.yml
 DSW_COMPAT_CONFIG ?= config/dsw-compat.yml
 DSW_TDK ?= $(VENV_DIR)/bin/dsw-tdk
@@ -23,6 +24,7 @@ PUBLISH_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
 PYTHON ?= $(VENV_PYTHON)
 PYTHON_LINT_PATHS ?= src tests scripts/ci/*.py
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
+SCAFFOLD_ARTIFACT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)
 SCAFFOLD_TEMPLATE_ID ?= $(TRANSLATED_TEMPLATE_ID)-scaffold
 SCAFFOLD_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_NAME) Scaffold
 SOURCE_TEMPLATE_ID ?= dsw-science-europe
@@ -66,7 +68,7 @@ WORKSPACE_TEMPLATE_NAME ?= $(SOURCE_TEMPLATE_ID)-$(SOURCE_TEMPLATE_VERSION)
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree fetch-upstream-template format format-check generate-regression-config help install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -105,6 +107,7 @@ help:
 	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
 	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
+	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  publish-translated-template Manually publish a translated version branch to its target repository' \
@@ -251,6 +254,15 @@ build-upstream-artifacts: venv
 		--translated-template-name "$(TRANSLATED_TEMPLATE_NAME)" \
 		--scaffold-template-id "$(SCAFFOLD_TEMPLATE_ID)" \
 		--scaffold-template-name "$(SCAFFOLD_TEMPLATE_NAME)"
+
+generate-compat-ledger: venv
+	$(PYTHON) scripts/ci/generate_compat_ledger.py \
+		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)" \
+		--output-dir "$(COMPAT_LEDGER_DIR)" \
+		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
+		--scaffold-root "$(SCAFFOLD_ARTIFACT_ROOT)" \
+		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
+		--target-lang "$(TRANSLATION_TARGET_LANG)"
 
 generate-regression-config: venv
 	$(PYTHON) scripts/ci/generate_regression_config.py \

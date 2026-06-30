@@ -68,6 +68,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "Fail pull request on unsupported upstream metamodel" in workflow_text
     assert "make test-upstream-compat-tags" not in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
+    assert "make generate-compat-ledger" in workflow_text
     assert "UPSTREAM_TEMPLATE_ARTIFACT_METAMODEL_VERSION" in workflow_text
     assert "make render-upstream-artifact-previews" in workflow_text
     render_job = workflow["jobs"]["render-regression"]
@@ -116,6 +117,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "upstream-compat-smoke" not in workflow["jobs"]
     assert "Compatibility refs are advisory" not in workflow_text
     assert "clean-upstream-version-artifacts" in workflow_text
+    assert "outputs/compat-ledger/" in workflow_text
     assert "outputs/upstream-workspaces/" in workflow_text
     assert "outputs/document-templates/dsw-science-europe/**/scaffold/" in workflow_text
     assert "outputs/project-render/dsw-science-europe/**/scaffold/" in workflow_text

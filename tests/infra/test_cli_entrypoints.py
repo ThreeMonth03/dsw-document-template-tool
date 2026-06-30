@@ -939,6 +939,26 @@ def test_generate_regression_config_help(repo_root: Path) -> None:
     assert "--version" in result.stdout
 
 
+def test_generate_compat_ledger_help(repo_root: Path) -> None:
+    """The compatibility ledger generator should expose a working help screen."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "generate_compat_ledger.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "compatibility ledgers" in result.stdout
+    assert "--workspace-root" in result.stdout
+    assert "--output-dir" in result.stdout
+
+
 def test_generate_regression_config_selects_latest_matching_workspace(
     repo_root: Path,
     tmp_path: Path,
