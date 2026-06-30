@@ -200,6 +200,10 @@ make publish-translated-template \
   PUBLISH_VERSION=v1.30.1
 ```
 
+This target pushes a reviewable `sync/v*` branch to the configured downstream
+repository. It does not update the downstream default branch and does not import
+the template into DSW/depositar.
+
 Download clean scaffold artifacts from the latest successful tool CI run:
 
 ```shell
