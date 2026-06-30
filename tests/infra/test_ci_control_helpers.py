@@ -251,6 +251,71 @@ raise SystemExit(f"unexpected gh args: {args}")
     assert (output_dir / "upstream-workspaces/dsw-science-europe/artifact-a").is_dir()
 
 
+def test_download_clean_scaffold_artifacts_merges_overlapping_ledgers(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Metamodel artifacts may overlap in diagnostic ledger paths."""
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_gh = fake_bin / "gh"
+    fake_gh.write_text(
+        """#!/usr/bin/env python3
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+args = sys.argv[1:]
+if args[:2] == ["run", "download"]:
+    name = args[args.index("--name") + 1]
+    output_dir = Path(args[args.index("--dir") + 1])
+    workspace = output_dir / "upstream-workspaces" / "dsw-science-europe" / name
+    workspace.mkdir(parents=True, exist_ok=True)
+    (workspace / "artifact.txt").write_text(name + "\\n", encoding="utf-8")
+    ledger = output_dir / "compat-ledger" / "dsw-science-europe"
+    ledger.mkdir(parents=True, exist_ok=True)
+    (ledger / "index.json").write_text(name + "\\n", encoding="utf-8")
+    raise SystemExit(0)
+raise SystemExit(f"unexpected gh args: {args}")
+""",
+        encoding="utf-8",
+    )
+    fake_gh.chmod(fake_gh.stat().st_mode | stat.S_IXUSR)
+
+    output_dir = tmp_path / "tooling-artifacts"
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "download_clean_scaffold_artifacts.py"),
+            "--repo",
+            "owner/tool",
+            "--run-id",
+            "67890",
+            "--output-dir",
+            str(output_dir),
+            "--artifact",
+            "artifact-a",
+            "--artifact",
+            "artifact-b",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (output_dir / "upstream-workspaces/dsw-science-europe/artifact-a").is_dir()
+    assert (output_dir / "upstream-workspaces/dsw-science-europe/artifact-b").is_dir()
+    assert (output_dir / "compat-ledger/dsw-science-europe/index.json").read_text(
+        encoding="utf-8"
+    ) == "artifact-b\n"
+
+
 def test_resolve_migration_source_prefers_manual_input(repo_root: Path, tmp_path: Path) -> None:
     """Manual workflow dispatch input should be the migration source."""
 

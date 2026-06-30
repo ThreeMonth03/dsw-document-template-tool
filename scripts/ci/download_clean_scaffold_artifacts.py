@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -65,7 +67,6 @@ def main() -> None:
         if not run_id:
             raise RuntimeError("No successful tooling CI run found")
 
-        args.output_dir.mkdir(parents=True, exist_ok=True)
         for artifact in artifacts:
             download_artifact(
                 repo=args.repo,
@@ -139,6 +140,29 @@ def download_artifact(
 ) -> None:
     """Download one artifact, raising a clear error on failure."""
 
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=f"{artifact}-") as temp_raw:
+        temp_dir = Path(temp_raw)
+        artifact_dir = temp_dir / "artifact"
+        artifact_dir.mkdir()
+        download_artifact_to_directory(
+            repo=repo,
+            run_id=run_id,
+            artifact=artifact,
+            output_dir=artifact_dir,
+        )
+        merge_artifact_tree(artifact_dir, output_dir)
+
+
+def download_artifact_to_directory(
+    *,
+    repo: str,
+    run_id: str,
+    artifact: str,
+    output_dir: Path,
+) -> None:
+    """Download one artifact into an empty directory."""
+
     result = subprocess.run(
         [
             "gh",
@@ -159,6 +183,37 @@ def download_artifact(
     if result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip()
         raise RuntimeError(f"Clean scaffold artifact download failed for {artifact}: {detail}")
+
+
+def merge_artifact_tree(source: Path, destination: Path) -> None:
+    """Merge one downloaded artifact tree into the shared output directory."""
+
+    for source_path in sorted(source.rglob("*")):
+        relative_path = source_path.relative_to(source)
+        destination_path = destination / relative_path
+        if source_path.is_dir():
+            destination_path.mkdir(parents=True, exist_ok=True)
+            continue
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        if not destination_path.exists():
+            shutil.copy2(source_path, destination_path)
+            continue
+        if destination_path.is_dir():
+            raise RuntimeError(f"Cannot merge file over directory: {relative_path.as_posix()}")
+        if should_replace_duplicate_artifact_file(relative_path):
+            shutil.copy2(source_path, destination_path)
+            continue
+        if source_path.read_bytes() == destination_path.read_bytes():
+            continue
+        raise RuntimeError(
+            f"Artifact download produced conflicting files at {relative_path.as_posix()}"
+        )
+
+
+def should_replace_duplicate_artifact_file(relative_path: Path) -> bool:
+    """Return whether duplicate artifact files may be replaced safely."""
+
+    return relative_path.parts[:1] == ("compat-ledger",)
 
 
 if __name__ == "__main__":
