@@ -425,7 +425,8 @@ jobs:
       - name: Dispatch operations migration
         if: >-
           github.event_name == 'push' &&
-          github.actor != 'github-actions[bot]'
+          github.actor != 'github-actions[bot]' &&
+          !startsWith(github.event.head_commit.message, 'chore: refresh ')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

@@ -236,7 +236,6 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "releases: write" not in workflow_text
     assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "github.event.pull_request.head.repo.full_name == github.repository" in workflow_text
-    assert "github.actor != 'github-actions[bot]' &&" not in workflow_text
     assert "if: ${{ github.actor != 'github-actions[bot]' }}" in workflow_text
     assert "skip-fork-pr" in workflow["jobs"]
     assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
@@ -309,6 +308,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "statuses/$REPAIRED_SHA" in workflow_text
     assert "Dispatch operations migration" in workflow_text
     assert "github.event_name == 'push' &&" in workflow_text
+    assert "!startsWith(github.event.head_commit.message, 'chore: refresh ')" in workflow_text
     assert "gh workflow run document_template_translation_sync.yml" in workflow_text
     assert "--ref master" in workflow_text
     assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
