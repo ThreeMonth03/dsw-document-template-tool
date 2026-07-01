@@ -46,7 +46,7 @@ If CI finds that the new upstream tag uses an already configured metamodel:
      --repo "$TOOL_GITHUB_REPO"
    ```
 
-3. If you also operate the translation control repository, trigger its sync
+3. If you also operate the downstream translation repository, trigger its sync
    workflow using [Downstream Integration](downstream-integration.md). Otherwise,
    hand off the clean scaffold release link and checksum to that repository's
    operator.

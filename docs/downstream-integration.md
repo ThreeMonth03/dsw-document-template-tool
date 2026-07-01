@@ -1,7 +1,7 @@
 # Downstream Integration
 
 This document explains the boundary between this tooling repository and a
-translation control repository.
+downstream translation repository.
 
 ## What This Repo Provides
 
@@ -20,7 +20,7 @@ finished translations.
 This repo exposes those outputs in two places:
 
 - GitHub Actions artifacts from `headless_render_regression.yml`, which the
-  translation control workflow downloads during automated sync.
+  downstream translation workflow downloads during automated sync.
 - GitHub Release assets named `clean-scaffold-dsw-science-europe-vX.Y.Z`, which
   are stable human-facing download buckets for review and handoff.
 

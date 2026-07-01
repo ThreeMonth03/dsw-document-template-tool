@@ -95,7 +95,7 @@ NEW_TAG=vX.Y.Z
 
 ### Translation handoff
 
-If you also operate the translation control repository, trigger its sync
+If you also operate the downstream translation repository, trigger its sync
 workflow after the clean scaffold release exists:
 
 ```shell
