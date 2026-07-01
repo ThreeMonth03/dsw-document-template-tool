@@ -20,10 +20,12 @@ SRC = ROOT / "src"
 sys.path.insert(0, str(SRC))
 
 from dsw_document_template_tool.translation_migration import (  # noqa: E402
+    TranslationRepositoryConfig,
     load_translation_repository_config,
     version_branch,
     version_paths,
 )
+from dsw_document_template_tool.translation_tree import sync_translation_tree  # noqa: E402
 
 # Keep public sync branches close to upstream template source. The transform
 # workspace still keeps these files for audit/debug, but they are not part of
@@ -221,9 +223,40 @@ def source_from_translation_repo(
 
     paths = version_paths(config, version)
     source_dir = checkout / paths.translated_template_dir
+    if not source_dir.is_dir():
+        source_dir = synthesize_translated_template_source(
+            checkout=checkout,
+            config=config,
+            version=version,
+            temp_root=temp_root,
+        )
     target_repo = config.publish.target_repository
     target_branch = f"{config.publish.branch_prefix}{version}"
     return source_dir, target_repo, target_branch, checkout
+
+
+def synthesize_translated_template_source(
+    *,
+    checkout: Path,
+    config: TranslationRepositoryConfig,
+    version: str,
+    temp_root: Path,
+) -> Path:
+    paths = version_paths(config, version)
+    output_dir = temp_root / "translated-template-source" / version
+    sync_translation_tree(
+        tree_dir=checkout / paths.translation_tree_dir,
+        source_dir=checkout / paths.expanded_template_dir,
+        output_dir=output_dir,
+        source_lang=config.translation.source_language,
+        target_lang=config.translation.target_language,
+        template_organization_id=config.translation.translated_template_organization_id,
+        template_id=config.translation.translated_template_id,
+        template_name=config.translation.translated_template_name,
+        template_version=paths.version_number,
+        public_readme_path=checkout / config.public_readme.path,
+    )
+    return output_dir
 
 
 def validate_source_dir(source_dir: Path) -> None:

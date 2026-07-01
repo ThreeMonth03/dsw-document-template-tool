@@ -6,6 +6,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "ci" / "publish_translated_template.py"
+SRC = ROOT / "src"
+sys.path.insert(0, str(SRC))
+
+from dsw_document_template_tool.template_transform import expand_template_dir  # noqa: E402
+from dsw_document_template_tool.translation_tree import export_translation_tree  # noqa: E402
 
 
 def run(args: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -64,6 +69,41 @@ publish:
     )
 
 
+def write_minimal_version_workspace(repo: Path, version: str) -> None:
+    version_number = version.removeprefix("v")
+    workspace_name = f"dsw-science-europe-{version_number}"
+    compact_dir = repo / "workspace" / "document-templates" / "compact" / workspace_name
+    compact_dir.mkdir(parents=True)
+    (compact_dir / "template.json").write_text(
+        f"""
+{{
+  "organizationId": "dsw",
+  "templateId": "science-europe",
+  "version": "{version_number}"
+}}
+""".lstrip(),
+        encoding="utf-8",
+    )
+    (compact_dir / "src").mkdir()
+    (compact_dir / "src" / "content.html.j2").write_text(
+        "<p>Hello world.</p>\n",
+        encoding="utf-8",
+    )
+
+    expanded_dir = repo / "workspace" / "document-templates" / "expanded" / workspace_name
+    tree_dir = repo / "workspace" / "document-templates" / "translation" / workspace_name
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    public_readme = repo / "workspace" / "document-templates" / "public-readme" / "README.md"
+    public_readme.parent.mkdir(parents=True)
+    public_readme.write_text(
+        "Upstream: https://github.com/ds-wizard/science-europe-template/blob/v"
+        "{template_version}/README.md\n",
+        encoding="utf-8",
+    )
+
+
 def test_publish_translated_template_replaces_target_contents(tmp_path: Path) -> None:
     source = tmp_path / "source"
     source.mkdir()
@@ -100,6 +140,58 @@ def test_publish_translated_template_replaces_target_contents(tmp_path: Path) ->
     assert not (target / "UPSTREAM-README.md").exists()
     assert not (target / "stale.txt").exists()
     assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "sync/v1.30.1"
+
+
+def test_publish_translated_template_synthesizes_source_from_workspace(
+    tmp_path: Path,
+) -> None:
+    origin = tmp_path / "translation-origin.git"
+    run(["git", "init", "--bare", str(origin)])
+
+    translation_repo = tmp_path / "translation-repo"
+    run(["git", "clone", str(origin), str(translation_repo)])
+    run(["git", "config", "user.name", "test"], cwd=translation_repo)
+    run(["git", "config", "user.email", "test@example.invalid"], cwd=translation_repo)
+
+    target = tmp_path / "target"
+    init_repo(target)
+    (target / "old.txt").write_text("old\n", encoding="utf-8")
+    run(["git", "add", "-A"], cwd=target)
+    run(["git", "commit", "-m", "initial"], cwd=target)
+
+    run(["git", "checkout", "-b", "master"], cwd=translation_repo)
+    write_translation_config(translation_repo / "translation-config.yml", target)
+    run(["git", "add", "-A"], cwd=translation_repo)
+    run(["git", "commit", "-m", "config"], cwd=translation_repo)
+    run(["git", "push", "origin", "master"], cwd=translation_repo)
+
+    run(["git", "checkout", "-b", "translation/v1.30.1"], cwd=translation_repo)
+    write_minimal_version_workspace(translation_repo, "v1.30.1")
+    run(["git", "add", "-A"], cwd=translation_repo)
+    run(["git", "commit", "-m", "workspace only"], cwd=translation_repo)
+    run(["git", "push", "origin", "translation/v1.30.1"], cwd=translation_repo)
+    run(["git", "checkout", "master"], cwd=translation_repo)
+
+    result = run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--translation-repo",
+            str(translation_repo),
+            "--version",
+            "v1.30.1",
+        ]
+    )
+
+    assert "Updated local target checkout" in result.stdout
+    assert not (target / "old.txt").exists()
+    assert not (target / ".transform").exists()
+    assert not (target / "UPSTREAM-README.md").exists()
+    template_payload = (target / "template.json").read_text(encoding="utf-8")
+    assert '"templateId": "science-europe-zh-hant"' in template_payload
+    assert '"version": "1.30.1"' in template_payload
+    assert "blob/v1.30.1/README.md" in (target / "README.md").read_text(encoding="utf-8")
+    assert "{template_version}" not in (target / "README.md").read_text(encoding="utf-8")
 
 
 def test_publish_translated_template_can_read_translation_version_branch(
