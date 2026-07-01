@@ -2482,7 +2482,7 @@ def test_sync_translation_tree_reports_deleted_translation_document(
     export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
     next(tree_dir.rglob("translation.md")).unlink()
 
-    with pytest.raises(TranslationTreeError, match="make export-translation-tree"):
+    with pytest.raises(TranslationTreeError, match="Refresh the translation tree"):
         sync_translation_tree(
             tree_dir=tree_dir,
             source_dir=expanded_dir,

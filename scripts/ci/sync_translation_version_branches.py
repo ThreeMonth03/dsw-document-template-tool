@@ -781,8 +781,7 @@ def add_existing_branch_worktree(
             "or remove that worktree before refreshing locally."
         )
     if local_branch_exists(repo, branch):
-        _run(["git", "worktree", "add", str(checkout), branch], cwd=repo)
-        return False
+        ensure_local_branch_matches_remote(repo, branch)
 
     _run(["git", "worktree", "add", "-B", branch, str(checkout), f"origin/{branch}"], cwd=repo)
     return False
@@ -827,6 +826,32 @@ def local_branch_exists(repo: Path, branch: str) -> bool:
         check=False,
     )
     return result.returncode == 0
+
+
+def ensure_local_branch_matches_remote(repo: Path, branch: str) -> None:
+    """Fail if a local branch would hide unpushed refresh state."""
+
+    local_sha = git_revision(repo, branch)
+    remote_sha = git_revision(repo, f"origin/{branch}")
+    if local_sha == remote_sha:
+        return
+    raise SystemExit(
+        f"{branch} exists locally but differs from origin/{branch}; push, reset, "
+        "or delete the local branch before refreshing locally."
+    )
+
+
+def git_revision(repo: Path, ref: str) -> str:
+    """Return the object ID for one git ref."""
+
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", ref],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
 
 
 def branch_checked_out_in_worktree(repo: Path, branch: str) -> bool:

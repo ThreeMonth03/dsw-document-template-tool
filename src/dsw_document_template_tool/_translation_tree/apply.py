@@ -11,7 +11,7 @@ from .html_structure import (
     find_single_outer_inline_element,
 )
 from .ids import hash_text
-from .models import TranslationEntry, TranslationTreeError
+from .models import TREE_REFRESH_HINT, TranslationEntry, TranslationTreeError
 from .placeholders import (
     materialize_translation_placeholders,
     validate_translation_placeholders,
@@ -66,7 +66,7 @@ def apply_unit_translations(
         if current_unit_hash != unit_source_hash:
             raise TranslationTreeError(
                 "Expanded source unit changed since the translation tree was exported for "
-                f"{source_file} ({unit_key}). Re-run `make export-translation-tree`."
+                f"{source_file} ({unit_key}). {TREE_REFRESH_HINT}"
             )
 
         rebuilt_parts.append(wrapper_body[cursor:unit_start])

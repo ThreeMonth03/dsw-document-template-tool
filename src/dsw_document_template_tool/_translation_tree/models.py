@@ -9,6 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+TREE_REFRESH_HINT = "Refresh the translation tree from the expanded template, then retry."
+
 
 @dataclass(frozen=True)
 class TranslationUnit:

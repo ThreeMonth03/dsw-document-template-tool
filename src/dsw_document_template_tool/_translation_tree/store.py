@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .document import parse_translation_document
 from .manifest import TREE_MANIFEST_PATH, load_tree_manifest
-from .models import TranslationEntry, TranslationTreeError
+from .models import TREE_REFRESH_HINT, TranslationEntry, TranslationTreeError
 
 
 def load_existing_translations(
@@ -85,8 +85,7 @@ def load_translations_by_unit_key(
         document_path = tree_dir / document_path_raw
         if not document_path.is_file():
             raise TranslationTreeError(
-                f"Missing translation document at {document_path}. "
-                "Run `make export-translation-tree` to restore it."
+                f"Missing translation document at {document_path}. {TREE_REFRESH_HINT}"
             )
         translation_text = parse_translation_document(
             document_path=document_path,

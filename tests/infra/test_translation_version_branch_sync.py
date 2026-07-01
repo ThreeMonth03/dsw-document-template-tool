@@ -396,6 +396,49 @@ def test_refresh_existing_branch_requires_push_when_branch_is_open_elsewhere(
         _run_git(translation_repo, "worktree", "remove", "--force", str(branch_worktree))
 
 
+def test_refresh_existing_branch_rejects_unpushed_local_branch(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Local refreshes should not stack scaffold commits on unpushed branches."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "config", "user.name", "Test User")
+    _run_git(translation_repo, "config", "user.email", "test@example.invalid")
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(translation_repo / "translation-config.yml")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initial operations branch")
+    _run_git(translation_repo, "push", "-u", "origin", "master")
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "initialize v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "commit", "--allow-empty", "-m", "local unpushed refresh")
+    local_branch_sha = _git_output(translation_repo, "rev-parse", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "master")
+    _write_clean_artifact(artifact_root, version="v1.30.1")
+
+    with pytest.raises(SystemExit, match="differs from origin/translation/v1.30.1"):
+        sync_module.sync_translation_versions(
+            repo=translation_repo,
+            tooling_root=repo_root,
+            config_path=translation_repo / "translation-config.yml",
+            clean_artifact_root=artifact_root,
+            tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+            push=False,
+            dry_run=False,
+            refresh_existing=True,
+        )
+
+    assert _git_output(translation_repo, "rev-parse", "translation/v1.30.1") == local_branch_sha
+
+
 def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
     repo_root: Path,
     tmp_path: Path,

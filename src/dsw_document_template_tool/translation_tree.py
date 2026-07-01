@@ -36,6 +36,7 @@ from ._translation_tree.merge import (
 )
 from ._translation_tree.metadata import patch_template_metadata
 from ._translation_tree.models import (
+    TREE_REFRESH_HINT,
     TranslationTreeError,
 )
 from ._translation_tree.outline import refresh_outline_markdown
@@ -248,8 +249,7 @@ def sync_translation_tree(
             if not isinstance(expected_wrapper_hash, str) or wrapper_hash != expected_wrapper_hash:
                 raise TranslationTreeError(
                     "Expanded source wrapper changed since the translation tree was exported for "
-                    f"{source_file} ({first_unit['wrapper_folder_name']}). Re-run "
-                    "`make export-translation-tree`."
+                    f"{source_file} ({first_unit['wrapper_folder_name']}). {TREE_REFRESH_HINT}"
                 )
 
             rebuilt_parts.append(
