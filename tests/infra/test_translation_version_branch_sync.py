@@ -35,6 +35,9 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
     (translation_repo / "docs").mkdir()
     (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
+    public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
+    public_readme.parent.mkdir(parents=True)
+    public_readme.write_text("public README from control branch\n", encoding="utf-8")
     (translation_repo / ".github" / "workflows").mkdir(parents=True)
     operations_workflow = (
         translation_repo / ".github" / "workflows" / "document_template_translation_sync.yml"
@@ -140,6 +143,13 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert (
         _git_show(
             translation_repo,
+            "translation/v1.30.2:workspace/document-templates/public-readme/README.md",
+        )
+        == "public README from control branch\n"
+    )
+    assert (
+        _git_show(
+            translation_repo,
             (
                 "translation/v1.30.2:"
                 "workspace/document-templates/compact/dsw-science-europe-1.30.2/"
@@ -196,6 +206,9 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
     (translation_repo / "docs").mkdir()
     (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
+    public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
+    public_readme.parent.mkdir(parents=True)
+    public_readme.write_text("fresh public README\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
@@ -213,6 +226,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_demo_fixture = translation_repo / "fixtures/projects/demo/test-project.json"
     stale_fixture_km = translation_repo / "fixtures/knowledge-models/root-zh-hant-2.7.0.km"
     stale_workspace_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
+    stale_public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
     old_compact.parent.mkdir(parents=True, exist_ok=True)
     old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
     stale_project.parent.mkdir(parents=True, exist_ok=True)
@@ -225,6 +239,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_demo_fixture.write_text("stale branch-local demo fixture\n", encoding="utf-8")
     stale_fixture_km.write_text("stale branch-local fixture km\n", encoding="utf-8")
     stale_workspace_km.write_text("stale branch-local workspace km\n", encoding="utf-8")
+    stale_public_readme.write_text("stale public README\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
     _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
@@ -354,6 +369,13 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "translation/v1.30.1:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
+    assert (
+        _git_show(
+            translation_repo,
+            "translation/v1.30.1:workspace/document-templates/public-readme/README.md",
+        )
+        == "fresh public README\n"
+    )
     assert not _git_path_exists(translation_repo, "translation/v1.30.1:outputs")
 
 
@@ -374,6 +396,9 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
     _run_git(translation_repo, "config", "user.email", "test@example.invalid")
     _run_git(translation_repo, "remote", "add", "origin", str(origin))
     _write_translation_config(translation_repo / "translation-config.yml")
+    public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
+    public_readme.parent.mkdir(parents=True)
+    public_readme.write_text("fresh public README\n", encoding="utf-8")
     _write_version_policy(
         translation_repo / "translation-config.yml",
         overrides={
@@ -399,10 +424,14 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
         translation_repo
         / "workspace/document-templates/translation/dsw-science-europe-1.30.1/translator.txt"
     )
+    archived_public_readme = (
+        translation_repo / "workspace/document-templates/public-readme/README.md"
+    )
     old_compact.parent.mkdir(parents=True, exist_ok=True)
     old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
     old_compact.write_text("archived compact\n", encoding="utf-8")
     old_translation_marker.write_text("archived translation\n", encoding="utf-8")
+    archived_public_readme.write_text("archived public README\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize archived v1.30.1")
     _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
@@ -454,6 +483,13 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
             ),
         )
         == "archived translation\n"
+    )
+    assert (
+        _git_show(
+            translation_repo,
+            "translation/v1.30.1:workspace/document-templates/public-readme/README.md",
+        )
+        == "archived public README\n"
     )
     assert 'PUBLISH_RELEASE_ASSETS: "false"' in _git_show(
         translation_repo,

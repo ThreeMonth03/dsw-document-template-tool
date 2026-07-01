@@ -413,6 +413,11 @@ def refresh_version_branch(
             version=version,
             clean_artifact_root=clean_artifact_root,
         )
+        sync_public_readme_from_control_branch(
+            checkout=checkout,
+            repo=repo,
+            config=config,
+        )
         if had_existing_translation_tree:
             merge_preserved_translations(
                 checkout=checkout,
@@ -481,6 +486,11 @@ def create_version_branch(
             version=version,
             clean_artifact_root=clean_artifact_root,
         )
+        sync_public_readme_from_control_branch(
+            checkout=checkout,
+            repo=repo,
+            config=config,
+        )
         sync_blank_translation_output(
             checkout=checkout,
             tooling_root=tooling_root,
@@ -542,6 +552,23 @@ def restore_clean_workspace(
     )
     replace_tree(artifact_paths.translation_tree_dir, checkout / target_paths.translation_tree_dir)
     remove_branch_local_demo_assets(checkout)
+
+
+def sync_public_readme_from_control_branch(
+    *,
+    checkout: Path,
+    repo: Path,
+    config: TranslationRepositoryConfig,
+) -> None:
+    """Copy the canonical public template README into an active version branch."""
+
+    source = repo / config.public_readme.path
+    if not source.is_file():
+        return
+
+    target = checkout / config.public_readme.path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, target)
 
 
 def finalize_version_branch_workspace(
