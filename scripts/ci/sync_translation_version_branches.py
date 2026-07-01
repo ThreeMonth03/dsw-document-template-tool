@@ -360,7 +360,7 @@ def update_version_branch_controls(
             print(f"INFO: [{branch}] no control-file changes.")
             return False
         _run(
-            ["git", "commit", "-m", f"chore: update {version} branch policy controls"],
+            ["git", "commit", "-m", f"chore: refresh {version} branch policy controls"],
             cwd=checkout,
         )
         if push:

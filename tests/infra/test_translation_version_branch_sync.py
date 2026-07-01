@@ -419,6 +419,16 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
     assert result.refreshed_branches == ()
     assert result.updated_control_branches == ("translation/v1.30.1",)
     assert (
+        _git_output(
+            translation_repo,
+            "log",
+            "-1",
+            "--format=%s",
+            "translation/v1.30.1",
+        )
+        == "chore: refresh v1.30.1 branch policy controls"
+    )
+    assert (
         _git_show(
             translation_repo,
             (
