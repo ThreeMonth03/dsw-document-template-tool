@@ -111,7 +111,9 @@ Refresh version branches from downloaded artifacts:
 ```
 
 Use `--dry-run` first when changing parser logic, supported versions, or branch
-automation.
+automation. Scheduled workflows should keep the default `--policy-mode auto`;
+operator-triggered maintenance refreshes can pass `--policy-mode manual` if the
+downstream repository's `version_policy` allows it.
 
 ## Manual Downstream Sync
 

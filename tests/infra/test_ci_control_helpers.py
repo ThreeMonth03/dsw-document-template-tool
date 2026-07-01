@@ -40,9 +40,10 @@ def test_validate_translation_config_accepts_existing_upstream_tags(
     assert result.returncode == 0, result.stdout + result.stderr
     assert "All configured upstream tags exist" in result.stdout
     assert summary.is_file()
-    assert "Supported versions: `v1.29.1, v1.30.0`" in summary.read_text(
-        encoding="utf-8",
-    )
+    summary_text = summary.read_text(encoding="utf-8")
+    assert "Supported versions: `v1.29.1, v1.30.0`" in summary_text
+    assert "| `v1.29.1` | `active` | `auto` | `auto` | `true` |" in summary_text
+    assert "| `v1.30.0` | `active` | `auto` | `auto` | `true` |" in summary_text
 
 
 def test_validate_translation_config_normalizes_github_owner_repo(

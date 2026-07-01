@@ -28,6 +28,9 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     sorted_versions,
     version_branch,
     version_paths,
+    version_policy_allows_auto_refresh,
+    version_policy_allows_manual_refresh,
+    version_policy_decision,
 )
 
 VERSION_BRANCH_WORKFLOW_TEMPLATE = (
@@ -69,6 +72,7 @@ class SyncResult:
     added_versions: tuple[str, ...]
     created_branches: tuple[str, ...]
     refreshed_branches: tuple[str, ...]
+    updated_control_branches: tuple[str, ...]
     config_changed: bool
 
 
@@ -124,6 +128,15 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--github-output",
         help="Optional GitHub Actions output file to write sync metadata to.",
     )
+    parser.add_argument(
+        "--policy-mode",
+        choices=("auto", "manual"),
+        default="auto",
+        help=(
+            "Version policy mode. Scheduled automation should use auto; "
+            "operator-triggered syncs may use manual."
+        ),
+    )
     return parser
 
 
@@ -150,6 +163,7 @@ def main() -> None:
         push=args.push,
         dry_run=args.dry_run,
         refresh_existing=args.refresh_existing,
+        policy_mode=args.policy_mode,
     )
     print_summary(result)
     if args.github_output:
@@ -166,6 +180,7 @@ def sync_translation_versions(
     push: bool,
     dry_run: bool,
     refresh_existing: bool = False,
+    policy_mode: str = "auto",
 ) -> SyncResult:
     """Update supported versions and synchronize version branches."""
 
@@ -219,10 +234,30 @@ def sync_translation_versions(
     refreshed_branches: list[str] = []
     with tempfile.TemporaryDirectory(prefix="dsw-version-branch-sync-") as temp_raw:
         temp_root = Path(temp_raw)
+        updated_control_branches: list[str] = []
         for version in supported_versions:
             branch = version_branch(config, version)
             branch_exists = remote_branch_exists(repo, branch)
             if branch_exists and refresh_existing:
+                if not version_refresh_allowed(
+                    config=config,
+                    version=version,
+                    policy_mode=policy_mode,
+                ):
+                    if dry_run:
+                        print(f"INFO: dry-run would update controls for {branch}")
+                        updated_control_branches.append(branch)
+                        continue
+                    if update_version_branch_controls(
+                        repo=repo,
+                        config=config,
+                        version=version,
+                        branch=branch,
+                        temp_root=temp_root,
+                        push=push,
+                    ):
+                        updated_control_branches.append(branch)
+                    continue
                 if dry_run:
                     print(f"INFO: dry-run would refresh {branch}")
                     refreshed_branches.append(branch)
@@ -241,6 +276,16 @@ def sync_translation_versions(
                     refreshed_branches.append(branch)
                 continue
             if branch_exists:
+                continue
+            if not version_refresh_allowed(
+                config=config,
+                version=version,
+                policy_mode=policy_mode,
+            ):
+                print(
+                    f"INFO: [{branch}] skipped creation by version_policy "
+                    f"refresh={version_policy_decision(config, version).refresh}"
+                )
                 continue
             created_branches.append(branch)
             if dry_run:
@@ -264,8 +309,65 @@ def sync_translation_versions(
         added_versions=added_versions,
         created_branches=tuple(created_branches),
         refreshed_branches=tuple(refreshed_branches),
+        updated_control_branches=tuple(updated_control_branches),
         config_changed=config_changed,
     )
+
+
+def version_refresh_allowed(
+    *,
+    config: TranslationRepositoryConfig,
+    version: str,
+    policy_mode: str,
+) -> bool:
+    """Return whether this sync run may refresh/create a version workspace."""
+
+    if policy_mode == "manual":
+        return version_policy_allows_manual_refresh(config, version)
+    return version_policy_allows_auto_refresh(config, version)
+
+
+def update_version_branch_controls(
+    *,
+    repo: Path,
+    config: TranslationRepositoryConfig,
+    version: str,
+    branch: str,
+    temp_root: Path,
+    push: bool,
+) -> bool:
+    """Update generated branch control files without touching translation content."""
+
+    checkout = temp_root / f"{branch.replace('/', '-')}-controls"
+    if checkout.exists():
+        shutil.rmtree(checkout)
+    add_existing_branch_worktree(
+        repo=repo,
+        checkout=checkout,
+        branch=branch,
+        push=push,
+    )
+    try:
+        finalize_version_branch_workspace(
+            checkout=checkout,
+            config=config,
+            version=version,
+        )
+        ensure_git_identity(checkout)
+        _run(["git", "add", "-A"], cwd=checkout)
+        staged_paths = tuple(staged_changed_paths(checkout))
+        if not staged_paths:
+            print(f"INFO: [{branch}] no control-file changes.")
+            return False
+        _run(
+            ["git", "commit", "-m", f"chore: update {version} branch policy controls"],
+            cwd=checkout,
+        )
+        if push:
+            _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
+        return True
+    finally:
+        _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
 
 
 def refresh_version_branch(
@@ -511,6 +613,7 @@ def write_version_branch_workflow(
     paths = version_paths(config, version)
     branch = version_branch(config, version)
     runtime = preview_runtime_for_version(version)
+    policy = version_policy_decision(config, version)
     workflow = VERSION_BRANCH_WORKFLOW_TEMPLATE.read_text(encoding="utf-8")
     replacements = {
         'branches: ["master"]': f'branches: ["{branch}"]',
@@ -576,6 +679,9 @@ def write_version_branch_workflow(
         'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"': (
             "UPSTREAM_TEMPLATE_PREVIEW_STRICT: "
             f"{_yaml_scalar(str(runtime.strict_project_preview).lower())}"
+        ),
+        'PUBLISH_RELEASE_ASSETS: "true"': (
+            f"PUBLISH_RELEASE_ASSETS: {_yaml_scalar(str(policy.publish_release).lower())}"
         ),
     }
     for old, new in replacements.items():
@@ -729,6 +835,7 @@ def write_github_output(path: Path, result: SyncResult) -> None:
         handle.write(f"added_versions={' '.join(result.added_versions)}\n")
         handle.write(f"created_branches={' '.join(result.created_branches)}\n")
         handle.write(f"refreshed_branches={' '.join(result.refreshed_branches)}\n")
+        handle.write(f"updated_control_branches={' '.join(result.updated_control_branches)}\n")
         handle.write(f"config_changed={str(result.config_changed).lower()}\n")
 
 
@@ -741,6 +848,10 @@ def print_summary(result: SyncResult) -> None:
     print(f"INFO: added versions: {', '.join(result.added_versions) or '(none)'}")
     print(f"INFO: created branches: {', '.join(result.created_branches) or '(none)'}")
     print(f"INFO: refreshed branches: {', '.join(result.refreshed_branches) or '(none)'}")
+    print(
+        "INFO: updated control branches: "
+        + (", ".join(result.updated_control_branches) or "(none)")
+    )
     print(f"INFO: config changed: {result.config_changed}")
 
 

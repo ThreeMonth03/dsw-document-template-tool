@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import yaml
 
@@ -53,6 +54,38 @@ class MigrationConfig:
     auto_merge_when_clean: bool
 
 
+VersionRefreshPolicy = Literal["auto", "manual", "false"]
+VersionMigrationPolicy = Literal["auto", "manual", "false"]
+
+
+@dataclass(frozen=True)
+class VersionPolicyValues:
+    """Operational policy values applied to one template version."""
+
+    state: str
+    refresh: VersionRefreshPolicy
+    migrate_into: VersionMigrationPolicy
+    publish_release: bool
+    reason: str
+
+
+@dataclass(frozen=True)
+class VersionPolicyRule:
+    """Range-based version policy rule."""
+
+    match: str
+    values: VersionPolicyValues
+
+
+@dataclass(frozen=True)
+class VersionPolicyConfig:
+    """Version lifecycle policy loaded from ``translation-config.yml``."""
+
+    defaults: VersionPolicyValues
+    rules: tuple[VersionPolicyRule, ...]
+    overrides: dict[str, VersionPolicyValues]
+
+
 @dataclass(frozen=True)
 class PublishConfig:
     """Generated-template publishing policy."""
@@ -80,6 +113,7 @@ class TranslationRepositoryConfig:
     migration: MigrationConfig
     publish: PublishConfig
     tooling: ToolingConfig
+    version_policy: VersionPolicyConfig
 
 
 @dataclass(frozen=True)
@@ -279,6 +313,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         target_repository=_optional_str(publish_payload, "target_repository"),
         branch_prefix=_optional_str(publish_payload, "branch_prefix", default="sync/"),
     )
+    version_policy = _load_version_policy(payload.get("version_policy", {}))
 
     if not template.supported_versions:
         raise TranslationMigrationError("template.supported_versions must not be empty")
@@ -312,6 +347,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         migration=migration,
         publish=publish,
         tooling=tooling,
+        version_policy=version_policy,
     )
 
 
@@ -341,12 +377,66 @@ def target_versions(
 
     validate_supported_version(config, source_version)
     if requested_targets:
+        versions = [version for version in requested_targets if version != source_version]
         for version in requested_targets:
             validate_supported_version(config, version)
-        versions = requested_targets
+        for version in versions:
+            if not version_policy_allows_manual_migration(config, version):
+                raise TranslationMigrationError(
+                    f"Version {version!r} is not allowed as a migration target "
+                    "by version_policy.migrate_into"
+                )
     else:
-        versions = list(config.template.supported_versions)
+        versions = [
+            version
+            for version in config.template.supported_versions
+            if version_policy_decision(config, version).migrate_into == "auto"
+        ]
     return [version for version in versions if version != source_version]
+
+
+def version_policy_decision(
+    config: TranslationRepositoryConfig,
+    version: str,
+) -> VersionPolicyValues:
+    """Return the effective lifecycle policy for one supported version."""
+
+    validate_supported_version(config, version)
+    decision = config.version_policy.defaults
+    for rule in config.version_policy.rules:
+        if version_matches_range(version, rule.match):
+            decision = merge_version_policy_values(decision, rule.values)
+    override = config.version_policy.overrides.get(version)
+    if override is not None:
+        decision = merge_version_policy_values(decision, override)
+    return decision
+
+
+def version_policy_allows_auto_refresh(
+    config: TranslationRepositoryConfig,
+    version: str,
+) -> bool:
+    """Return whether automation may refresh a version branch workspace."""
+
+    return version_policy_decision(config, version).refresh == "auto"
+
+
+def version_policy_allows_manual_refresh(
+    config: TranslationRepositoryConfig,
+    version: str,
+) -> bool:
+    """Return whether an operator-triggered sync may refresh a version branch."""
+
+    return version_policy_decision(config, version).refresh in {"auto", "manual"}
+
+
+def version_policy_allows_manual_migration(
+    config: TranslationRepositoryConfig,
+    version: str,
+) -> bool:
+    """Return whether an explicitly requested migration may target a version."""
+
+    return version_policy_decision(config, version).migrate_into in {"auto", "manual"}
 
 
 def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionWorkspacePaths:
@@ -478,6 +568,31 @@ def preview_runtime_matrix() -> list[dict[str, str]]:
     ]
 
 
+def version_matches_range(version: str, expression: str) -> bool:
+    """Return whether ``version`` satisfies a simple semver range expression."""
+
+    version_key = version_sort_key(version)
+    terms = expression.split()
+    if not terms:
+        raise TranslationMigrationError("Version policy match expression must not be empty")
+    return all(_version_matches_range_term(version_key, term) for term in terms)
+
+
+def merge_version_policy_values(
+    base: VersionPolicyValues,
+    overlay: VersionPolicyValues,
+) -> VersionPolicyValues:
+    """Merge two policy value sets, treating empty overlay strings as absent."""
+
+    return VersionPolicyValues(
+        state=overlay.state or base.state,
+        refresh=overlay.refresh or base.refresh,
+        migrate_into=overlay.migrate_into or base.migrate_into,
+        publish_release=overlay.publish_release,
+        reason=overlay.reason or base.reason,
+    )
+
+
 def sorted_versions(versions: list[str] | tuple[str, ...]) -> list[str]:
     """Sort version tags using numeric semantic version ordering."""
 
@@ -517,6 +632,164 @@ def _version_in_runtime(version: str, runtime: DswPreviewRuntime) -> bool:
     if version_key < version_sort_key(runtime.min_version):
         return False
     return runtime.max_version is None or version_key <= version_sort_key(runtime.max_version)
+
+
+def _load_version_policy(payload: object) -> VersionPolicyConfig:
+    if payload is None:
+        payload = {}
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError("translation-config.yml version_policy must be a mapping")
+
+    defaults = _load_version_policy_values(
+        payload.get("defaults", {}),
+        fallback=VersionPolicyValues(
+            state="active",
+            refresh="auto",
+            migrate_into="auto",
+            publish_release=True,
+            reason="",
+        ),
+    )
+
+    rules_payload = payload.get("rules", [])
+    if not isinstance(rules_payload, list):
+        raise TranslationMigrationError("version_policy.rules must be a list")
+    rules = tuple(_load_version_policy_rule(item, defaults) for item in rules_payload)
+
+    overrides_payload = payload.get("overrides", {})
+    if not isinstance(overrides_payload, dict):
+        raise TranslationMigrationError("version_policy.overrides must be a mapping")
+    overrides = {
+        version: _load_version_policy_values(item, fallback=defaults)
+        for version, item in overrides_payload.items()
+        if _validate_policy_override_version(version)
+    }
+
+    return VersionPolicyConfig(defaults=defaults, rules=rules, overrides=overrides)
+
+
+def _load_version_policy_rule(
+    payload: object,
+    defaults: VersionPolicyValues,
+) -> VersionPolicyRule:
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError("Each version_policy rule must be a mapping")
+    match = _required_str(payload, "match")
+    # Validate early so bad operators fail during config load, not mid-workflow.
+    version_matches_range("v0.0.0", match)
+    return VersionPolicyRule(
+        match=match,
+        values=_load_version_policy_values(payload, fallback=defaults),
+    )
+
+
+def _load_version_policy_values(
+    payload: object,
+    *,
+    fallback: VersionPolicyValues,
+) -> VersionPolicyValues:
+    if payload is None:
+        payload = {}
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError("Version policy values must be a mapping")
+    return VersionPolicyValues(
+        state=_optional_str(payload, "state", default=fallback.state),
+        refresh=_optional_refresh_policy(payload, "refresh", default=fallback.refresh),
+        migrate_into=_optional_migration_policy(
+            payload,
+            "migrate_into",
+            default=fallback.migrate_into,
+        ),
+        publish_release=_optional_bool(
+            payload,
+            "publish_release",
+            default=fallback.publish_release,
+        ),
+        reason=_optional_str(payload, "reason", default=fallback.reason),
+    )
+
+
+def _optional_refresh_policy(
+    payload: object,
+    key: str,
+    *,
+    default: VersionRefreshPolicy,
+) -> VersionRefreshPolicy:
+    value = _optional_string_or_bool(payload, key, default=default)
+    if value is True:
+        return "auto"
+    if value is False:
+        return "false"
+    if value not in {"auto", "manual", "false"}:
+        raise TranslationMigrationError(f"Expected {key!r} to be one of auto, manual, false")
+    return value
+
+
+def _optional_migration_policy(
+    payload: object,
+    key: str,
+    *,
+    default: VersionMigrationPolicy,
+) -> VersionMigrationPolicy:
+    value = _optional_string_or_bool(payload, key, default=default)
+    if value is True:
+        return "auto"
+    if value is False:
+        return "false"
+    if value not in {"auto", "manual", "false"}:
+        raise TranslationMigrationError(f"Expected {key!r} to be one of auto, manual, false")
+    return value
+
+
+def _optional_string_or_bool(
+    payload: object,
+    key: str,
+    *,
+    default: str,
+) -> str | bool:
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError(f"Expected mapping while reading {key!r}")
+    value = payload.get(key, default)
+    if isinstance(value, str) or isinstance(value, bool):
+        return value
+    raise TranslationMigrationError(f"Expected string or boolean at {key!r}")
+
+
+def _validate_policy_override_version(version: object) -> bool:
+    if not isinstance(version, str):
+        raise TranslationMigrationError("version_policy override keys must be strings")
+    version_sort_key(version)
+    return True
+
+
+def _version_matches_range_term(version_key: tuple[int, ...], term: str) -> bool:
+    for operator in (">=", "<=", ">", "<", "=="):
+        if term.startswith(operator):
+            expected = version_sort_key(term[len(operator) :])
+            return _compare_version_key(version_key, operator, expected)
+    if term.endswith("+"):
+        expected = version_sort_key(term[:-1])
+        return version_key >= expected
+    expected = version_sort_key(term)
+    return version_key == expected
+
+
+def _compare_version_key(
+    version_key: tuple[int, ...],
+    operator: str,
+    expected: tuple[int, ...],
+) -> bool:
+    if operator == ">=":
+        return version_key >= expected
+    if operator == "<=":
+        return version_key <= expected
+    if operator == ">":
+        return version_key > expected
+    if operator == "<":
+        return version_key < expected
+    if operator == "==":
+        return version_key == expected
+    raise TranslationMigrationError(f"Unsupported version range operator {operator!r}")
 
 
 def _required_str(payload: object, key: str) -> str:

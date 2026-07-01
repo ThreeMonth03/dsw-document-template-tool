@@ -19,6 +19,7 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     TranslationMigrationError,
     TranslationRepositoryConfig,
     load_translation_repository_config,
+    version_policy_decision,
 )
 
 
@@ -91,6 +92,25 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
     """Render a concise validation report."""
 
     versions = ", ".join(config.template.supported_versions)
+    policy_rows = [
+        "| Version | State | Refresh | Migrate Into | Release Assets |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for version in config.template.supported_versions:
+        policy = version_policy_decision(config, version)
+        policy_rows.append(
+            "| "
+            + " | ".join(
+                (
+                    f"`{version}`",
+                    f"`{policy.state}`",
+                    f"`{policy.refresh}`",
+                    f"`{policy.migrate_into}`",
+                    f"`{str(policy.publish_release).lower()}`",
+                )
+            )
+            + " |"
+        )
     lines = [
         "## Translation workflow",
         "",
@@ -99,6 +119,10 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
         f"- Version branch prefix: `{config.branches.version_branch_prefix}`",
         f"- Migration mode: `{config.migration.mode}`",
         f"- Publish automation: `{'enabled' if config.publish.enabled else 'manual'}`",
+        "",
+        "## Version lifecycle",
+        "",
+        *policy_rows,
         "",
         "All configured upstream tags exist.",
         "Missing translation branches are created by the migration job.",

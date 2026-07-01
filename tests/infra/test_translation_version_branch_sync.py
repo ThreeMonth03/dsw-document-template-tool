@@ -352,6 +352,100 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert not _git_path_exists(translation_repo, "translation/v1.30.1:outputs")
 
 
+def test_sync_translation_versions_updates_controls_without_refreshing_archived_branch(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Archived branches should get safer controls without content refreshes."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "config", "user.name", "Test User")
+    _run_git(translation_repo, "config", "user.email", "test@example.invalid")
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(translation_repo / "translation-config.yml")
+    _write_version_policy(
+        translation_repo / "translation-config.yml",
+        overrides={
+            "v1.30.1": {
+                "state": "archived",
+                "refresh": False,
+                "migrate_into": False,
+                "publish_release": False,
+                "reason": "frozen after public handoff",
+            },
+        },
+    )
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initial operations branch")
+    _run_git(translation_repo, "push", "-u", "origin", "master")
+
+    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    old_compact = (
+        translation_repo
+        / "workspace/document-templates/compact/dsw-science-europe-1.30.1/artifact.txt"
+    )
+    old_translation_marker = (
+        translation_repo
+        / "workspace/document-templates/translation/dsw-science-europe-1.30.1/translator.txt"
+    )
+    old_compact.parent.mkdir(parents=True, exist_ok=True)
+    old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
+    old_compact.write_text("archived compact\n", encoding="utf-8")
+    old_translation_marker.write_text("archived translation\n", encoding="utf-8")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initialize archived v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "master")
+
+    _write_clean_artifact(artifact_root, version="v1.30.1")
+
+    result = sync_module.sync_translation_versions(
+        repo=translation_repo,
+        tooling_root=repo_root,
+        config_path=translation_repo / "translation-config.yml",
+        clean_artifact_root=artifact_root,
+        tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+        push=False,
+        dry_run=False,
+        refresh_existing=True,
+    )
+
+    assert result.refreshed_branches == ()
+    assert result.updated_control_branches == ("translation/v1.30.1",)
+    assert (
+        _git_show(
+            translation_repo,
+            (
+                "translation/v1.30.1:"
+                "workspace/document-templates/compact/dsw-science-europe-1.30.1/"
+                "artifact.txt"
+            ),
+        )
+        == "archived compact\n"
+    )
+    assert (
+        _git_show(
+            translation_repo,
+            (
+                "translation/v1.30.1:"
+                "workspace/document-templates/translation/dsw-science-europe-1.30.1/"
+                "translator.txt"
+            ),
+        )
+        == "archived translation\n"
+    )
+    assert 'PUBLISH_RELEASE_ASSETS: "false"' in _git_show(
+        translation_repo,
+        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+    )
+
+
 def test_refresh_existing_branch_requires_push_when_branch_is_open_elsewhere(
     repo_root: Path,
     tmp_path: Path,
@@ -798,6 +892,36 @@ publish:
   target_repository: depositar/science-europe-template-zh_Hant
   branch_prefix: sync/
 """.lstrip(),
+        encoding="utf-8",
+    )
+
+
+def _write_version_policy(
+    config_path: Path,
+    *,
+    overrides: dict[str, dict[str, object]] | None = None,
+) -> None:
+    payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    payload["version_policy"] = {
+        "defaults": {
+            "state": "active",
+            "refresh": "auto",
+            "migrate_into": "auto",
+            "publish_release": True,
+        },
+        "rules": [
+            {
+                "match": ">=v1.30.0",
+                "state": "active",
+                "refresh": "auto",
+                "migrate_into": "auto",
+                "publish_release": True,
+            },
+        ],
+        "overrides": overrides or {},
+    }
+    config_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
         encoding="utf-8",
     )
 

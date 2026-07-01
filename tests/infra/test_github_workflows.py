@@ -265,6 +265,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["DSW_TDK_VERSION"] == "4.30.2"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
+    assert workflow["env"]["PUBLISH_RELEASE_ASSETS"] == "true"
     assert "PUBLISH_TARGET_REPOSITORY" not in workflow["env"]
     assert "PUBLISH_TARGET_BRANCH" not in workflow["env"]
     assert "DOCUMENT_TEMPLATE_PUBLISH_TOKEN" not in workflow_text
@@ -339,6 +340,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "Upload sample project preview" in workflow_text
     assert "Stage translated template release assets" in workflow_text
     assert "Publish translated template release assets" in workflow_text
+    assert "env.PUBLISH_RELEASE_ASSETS == 'true'" in workflow_text
     assert "science-europe-zh-hant-v$TRANSLATED_TEMPLATE_VERSION" in workflow_text
     assert 'gh release view "$release_tag" --repo "$GITHUB_REPOSITORY"' in workflow_text
     assert (

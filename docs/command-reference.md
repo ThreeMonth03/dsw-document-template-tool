@@ -234,6 +234,10 @@ Dry-run downstream branch refresh:
   --refresh-existing
 ```
 
+Scheduled downstream automation should use the default `--policy-mode auto`.
+For an operator-triggered maintenance refresh, add `--policy-mode manual` if the
+downstream `translation-config.yml` allows it.
+
 Dry-run an unsupported metamodel probe report:
 
 ```shell

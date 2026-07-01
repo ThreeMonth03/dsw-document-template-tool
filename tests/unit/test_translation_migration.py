@@ -19,7 +19,11 @@ from dsw_document_template_tool.translation_migration import (
     sorted_versions,
     target_versions,
     version_branch,
+    version_matches_range,
     version_paths,
+    version_policy_allows_auto_refresh,
+    version_policy_allows_manual_refresh,
+    version_policy_decision,
     version_to_number,
 )
 
@@ -275,6 +279,74 @@ def test_target_versions_excludes_source_and_validates_targets(tmp_path: Path) -
     assert target_versions(config, "v1.30.0", ["v1.30.0", "v1.30.1"]) == ["v1.30.1"]
     with pytest.raises(TranslationMigrationError):
         target_versions(config, "v1.30.0", ["v9.99.9"])
+
+
+def test_version_policy_rules_and_overrides_control_automation(tmp_path: Path) -> None:
+    """Range rules and exact overrides should keep archived versions stable."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8")
+        .replace(
+            "translation:\n",
+            """
+version_policy:
+  defaults:
+    state: active
+    refresh: auto
+    migrate_into: auto
+    publish_release: true
+  rules:
+    - match: ">=v1.29.1 <v1.30.0"
+      state: maintenance
+      refresh: manual
+      migrate_into: manual
+      publish_release: true
+    - match: ">=v1.30.0"
+      state: active
+      refresh: auto
+      migrate_into: auto
+      publish_release: true
+  overrides:
+    v1.30.0:
+      state: archived
+      refresh: false
+      migrate_into: false
+      publish_release: false
+      reason: frozen after depositar publication
+
+translation:
+""",
+        )
+        .replace(
+            "    - v1.30.0\n    - v1.30.1",
+            "    - v1.29.1\n    - v1.30.0\n    - v1.30.1",
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_translation_repository_config(config_path)
+
+    assert version_policy_decision(config, "v1.29.1").state == "maintenance"
+    assert version_policy_decision(config, "v1.29.1").refresh == "manual"
+    assert version_policy_allows_manual_refresh(config, "v1.29.1") is True
+    assert version_policy_allows_auto_refresh(config, "v1.29.1") is False
+    assert version_policy_decision(config, "v1.30.0").state == "archived"
+    assert version_policy_decision(config, "v1.30.0").publish_release is False
+    assert version_policy_decision(config, "v1.30.1").refresh == "auto"
+    assert target_versions(config, "v1.30.1") == []
+    assert target_versions(config, "v1.30.1", ["v1.29.1"]) == ["v1.29.1"]
+    with pytest.raises(TranslationMigrationError, match="not allowed"):
+        target_versions(config, "v1.30.1", ["v1.30.0"])
+
+
+def test_version_policy_range_parser_supports_plus_and_comparators() -> None:
+    """Policy ranges should be explicit but compact enough for long-lived repos."""
+
+    assert version_matches_range("v1.30.2", ">=v1.30.0")
+    assert version_matches_range("v1.30.2", "v1.30.0+")
+    assert version_matches_range("v1.29.1", ">=v1.29.1 <v1.30.0")
+    assert not version_matches_range("v1.30.0", ">=v1.29.1 <v1.30.0")
 
 
 def test_version_to_number_requires_v_prefix() -> None:

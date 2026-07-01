@@ -45,6 +45,7 @@ env:
   DSW_TDK_VERSION: "4.30.2"
   UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"
   UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"
+  PUBLISH_RELEASE_ASSETS: "true"
 
 jobs:
   translation-sync:
@@ -362,7 +363,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Stage translated template release assets
-        if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ github.event_name != 'pull_request' && env.PUBLISH_RELEASE_ASSETS == 'true' }}
         run: |
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
@@ -380,7 +381,7 @@ jobs:
             --optional-asset "$preview_output.json=test-project-v$TRANSLATED_TEMPLATE_VERSION.pdf.json"
 
       - name: Publish translated template release assets
-        if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ github.event_name != 'pull_request' && env.PUBLISH_RELEASE_ASSETS == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
