@@ -127,6 +127,25 @@ When that file exists on a version branch, translated package generation copies
 it to the output template's `README.md`. If it does not exist, the tool writes a
 short fallback README.
 
+Configured public README files may use these lightweight placeholders:
+
+- `{template_full_id}`
+- `{template_id}`
+- `{template_organization_id}`
+- `{template_version}`
+
+The placeholders are replaced from the generated `template.json` before the DSW
+package is created. Use `{template_version}` to link to the corresponding
+upstream tag, for example:
+
+```text
+https://github.com/ds-wizard/science-europe-template/blob/v{template_version}/README.md
+```
+
+Public handoff branches should stay close to the upstream template repository
+shape. The publish helper copies generated template source while filtering
+tool-internal metadata such as `.transform/` and `UPSTREAM-README.md`.
+
 ## Manual Downstream Sync
 
 If the downstream translation repository uses the operations workflow from

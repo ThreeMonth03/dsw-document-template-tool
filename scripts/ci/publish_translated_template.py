@@ -25,6 +25,11 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     version_paths,
 )
 
+# Keep public sync branches close to upstream template source. The transform
+# workspace still keeps these files for audit/debug, but they are not part of
+# the public handoff repository.
+PUBLIC_HANDOFF_EXCLUDED_ROOTS = frozenset({".transform", "UPSTREAM-README.md"})
+
 
 def run(
     args: list[str],
@@ -170,6 +175,8 @@ def clear_repository_content(repo: Path) -> None:
 
 def copy_template_source(source_dir: Path, target_repo: Path) -> None:
     for child in source_dir.iterdir():
+        if child.name in PUBLIC_HANDOFF_EXCLUDED_ROOTS:
+            continue
         target = target_repo / child.name
         if child.is_dir():
             shutil.copytree(child, target)

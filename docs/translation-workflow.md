@@ -59,7 +59,10 @@ The generated `README.md` in the expanded workspace is internal. During
 translated output sync, the tool copies the downstream translation repo's
 configured public README into the package when that file exists. If it is
 missing, the tool writes a short fallback README so the DSW package still has a
-displayable description.
+displayable description. The public publish handoff intentionally excludes
+internal-only files such as `.transform/` and `UPSTREAM-README.md`; public
+README text should link to the upstream GitHub README instead of copying it into
+the public repository.
 
 ## Translator-Facing Tree
 

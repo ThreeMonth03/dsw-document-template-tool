@@ -70,6 +70,9 @@ def test_publish_translated_template_replaces_target_contents(tmp_path: Path) ->
     (source / "template.json").write_text('{"name": "Translated"}\n', encoding="utf-8")
     (source / "src").mkdir()
     (source / "src" / "content.html.j2").write_text("<p>ok</p>\n", encoding="utf-8")
+    (source / ".transform").mkdir()
+    (source / ".transform" / "manifest.json").write_text("{}\n", encoding="utf-8")
+    (source / "UPSTREAM-README.md").write_text("upstream\n", encoding="utf-8")
 
     target = tmp_path / "target"
     init_repo(target)
@@ -93,6 +96,8 @@ def test_publish_translated_template_replaces_target_contents(tmp_path: Path) ->
     assert "Updated local target checkout" in result.stdout
     assert (target / "template.json").read_text(encoding="utf-8") == '{"name": "Translated"}\n'
     assert (target / "src" / "content.html.j2").read_text(encoding="utf-8") == "<p>ok</p>\n"
+    assert not (target / ".transform").exists()
+    assert not (target / "UPSTREAM-README.md").exists()
     assert not (target / "stale.txt").exists()
     assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "sync/v1.30.1"
 

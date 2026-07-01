@@ -2442,7 +2442,9 @@ def test_sync_translation_tree_uses_public_readme_when_available(tmp_path: Path)
     translated_expanded_dir = tmp_path / "translated-expanded"
     public_readme = tmp_path / "public-readme.md"
     public_readme.write_text(
-        "# Science Europe DMP 範本（繁體中文）\n\n這是正式說明頁。\n",
+        "# Science Europe DMP 範本（繁體中文）\n\n"
+        "版本：{template_version}\n\n"
+        "Template ID：{template_full_id}\n",
         encoding="utf-8",
     )
 
@@ -2461,7 +2463,9 @@ def test_sync_translation_tree_uses_public_readme_when_available(tmp_path: Path)
     )
 
     assert (translated_expanded_dir / "README.md").read_text(encoding="utf-8") == (
-        "# Science Europe DMP 範本（繁體中文）\n\n這是正式說明頁。\n"
+        "# Science Europe DMP 範本（繁體中文）\n\n"
+        "版本：1.0.0\n\n"
+        "Template ID：dsw:sample-zh-hant:1.0.0\n"
     )
 
 
