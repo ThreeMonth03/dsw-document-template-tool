@@ -58,6 +58,7 @@ A downstream translation repository owns:
 
 - version branches such as `translation/v1.30.1`
 - translator-facing `translation.md` edits
+- the user-facing public README copied into generated DSW template packages
 - glossary and i10n review
 - translated package/PDF release assets
 - manual import or publication policy
@@ -114,6 +115,17 @@ Use `--dry-run` first when changing parser logic, supported versions, or branch
 automation. Scheduled workflows should keep the default `--policy-mode auto`;
 operator-triggered maintenance refreshes can pass `--policy-mode manual` if the
 downstream repository's `version_policy` allows it.
+
+The branch sync workflow reads `public_readme.path` from the downstream
+`translation-config.yml`. The default is:
+
+```text
+workspace/document-templates/public-readme/README.md
+```
+
+When that file exists on a version branch, translated package generation copies
+it to the output template's `README.md`. If it does not exist, the tool writes a
+short fallback README.
 
 ## Manual Downstream Sync
 

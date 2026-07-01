@@ -89,6 +89,7 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     )
     assert config.publish.target_repository == "depositar/science-europe-template-zh_Hant"
     assert config.publish.branch_prefix == "sync/"
+    assert config.public_readme.path == Path("workspace/document-templates/public-readme/README.md")
     assert paths.version_number == "1.30.1"
     assert paths.workspace_template_name == "dsw-science-europe-1.30.1"
     assert paths.compact_template_dir.as_posix() == (
@@ -101,6 +102,45 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
         "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/"
         "dsw-science-europe-zh-hant-1.30.1.zip"
     )
+
+
+def test_load_translation_repository_config_accepts_custom_public_readme_path(
+    tmp_path: Path,
+) -> None:
+    """Downstream repos may choose where the user-facing README lives."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8")
+        + """
+public_readme:
+  path: docs/template-readme/README.md
+""",
+        encoding="utf-8",
+    )
+
+    config = load_translation_repository_config(config_path)
+
+    assert config.public_readme.path == Path("docs/template-readme/README.md")
+
+
+def test_load_translation_repository_config_rejects_unsafe_public_readme_path(
+    tmp_path: Path,
+) -> None:
+    """The public README path should stay inside the translation repository."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8")
+        + """
+public_readme:
+  path: ../README.md
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="public_readme.path"):
+        load_translation_repository_config(config_path)
 
 
 def test_translation_config_rejects_duplicate_supported_versions(tmp_path: Path) -> None:

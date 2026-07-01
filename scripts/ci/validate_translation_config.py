@@ -117,6 +117,7 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
         f"- Upstream repository: `{config.template.upstream_repository}`",
         f"- Supported versions: `{versions}`",
         f"- Version branch prefix: `{config.branches.version_branch_prefix}`",
+        f"- Public README path: `{config.public_readme.path.as_posix()}`",
         f"- Migration mode: `{config.migration.mode}`",
         f"- Publish automation: `{'enabled' if config.publish.enabled else 'manual'}`",
         "",

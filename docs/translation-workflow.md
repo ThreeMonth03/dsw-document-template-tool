@@ -55,6 +55,12 @@ The generated expanded workspace includes:
 - the upstream README preserved as `UPSTREAM-README.md` when present
 - `.transform/manifest.json` for machine checks
 
+The generated `README.md` in the expanded workspace is internal. During
+translated output sync, the tool copies the downstream translation repo's
+configured public README into the package when that file exists. If it is
+missing, the tool writes a short fallback README so the DSW package still has a
+displayable description.
+
 ## Translator-Facing Tree
 
 `make export-translation-tree` writes one `translation.md` file per translation

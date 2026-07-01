@@ -42,6 +42,9 @@ def test_validate_translation_config_accepts_existing_upstream_tags(
     assert summary.is_file()
     summary_text = summary.read_text(encoding="utf-8")
     assert "Supported versions: `v1.29.1, v1.30.0`" in summary_text
+    assert (
+        "Public README path: `workspace/document-templates/public-readme/README.md`" in summary_text
+    )
     assert "| `v1.29.1` | `active` | `auto` | `auto` | `true` |" in summary_text
     assert "| `v1.30.0` | `active` | `auto` | `auto` | `true` |" in summary_text
 

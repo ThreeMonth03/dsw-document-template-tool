@@ -52,6 +52,13 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--template-version",
         help="Optional version to write into the translated template.json.",
     )
+    sync_parser.add_argument(
+        "--public-readme",
+        help=(
+            "Optional user-facing README.md to copy into the translated template output. "
+            "Falls back to a generated README when the file is missing."
+        ),
+    )
 
     audit_parser = subparsers.add_parser(
         "audit",
@@ -176,6 +183,7 @@ def main() -> None:
         template_id=args.template_id,
         template_name=args.template_name,
         template_version=args.template_version,
+        public_readme_path=args.public_readme,
     )
     print(f"SUCCESS: Translated expanded template written to {output_dir}")
 

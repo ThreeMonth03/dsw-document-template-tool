@@ -266,6 +266,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
     assert workflow["env"]["PUBLISH_RELEASE_ASSETS"] == "true"
+    assert workflow["env"]["PUBLIC_README_PATH"] == (
+        "workspace/document-templates/public-readme/README.md"
+    )
     assert "PUBLISH_TARGET_REPOSITORY" not in workflow["env"]
     assert "PUBLISH_TARGET_BRANCH" not in workflow["env"]
     assert "DOCUMENT_TEMPLATE_PUBLISH_TOKEN" not in workflow_text
@@ -301,6 +304,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "--template-id" in workflow_text
     assert "--template-name" in workflow_text
     assert "--template-version" in workflow_text
+    assert "--public-readme" in workflow_text
+    assert "$HOST_ROOT/$PUBLIC_README_PATH" in workflow_text
     assert "Translation sync failed" in workflow_text
     assert "Translated output structure audit failed" in workflow_text
     assert "GITHUB_STEP_SUMMARY" in workflow_text

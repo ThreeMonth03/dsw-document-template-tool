@@ -126,6 +126,11 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         'zh-Hant/test-project.pdf"'
     ) in workflow_text
     assert (
+        'PUBLIC_README_PATH: "workspace/document-templates/public-readme/README.md"'
+        in workflow_text
+    )
+    assert "--public-readme" in workflow_text
+    assert (
         "control"
         not in _git_show(
             translation_repo,

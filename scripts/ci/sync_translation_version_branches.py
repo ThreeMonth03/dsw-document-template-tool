@@ -653,6 +653,9 @@ def write_version_branch_workflow(
         "TRANSLATION_TARGET_LANG: zh_Hant": (
             f"TRANSLATION_TARGET_LANG: {_yaml_scalar(config.translation.target_language)}"
         ),
+        "PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md": (
+            f"PUBLIC_README_PATH: {_yaml_scalar(config.public_readme.path.as_posix())}"
+        ),
         (
             "TRANSLATED_TEMPLATE_DIR: "
             "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
@@ -760,6 +763,8 @@ def sync_blank_translation_output(
         config.translation.translated_template_name,
         "--template-version",
         paths.version_number,
+        "--public-readme",
+        checkout / config.public_readme.path,
     )
     _run_tool(
         tooling_root,

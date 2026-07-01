@@ -96,6 +96,13 @@ class PublishConfig:
 
 
 @dataclass(frozen=True)
+class PublicReadmeConfig:
+    """User-facing README copied into generated translated templates."""
+
+    path: Path
+
+
+@dataclass(frozen=True)
 class ToolingConfig:
     """Tooling repository reference used by downstream workflows."""
 
@@ -112,6 +119,7 @@ class TranslationRepositoryConfig:
     branches: BranchConfig
     migration: MigrationConfig
     publish: PublishConfig
+    public_readme: PublicReadmeConfig
     tooling: ToolingConfig
     version_policy: VersionPolicyConfig
 
@@ -313,6 +321,20 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         target_repository=_optional_str(publish_payload, "target_repository"),
         branch_prefix=_optional_str(publish_payload, "branch_prefix", default="sync/"),
     )
+    public_readme_payload = payload.get("public_readme", {})
+    if public_readme_payload is None:
+        public_readme_payload = {}
+    if not isinstance(public_readme_payload, dict):
+        raise TranslationMigrationError("translation-config.yml public_readme must be a mapping")
+    public_readme = PublicReadmeConfig(
+        path=Path(
+            _optional_str(
+                public_readme_payload,
+                "path",
+                default="workspace/document-templates/public-readme/README.md",
+            )
+        ),
+    )
     version_policy = _load_version_policy(payload.get("version_policy", {}))
 
     if not template.supported_versions:
@@ -339,6 +361,8 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         )
     if not publish.branch_prefix:
         raise TranslationMigrationError("publish.branch_prefix must not be empty")
+    if public_readme.path.is_absolute() or ".." in public_readme.path.parts:
+        raise TranslationMigrationError("public_readme.path must be a repo-relative path")
 
     return TranslationRepositoryConfig(
         template=template,
@@ -346,6 +370,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         branches=branches,
         migration=migration,
         publish=publish,
+        public_readme=public_readme,
         tooling=tooling,
         version_policy=version_policy,
     )

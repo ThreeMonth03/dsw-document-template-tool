@@ -74,7 +74,9 @@ Important modules:
   structure.
 - `output_polish.py`: target-language output cleanup after sync. For zh-Hant it
   currently removes unsafe leftover `|dot` punctuation behavior.
-- `output_readme.py`: generated README for translated output workspaces.
+- `output_readme.py`: user-facing README selection for translated outputs. It
+  copies the downstream translation repo's curated README when present and
+  falls back to a generated README otherwise.
 
 Public package entry point:
 

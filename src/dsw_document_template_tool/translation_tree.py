@@ -179,6 +179,7 @@ def sync_translation_tree(
     template_id: str | None = None,
     template_name: str | None = None,
     template_version: str | None = None,
+    public_readme_path: Path | None = None,
 ) -> Path:
     """Apply translator-edited unit files back to one expanded workspace copy."""
 
@@ -291,6 +292,10 @@ def sync_translation_tree(
         version=template_version,
     )
     polish_translated_output_dir(output_dir=output_dir, target_lang=target_lang)
-    write_public_output_readme(output_dir=output_dir, target_lang=target_lang)
+    write_public_output_readme(
+        output_dir=output_dir,
+        target_lang=target_lang,
+        public_readme_path=public_readme_path,
+    )
 
     return output_dir

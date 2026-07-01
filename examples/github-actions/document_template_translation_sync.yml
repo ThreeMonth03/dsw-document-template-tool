@@ -36,6 +36,7 @@ env:
   TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)
   TRANSLATION_SOURCE_LANG: en
   TRANSLATION_TARGET_LANG: zh_Hant
+  PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md
   TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0
   TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip
   PROJECT_REF: tooling-repo/fixtures/projects/demo/test-project.json
@@ -230,7 +231,8 @@ jobs:
             --template-organization-id "$TRANSLATED_TEMPLATE_ORGANIZATION_ID" \
             --template-id "$TRANSLATED_TEMPLATE_ID" \
             --template-name "$TRANSLATED_TEMPLATE_NAME" \
-            --template-version "$TRANSLATED_TEMPLATE_VERSION" 2>&1 | tee "$SYNC_LOG"; then
+            --template-version "$TRANSLATED_TEMPLATE_VERSION" \
+            --public-readme "$HOST_ROOT/$PUBLIC_README_PATH" 2>&1 | tee "$SYNC_LOG"; then
             {
               echo "## Translation sync failed"
               echo

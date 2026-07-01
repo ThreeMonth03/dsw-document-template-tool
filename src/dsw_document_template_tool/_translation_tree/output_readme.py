@@ -7,16 +7,29 @@ from pathlib import Path
 from typing import Any
 
 
-def write_public_output_readme(*, output_dir: Path, target_lang: str) -> None:
+def write_public_output_readme(
+    *,
+    output_dir: Path,
+    target_lang: str,
+    public_readme_path: Path | None = None,
+) -> None:
     """Replace the internal workspace README with public template documentation."""
 
     output_dir = Path(output_dir)
+    readme_path = output_dir / "README.md"
+    public_readme = Path(public_readme_path) if public_readme_path is not None else None
+    if public_readme is not None and public_readme.is_file():
+        readme_path.write_text(
+            public_readme.read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        return
+
     template_json_path = output_dir / "template.json"
     if not template_json_path.is_file():
         return
 
     payload = json.loads(template_json_path.read_text(encoding="utf-8"))
-    readme_path = output_dir / "README.md"
     readme_path.write_text(
         _render_public_readme(payload=payload, target_lang=target_lang),
         encoding="utf-8",
