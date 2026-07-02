@@ -13,6 +13,7 @@ from .document import (
 )
 from .manifest import TREE_MANIFEST_PATH, load_tree_manifest
 from .models import TranslationTreeError
+from .outline import refresh_outline_markdown
 
 XLIFF_NS = "urn:oasis:names:tc:xliff:document:1.2"
 XML_NS = "http://www.w3.org/XML/1998/namespace"
@@ -176,6 +177,11 @@ def import_weblate_xliff(
         )
         imported_units += 1
 
+    refresh_outline_markdown(
+        tree_dir=tree_dir,
+        source_lang=source_lang,
+        target_lang=target_lang,
+    )
     return WeblateImportReport(imported_units=imported_units)
 
 

@@ -39,6 +39,13 @@ def build_argument_parser() -> argparse.ArgumentParser:
         required=True,
         help="Weblate review branch to create or reset.",
     )
+    parser.add_argument(
+        "--expected-revision",
+        help=(
+            "Allow resetting a divergent review branch only when it is still at "
+            "this already-reconciled revision."
+        ),
+    )
     return parser
 
 
@@ -50,6 +57,7 @@ def main() -> None:
         repo=Path(args.repo).resolve(),
         target_branch=args.target_branch,
         weblate_branch=args.weblate_branch,
+        expected_revision=args.expected_revision,
     )
     print(
         "INFO: Weblate review branch alignment "
@@ -62,6 +70,7 @@ def align_weblate_review_branch(
     repo: Path,
     target_branch: str,
     weblate_branch: str,
+    expected_revision: str | None = None,
 ) -> AlignResult:
     """Align ``weblate_branch`` to the checked-out target HEAD when safe."""
 
@@ -87,6 +96,27 @@ def align_weblate_review_branch(
             previous_review_revision=review_revision,
         )
 
+    if expected_revision:
+        if review_revision != expected_revision:
+            raise SystemExit(
+                "Refusing to reset Weblate review branch because it changed "
+                "after reconciliation:\n"
+                f"  branch: {weblate_branch}\n"
+                f"  expected revision: {expected_revision}\n"
+                f"  current review revision: {review_revision}\n"
+                f"  target revision: {target_revision}"
+            )
+        reset_review_branch(
+            repo=repo,
+            weblate_branch=weblate_branch,
+            review_revision=review_revision,
+        )
+        return AlignResult(
+            action="reset-reconciled",
+            target_revision=target_revision,
+            previous_review_revision=review_revision,
+        )
+
     if not is_ancestor(repo, review_revision, "HEAD"):
         raise SystemExit(
             "Refusing to reset Weblate review branch because it contains "
@@ -97,6 +127,26 @@ def align_weblate_review_branch(
             "Run the Weblate promotion workflow first, then rerun translation sync."
         )
 
+    reset_review_branch(
+        repo=repo,
+        weblate_branch=weblate_branch,
+        review_revision=review_revision,
+    )
+    return AlignResult(
+        action="updated",
+        target_revision=target_revision,
+        previous_review_revision=review_revision,
+    )
+
+
+def reset_review_branch(
+    *,
+    repo: Path,
+    weblate_branch: str,
+    review_revision: str,
+) -> None:
+    """Reset a Weblate review branch with an explicit force-with-lease."""
+
     run(
         [
             "git",
@@ -106,11 +156,6 @@ def align_weblate_review_branch(
             f"--force-with-lease=refs/heads/{weblate_branch}:{review_revision}",
         ],
         cwd=repo,
-    )
-    return AlignResult(
-        action="updated",
-        target_revision=target_revision,
-        previous_review_revision=review_revision,
     )
 
 

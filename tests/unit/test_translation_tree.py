@@ -332,6 +332,8 @@ def test_weblate_xliff_round_trip_updates_translation_document(tmp_path: Path) -
     assert "哈囉 {name}。" in document_text
     assert "### Sentence (en)" in document_text
     assert "<summary>Machine metadata</summary>" in document_text
+    outline = (tree_dir / "outline.md").read_text(encoding="utf-8")
+    assert "- [x] [file] src/index.html.j2 (1/1)" in outline
 
 
 def test_weblate_xliff_import_rejects_stale_source_hash(tmp_path: Path) -> None:

@@ -5,11 +5,15 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 
 def load_promote_module(repo_root: Path):
     module_path = repo_root / "scripts" / "ci" / "promote_weblate_xliff.py"
+    script_dir = str(module_path.parent)
+    if script_dir not in sys.path:
+        sys.path.insert(0, script_dir)
     spec = importlib.util.spec_from_file_location("promote_weblate_xliff", module_path)
     assert spec is not None
     assert spec.loader is not None
@@ -103,6 +107,17 @@ def test_main_resets_weblate_branch_even_without_target_changes(
     monkeypatch.setattr(module, "ensure_clean_worktree", lambda _: None)
     monkeypatch.setattr(module, "ensure_checked_out_target_branch", lambda *_: None)
     monkeypatch.setattr(module, "copy_weblate_xliff", lambda **_: "old-review-sha")
+    monkeypatch.setattr(
+        module,
+        "merge_weblate_xliff_targets",
+        lambda **_: SimpleNamespace(
+            applied_units=0,
+            conflicted_units=0,
+            source_mismatch_units=0,
+            missing_review_units=0,
+            changed=False,
+        ),
+    )
     monkeypatch.setattr(module, "commit_and_push", lambda **_: False)
     monkeypatch.setattr(
         module,

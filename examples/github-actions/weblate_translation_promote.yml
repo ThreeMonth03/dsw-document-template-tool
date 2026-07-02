@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: weblate-promotion-${{ github.ref_name }}
+  group: document-template-translation-sync-translation/v1.30.0
   cancel-in-progress: false
 
 env:

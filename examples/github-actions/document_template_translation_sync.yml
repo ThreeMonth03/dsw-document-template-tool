@@ -195,6 +195,24 @@ jobs:
             "$TRANSLATION_TREE_DIR/tree" \
             "$WEBLATE_XLIFF")"
 
+      - name: Reconcile Weblate review branch
+        id: reconcile_weblate
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          set -euo pipefail
+          TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
+
+          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/scripts/ci/reconcile_weblate_review_branch.py" \
+            --repo "$GITHUB_WORKSPACE/template-repo" \
+            --tooling-root "$TOOL_ROOT" \
+            --target-branch "$GITHUB_REF_NAME" \
+            --weblate-branch "$WEBLATE_BRANCH" \
+            --translation-tree-dir "$TRANSLATION_TREE_DIR" \
+            --weblate-xliff "$WEBLATE_XLIFF" \
+            --source-lang "$TRANSLATION_SOURCE_LANG" \
+            --target-lang "$TRANSLATION_TARGET_LANG" \
+            --github-output "$GITHUB_OUTPUT"
+
       - name: Audit translation blocks
         run: |
           set -euo pipefail
@@ -375,14 +393,21 @@ jobs:
 
       - name: Align Weblate review branch
         if: ${{ github.event_name != 'pull_request' }}
+        env:
+          WEBLATE_EXPECTED_REVISION: ${{ steps.reconcile_weblate.outputs.review_revision }}
         run: |
           set -euo pipefail
           TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
+          expected_args=()
+          if [ -n "$WEBLATE_EXPECTED_REVISION" ]; then
+            expected_args=(--expected-revision "$WEBLATE_EXPECTED_REVISION")
+          fi
 
           "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/scripts/ci/align_weblate_review_branch.py" \
             --repo "$GITHUB_WORKSPACE/template-repo" \
             --target-branch "$GITHUB_REF_NAME" \
-            --weblate-branch "$WEBLATE_BRANCH"
+            --weblate-branch "$WEBLATE_BRANCH" \
+            "${expected_args[@]}"
 
       - name: Stage translated template release assets
         if: ${{ github.event_name != 'pull_request' && env.PUBLISH_RELEASE_ASSETS == 'true' }}

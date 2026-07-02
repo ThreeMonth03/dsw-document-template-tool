@@ -271,9 +271,26 @@ you. Use the command directly only when debugging Weblate review-branch
 promotion. When the promotion changes the target branch, the generated workflow
 dispatches the target branch sync workflow explicitly because pushes made with
 GitHub's default token do not trigger another workflow run. The promotion helper
-also resets the `weblate/v*` review branch to the promoted target commit with an
-explicit `--force-with-lease`, so Weblate can fast-forward its next edit without
-accumulating stale review-branch history.
+uses a three-way XLIFF reconciliation before import, so stale Weblate files do
+not overwrite newer `translation.md` edits.
+
+Reconcile a divergent Weblate review branch during version-branch sync:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/reconcile_weblate_review_branch.py" \
+  --repo "$TRANSLATION_REPO_DIR" \
+  --tooling-root "$TOOL_REPO_DIR" \
+  --target-branch translation/v1.30.1 \
+  --weblate-branch weblate/v1.30.1 \
+  --translation-tree-dir workspace/document-templates/translation/dsw-science-europe-1.30.1 \
+  --weblate-xliff weblate/dsw-science-europe.zh_Hant.xlf \
+  --source-lang en \
+  --target-lang zh_Hant
+```
+
+The generated version-branch sync workflow runs this before audit/sync/preview.
+It imports only non-conflicting Weblate unit changes. Same-unit conflicts keep
+the checked-out `translation/v*` value.
 
 Align a Weblate review branch to a validated translation branch:
 
@@ -284,8 +301,10 @@ Align a Weblate review branch to a validated translation branch:
   --weblate-branch weblate/v1.30.1
 ```
 
-The generated version-branch sync workflow runs this after refreshing and
-validating translation inputs. Use it directly only when debugging branch state.
+The generated version-branch sync workflow runs this after validation. When a
+previous reconcile step handled a divergent review branch, pass
+`--expected-revision <sha>` so the reset is allowed only if Weblate did not push
+again during validation. Use it directly only when debugging branch state.
 
 Dry-run an unsupported metamodel probe report:
 

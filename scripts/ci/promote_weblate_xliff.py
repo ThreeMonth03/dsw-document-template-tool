@@ -10,6 +10,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from _weblate_xliff_merge import merge_weblate_xliff_targets
+
 
 def build_argument_parser() -> argparse.ArgumentParser:
     """Build CLI arguments."""
@@ -61,12 +63,6 @@ def main() -> None:
     ensure_git_identity(host_root)
     ensure_clean_worktree(host_root)
     ensure_checked_out_target_branch(host_root, args.target_branch)
-    weblate_branch_revision = copy_weblate_xliff(
-        host_root=host_root,
-        weblate_branch=args.weblate_branch,
-        weblate_xliff=Path(args.weblate_xliff),
-    )
-
     expanded_template_dir = host_root / args.expanded_template_dir
     translation_tree_dir = host_root / args.translation_tree_dir
     translated_template_dir = host_root / args.translated_template_dir
@@ -74,8 +70,20 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory(prefix="weblate-promotion-") as temp_raw:
         temp_root = Path(temp_raw)
+        base_xliff = temp_root / "base.xlf"
+        current_xliff = temp_root / "current.xlf"
         fresh_translation_tree = temp_root / "fresh-translation-tree"
         merged_translation_tree = temp_root / "merged-translation-tree"
+        review_xliff = temp_root / "review.xlf"
+        safe_xliff = temp_root / "safe-import.xlf"
+
+        weblate_branch_revision = copy_weblate_xliff(
+            host_root=host_root,
+            weblate_branch=args.weblate_branch,
+            weblate_xliff=Path(args.weblate_xliff),
+            review_xliff=review_xliff,
+            base_xliff=base_xliff,
+        )
 
         run(
             [
@@ -122,21 +130,52 @@ def main() -> None:
 
         replace_tree(merged_translation_tree, translation_tree_dir)
 
-    run(
-        [
-            python,
-            translation_tree,
-            "import-xliff",
-            "--tree",
-            translation_tree_dir,
-            "--xliff",
-            weblate_xliff,
-            "--source-lang",
-            args.source_lang,
-            "--target-lang",
-            args.target_lang,
-        ],
-    )
+        run(
+            [
+                python,
+                translation_tree,
+                "export-xliff",
+                "--tree",
+                translation_tree_dir,
+                "--output",
+                current_xliff,
+                "--source-lang",
+                args.source_lang,
+                "--target-lang",
+                args.target_lang,
+            ],
+        )
+        merge_report = merge_weblate_xliff_targets(
+            current_xliff=current_xliff,
+            review_xliff=review_xliff,
+            base_xliff=base_xliff if base_xliff.is_file() else None,
+            output_xliff=safe_xliff,
+        )
+        print(
+            "INFO: Weblate XLIFF merge "
+            f"applied={merge_report.applied_units} "
+            f"conflicted={merge_report.conflicted_units} "
+            f"source_mismatch={merge_report.source_mismatch_units} "
+            f"missing_review={merge_report.missing_review_units}"
+        )
+
+        if merge_report.changed:
+            run(
+                [
+                    python,
+                    translation_tree,
+                    "import-xliff",
+                    "--tree",
+                    translation_tree_dir,
+                    "--xliff",
+                    safe_xliff,
+                    "--source-lang",
+                    args.source_lang,
+                    "--target-lang",
+                    args.target_lang,
+                ],
+            )
+
     run(
         [
             python,
@@ -215,7 +254,13 @@ def main() -> None:
         weblate_branch=args.weblate_branch,
         expected_revision=weblate_branch_revision,
     )
-    write_github_output(args.github_output, {"changed": "true" if changed else "false"})
+    write_github_output(
+        args.github_output,
+        {
+            "changed": "true" if changed else "false",
+            "review_revision": weblate_branch_revision,
+        },
+    )
 
 
 def ensure_git_identity(repo: Path) -> None:
@@ -257,18 +302,61 @@ def copy_weblate_xliff(
     host_root: Path,
     weblate_branch: str,
     weblate_xliff: Path,
+    review_xliff: Path,
+    base_xliff: Path,
 ) -> str:
-    """Copy the Weblate XLIFF file from the review branch into the target checkout."""
+    """Copy review and merge-base XLIFF files from the Weblate branch."""
 
     remote_ref = f"refs/remotes/origin/{weblate_branch}"
     run(["git", "fetch", "origin", f"{weblate_branch}:{remote_ref}"], cwd=host_root)
     weblate_branch_revision = capture(["git", "rev-parse", remote_ref], cwd=host_root).strip()
-    source_spec = f"{remote_ref}:{weblate_xliff.as_posix()}"
-    xliff_text = capture(["git", "show", source_spec], cwd=host_root)
-    target_path = host_root / weblate_xliff
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-    target_path.write_text(xliff_text, encoding="utf-8")
+    copy_git_file(
+        repo=host_root,
+        revision=remote_ref,
+        relative_path=weblate_xliff,
+        output_path=review_xliff,
+        required=True,
+    )
+
+    merge_base = capture(["git", "merge-base", "HEAD", remote_ref], cwd=host_root).strip()
+    copy_git_file(
+        repo=host_root,
+        revision=merge_base,
+        relative_path=weblate_xliff,
+        output_path=base_xliff,
+        required=False,
+    )
     return weblate_branch_revision
+
+
+def copy_git_file(
+    *,
+    repo: Path,
+    revision: str,
+    relative_path: Path,
+    output_path: Path,
+    required: bool,
+) -> bool:
+    """Copy one file from Git history into ``output_path``."""
+
+    result = subprocess.run(
+        ["git", "show", f"{revision}:{relative_path.as_posix()}"],
+        cwd=repo,
+        check=False,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        if required:
+            raise SystemExit(
+                f"Could not read {relative_path.as_posix()} from {revision}: "
+                f"{result.stderr.strip()}"
+            )
+        return False
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(result.stdout, encoding="utf-8")
+    return True
 
 
 def commit_and_push(

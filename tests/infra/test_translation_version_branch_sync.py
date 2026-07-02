@@ -128,6 +128,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert 'branches: ["weblate/v1.30.2"]' in promotion_workflow
     assert 'TARGET_BRANCH: "translation/v1.30.2"' in promotion_workflow
     assert 'WEBLATE_BRANCH: "weblate/v1.30.2"' in promotion_workflow
+    assert "document-template-translation-sync-translation/v1.30.2" in promotion_workflow
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in promotion_workflow
     assert "scripts/ci/promote_weblate_xliff.py" in promotion_workflow
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
@@ -139,7 +140,9 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
     assert 'WEBLATE_BRANCH: "weblate/v1.30.2"' in workflow_text
+    assert "scripts/ci/reconcile_weblate_review_branch.py" in workflow_text
     assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
+    assert "steps.reconcile_weblate.outputs.review_revision" in workflow_text
     assert 'src/translation_tree.py" import-xliff' not in workflow_text
     assert (
         _git_show(
@@ -381,12 +384,15 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert 'branches: ["weblate/v1.30.1"]' in promotion_workflow
     assert 'TARGET_BRANCH: "translation/v1.30.1"' in promotion_workflow
     assert 'WEBLATE_BRANCH: "weblate/v1.30.1"' in promotion_workflow
+    assert "document-template-translation-sync-translation/v1.30.1" in promotion_workflow
     workflow_text = _git_show(
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
     assert 'WEBLATE_BRANCH: "weblate/v1.30.1"' in workflow_text
+    assert "scripts/ci/reconcile_weblate_review_branch.py" in workflow_text
     assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
+    assert "steps.reconcile_weblate.outputs.review_revision" in workflow_text
     assert 'src/translation_tree.py" import-xliff' not in workflow_text
     assert (
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.1/'

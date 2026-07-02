@@ -93,6 +93,56 @@ def test_align_refuses_unpromoted_weblate_changes(
     assert remote_branch_revision(repo, "weblate/v1.30.1") == previous_review_revision
 
 
+def test_align_resets_reconciled_divergent_weblate_branch(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """A reconciled review branch can be reset even when graph history diverged."""
+
+    module = load_align_module(repo_root)
+    repo = initialize_translation_repo(tmp_path)
+    previous_review_revision = create_divergent_weblate_commit(repo)
+    git(repo, "checkout", "translation/v1.30.1")
+
+    result = module.align_weblate_review_branch(
+        repo=repo,
+        target_branch="translation/v1.30.1",
+        weblate_branch="weblate/v1.30.1",
+        expected_revision=previous_review_revision,
+    )
+
+    assert result.action == "reset-reconciled"
+    assert remote_branch_revision(repo, "weblate/v1.30.1") == git_output(
+        repo,
+        "rev-parse",
+        "translation/v1.30.1",
+    )
+
+
+def test_align_refuses_reconciled_branch_when_weblate_advanced(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """The explicit lease should catch new Weblate pushes during validation."""
+
+    module = load_align_module(repo_root)
+    repo = initialize_translation_repo(tmp_path)
+    previous_review_revision = create_divergent_weblate_commit(repo)
+    create_divergent_weblate_commit(repo, message="new Weblate edit")
+    latest_review_revision = remote_branch_revision(repo, "weblate/v1.30.1")
+    git(repo, "checkout", "translation/v1.30.1")
+
+    with pytest.raises(SystemExit, match="changed after reconciliation"):
+        module.align_weblate_review_branch(
+            repo=repo,
+            target_branch="translation/v1.30.1",
+            weblate_branch="weblate/v1.30.1",
+            expected_revision=previous_review_revision,
+        )
+
+    assert remote_branch_revision(repo, "weblate/v1.30.1") == latest_review_revision
+
+
 def initialize_translation_repo(tmp_path: Path) -> Path:
     """Create a small translation repository with a bare origin."""
 
@@ -114,6 +164,23 @@ def initialize_translation_repo(tmp_path: Path) -> Path:
     git(repo, "commit", "-m", "validated translation")
     git(repo, "push", "-u", "origin", "translation/v1.30.1")
     return repo
+
+
+def create_divergent_weblate_commit(
+    repo: Path,
+    *,
+    message: str = "unpromoted Weblate edit",
+) -> str:
+    """Create one Weblate-only commit and push it to the review branch."""
+
+    git(repo, "checkout", "-B", "weblate-local", "master")
+    path = repo / "weblate.txt"
+    previous_text = path.read_text(encoding="utf-8") if path.exists() else ""
+    path.write_text(previous_text + f"{message}\n", encoding="utf-8")
+    git(repo, "add", "weblate.txt")
+    git(repo, "commit", "-m", message)
+    git(repo, "push", "-f", "origin", "HEAD:refs/heads/weblate/v1.30.1")
+    return remote_branch_revision(repo, "weblate/v1.30.1")
 
 
 def remote_branch_revision(repo: Path, branch: str) -> str:

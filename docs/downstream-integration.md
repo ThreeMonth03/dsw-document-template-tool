@@ -162,9 +162,10 @@ That run downloads the latest clean scaffold artifacts from the tool repo,
 refreshes supported `translation/v*` branches, updates generated branch
 workflows, regenerates the branch `weblate/*.xlf` exchange file from Markdown,
 updates the promotion workflow that Weblate review branches inherit from
-`translation/v*`, and may create migration PRs. XLIFF import is reserved for the
-Weblate promotion workflow; normal version-branch sync treats `translation.md`
-as the source of truth and only aligns `weblate/v*` after validation.
+`translation/v*`, and may create migration PRs. Version-branch sync treats
+`translation.md` as canonical, but it also reconciles non-conflicting Weblate
+XLIFF edits before validation. If Weblate and Git both changed the same
+translation unit, the `translation.md` value wins.
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 

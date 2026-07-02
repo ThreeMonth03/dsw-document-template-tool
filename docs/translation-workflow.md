@@ -112,19 +112,21 @@ public publish branches. It should only edit the downstream translation
 repository's XLIFF exchange file.
 
 For small-team automation, Weblate should push that XLIFF to a review branch
-such as `weblate/v1.30.1`. The generated promotion workflow then checks out the
-matching `translation/v1.30.1` branch, copies only the XLIFF from the Weblate
-branch, imports it into `translation.md`, audits the tree, validates translated
-output structure, and pushes the safe result to `translation/v1.30.1`. After a
-successful import it resets `weblate/v1.30.1` to the promoted target commit with
-a force-with-lease guard. That keeps the review branch ready for Weblate's next
-fast-forward push while still protecting against concurrent Weblate updates.
+such as `weblate/v1.30.1`. The matching `translation/v1.30.1` branch remains
+canonical. Both the Weblate promotion workflow and normal version-branch sync
+use a three-way XLIFF reconciliation before validation:
 
-Version-branch CI does not import XLIFF during normal sync. It treats the
-Markdown translation tree as canonical, refreshes generated tree files, exports
-a fresh XLIFF file for Weblate, and then aligns the matching `weblate/v*` branch
-to the validated target branch when the review branch has no unpromoted changes.
-XLIFF import belongs to the Weblate promotion workflow only.
+- Weblate edits are applied when the same translation unit did not also change
+  in `translation/v*`.
+- If Weblate and `translation/v*` both changed the same unit differently,
+  `translation.md` wins and the Weblate value is skipped.
+- Stale units whose source no longer matches the current tree are ignored.
+
+After reconciliation, CI audits the translation tree, validates translated
+output structure, renders the preview, and only then resets `weblate/v*` to the
+validated target commit with an explicit force-with-lease. That keeps Weblate
+ready for its next fast-forward push without requiring operators to resolve
+normal branch divergence by hand.
 
 ## Sync and Audit
 

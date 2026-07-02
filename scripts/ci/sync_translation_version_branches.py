@@ -638,9 +638,10 @@ If you translate through Weblate, it should edit:
 {paths.weblate_xliff_path.as_posix()}
 ```
 
-Weblate changes are promoted by the branch's Weblate promotion workflow. Normal
-branch sync treats `translation.md` as the source of truth and exports a
-refreshed XLIFF file for the next Weblate edit.
+Weblate changes are reconciled automatically. Non-conflicting XLIFF edits are
+imported into `translation.md`; if Weblate and Git both changed the same unit,
+the `translation.md` value wins. CI exports a refreshed XLIFF file for the next
+Weblate edit.
 
 ## Generated Outputs
 
@@ -769,6 +770,9 @@ def write_weblate_promotion_workflow(
     workflow = WEBLATE_PROMOTION_WORKFLOW_TEMPLATE.read_text(encoding="utf-8")
     replacements = {
         'branches: ["weblate/v1.30.0"]': f'branches: ["{weblate_branch}"]',
+        "document-template-translation-sync-translation/v1.30.0": (
+            f"document-template-translation-sync-{target_branch}"
+        ),
         "TOOLING_REPOSITORY: owner/document-template-tool": (
             f"TOOLING_REPOSITORY: {_yaml_scalar(config.tooling.repository)}"
         ),

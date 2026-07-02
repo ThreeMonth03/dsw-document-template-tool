@@ -303,10 +303,15 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert '"$TRANSLATION_TREE_DIR/tree" \\' in workflow_text
     assert '"$WEBLATE_XLIFF"' in workflow_text
     assert 'git push origin "HEAD:refs/heads/$TARGET_REF"' in workflow_text
+    assert "Reconcile Weblate review branch" in workflow_text
+    assert "id: reconcile_weblate" in workflow_text
+    assert "scripts/ci/reconcile_weblate_review_branch.py" in workflow_text
     assert "Align Weblate review branch" in workflow_text
     assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
     assert '--target-branch "$GITHUB_REF_NAME"' in workflow_text
     assert '--weblate-branch "$WEBLATE_BRANCH"' in workflow_text
+    assert "WEBLATE_EXPECTED_REVISION" in workflow_text
+    assert "steps.reconcile_weblate.outputs.review_revision" in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
     assert 'src/translation_tree.py" audit-output' in workflow_text
     assert "--template-organization-id" in workflow_text
@@ -418,6 +423,9 @@ def test_weblate_promotion_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["WEBLATE_XLIFF"] == "weblate/dsw-science-europe.zh_Hant.xlf"
     assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
     assert workflow["env"]["TOOLING_REF"] == "main"
+    assert workflow["concurrency"]["group"] == (
+        "document-template-translation-sync-translation/v1.30.0"
+    )
     assert workflow["jobs"]["promote-weblate-xliff"]["if"] == (
         "github.event_name == 'workflow_dispatch' || startsWith(github.ref_name, 'weblate/')"
     )
