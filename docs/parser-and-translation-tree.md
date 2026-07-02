@@ -23,6 +23,8 @@ the executable Jinja behavior of the original template.
 - Generic marker, branch, and inline conditional behavior belongs under
   `_template_transform/`.
 - Translation Markdown format and metadata belongs under `_translation_tree/`.
+- Weblate/XLIFF exchange belongs under `_translation_tree/xliff.py`; keep it
+  as a thin adapter around the canonical Markdown tree.
 - Cross-version translation reuse belongs in `_translation_tree/merge.py` and
   `translation_migration.py`.
 - Target-language output cleanup belongs in `_translation_tree/output_polish.py`.
@@ -75,8 +77,10 @@ Bad units:
    `translation.md` files. The outline is regenerated from the current
    translation blocks, so its checked counts should match the migrated and
    preserved translations reported by the merge step.
-6. Sync translations and render a demo PDF.
-7. Confirm no translator-facing files contain raw Jinja or unnatural fragments.
+6. If the Markdown translation format changed, run an XLIFF export/import
+   round trip and confirm it does not rewrite machine metadata unexpectedly.
+7. Sync translations and render a demo PDF.
+8. Confirm no translator-facing files contain raw Jinja or unnatural fragments.
 
 ## Migration After Parser Changes
 

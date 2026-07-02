@@ -85,6 +85,32 @@ translation units. It is committed, but it is not edited by hand: export, merge,
 and CI refreshes recalculate it from the current `translation.md` blocks so a
 filled translation block automatically becomes a checked item.
 
+## Weblate Exchange
+
+The canonical translation source is still the Markdown translation tree.
+Weblate should be treated as an editing interface, not as the source of truth.
+
+Use XLIFF as the exchange boundary:
+
+```shell
+make export-weblate-xliff
+make import-weblate-xliff
+```
+
+`make export-weblate-xliff` reads the current translation tree and writes a
+standard XLIFF 1.2 file. Weblate can edit that file without understanding the
+custom `translation.md` format.
+
+`make import-weblate-xliff` writes XLIFF targets back into the editable
+translation blocks. Import checks that every XLIFF unit still belongs to the
+current tree and that the source hash matches. Placeholder, Jinja, and HTML
+safety checks remain the responsibility of `make audit-translation-tree` and
+`make sync-translation-tree`, so the validation rules stay centralized.
+
+Do not point Weblate at generated compact, expanded, translated output, or
+public publish branches. It should only edit the downstream translation
+repository's version branch XLIFF files.
+
 ## Sync and Audit
 
 `make sync-translation-tree` applies translator edits into a generated translated

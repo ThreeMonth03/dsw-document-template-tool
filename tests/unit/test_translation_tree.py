@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -17,6 +18,8 @@ from dsw_document_template_tool.translation_tree import (
     audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
+    export_weblate_xliff,
+    import_weblate_xliff,
     merge_translation_tree,
     sync_translation_tree,
 )
@@ -86,6 +89,10 @@ def _find_translation_doc(tree_dir: Path, sentence_text: str) -> Path:
         if sentence_text in document_path.read_text(encoding="utf-8"):
             return document_path
     raise AssertionError(f"Could not find translation document for {sentence_text!r}")
+
+
+def _xml_elements(root: ET.Element, local_name: str) -> list[ET.Element]:
+    return [element for element in root.iter() if element.tag.rsplit("}", 1)[-1] == local_name]
 
 
 def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> None:
@@ -274,6 +281,89 @@ def test_translation_document_preserves_collapsed_metadata_when_synced(
     assert "你好 {{ name }}。" in (output_dir / "src" / "index.html.j2").read_text(
         encoding="utf-8",
     )
+
+
+def test_weblate_xliff_round_trip_updates_translation_document(tmp_path: Path) -> None:
+    """Weblate exchange files should update only the editable translation block."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Hello {{ name }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    xliff_path = tmp_path / "weblate" / "science-europe.zh-Hant.xlf"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+
+    document_path = _find_translation_doc(tree_dir, "Hello {name}.")
+    _write_translation_block(document_path, "你好 {name}。")
+
+    export_weblate_xliff(
+        tree_dir=tree_dir,
+        output_path=xliff_path,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    root = ET.parse(xliff_path).getroot()
+    trans_units = _xml_elements(root, "trans-unit")
+    assert len(trans_units) == 1
+    assert _xml_elements(root, "source")[0].text == "Hello {name}."
+    assert _xml_elements(root, "target")[0].text == "你好 {name}。"
+    _xml_elements(root, "target")[0].text = "哈囉 {name}。"
+    ET.ElementTree(root).write(xliff_path, encoding="utf-8", xml_declaration=True)
+
+    report = import_weblate_xliff(
+        tree_dir=tree_dir,
+        xliff_path=xliff_path,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.imported_units == 1
+    document_text = document_path.read_text(encoding="utf-8")
+    assert "哈囉 {name}。" in document_text
+    assert "### Sentence (en)" in document_text
+    assert "<summary>Machine metadata</summary>" in document_text
+
+
+def test_weblate_xliff_import_rejects_stale_source_hash(tmp_path: Path) -> None:
+    """Stale Weblate files must not be imported into a changed translation tree."""
+
+    compact_dir = _write_compact_template(
+        tmp_path,
+        """
+<p>Hello {{ name }}.</p>
+""",
+    )
+    expanded_dir = tmp_path / "expanded"
+    tree_dir = tmp_path / "translation-tree"
+    xliff_path = tmp_path / "weblate" / "science-europe.zh-Hant.xlf"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
+    export_weblate_xliff(
+        tree_dir=tree_dir,
+        output_path=xliff_path,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    root = ET.parse(xliff_path).getroot()
+    for note in _xml_elements(root, "note"):
+        if note.attrib.get("from") == "unit_source_hash":
+            note.text = "stale-source-hash"
+    ET.ElementTree(root).write(xliff_path, encoding="utf-8", xml_declaration=True)
+
+    with pytest.raises(TranslationTreeError, match="source hash does not match"):
+        import_weblate_xliff(
+            tree_dir=tree_dir,
+            xliff_path=xliff_path,
+            source_lang="en",
+            target_lang="zh_Hant",
+        )
 
 
 def test_merge_translation_tree_reuses_exact_unit_key_matches(tmp_path: Path) -> None:

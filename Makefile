@@ -66,12 +66,13 @@ UPSTREAM_TEMPLATE_TEST_MIN_REF ?= v1.30.0
 UPSTREAM_TEMPLATE_TEST_REFS ?= latest main $(UPSTREAM_TEMPLATE_TEST_MIN_REF)+
 UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
 VENV_DIR ?= .venv
+WEBLATE_XLIFF ?= weblate/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 WORKSPACE_TEMPLATE_NAME ?= $(SOURCE_TEMPLATE_ID)-$(SOURCE_TEMPLATE_VERSION)
 
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree export-weblate-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-weblate-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -101,6 +102,8 @@ help:
 	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
 	'  export-fresh-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(FRESH_TRANSLATION_TREE_DIR)' \
 	'  merge-translation-tree Merge $(TRANSLATION_TREE_DIR) into $(MERGED_TRANSLATION_TREE_DIR)' \
+	'  export-weblate-xliff Export $(TRANSLATION_TREE_DIR) into $(WEBLATE_XLIFF)' \
+	'  import-weblate-xliff Import $(WEBLATE_XLIFF) back into $(TRANSLATION_TREE_DIR)' \
 	'  audit-translation-tree Check translation blocks for unsafe Jinja/control syntax' \
 	'  sync-translation-tree Apply translations and package $(TRANSLATED_TEMPLATE_PACKAGE)' \
 	'  audit-translated-template Check translated output kept expanded template structure' \
@@ -183,6 +186,20 @@ merge-translation-tree: export-fresh-translation-tree venv
 		--old-tree "$(TRANSLATION_TREE_DIR)" \
 		--new-tree "$(FRESH_TRANSLATION_TREE_DIR)" \
 		--output "$(MERGED_TRANSLATION_TREE_DIR)" \
+		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
+		--target-lang "$(TRANSLATION_TARGET_LANG)"
+
+export-weblate-xliff: venv
+	$(PYTHON) src/translation_tree.py export-xliff \
+		--tree "$(TRANSLATION_TREE_DIR)" \
+		--output "$(WEBLATE_XLIFF)" \
+		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
+		--target-lang "$(TRANSLATION_TARGET_LANG)"
+
+import-weblate-xliff: venv
+	$(PYTHON) src/translation_tree.py import-xliff \
+		--tree "$(TRANSLATION_TREE_DIR)" \
+		--xliff "$(WEBLATE_XLIFF)" \
 		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
 		--target-lang "$(TRANSLATION_TARGET_LANG)"
 

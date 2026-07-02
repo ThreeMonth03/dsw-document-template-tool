@@ -9,6 +9,8 @@ from dsw_document_template_tool.translation_tree import (
     audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
+    export_weblate_xliff,
+    import_weblate_xliff,
     merge_translation_tree,
     sync_translation_tree,
 )
@@ -28,6 +30,40 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     export_parser.add_argument("--source", required=True, help="Expanded workspace directory.")
     export_parser.add_argument("--output", required=True, help="Translation tree directory.")
+
+    export_xliff_parser = subparsers.add_parser(
+        "export-xliff",
+        help="Export one translation tree to XLIFF for Weblate.",
+    )
+    export_xliff_parser.add_argument("--tree", required=True, help="Translation tree directory.")
+    export_xliff_parser.add_argument("--output", required=True, help="XLIFF output path.")
+    export_xliff_parser.add_argument(
+        "--source-lang",
+        default="en",
+        help="Source language code used by translation documents.",
+    )
+    export_xliff_parser.add_argument(
+        "--target-lang",
+        default="zh_Hant",
+        help="Target language code used by translation documents.",
+    )
+
+    import_xliff_parser = subparsers.add_parser(
+        "import-xliff",
+        help="Import Weblate-edited XLIFF targets back into a translation tree.",
+    )
+    import_xliff_parser.add_argument("--tree", required=True, help="Translation tree directory.")
+    import_xliff_parser.add_argument("--xliff", required=True, help="XLIFF file to import.")
+    import_xliff_parser.add_argument(
+        "--source-lang",
+        default="en",
+        help="Source language code used by translation documents.",
+    )
+    import_xliff_parser.add_argument(
+        "--target-lang",
+        default="zh_Hant",
+        help="Target language code used by translation documents.",
+    )
 
     sync_parser = subparsers.add_parser(
         "sync",
@@ -131,6 +167,26 @@ def main() -> None:
     if args.command == "export":
         output_dir = export_translation_tree(source_dir=args.source, output_dir=args.output)
         print(f"SUCCESS: Translation tree written to {output_dir}")
+        return
+
+    if args.command == "export-xliff":
+        output_path = export_weblate_xliff(
+            tree_dir=args.tree,
+            output_path=args.output,
+            source_lang=args.source_lang,
+            target_lang=args.target_lang,
+        )
+        print(f"SUCCESS: Weblate XLIFF written to {output_path}")
+        return
+
+    if args.command == "import-xliff":
+        report = import_weblate_xliff(
+            tree_dir=args.tree,
+            xliff_path=args.xliff,
+            source_lang=args.source_lang,
+            target_lang=args.target_lang,
+        )
+        print(f"SUCCESS: Imported {report.imported_units} XLIFF unit(s)")
         return
 
     if args.command == "audit":

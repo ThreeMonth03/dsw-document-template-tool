@@ -22,7 +22,8 @@ level `README.md` is only an entry point; operational detail should live here.
 
 - [Translation Workflow](translation-workflow.md) explains the high-level path
   from upstream template source to translator-facing Markdown and packageable
-  translated template.
+  translated template, including the XLIFF exchange boundary for Weblate-style
+  editing interfaces.
 - [Regression Workflow](regression-workflow.md) explains how the local and CI
   render checks prove that generated templates still behave correctly.
 
