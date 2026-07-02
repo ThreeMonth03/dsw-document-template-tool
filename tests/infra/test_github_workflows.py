@@ -144,7 +144,9 @@ def test_docs_pages_workflow(repo_root: Path) -> None:
 
     deploy_job = workflow["jobs"]["deploy"]
     assert deploy_job["if"] == (
-        "github.event_name != 'pull_request' && github.ref == 'refs/heads/master'"
+        "github.event_name != 'pull_request' && "
+        "github.ref == 'refs/heads/master' && "
+        "vars.ENABLE_GITHUB_PAGES == 'true'\n"
     )
     assert deploy_job["needs"] == "build"
     assert deploy_job["permissions"] == {

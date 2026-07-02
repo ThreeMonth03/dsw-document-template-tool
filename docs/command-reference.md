@@ -40,8 +40,10 @@ make docs-clean
 ```
 
 GitHub Pages uses the same `make docs` target. Pull requests build the site as a
-check; only `master` and manual workflow runs can upload a Pages artifact and
-deploy it.
+check; `master` and manual workflow runs upload a Pages artifact. Deployment is
+opt-in: enable GitHub Pages in repository settings, then set the repository
+variable `ENABLE_GITHUB_PAGES=true`. Until then, CI still proves the site builds
+without failing because Pages is not enabled yet.
 
 ## DSW Stack
 

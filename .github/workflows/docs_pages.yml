@@ -43,7 +43,10 @@ jobs:
           path: docs/_build/html
 
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    if: >
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/master' &&
+      vars.ENABLE_GITHUB_PAGES == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:
