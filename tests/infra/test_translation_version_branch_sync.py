@@ -108,6 +108,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert result.current_latest_version == "v1.30.2"
     assert result.added_versions == ("v1.30.2",)
     assert result.created_branches == ("translation/v1.30.2",)
+    assert result.updated_control_branches == ("weblate/v1.30.1", "weblate/v1.30.2")
     assert result.config_changed is True
 
     config = yaml.safe_load(
@@ -130,6 +131,13 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert 'WEBLATE_BRANCH: "weblate/v1.30.2"' in promotion_workflow
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in promotion_workflow
     assert "scripts/ci/promote_weblate_xliff.py" in promotion_workflow
+    weblate_promotion_workflow = _git_show(
+        translation_repo,
+        "weblate/v1.30.2:.github/workflows/weblate_translation_promote.yml",
+    )
+    assert 'branches: ["weblate/v1.30.2"]' in weblate_promotion_workflow
+    assert 'TARGET_BRANCH: "translation/v1.30.2"' in weblate_promotion_workflow
+    assert "Dispatch target branch sync" in weblate_promotion_workflow
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
@@ -491,7 +499,10 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
     )
 
     assert result.refreshed_branches == ()
-    assert result.updated_control_branches == ("translation/v1.30.1",)
+    assert result.updated_control_branches == (
+        "translation/v1.30.1",
+        "weblate/v1.30.1",
+    )
     assert (
         _git_output(
             translation_repo,
