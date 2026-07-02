@@ -210,12 +210,11 @@ def main() -> None:
             Path(args.weblate_xliff),
         ),
     )
-    if changed:
-        reset_weblate_review_branch(
-            host_root=host_root,
-            weblate_branch=args.weblate_branch,
-            expected_revision=weblate_branch_revision,
-        )
+    reset_weblate_review_branch(
+        host_root=host_root,
+        weblate_branch=args.weblate_branch,
+        expected_revision=weblate_branch_revision,
+    )
     write_github_output(args.github_output, {"changed": "true" if changed else "false"})
 
 
