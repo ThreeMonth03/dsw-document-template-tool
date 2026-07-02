@@ -311,6 +311,10 @@ def test_weblate_xliff_round_trip_updates_translation_document(tmp_path: Path) -
     root = ET.parse(xliff_path).getroot()
     trans_units = _xml_elements(root, "trans-unit")
     assert len(trans_units) == 1
+    assert xliff_path.read_text(encoding="utf-8").startswith(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+    )
+    assert trans_units[0].attrib["{http://www.w3.org/XML/1998/namespace}space"] == "preserve"
     assert _xml_elements(root, "source")[0].text == "Hello {name}."
     assert _xml_elements(root, "target")[0].text == "你好 {name}。"
     _xml_elements(root, "target")[0].text = "哈囉 {name}。"

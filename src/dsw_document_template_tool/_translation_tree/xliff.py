@@ -72,6 +72,7 @@ def export_weblate_xliff(
             {
                 "id": document_path_raw,
                 "resname": _required_str(unit, "unit_key"),
+                _xml_attr("space"): "preserve",
             },
         )
         ET.SubElement(
@@ -101,11 +102,8 @@ def export_weblate_xliff(
 
     ET.indent(root, space="  ")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    ET.ElementTree(root).write(
-        output_path,
-        encoding="utf-8",
-        xml_declaration=True,
-    )
+    payload = ET.tostring(root, encoding="utf-8", xml_declaration=False)
+    output_path.write_bytes(b'<?xml version="1.0" encoding="UTF-8"?>\n' + payload + b"\n")
     return output_path
 
 
