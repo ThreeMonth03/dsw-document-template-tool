@@ -270,7 +270,10 @@ Normally the generated `weblate_translation_promote.yml` workflow runs this for
 you. Use the command directly only when debugging Weblate review-branch
 promotion. When the promotion changes the target branch, the generated workflow
 dispatches the target branch sync workflow explicitly because pushes made with
-GitHub's default token do not trigger another workflow run.
+GitHub's default token do not trigger another workflow run. The promotion helper
+also resets the `weblate/v*` review branch to the promoted target commit with an
+explicit `--force-with-lease`, so Weblate can fast-forward its next edit without
+accumulating stale review-branch history.
 
 Dry-run an unsupported metamodel probe report:
 

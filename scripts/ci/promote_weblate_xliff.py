@@ -61,7 +61,7 @@ def main() -> None:
     ensure_git_identity(host_root)
     ensure_clean_worktree(host_root)
     ensure_checked_out_target_branch(host_root, args.target_branch)
-    copy_weblate_xliff(
+    weblate_branch_revision = copy_weblate_xliff(
         host_root=host_root,
         weblate_branch=args.weblate_branch,
         weblate_xliff=Path(args.weblate_xliff),
@@ -210,6 +210,12 @@ def main() -> None:
             Path(args.weblate_xliff),
         ),
     )
+    if changed:
+        reset_weblate_review_branch(
+            host_root=host_root,
+            weblate_branch=args.weblate_branch,
+            expected_revision=weblate_branch_revision,
+        )
     write_github_output(args.github_output, {"changed": "true" if changed else "false"})
 
 
@@ -252,16 +258,18 @@ def copy_weblate_xliff(
     host_root: Path,
     weblate_branch: str,
     weblate_xliff: Path,
-) -> None:
+) -> str:
     """Copy the Weblate XLIFF file from the review branch into the target checkout."""
 
     remote_ref = f"refs/remotes/origin/{weblate_branch}"
     run(["git", "fetch", "origin", f"{weblate_branch}:{remote_ref}"], cwd=host_root)
+    weblate_branch_revision = capture(["git", "rev-parse", remote_ref], cwd=host_root).strip()
     source_spec = f"{remote_ref}:{weblate_xliff.as_posix()}"
     xliff_text = capture(["git", "show", source_spec], cwd=host_root)
     target_path = host_root / weblate_xliff
     target_path.parent.mkdir(parents=True, exist_ok=True)
     target_path.write_text(xliff_text, encoding="utf-8")
+    return weblate_branch_revision
 
 
 def commit_and_push(
@@ -281,6 +289,32 @@ def commit_and_push(
     run(["git", "commit", "-m", commit_message], cwd=host_root)
     run(["git", "push", "origin", f"HEAD:refs/heads/{target_branch}"], cwd=host_root)
     return True
+
+
+def reset_weblate_review_branch(
+    *,
+    host_root: Path,
+    weblate_branch: str,
+    expected_revision: str,
+) -> None:
+    """Reset the Weblate review branch to the promoted target HEAD.
+
+    Promotion imports the Weblate commit into ``translation/v*``. After that,
+    ``weblate/v*`` should become a clean review branch again so Weblate can
+    fast-forward its next edit. The explicit lease prevents overwriting a newer
+    Weblate push that arrived while this workflow was running.
+    """
+
+    run(
+        [
+            "git",
+            "push",
+            "origin",
+            f"HEAD:refs/heads/{weblate_branch}",
+            f"--force-with-lease=refs/heads/{weblate_branch}:{expected_revision}",
+        ],
+        cwd=host_root,
+    )
 
 
 def has_staged_changes(repo: Path) -> bool:

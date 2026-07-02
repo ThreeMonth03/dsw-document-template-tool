@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+from typing import Any
 
 
 def load_promote_module(repo_root: Path):
@@ -40,3 +41,36 @@ def test_write_github_output_allows_plain_cli_usage(repo_root: Path) -> None:
     module = load_promote_module(repo_root)
 
     module.write_github_output(None, {"changed": "true"})
+
+
+def test_reset_weblate_review_branch_uses_explicit_force_lease(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """Review branch resets should not overwrite concurrent Weblate pushes."""
+
+    module = load_promote_module(repo_root)
+    commands: list[tuple[str, ...]] = []
+
+    def fake_run(command: list[object], *, cwd: Path | None = None) -> None:
+        assert cwd == tmp_path
+        commands.append(tuple(str(part) for part in command))
+
+    monkeypatch.setattr(module, "run", fake_run)
+
+    module.reset_weblate_review_branch(
+        host_root=tmp_path,
+        weblate_branch="weblate/v1.30.1",
+        expected_revision="abc123",
+    )
+
+    assert commands == [
+        (
+            "git",
+            "push",
+            "origin",
+            "HEAD:refs/heads/weblate/v1.30.1",
+            "--force-with-lease=refs/heads/weblate/v1.30.1:abc123",
+        )
+    ]

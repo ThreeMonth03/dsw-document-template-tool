@@ -115,7 +115,10 @@ For small-team automation, Weblate should push that XLIFF to a review branch
 such as `weblate/v1.30.1`. The generated promotion workflow then checks out the
 matching `translation/v1.30.1` branch, copies only the XLIFF from the Weblate
 branch, imports it into `translation.md`, audits the tree, validates translated
-output structure, and pushes the safe result to `translation/v1.30.1`.
+output structure, and pushes the safe result to `translation/v1.30.1`. After a
+successful import it resets `weblate/v1.30.1` to the promoted target commit with
+a force-with-lease guard. That keeps the review branch ready for Weblate's next
+fast-forward push while still protecting against concurrent Weblate updates.
 
 Version-branch CI uses the same boundary automatically. Before regenerating the
 tree it imports the branch XLIFF file into `translation.md`; after refresh and
