@@ -241,7 +241,6 @@ def sync_translation_versions(
         for version in supported_versions:
             branch = version_branch(config, version)
             branch_exists = remote_branch_exists(repo, branch)
-            version_branch_ready = branch_exists
             if branch_exists and refresh_existing:
                 if not version_refresh_allowed(
                     config=config,
@@ -251,11 +250,6 @@ def sync_translation_versions(
                     if dry_run:
                         print(f"INFO: dry-run would update controls for {branch}")
                         updated_control_branches.append(branch)
-                        print(
-                            "INFO: dry-run would update Weblate controls for "
-                            f"{weblate_branch(version)}"
-                        )
-                        updated_control_branches.append(weblate_branch(version))
                         continue
                     if update_version_branch_controls(
                         repo=repo,
@@ -266,23 +260,10 @@ def sync_translation_versions(
                         push=push,
                     ):
                         updated_control_branches.append(branch)
-                    if update_weblate_branch_controls(
-                        repo=repo,
-                        config=config,
-                        version=version,
-                        target_branch=branch,
-                        temp_root=temp_root,
-                        push=push,
-                    ):
-                        updated_control_branches.append(weblate_branch(version))
                     continue
                 if dry_run:
                     print(f"INFO: dry-run would refresh {branch}")
                     refreshed_branches.append(branch)
-                    print(
-                        f"INFO: dry-run would update Weblate controls for {weblate_branch(version)}"
-                    )
-                    updated_control_branches.append(weblate_branch(version))
                     continue
                 if refresh_version_branch(
                     repo=repo,
@@ -296,26 +277,8 @@ def sync_translation_versions(
                     push=push,
                 ):
                     refreshed_branches.append(branch)
-                if update_weblate_branch_controls(
-                    repo=repo,
-                    config=config,
-                    version=version,
-                    target_branch=branch,
-                    temp_root=temp_root,
-                    push=push,
-                ):
-                    updated_control_branches.append(weblate_branch(version))
                 continue
             if branch_exists:
-                if update_weblate_branch_controls(
-                    repo=repo,
-                    config=config,
-                    version=version,
-                    target_branch=branch,
-                    temp_root=temp_root,
-                    push=push,
-                ):
-                    updated_control_branches.append(weblate_branch(version))
                 continue
             if not version_refresh_allowed(
                 config=config,
@@ -330,7 +293,6 @@ def sync_translation_versions(
             created_branches.append(branch)
             if dry_run:
                 print(f"INFO: dry-run would create {branch}")
-                print(f"INFO: dry-run would create Weblate branch {weblate_branch(version)}")
                 continue
             create_version_branch(
                 repo=repo,
@@ -343,16 +305,6 @@ def sync_translation_versions(
                 temp_root=temp_root,
                 push=push,
             )
-            version_branch_ready = True
-            if version_branch_ready and update_weblate_branch_controls(
-                repo=repo,
-                config=config,
-                version=version,
-                target_branch=branch,
-                temp_root=temp_root,
-                push=push,
-            ):
-                updated_control_branches.append(weblate_branch(version))
 
     return SyncResult(
         previous_latest_version=previous_latest,
@@ -414,52 +366,6 @@ def update_version_branch_controls(
             ["git", "commit", "-m", f"chore: refresh {version} branch policy controls"],
             cwd=checkout,
         )
-        if push:
-            _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
-        return True
-    finally:
-        _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
-
-
-def update_weblate_branch_controls(
-    *,
-    repo: Path,
-    config: TranslationRepositoryConfig,
-    version: str,
-    target_branch: str,
-    temp_root: Path,
-    push: bool,
-) -> bool:
-    """Ensure the Weblate review branch carries the current promotion workflow."""
-
-    branch = weblate_branch(version)
-    checkout = temp_root / f"{branch.replace('/', '-')}-controls"
-    if checkout.exists():
-        shutil.rmtree(checkout)
-    branch_exists = sync_branch_exists(repo, branch, push=push)
-    add_weblate_branch_worktree(
-        repo=repo,
-        checkout=checkout,
-        branch=branch,
-        start_ref=target_branch_base_ref(repo, target_branch, push=push),
-        branch_exists=branch_exists,
-        push=push,
-    )
-    try:
-        write_weblate_promotion_workflow(checkout=checkout, config=config, version=version)
-        ensure_git_identity(checkout)
-        workflow_path = Path(".github") / "workflows" / "weblate_translation_promote.yml"
-        _run(["git", "add", workflow_path.as_posix()], cwd=checkout)
-        if has_staged_changes(checkout):
-            _run(
-                ["git", "commit", "-m", f"chore: refresh {version} Weblate promotion workflow"],
-                cwd=checkout,
-            )
-        elif branch_exists:
-            print(f"INFO: [{branch}] no Weblate control-file changes.")
-            return False
-        else:
-            print(f"INFO: [{branch}] creating Weblate review branch.")
         if push:
             _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
         return True
@@ -916,30 +822,6 @@ def write_weblate_promotion_workflow(
     workflow_path.write_text(workflow, encoding="utf-8")
 
 
-def weblate_branch(version: str) -> str:
-    """Return the Weblate review branch for a template version."""
-
-    return f"weblate/{version}"
-
-
-def sync_branch_exists(repo: Path, branch: str, *, push: bool) -> bool:
-    """Return whether a sync branch exists in the relevant local/remote scope."""
-
-    return remote_branch_exists(repo, branch) or (not push and local_branch_exists(repo, branch))
-
-
-def target_branch_base_ref(repo: Path, branch: str, *, push: bool) -> str:
-    """Return the best ref to seed a Weblate branch from."""
-
-    if push and remote_branch_exists(repo, branch):
-        return f"origin/{branch}"
-    if local_branch_exists(repo, branch):
-        return branch
-    if remote_branch_exists(repo, branch):
-        return f"origin/{branch}"
-    raise SystemExit(f"Cannot create Weblate branch because {branch} does not exist.")
-
-
 def _yaml_scalar(value: str) -> str:
     """Return a compact double-quoted YAML scalar."""
 
@@ -1199,49 +1081,6 @@ def add_new_branch_worktree(
             "local branch before creating it locally."
         )
     _run(["git", "worktree", "add", "-B", branch, str(checkout), "HEAD"], cwd=repo)
-
-
-def add_weblate_branch_worktree(
-    *,
-    repo: Path,
-    checkout: Path,
-    branch: str,
-    start_ref: str,
-    branch_exists: bool,
-    push: bool,
-) -> None:
-    """Check out or initialize a Weblate review branch for control-file updates."""
-
-    if branch_exists:
-        if push or remote_branch_exists(repo, branch):
-            add_existing_branch_worktree(
-                repo=repo,
-                checkout=checkout,
-                branch=branch,
-                push=push,
-            )
-            return
-        if branch_checked_out_in_worktree(repo, branch):
-            raise SystemExit(
-                f"{branch} is checked out in another worktree; remove that "
-                "worktree before refreshing it locally."
-            )
-        _run(["git", "worktree", "add", str(checkout), branch], cwd=repo)
-        return
-
-    if push:
-        _run(["git", "worktree", "add", "--detach", str(checkout), start_ref], cwd=repo)
-        return
-    if branch_checked_out_in_worktree(repo, branch):
-        raise SystemExit(
-            f"{branch} is checked out in another worktree; remove that worktree "
-            "before creating it locally."
-        )
-    if local_branch_exists(repo, branch):
-        raise SystemExit(
-            f"{branch} already exists locally; remove that local branch before creating it locally."
-        )
-    _run(["git", "worktree", "add", "-B", branch, str(checkout), start_ref], cwd=repo)
 
 
 def local_branch_exists(repo: Path, branch: str) -> bool:
