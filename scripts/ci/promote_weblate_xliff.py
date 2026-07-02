@@ -41,6 +41,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default="chore(sync): import Weblate translations",
         help="Commit message used when promotion changes the target branch.",
     )
+    parser.add_argument(
+        "--github-output",
+        help="Optional GitHub Actions output file used to report changed=true/false.",
+    )
     return parser
 
 
@@ -194,7 +198,7 @@ def main() -> None:
         ],
     )
 
-    commit_and_push(
+    changed = commit_and_push(
         host_root=host_root,
         target_branch=args.target_branch,
         commit_message=args.commit_message,
@@ -206,6 +210,7 @@ def main() -> None:
             Path(args.weblate_xliff),
         ),
     )
+    write_github_output(args.github_output, {"changed": "true" if changed else "false"})
 
 
 def ensure_git_identity(repo: Path) -> None:
@@ -265,16 +270,17 @@ def commit_and_push(
     target_branch: str,
     commit_message: str,
     paths: tuple[Path, ...],
-) -> None:
+) -> bool:
     """Commit promoted translation inputs and push the target branch."""
 
     run(["git", "add", *[path.as_posix() for path in paths]], cwd=host_root)
     if not has_staged_changes(host_root):
         print("INFO: Weblate promotion produced no target-branch changes.")
-        return
+        return False
 
     run(["git", "commit", "-m", commit_message], cwd=host_root)
     run(["git", "push", "origin", f"HEAD:refs/heads/{target_branch}"], cwd=host_root)
+    return True
 
 
 def has_staged_changes(repo: Path) -> bool:
@@ -288,6 +294,16 @@ def has_staged_changes(repo: Path) -> bool:
         ).returncode
         != 0
     )
+
+
+def write_github_output(path: str | None, values: dict[str, str]) -> None:
+    """Write GitHub Actions step outputs when requested."""
+
+    if not path:
+        return
+    with Path(path).open("a", encoding="utf-8") as handle:
+        for key, value in values.items():
+            handle.write(f"{key}={value}\n")
 
 
 def replace_tree(source: Path, destination: Path) -> None:

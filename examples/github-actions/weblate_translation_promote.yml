@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
 
 concurrency:
@@ -66,6 +67,7 @@ jobs:
         run: make install-dev BOOTSTRAP_PYTHON=python
 
       - name: Promote Weblate XLIFF into target branch
+        id: promote
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -89,4 +91,15 @@ jobs:
             --template-version "$TRANSLATED_TEMPLATE_VERSION" \
             --public-readme "$PUBLIC_README_PATH" \
             --source-lang "$TRANSLATION_SOURCE_LANG" \
-            --target-lang "$TRANSLATION_TARGET_LANG"
+            --target-lang "$TRANSLATION_TARGET_LANG" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Dispatch target branch sync
+        if: steps.promote.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run document_template_translation_sync.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$TARGET_BRANCH"

@@ -262,12 +262,15 @@ Promote a Weblate review-branch XLIFF into a checked-out version branch:
   --template-version 1.30.1 \
   --public-readme workspace/document-templates/public-readme/README.md \
   --source-lang en \
-  --target-lang zh_Hant
+  --target-lang zh_Hant \
+  --github-output "$GITHUB_OUTPUT"
 ```
 
 Normally the generated `weblate_translation_promote.yml` workflow runs this for
 you. Use the command directly only when debugging Weblate review-branch
-promotion.
+promotion. When the promotion changes the target branch, the generated workflow
+dispatches the target branch sync workflow explicitly because pushes made with
+GitHub's default token do not trigger another workflow run.
 
 Dry-run an unsupported metamodel probe report:
 

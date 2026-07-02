@@ -406,6 +406,7 @@ def test_weblate_promotion_example_workflow(repo_root: Path) -> None:
 
     assert workflow["on"]["push"]["branches"] == ["weblate/v1.30.0"]
     assert "workflow_dispatch" in workflow["on"]
+    assert workflow["permissions"]["actions"] == "write"
     assert workflow["permissions"]["contents"] == "write"
     assert workflow["env"]["TARGET_BRANCH"] == "translation/v1.30.0"
     assert workflow["env"]["WEBLATE_BRANCH"] == "weblate/v1.30.0"
@@ -418,6 +419,10 @@ def test_weblate_promotion_example_workflow(repo_root: Path) -> None:
     assert "Checkout target translation branch" in workflow_text
     assert "ref: ${{ env.TARGET_BRANCH }}" in workflow_text
     assert "scripts/ci/promote_weblate_xliff.py" in workflow_text
+    assert "id: promote" in workflow_text
     assert '--weblate-branch "$WEBLATE_BRANCH"' in workflow_text
     assert '--target-branch "$TARGET_BRANCH"' in workflow_text
     assert '--public-readme "$PUBLIC_README_PATH"' in workflow_text
+    assert '--github-output "$GITHUB_OUTPUT"' in workflow_text
+    assert "if: steps.promote.outputs.changed == 'true'" in workflow_text
+    assert "gh workflow run document_template_translation_sync.yml" in workflow_text
