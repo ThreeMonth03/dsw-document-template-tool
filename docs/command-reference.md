@@ -243,6 +243,32 @@ Scheduled downstream automation should use the default `--policy-mode auto`.
 For an operator-triggered maintenance refresh, add `--policy-mode manual` if the
 downstream `translation-config.yml` allows it.
 
+Promote a Weblate review-branch XLIFF into a checked-out version branch:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/promote_weblate_xliff.py" \
+  --host-root "$TRANSLATION_REPO_DIR" \
+  --tooling-root "$TOOL_REPO_DIR" \
+  --target-branch translation/v1.30.1 \
+  --weblate-branch weblate/v1.30.1 \
+  --compact-template-dir workspace/document-templates/compact/dsw-science-europe-1.30.1 \
+  --expanded-template-dir workspace/document-templates/expanded/dsw-science-europe-1.30.1 \
+  --translation-tree-dir workspace/document-templates/translation/dsw-science-europe-1.30.1 \
+  --weblate-xliff weblate/dsw-science-europe.zh_Hant.xlf \
+  --translated-template-dir outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/dsw-science-europe-zh-hant-1.30.1 \
+  --template-organization-id dsw \
+  --template-id science-europe-zh-hant \
+  --template-name "Science Europe DMP Template (zh-Hant)" \
+  --template-version 1.30.1 \
+  --public-readme workspace/document-templates/public-readme/README.md \
+  --source-lang en \
+  --target-lang zh_Hant
+```
+
+Normally the generated `weblate_translation_promote.yml` workflow runs this for
+you. Use the command directly only when debugging Weblate review-branch
+promotion.
+
 Dry-run an unsupported metamodel probe report:
 
 ```shell

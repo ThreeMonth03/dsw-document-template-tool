@@ -109,7 +109,13 @@ safety checks remain the responsibility of `make audit-translation-tree` and
 
 Do not point Weblate at generated compact, expanded, translated output, or
 public publish branches. It should only edit the downstream translation
-repository's version branch XLIFF files.
+repository's XLIFF exchange file.
+
+For small-team automation, Weblate should push that XLIFF to a review branch
+such as `weblate/v1.30.1`. The generated promotion workflow then checks out the
+matching `translation/v1.30.1` branch, copies only the XLIFF from the Weblate
+branch, imports it into `translation.md`, audits the tree, validates translated
+output structure, and pushes the safe result to `translation/v1.30.1`.
 
 Version-branch CI uses the same boundary automatically. Before regenerating the
 tree it imports the branch XLIFF file into `translation.md`; after refresh and

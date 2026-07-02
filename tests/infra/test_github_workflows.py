@@ -318,7 +318,22 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "statuses/$REPAIRED_SHA" in workflow_text
     assert "Dispatch operations migration" in workflow_text
     assert "github.event_name == 'push' &&" in workflow_text
-    assert "!startsWith(github.event.head_commit.message, 'chore: refresh ')" in workflow_text
+    dispatch_step = next(
+        step
+        for step in workflow["jobs"]["translation-sync"]["steps"]
+        if step["name"] == "Dispatch operations migration"
+    )
+    assert dispatch_step["if"] == (
+        "github.event_name == 'push' && "
+        "!startsWith(github.event.head_commit.message, 'chore: refresh ') && "
+        "!startsWith(github.event.head_commit.message, "
+        "'chore(sync): refresh document template translations')"
+    )
+    assert "!startsWith(github.event.head_commit.message, 'chore: refresh ') &&" in workflow_text
+    assert (
+        "!startsWith(github.event.head_commit.message, "
+        "'chore(sync): refresh document template translations')"
+    ) in workflow_text
     assert "gh workflow run document_template_translation_sync.yml" in workflow_text
     assert "--ref master" in workflow_text
     assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
@@ -380,3 +395,29 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     events = yaml.safe_load(events_path.read_text(encoding="utf-8"))
     assert isinstance(events, list)
     assert len(events) == 490
+
+
+def test_weblate_promotion_example_workflow(repo_root: Path) -> None:
+    """The Weblate promotion workflow should copy XLIFF into a version branch."""
+
+    workflow_path = repo_root / "examples" / "github-actions" / "weblate_translation_promote.yml"
+    workflow = load_workflow_yaml(workflow_path)
+    workflow_text = workflow_path.read_text(encoding="utf-8")
+
+    assert workflow["on"]["push"]["branches"] == ["weblate/v1.30.0"]
+    assert "workflow_dispatch" in workflow["on"]
+    assert workflow["permissions"]["contents"] == "write"
+    assert workflow["env"]["TARGET_BRANCH"] == "translation/v1.30.0"
+    assert workflow["env"]["WEBLATE_BRANCH"] == "weblate/v1.30.0"
+    assert workflow["env"]["WEBLATE_XLIFF"] == "weblate/dsw-science-europe.zh_Hant.xlf"
+    assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
+    assert workflow["env"]["TOOLING_REF"] == "main"
+    assert workflow["jobs"]["promote-weblate-xliff"]["if"] == (
+        "github.event_name == 'workflow_dispatch' || github.ref_name == env.WEBLATE_BRANCH"
+    )
+    assert "Checkout target translation branch" in workflow_text
+    assert "ref: ${{ env.TARGET_BRANCH }}" in workflow_text
+    assert "scripts/ci/promote_weblate_xliff.py" in workflow_text
+    assert '--weblate-branch "$WEBLATE_BRANCH"' in workflow_text
+    assert '--target-branch "$TARGET_BRANCH"' in workflow_text
+    assert '--public-readme "$PUBLIC_README_PATH"' in workflow_text

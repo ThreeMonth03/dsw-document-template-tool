@@ -121,6 +121,15 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
+    promotion_workflow = _git_show(
+        translation_repo,
+        "translation/v1.30.2:.github/workflows/weblate_translation_promote.yml",
+    )
+    assert 'branches: ["weblate/v1.30.2"]' in promotion_workflow
+    assert 'TARGET_BRANCH: "translation/v1.30.2"' in promotion_workflow
+    assert 'WEBLATE_BRANCH: "weblate/v1.30.2"' in promotion_workflow
+    assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in promotion_workflow
+    assert "scripts/ci/promote_weblate_xliff.py" in promotion_workflow
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
@@ -362,6 +371,13 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
+    promotion_workflow = _git_show(
+        translation_repo,
+        "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
+    )
+    assert 'branches: ["weblate/v1.30.1"]' in promotion_workflow
+    assert 'TARGET_BRANCH: "translation/v1.30.1"' in promotion_workflow
+    assert 'WEBLATE_BRANCH: "weblate/v1.30.1"' in promotion_workflow
     workflow_text = _git_show(
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
@@ -696,6 +712,10 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
         origin,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
+    assert _git_path_exists_bare(
+        origin,
+        "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
+    )
     assert not _git_path_exists_bare(origin, "translation/v1.30.1:outputs")
 
 
@@ -878,6 +898,10 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
     assert _git_path_exists_bare(
         origin,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert _git_path_exists_bare(
+        origin,
+        "translation/v1.30.2:.github/workflows/weblate_translation_promote.yml",
     )
     assert not _git_path_exists_bare(origin, "translation/v1.30.2:outputs")
 
