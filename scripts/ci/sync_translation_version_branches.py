@@ -638,8 +638,9 @@ If you translate through Weblate, it should edit:
 {paths.weblate_xliff_path.as_posix()}
 ```
 
-CI imports that XLIFF back into the translation tree and exports a refreshed
-XLIFF file after every sync.
+Weblate changes are promoted by the branch's Weblate promotion workflow. Normal
+branch sync treats `translation.md` as the source of truth and exports a
+refreshed XLIFF file for the next Weblate edit.
 
 ## Generated Outputs
 
@@ -706,6 +707,9 @@ def write_version_branch_workflow(
         ),
         "TRANSLATION_TARGET_LANG: zh_Hant": (
             f"TRANSLATION_TARGET_LANG: {_yaml_scalar(config.translation.target_language)}"
+        ),
+        "WEBLATE_BRANCH: weblate/v1.30.0": (
+            f"WEBLATE_BRANCH: {_yaml_scalar(f'weblate/{version}')}"
         ),
         "PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md": (
             f"PUBLIC_README_PATH: {_yaml_scalar(config.public_readme.path.as_posix())}"

@@ -134,16 +134,19 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
+    workflow_text = _git_show(
+        translation_repo,
+        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert 'WEBLATE_BRANCH: "weblate/v1.30.2"' in workflow_text
+    assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
+    assert 'src/translation_tree.py" import-xliff' not in workflow_text
     assert (
         _git_show(
             translation_repo,
             "translation/v1.30.2:weblate/dsw-science-europe.zh_Hant.xlf",
         )
         == '<xliff version="1.2" />\n'
-    )
-    workflow_text = _git_show(
-        translation_repo,
-        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
     assert (
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.2/'
@@ -382,6 +385,9 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
+    assert 'WEBLATE_BRANCH: "weblate/v1.30.1"' in workflow_text
+    assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
+    assert 'src/translation_tree.py" import-xliff' not in workflow_text
     assert (
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.1/'
         'zh-Hant/test-project.pdf"'

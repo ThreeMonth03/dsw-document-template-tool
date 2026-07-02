@@ -254,6 +254,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["TRANSLATED_TEMPLATE_VERSION"] == "1.30.0"
     assert workflow["env"]["TRANSLATION_SOURCE_LANG"] == "en"
     assert workflow["env"]["TRANSLATION_TARGET_LANG"] == "zh_Hant"
+    assert workflow["env"]["WEBLATE_BRANCH"] == "weblate/v1.30.0"
     assert workflow["env"]["WEBLATE_XLIFF"] == "weblate/dsw-science-europe.zh_Hant.xlf"
     assert "science-europe-zh-hant-1.30.0.zip" in workflow["env"]["TRANSLATED_TEMPLATE_PACKAGE"]
     assert workflow["env"]["PROJECT_REF"] == (
@@ -280,7 +281,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "github.event.pull_request.head.ref" in workflow_text
     assert 'src/transform_template.py" expand' in workflow_text
     assert 'src/translation_tree.py" export' in workflow_text
-    assert 'src/translation_tree.py" import-xliff' in workflow_text
+    assert 'src/translation_tree.py" import-xliff' not in workflow_text
     assert 'src/translation_tree.py" export-xliff' in workflow_text
     assert 'src/translation_tree.py" merge' in workflow_text
     assert "--old-tree" in workflow_text
@@ -302,6 +303,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert '"$TRANSLATION_TREE_DIR/tree" \\' in workflow_text
     assert '"$WEBLATE_XLIFF"' in workflow_text
     assert 'git push origin "HEAD:refs/heads/$TARGET_REF"' in workflow_text
+    assert "Align Weblate review branch" in workflow_text
+    assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
+    assert '--target-branch "$GITHUB_REF_NAME"' in workflow_text
+    assert '--weblate-branch "$WEBLATE_BRANCH"' in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
     assert 'src/translation_tree.py" audit-output' in workflow_text
     assert "--template-organization-id" in workflow_text

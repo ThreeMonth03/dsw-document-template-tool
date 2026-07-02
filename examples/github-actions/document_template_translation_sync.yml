@@ -37,6 +37,7 @@ env:
   TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)
   TRANSLATION_SOURCE_LANG: en
   TRANSLATION_TARGET_LANG: zh_Hant
+  WEBLATE_BRANCH: weblate/v1.30.0
   PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md
   TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0
   TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip
@@ -92,30 +93,6 @@ jobs:
         run: |
           .venv/bin/python -m pip install "dsw-tdk==$DSW_TDK_VERSION"
           .venv/bin/dsw-tdk --version
-
-      # Keep this step when expanded/translation are checked-in generated inputs.
-      # If another repository only wants to package already-committed translation
-      # edits, it can remove this step and keep only sync/package below.
-      - name: Import Weblate XLIFF edits
-        run: |
-          set -euo pipefail
-          HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
-          TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
-
-          if [ ! -f "$HOST_ROOT/$WEBLATE_XLIFF" ]; then
-            echo "No Weblate XLIFF file found at $WEBLATE_XLIFF."
-            exit 0
-          fi
-          if [ ! -f "$HOST_ROOT/$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" ]; then
-            echo "No existing translation tree manifest found; skipping XLIFF import."
-            exit 0
-          fi
-
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" import-xliff \
-            --tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
-            --xliff "$HOST_ROOT/$WEBLATE_XLIFF" \
-            --source-lang "$TRANSLATION_SOURCE_LANG" \
-            --target-lang "$TRANSLATION_TARGET_LANG"
 
       - name: Refresh expanded template, translation tree, and XLIFF
         run: |
@@ -395,6 +372,17 @@ jobs:
             template-repo/outputs/project-render/
             tooling-repo/outputs/ci-dsw/
           if-no-files-found: warn
+
+      - name: Align Weblate review branch
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          set -euo pipefail
+          TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
+
+          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/scripts/ci/align_weblate_review_branch.py" \
+            --repo "$GITHUB_WORKSPACE/template-repo" \
+            --target-branch "$GITHUB_REF_NAME" \
+            --weblate-branch "$WEBLATE_BRANCH"
 
       - name: Stage translated template release assets
         if: ${{ github.event_name != 'pull_request' && env.PUBLISH_RELEASE_ASSETS == 'true' }}

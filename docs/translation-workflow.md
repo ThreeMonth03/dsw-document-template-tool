@@ -120,11 +120,11 @@ successful import it resets `weblate/v1.30.1` to the promoted target commit with
 a force-with-lease guard. That keeps the review branch ready for Weblate's next
 fast-forward push while still protecting against concurrent Weblate updates.
 
-Version-branch CI uses the same boundary automatically. Before regenerating the
-tree it imports the branch XLIFF file into `translation.md`; after refresh and
-merge it exports a new XLIFF file. That keeps Weblate edits and Markdown
-translation review in sync without making Weblate understand the internal tree
-layout.
+Version-branch CI does not import XLIFF during normal sync. It treats the
+Markdown translation tree as canonical, refreshes generated tree files, exports
+a fresh XLIFF file for Weblate, and then aligns the matching `weblate/v*` branch
+to the validated target branch when the review branch has no unpromoted changes.
+XLIFF import belongs to the Weblate promotion workflow only.
 
 ## Sync and Audit
 

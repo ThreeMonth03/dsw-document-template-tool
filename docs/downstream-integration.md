@@ -160,9 +160,11 @@ gh workflow run document_template_translation_sync.yml \
 
 That run downloads the latest clean scaffold artifacts from the tool repo,
 refreshes supported `translation/v*` branches, updates generated branch
-workflows, regenerates the branch `weblate/*.xlf` exchange file, updates the
-promotion workflow that Weblate review branches inherit from `translation/v*`,
-and may create migration PRs.
+workflows, regenerates the branch `weblate/*.xlf` exchange file from Markdown,
+updates the promotion workflow that Weblate review branches inherit from
+`translation/v*`, and may create migration PRs. XLIFF import is reserved for the
+Weblate promotion workflow; normal version-branch sync treats `translation.md`
+as the source of truth and only aligns `weblate/v*` after validation.
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 

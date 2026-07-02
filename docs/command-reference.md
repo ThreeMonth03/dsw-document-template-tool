@@ -275,6 +275,18 @@ also resets the `weblate/v*` review branch to the promoted target commit with an
 explicit `--force-with-lease`, so Weblate can fast-forward its next edit without
 accumulating stale review-branch history.
 
+Align a Weblate review branch to a validated translation branch:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/align_weblate_review_branch.py" \
+  --repo "$TRANSLATION_REPO_DIR" \
+  --target-branch translation/v1.30.1 \
+  --weblate-branch weblate/v1.30.1
+```
+
+The generated version-branch sync workflow runs this after refreshing and
+validating translation inputs. Use it directly only when debugging branch state.
+
 Dry-run an unsupported metamodel probe report:
 
 ```shell
