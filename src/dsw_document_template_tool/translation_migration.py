@@ -40,7 +40,17 @@ class TranslationConfig:
 class BranchConfig:
     """Translation repository branch naming policy."""
 
+    control_branch: str
     version_branch_prefix: str
+
+
+@dataclass(frozen=True)
+class XliffExchangeConfig:
+    """Optional XLIFF exchange policy for external translation platforms."""
+
+    enabled: bool
+    path: Path
+    review_branch_prefix: str
 
 
 @dataclass(frozen=True)
@@ -122,6 +132,7 @@ class TranslationRepositoryConfig:
     public_readme: PublicReadmeConfig
     tooling: ToolingConfig
     version_policy: VersionPolicyConfig
+    xliff_exchange: XliffExchangeConfig
 
 
 @dataclass(frozen=True)
@@ -135,7 +146,7 @@ class VersionWorkspacePaths:
     compact_template_dir: Path
     expanded_template_dir: Path
     translation_tree_dir: Path
-    weblate_xliff_path: Path
+    xliff_exchange_path: Path
     project_render_output: Path
     translated_template_dir: Path
     translated_template_package: Path
@@ -291,6 +302,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         ),
     )
     branches = BranchConfig(
+        control_branch=_optional_str(branch_payload, "control_branch", default="ops"),
         version_branch_prefix=_required_str(branch_payload, "version_branch_prefix"),
     )
     tooling = ToolingConfig(
@@ -320,7 +332,28 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
     publish = PublishConfig(
         enabled=_optional_bool(publish_payload, "enabled", default=False),
         target_repository=_optional_str(publish_payload, "target_repository"),
-        branch_prefix=_optional_str(publish_payload, "branch_prefix", default="sync/"),
+        branch_prefix=_optional_str(publish_payload, "branch_prefix", default="publish/"),
+    )
+    xliff_exchange_payload = payload.get("xliff_exchange", {})
+    if xliff_exchange_payload is None:
+        xliff_exchange_payload = {}
+    if not isinstance(xliff_exchange_payload, dict):
+        raise TranslationMigrationError("translation-config.yml xliff_exchange must be a mapping")
+    source_template_id = f"{template.organization_id}-{template.template_id}"
+    xliff_exchange = XliffExchangeConfig(
+        enabled=_optional_bool(xliff_exchange_payload, "enabled", default=False),
+        path=Path(
+            _optional_str(
+                xliff_exchange_payload,
+                "path",
+                default=(f"xliff/{source_template_id}.{translation.target_language}.xlf"),
+            )
+        ),
+        review_branch_prefix=_optional_str(
+            xliff_exchange_payload,
+            "review_branch_prefix",
+            default="xliff/",
+        ),
     )
     public_readme_payload = payload.get("public_readme", {})
     if public_readme_payload is None:
@@ -356,6 +389,10 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         )
     if not migration.auto_pr_branch_prefix:
         raise TranslationMigrationError("migration.auto_pr_branch_prefix must not be empty")
+    if not branches.control_branch:
+        raise TranslationMigrationError("branches.control_branch must not be empty")
+    if not branches.version_branch_prefix:
+        raise TranslationMigrationError("branches.version_branch_prefix must not be empty")
     if publish.enabled and not publish.target_repository:
         raise TranslationMigrationError(
             "publish.target_repository is required when publish.enabled is true"
@@ -364,6 +401,10 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         raise TranslationMigrationError("publish.branch_prefix must not be empty")
     if public_readme.path.is_absolute() or ".." in public_readme.path.parts:
         raise TranslationMigrationError("public_readme.path must be a repo-relative path")
+    if xliff_exchange.path.is_absolute() or ".." in xliff_exchange.path.parts:
+        raise TranslationMigrationError("xliff_exchange.path must be a repo-relative path")
+    if not xliff_exchange.review_branch_prefix:
+        raise TranslationMigrationError("xliff_exchange.review_branch_prefix must not be empty")
 
     return TranslationRepositoryConfig(
         template=template,
@@ -374,6 +415,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         public_readme=public_readme,
         tooling=tooling,
         version_policy=version_policy,
+        xliff_exchange=xliff_exchange,
     )
 
 
@@ -508,8 +550,7 @@ def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionW
         / "document-templates"
         / "translation"
         / workspace_template_name,
-        weblate_xliff_path=Path("weblate")
-        / f"{source_template_id}.{config.translation.target_language}.xlf",
+        xliff_exchange_path=config.xliff_exchange.path,
         project_render_output=project_render_output,
         translated_template_dir=output_root / translated_workspace_name,
         translated_template_package=output_root / f"{translated_workspace_name}.zip",

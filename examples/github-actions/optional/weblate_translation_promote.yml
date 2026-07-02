@@ -1,4 +1,4 @@
-name: DSW Document Template Weblate Promotion
+name: Optional DSW Document Template Weblate Promotion
 
 on:
   push:

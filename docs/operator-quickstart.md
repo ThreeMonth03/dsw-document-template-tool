@@ -101,7 +101,7 @@ workflow after the clean scaffold release exists:
 ```shell
 gh workflow run document_template_translation_sync.yml \
   --repo "$TRANSLATION_GITHUB_REPO" \
-  --ref master
+  --ref ops
 ```
 
 That downstream workflow is responsible for updating its own

@@ -85,48 +85,34 @@ translation units. It is committed, but it is not edited by hand: export, merge,
 and CI refreshes recalculate it from the current `translation.md` blocks so a
 filled translation block automatically becomes a checked item.
 
-## Weblate Exchange
+## Optional XLIFF Exchange
 
 The canonical translation source is still the Markdown translation tree.
-Weblate should be treated as an editing interface, not as the source of truth.
+External translation platforms should be treated as editing interfaces, not as
+the source of truth.
 
 Use XLIFF as the exchange boundary:
 
 ```shell
-make export-weblate-xliff
-make import-weblate-xliff
+python src/translation_tree.py export-xliff --tree translation --output xliff/messages.xlf
+python src/translation_tree.py import-xliff --tree translation --xliff xliff/messages.xlf
 ```
 
-`make export-weblate-xliff` reads the current translation tree and writes a
-standard XLIFF 1.2 file. Weblate can edit that file without understanding the
+`export-xliff` reads the current translation tree and writes a standard XLIFF
+1.2 file. An external platform can edit that file without understanding the
 custom `translation.md` format.
 
-`make import-weblate-xliff` writes XLIFF targets back into the editable
-translation blocks. Import checks that every XLIFF unit still belongs to the
-current tree and that the source hash matches. Placeholder, Jinja, and HTML
-safety checks remain the responsibility of `make audit-translation-tree` and
-`make sync-translation-tree`, so the validation rules stay centralized.
+`import-xliff` writes XLIFF targets back into the editable translation blocks.
+Import checks that every XLIFF unit still belongs to the current tree and that
+the source hash matches. Placeholder, Jinja, and HTML safety checks remain the
+responsibility of `make audit-translation-tree` and `make sync-translation-tree`,
+so the validation rules stay centralized.
 
-Do not point Weblate at generated compact, expanded, translated output, or
-public publish branches. It should only edit the downstream translation
-repository's XLIFF exchange file.
-
-For small-team automation, Weblate should push that XLIFF to a review branch
-such as `weblate/v1.30.1`. The matching `translation/v1.30.1` branch remains
-canonical. Both the Weblate promotion workflow and normal version-branch sync
-use a three-way XLIFF reconciliation before validation:
-
-- Weblate edits are applied when the same translation unit did not also change
-  in `translation/v*`.
-- If Weblate and `translation/v*` both changed the same unit differently,
-  `translation.md` wins and the Weblate value is skipped.
-- Stale units whose source no longer matches the current tree are ignored.
-
-After reconciliation, CI audits the translation tree, validates translated
-output structure, renders the preview, and only then resets `weblate/v*` to the
-validated target commit with an explicit force-with-lease. That keeps Weblate
-ready for its next fast-forward push without requiring operators to resolve
-normal branch divergence by hand.
+Do not point an external platform at generated compact, expanded, translated
+output, or public publish branches. It should only edit an explicit XLIFF
+exchange file. The default downstream workflow does not create or synchronize
+XLIFF review branches; teams can enable that separately if they decide to run an
+external translation service later.
 
 ## Sync and Audit
 

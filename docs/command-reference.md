@@ -49,8 +49,6 @@ make compact-template
 make export-translation-tree
 make export-fresh-translation-tree
 make merge-translation-tree
-make export-weblate-xliff
-make import-weblate-xliff
 make audit-translation-tree
 make sync-translation-tree
 make audit-translated-template
@@ -64,7 +62,6 @@ SOURCE_TEMPLATE_VERSION_TAG=v1.30.1
 COMPACT_TEMPLATE_DIR=workspace/document-templates/compact/dsw-science-europe-1.30.1
 EXPANDED_TEMPLATE_DIR=workspace/document-templates/expanded/dsw-science-europe-1.30.1
 TRANSLATION_TREE_DIR=workspace/document-templates/translation/dsw-science-europe-1.30.1
-WEBLATE_XLIFF=weblate/dsw-science-europe.zh_Hant.xlf
 ```
 
 Direct CLI examples:
@@ -72,8 +69,6 @@ Direct CLI examples:
 ```shell
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/transform_template.py" expand --source compact --output expanded
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export --source expanded --output translation
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export-xliff --tree translation --output weblate/dsw-science-europe.zh_Hant.xlf
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" import-xliff --tree translation --xliff weblate/dsw-science-europe.zh_Hant.xlf
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" merge --old-tree old --new-tree fresh --output merged
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" sync --tree translation --source expanded --output output \
   --template-organization-id dsw \
@@ -205,7 +200,7 @@ make publish-translated-template \
   PUBLISH_VERSION=v1.30.1
 ```
 
-This target pushes a reviewable `sync/v*` branch to the configured downstream
+This target pushes a reviewable `publish/v*` branch to the configured downstream
 repository. It does not update the downstream default branch and does not import
 the template into DSW/depositar.
 
@@ -243,7 +238,25 @@ Scheduled downstream automation should use the default `--policy-mode auto`.
 For an operator-triggered maintenance refresh, add `--policy-mode manual` if the
 downstream `translation-config.yml` allows it.
 
-Promote a Weblate review-branch XLIFF into a checked-out version branch:
+## Optional XLIFF Exchange Helpers
+
+The default downstream workflow edits `translation.md` directly and does not
+create Weblate branches. These commands are lower-level escape hatches for a
+future external translation platform.
+
+Export or import XLIFF manually:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export-xliff \
+  --tree translation \
+  --output xliff/dsw-science-europe.zh_Hant.xlf
+
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" import-xliff \
+  --tree translation \
+  --xliff xliff/dsw-science-europe.zh_Hant.xlf
+```
+
+Promote a Weblate-style review-branch XLIFF into a checked-out version branch:
 
 ```shell
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/promote_weblate_xliff.py" \
@@ -254,7 +267,7 @@ Promote a Weblate review-branch XLIFF into a checked-out version branch:
   --compact-template-dir workspace/document-templates/compact/dsw-science-europe-1.30.1 \
   --expanded-template-dir workspace/document-templates/expanded/dsw-science-europe-1.30.1 \
   --translation-tree-dir workspace/document-templates/translation/dsw-science-europe-1.30.1 \
-  --weblate-xliff weblate/dsw-science-europe.zh_Hant.xlf \
+  --weblate-xliff xliff/dsw-science-europe.zh_Hant.xlf \
   --translated-template-dir outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/dsw-science-europe-zh-hant-1.30.1 \
   --template-organization-id dsw \
   --template-id science-europe-zh-hant \
@@ -266,13 +279,10 @@ Promote a Weblate review-branch XLIFF into a checked-out version branch:
   --github-output "$GITHUB_OUTPUT"
 ```
 
-Normally the generated `weblate_translation_promote.yml` workflow runs this for
-you. Use the command directly only when debugging Weblate review-branch
-promotion. When the promotion changes the target branch, the generated workflow
-dispatches the target branch sync workflow explicitly because pushes made with
-GitHub's default token do not trigger another workflow run. The promotion helper
-uses a three-way XLIFF reconciliation before import, so stale Weblate files do
-not overwrite newer `translation.md` edits.
+Use this only if a downstream repository intentionally enables a Weblate-style
+review branch. The promotion helper uses a three-way XLIFF reconciliation before
+import, so stale external-platform files do not overwrite newer
+`translation.md` edits.
 
 Reconcile a divergent Weblate review branch during version-branch sync:
 
@@ -283,13 +293,12 @@ Reconcile a divergent Weblate review branch during version-branch sync:
   --target-branch translation/v1.30.1 \
   --weblate-branch weblate/v1.30.1 \
   --translation-tree-dir workspace/document-templates/translation/dsw-science-europe-1.30.1 \
-  --weblate-xliff weblate/dsw-science-europe.zh_Hant.xlf \
+  --weblate-xliff xliff/dsw-science-europe.zh_Hant.xlf \
   --source-lang en \
   --target-lang zh_Hant
 ```
 
-The generated version-branch sync workflow runs this before audit/sync/preview.
-It imports only non-conflicting Weblate unit changes. Same-unit conflicts keep
+This imports only non-conflicting XLIFF unit changes. Same-unit conflicts keep
 the checked-out `translation/v*` value.
 
 Align a Weblate review branch to a validated translation branch:
@@ -301,8 +310,7 @@ Align a Weblate review branch to a validated translation branch:
   --weblate-branch weblate/v1.30.1
 ```
 
-The generated version-branch sync workflow runs this after validation. When a
-previous reconcile step handled a divergent review branch, pass
+When a previous reconcile step handled a divergent review branch, pass
 `--expected-revision <sha>` so the reset is allowed only if Weblate did not push
 again during validation. Use it directly only when debugging branch state.
 

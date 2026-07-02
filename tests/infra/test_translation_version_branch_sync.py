@@ -88,12 +88,6 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
-    monkeypatch.setattr(
-        sync_module,
-        "export_weblate_xliff",
-        _fake_export_weblate_xliff(sync_module),
-    )
-
     result = sync_module.sync_translation_versions(
         repo=translation_repo,
         tooling_root=repo_root,
@@ -121,16 +115,10 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    promotion_workflow = _git_show(
+    assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.2:.github/workflows/weblate_translation_promote.yml",
     )
-    assert 'branches: ["weblate/v1.30.2"]' in promotion_workflow
-    assert 'TARGET_BRANCH: "translation/v1.30.2"' in promotion_workflow
-    assert 'WEBLATE_BRANCH: "weblate/v1.30.2"' in promotion_workflow
-    assert "document-template-translation-sync-translation/v1.30.2" in promotion_workflow
-    assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in promotion_workflow
-    assert "scripts/ci/promote_weblate_xliff.py" in promotion_workflow
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
@@ -139,17 +127,15 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    assert 'WEBLATE_BRANCH: "weblate/v1.30.2"' in workflow_text
-    assert "scripts/ci/reconcile_weblate_review_branch.py" in workflow_text
-    assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
-    assert "steps.reconcile_weblate.outputs.review_revision" in workflow_text
+    assert "WEBLATE_BRANCH" not in workflow_text
+    assert "WEBLATE_XLIFF" not in workflow_text
+    assert "scripts/ci/reconcile_weblate_review_branch.py" not in workflow_text
+    assert "scripts/ci/align_weblate_review_branch.py" not in workflow_text
+    assert "steps.reconcile_weblate.outputs.review_revision" not in workflow_text
     assert 'src/translation_tree.py" import-xliff' not in workflow_text
-    assert (
-        _git_show(
-            translation_repo,
-            "translation/v1.30.2:weblate/dsw-science-europe.zh_Hant.xlf",
-        )
-        == '<xliff version="1.2" />\n'
+    assert not _git_path_exists(
+        translation_repo,
+        "translation/v1.30.2:weblate/dsw-science-europe.zh_Hant.xlf",
     )
     assert (
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.2/'
@@ -318,12 +304,6 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
-    monkeypatch.setattr(
-        sync_module,
-        "export_weblate_xliff",
-        _fake_export_weblate_xliff(sync_module),
-    )
-
     result = sync_module.sync_translation_versions(
         repo=translation_repo,
         tooling_root=repo_root,
@@ -377,33 +357,27 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
-    promotion_workflow = _git_show(
+    assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
     )
-    assert 'branches: ["weblate/v1.30.1"]' in promotion_workflow
-    assert 'TARGET_BRANCH: "translation/v1.30.1"' in promotion_workflow
-    assert 'WEBLATE_BRANCH: "weblate/v1.30.1"' in promotion_workflow
-    assert "document-template-translation-sync-translation/v1.30.1" in promotion_workflow
     workflow_text = _git_show(
         translation_repo,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
-    assert 'WEBLATE_BRANCH: "weblate/v1.30.1"' in workflow_text
-    assert "scripts/ci/reconcile_weblate_review_branch.py" in workflow_text
-    assert "scripts/ci/align_weblate_review_branch.py" in workflow_text
-    assert "steps.reconcile_weblate.outputs.review_revision" in workflow_text
+    assert "WEBLATE_BRANCH" not in workflow_text
+    assert "WEBLATE_XLIFF" not in workflow_text
+    assert "scripts/ci/reconcile_weblate_review_branch.py" not in workflow_text
+    assert "scripts/ci/align_weblate_review_branch.py" not in workflow_text
+    assert "steps.reconcile_weblate.outputs.review_revision" not in workflow_text
     assert 'src/translation_tree.py" import-xliff' not in workflow_text
     assert (
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.1/'
         'zh-Hant/test-project.pdf"'
     ) in workflow_text
-    assert (
-        _git_show(
-            translation_repo,
-            "translation/v1.30.1:weblate/dsw-science-europe.zh_Hant.xlf",
-        )
-        == '<xliff version="1.2" />\n'
+    assert not _git_path_exists(
+        translation_repo,
+        "translation/v1.30.1:weblate/dsw-science-europe.zh_Hant.xlf",
     )
     assert not _git_path_exists(
         translation_repo,
@@ -688,12 +662,6 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
-    monkeypatch.setattr(
-        sync_module,
-        "export_weblate_xliff",
-        _fake_export_weblate_xliff(sync_module),
-    )
-
     try:
         result = sync_module.sync_translation_versions(
             repo=translation_repo,
@@ -724,7 +692,7 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
         origin,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
-    assert _git_path_exists_bare(
+    assert not _git_path_exists_bare(
         origin,
         "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
     )
@@ -876,12 +844,6 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
-    monkeypatch.setattr(
-        sync_module,
-        "export_weblate_xliff",
-        _fake_export_weblate_xliff(sync_module),
-    )
-
     try:
         result = sync_module.sync_translation_versions(
             repo=translation_repo,
@@ -911,7 +873,7 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
         origin,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    assert _git_path_exists_bare(
+    assert not _git_path_exists_bare(
         origin,
         "translation/v1.30.2:.github/workflows/weblate_translation_promote.yml",
     )
@@ -995,6 +957,7 @@ translation:
   translated_template_name: {json.dumps(translated_template_name, ensure_ascii=False)}
 
 branches:
+  control_branch: ops
   version_branch_prefix: translation/
 
 tooling:
@@ -1011,7 +974,7 @@ migration:
 publish:
   enabled: true
   target_repository: depositar/science-europe-template-zh_Hant
-  branch_prefix: sync/
+  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )
@@ -1065,7 +1028,7 @@ def _fake_export_weblate_xliff(sync_module: ModuleType):
         **_: object,
     ) -> None:
         paths = sync_module.version_paths(config, version)
-        xliff_path = checkout / paths.weblate_xliff_path
+        xliff_path = checkout / paths.xliff_exchange_path
         xliff_path.parent.mkdir(parents=True, exist_ok=True)
         xliff_path.write_text('<xliff version="1.2" />\n', encoding="utf-8")
 

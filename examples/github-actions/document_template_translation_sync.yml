@@ -30,14 +30,12 @@ env:
   COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0
   EXPANDED_TEMPLATE_DIR: workspace/document-templates/expanded/dsw-science-europe-1.30.0
   TRANSLATION_TREE_DIR: workspace/document-templates/translation/dsw-science-europe-1.30.0
-  WEBLATE_XLIFF: weblate/dsw-science-europe.zh_Hant.xlf
   TRANSLATED_TEMPLATE_ORGANIZATION_ID: dsw
   TRANSLATED_TEMPLATE_ID: science-europe-zh-hant
   TRANSLATED_TEMPLATE_VERSION: 1.30.0
   TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)
   TRANSLATION_SOURCE_LANG: en
   TRANSLATION_TARGET_LANG: zh_Hant
-  WEBLATE_BRANCH: weblate/v1.30.0
   PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md
   TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0
   TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip
@@ -94,7 +92,7 @@ jobs:
           .venv/bin/python -m pip install "dsw-tdk==$DSW_TDK_VERSION"
           .venv/bin/dsw-tdk --version
 
-      - name: Refresh expanded template, translation tree, and XLIFF
+      - name: Refresh expanded template and translation tree
         run: |
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
@@ -125,12 +123,6 @@ jobs:
           mkdir -p "$HOST_ROOT/$TRANSLATION_TREE_DIR"
           cp -a "$MERGED_TRANSLATION_TREE/." "$HOST_ROOT/$TRANSLATION_TREE_DIR/"
 
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" export-xliff \
-            --tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
-            --output "$HOST_ROOT/$WEBLATE_XLIFF" \
-            --source-lang "$TRANSLATION_SOURCE_LANG" \
-            --target-lang "$TRANSLATION_TARGET_LANG"
-
       - name: Auto-commit repaired translation inputs
         id: auto_commit
         if: ${{ github.actor != 'github-actions[bot]' }}
@@ -146,7 +138,6 @@ jobs:
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json"
             "$TRANSLATION_TREE_DIR/outline.md"
             "$TRANSLATION_TREE_DIR/tree"
-            "$WEBLATE_XLIFF"
           )
 
           if [ -z "$(git status --short -- "${required_paths[@]}")" ]; then
@@ -160,8 +151,7 @@ jobs:
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
             "$TRANSLATION_TREE_DIR/outline.md" \
-            "$TRANSLATION_TREE_DIR/tree" \
-            "$WEBLATE_XLIFF"
+            "$TRANSLATION_TREE_DIR/tree"
           git commit -m "chore(sync): refresh document template translations"
           echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           git push origin "HEAD:refs/heads/$TARGET_REF"
@@ -186,32 +176,12 @@ jobs:
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
             "$TRANSLATION_TREE_DIR/outline.md" \
-            "$TRANSLATION_TREE_DIR/tree" \
-            "$WEBLATE_XLIFF"
+            "$TRANSLATION_TREE_DIR/tree"
           test -z "$(git status --short -- \
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
             "$TRANSLATION_TREE_DIR/outline.md" \
-            "$TRANSLATION_TREE_DIR/tree" \
-            "$WEBLATE_XLIFF")"
-
-      - name: Reconcile Weblate review branch
-        id: reconcile_weblate
-        if: ${{ github.event_name != 'pull_request' }}
-        run: |
-          set -euo pipefail
-          TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
-
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/scripts/ci/reconcile_weblate_review_branch.py" \
-            --repo "$GITHUB_WORKSPACE/template-repo" \
-            --tooling-root "$TOOL_ROOT" \
-            --target-branch "$GITHUB_REF_NAME" \
-            --weblate-branch "$WEBLATE_BRANCH" \
-            --translation-tree-dir "$TRANSLATION_TREE_DIR" \
-            --weblate-xliff "$WEBLATE_XLIFF" \
-            --source-lang "$TRANSLATION_SOURCE_LANG" \
-            --target-lang "$TRANSLATION_TARGET_LANG" \
-            --github-output "$GITHUB_OUTPUT"
+            "$TRANSLATION_TREE_DIR/tree")"
 
       - name: Audit translation blocks
         run: |
@@ -391,24 +361,6 @@ jobs:
             tooling-repo/outputs/ci-dsw/
           if-no-files-found: warn
 
-      - name: Align Weblate review branch
-        if: ${{ github.event_name != 'pull_request' }}
-        env:
-          WEBLATE_EXPECTED_REVISION: ${{ steps.reconcile_weblate.outputs.review_revision }}
-        run: |
-          set -euo pipefail
-          TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
-          expected_args=()
-          if [ -n "$WEBLATE_EXPECTED_REVISION" ]; then
-            expected_args=(--expected-revision "$WEBLATE_EXPECTED_REVISION")
-          fi
-
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/scripts/ci/align_weblate_review_branch.py" \
-            --repo "$GITHUB_WORKSPACE/template-repo" \
-            --target-branch "$GITHUB_REF_NAME" \
-            --weblate-branch "$WEBLATE_BRANCH" \
-            "${expected_args[@]}"
-
       - name: Stage translated template release assets
         if: ${{ github.event_name != 'pull_request' && env.PUBLISH_RELEASE_ASSETS == 'true' }}
         run: |
@@ -481,13 +433,13 @@ jobs:
           set -euo pipefail
           gh workflow run document_template_translation_sync.yml \
             --repo "$GITHUB_REPOSITORY" \
-            --ref master \
+            --ref ops \
             -f source_version="v$TRANSLATED_TEMPLATE_VERSION"
 
           {
             echo "## Operations migration dispatched"
             echo
-            echo "Requested master operations migration from"
+            echo "Requested ops operations migration from"
             echo "\`v$TRANSLATED_TEMPLATE_VERSION\` after this version branch passed."
           } >> "$GITHUB_STEP_SUMMARY"
 

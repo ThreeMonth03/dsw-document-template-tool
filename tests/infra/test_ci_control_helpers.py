@@ -452,6 +452,7 @@ translation:
   translated_template_name: Science Europe DMP Template (zh-Hant)
 
 branches:
+  control_branch: ops
   version_branch_prefix: translation/
 
 tooling:
@@ -468,7 +469,7 @@ migration:
 publish:
   enabled: false
   target_repository: depositar/science-europe-template-zh_Hant
-  branch_prefix: sync/
+  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )

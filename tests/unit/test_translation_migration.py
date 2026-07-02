@@ -68,7 +68,7 @@ migration:
 publish:
   enabled: true
   target_repository: depositar/science-europe-template-zh_Hant
-  branch_prefix: sync/
+  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )
@@ -87,8 +87,11 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     assert migration_branch(config, "v1.30.0", "v1.30.1") == (
         "automation/migrate-v1.30.0-to-v1.30.1"
     )
+    assert config.branches.control_branch == "ops"
     assert config.publish.target_repository == "depositar/science-europe-template-zh_Hant"
-    assert config.publish.branch_prefix == "sync/"
+    assert config.publish.branch_prefix == "publish/"
+    assert config.xliff_exchange.enabled is False
+    assert config.xliff_exchange.path == Path("xliff/dsw-science-europe.zh_Hant.xlf")
     assert config.public_readme.path == Path("workspace/document-templates/public-readme/README.md")
     assert paths.version_number == "1.30.1"
     assert paths.workspace_template_name == "dsw-science-europe-1.30.1"
@@ -242,7 +245,7 @@ def test_translation_config_rejects_empty_publish_branch_prefix(tmp_path: Path) 
     config_path = _write_config(tmp_path)
     config_path.write_text(
         config_path.read_text(encoding="utf-8").replace(
-            "branch_prefix: sync/",
+            "branch_prefix: publish/",
             "branch_prefix: ''",
         ),
         encoding="utf-8",

@@ -56,7 +56,11 @@ for provenance.
 
 A downstream translation repository owns:
 
+- an operations branch, conventionally `ops`, containing
+  `translation-config.yml`, docs, fixtures, and repository workflows
 - version branches such as `translation/v1.30.1`
+- public handoff branches such as `publish/v1.30.1` when the same repository
+  also stores clean translated template source
 - translator-facing `translation.md` edits
 - the user-facing public README copied into generated DSW template packages
 - glossary and i10n review
@@ -65,6 +69,8 @@ A downstream translation repository owns:
 
 Keep those operational details in the translation repository documentation. This
 repo should only document the artifact contract and helper commands.
+If the downstream repo also has a `master` branch, this tooling does not require
+automation to write to it.
 
 ## Helper Scripts Used By Downstream
 
@@ -155,24 +161,22 @@ schedule:
 ```shell
 gh workflow run document_template_translation_sync.yml \
   --repo "$TRANSLATION_GITHUB_REPO" \
-  --ref master
+  --ref ops
 ```
 
 That run downloads the latest clean scaffold artifacts from the tool repo,
-refreshes supported `translation/v*` branches, updates generated branch
-workflows, regenerates the branch `weblate/*.xlf` exchange file from Markdown,
-updates the promotion workflow that Weblate review branches inherit from
-`translation/v*`, and may create migration PRs. Version-branch sync treats
-`translation.md` as canonical, but it also reconciles non-conflicting Weblate
-XLIFF edits before validation. If Weblate and Git both changed the same
-translation unit, the `translation.md` value wins.
+updates `translation-config.yml` on the operations branch, creates or refreshes
+supported `translation/v*` branches, updates generated branch workflows, and may
+create exact-only migration PRs. Version-branch sync treats `translation.md` as
+canonical. Optional XLIFF exchange is available as a helper command, but it is
+not part of the default branch automation.
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 
 ```shell
 gh workflow run document_template_translation_sync.yml \
   --repo "$TRANSLATION_GITHUB_REPO" \
-  --ref master \
+  --ref ops \
   -f source_version=v1.30.1
 ```
 
