@@ -25,6 +25,24 @@ make test-unit
 git diff --check
 ```
 
+## Documentation Site
+
+Build the Sphinx site locally:
+
+```shell
+make docs
+```
+
+Remove generated HTML:
+
+```shell
+make docs-clean
+```
+
+GitHub Pages uses the same `make docs` target. Pull requests build the site as a
+check; only `master` and manual workflow runs can upload a Pages artifact and
+deploy it.
+
 ## DSW Stack
 
 ```shell

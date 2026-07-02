@@ -7,6 +7,8 @@ CI_CONFIG ?= config/regression.ci.yml
 COMPACT_TEMPLATE_DIR ?= workspace/document-templates/compact/$(WORKSPACE_TEMPLATE_NAME)
 COMPAT_LEDGER_DIR ?= outputs/compat-ledger/$(SOURCE_TEMPLATE_ID)
 CONFIG ?= config/regression.preview.yml
+DOCS_BUILD_DIR ?= docs/_build/html
+DOCS_SOURCE_DIR ?= docs
 DSW_COMPAT_CONFIG ?= config/dsw-compat.yml
 DSW_TDK ?= $(VENV_DIR)/bin/dsw-tdk
 EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPLATE_NAME)
@@ -23,7 +25,7 @@ PROJECT_UUID ?= $(DSW_PROJECT_UUID)
 PUBLISH_BASE_BRANCH ?= main
 PUBLISH_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
 PYTHON ?= $(VENV_PYTHON)
-PYTHON_LINT_PATHS ?= src tests scripts/ci/*.py
+PYTHON_LINT_PATHS ?= docs/conf.py scripts/ci/*.py src tests
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
 REGRESSION_PLAN_PATH ?= $(COMPAT_LEDGER_DIR)/regression-plan.json
 REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT ?= 20
@@ -33,6 +35,7 @@ SCAFFOLD_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_NAME) Scaffold
 SOURCE_TEMPLATE_ID ?= dsw-science-europe
 SOURCE_TEMPLATE_VERSION ?= 1.30.0
 SOURCE_TEMPLATE_VERSION_TAG ?= v$(SOURCE_TEMPLATE_VERSION)
+SPHINXOPTS ?= -W --keep-going
 TEMPLATE_DIR ?=
 TRANSLATED_EXPANDED_TEMPLATE_DIR ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
 TRANSLATED_OUTPUT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
@@ -72,7 +75,7 @@ WORKSPACE_TEMPLATE_NAME ?= $(SOURCE_TEMPLATE_ID)-$(SOURCE_TEMPLATE_VERSION)
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat export-fresh-translation-tree export-translation-tree export-weblate-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-weblate-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat docs docs-clean export-fresh-translation-tree export-translation-tree export-weblate-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-weblate-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -89,6 +92,8 @@ help:
 	'  format            Auto-fix imports/style and format Python files' \
 	'  format-check      Check formatting without modifying files' \
 	'  lint              Run Ruff lint checks' \
+	'  docs              Build the Sphinx documentation site' \
+	'  docs-clean        Remove generated Sphinx documentation output' \
 	'  test              Run all pytest suites' \
 	'  test-infra        Run infrastructure/CLI pytest suites' \
 	'  test-unit         Run unit/regression helper pytest suites' \
@@ -259,6 +264,12 @@ discover-upstream-compat: venv
 		--cache ".cache/upstream-compat-discovery" \
 		$(UPSTREAM_TEMPLATE_DISCOVERY_REFS)
 
+docs: venv
+	$(PYTHON) -m sphinx -b html $(SPHINXOPTS) "$(DOCS_SOURCE_DIR)" "$(DOCS_BUILD_DIR)"
+
+docs-clean:
+	rm -rf docs/_build
+
 build-upstream-artifacts: venv
 	$(PYTHON) scripts/ci/upstream_template_artifacts.py build-artifacts \
 		--remote "$(UPSTREAM_TEMPLATE_REMOTE)" \
@@ -355,6 +366,6 @@ render-regression-ci-plan: venv
 		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"
 
 clean:
-	rm -rf outputs dist build .pytest_cache .ruff_cache
+	rm -rf outputs dist build docs/_build .pytest_cache .ruff_cache
 	find . -path './.venv' -prune -o -type d -name '__pycache__' -exec rm -rf {} +
 	find . -type f -name '*.pyc' ! -path './.venv/*' -delete

@@ -123,6 +123,38 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "outputs/project-render/dsw-science-europe/**/scaffold/" in workflow_text
 
 
+def test_docs_pages_workflow(repo_root: Path) -> None:
+    """The documentation site should build on PRs and deploy only from master."""
+
+    workflow_path = repo_root / ".github" / "workflows" / "docs_pages.yml"
+    workflow = load_workflow_yaml(workflow_path)
+    workflow_text = workflow_path.read_text(encoding="utf-8")
+
+    assert workflow["on"]["pull_request"]["branches"] == ["master"]
+    assert workflow["on"]["push"]["branches"] == ["master"]
+    assert "workflow_dispatch" in workflow["on"]
+    assert workflow["permissions"]["contents"] == "read"
+    assert workflow["concurrency"]["group"] == "docs-pages-${{ github.ref }}"
+
+    build_job = workflow["jobs"]["build"]
+    assert build_job["runs-on"] == "ubuntu-latest"
+    assert "make install-dev" in workflow_text
+    assert "make docs" in workflow_text
+    assert "actions/upload-pages-artifact@v4" in workflow_text
+
+    deploy_job = workflow["jobs"]["deploy"]
+    assert deploy_job["if"] == (
+        "github.event_name != 'pull_request' && github.ref == 'refs/heads/master'"
+    )
+    assert deploy_job["needs"] == "build"
+    assert deploy_job["permissions"] == {
+        "contents": "read",
+        "id-token": "write",
+        "pages": "write",
+    }
+    assert "actions/deploy-pages@v4" in workflow_text
+
+
 def test_dsw_runtime_matrix_sync_helper_detects_and_repairs_drift(
     repo_root: Path,
     tmp_path: Path,
