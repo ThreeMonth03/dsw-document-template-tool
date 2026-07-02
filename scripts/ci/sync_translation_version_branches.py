@@ -427,6 +427,12 @@ def refresh_version_branch(
                 preserved_tree=preserved_tree,
                 merged_tree=merged_tree,
             )
+        export_weblate_xliff(
+            checkout=checkout,
+            tooling_root=tooling_root,
+            config=config,
+            version=version,
+        )
         sync_blank_translation_output(
             checkout=checkout,
             tooling_root=tooling_root,
@@ -490,6 +496,12 @@ def create_version_branch(
             checkout=checkout,
             repo=repo,
             config=config,
+        )
+        export_weblate_xliff(
+            checkout=checkout,
+            tooling_root=tooling_root,
+            config=config,
+            version=version,
         )
         sync_blank_translation_output(
             checkout=checkout,
@@ -616,6 +628,14 @@ Edit only translator-facing files under:
 ```
 
 Keep source placeholders intact and open translation PRs against `{branch}`.
+If you translate through Weblate, it should edit:
+
+```text
+{paths.weblate_xliff_path.as_posix()}
+```
+
+CI imports that XLIFF back into the translation tree and exports a refreshed
+XLIFF file after every sync.
 
 ## Generated Outputs
 
@@ -661,6 +681,9 @@ def write_version_branch_workflow(
             "TRANSLATION_TREE_DIR: "
             "workspace/document-templates/translation/dsw-science-europe-1.30.0"
         ): (f"TRANSLATION_TREE_DIR: {_yaml_scalar(paths.translation_tree_dir.as_posix())}"),
+        "WEBLATE_XLIFF: weblate/dsw-science-europe.zh_Hant.xlf": (
+            f"WEBLATE_XLIFF: {_yaml_scalar(paths.weblate_xliff_path.as_posix())}"
+        ),
         "TRANSLATED_TEMPLATE_ORGANIZATION_ID: dsw": (
             "TRANSLATED_TEMPLATE_ORGANIZATION_ID: "
             f"{_yaml_scalar(config.translation.translated_template_organization_id)}"
@@ -813,6 +836,31 @@ def sync_blank_translation_output(
             str(checkout / paths.translated_template_package),
             "--force",
         ]
+    )
+
+
+def export_weblate_xliff(
+    *,
+    checkout: Path,
+    tooling_root: Path,
+    config: TranslationRepositoryConfig,
+    version: str,
+) -> None:
+    """Export the version branch translation tree to Weblate XLIFF."""
+
+    paths = version_paths(config, version)
+    _run_tool(
+        tooling_root,
+        "src/translation_tree.py",
+        "export-xliff",
+        "--tree",
+        checkout / paths.translation_tree_dir,
+        "--output",
+        checkout / paths.weblate_xliff_path,
+        "--source-lang",
+        config.translation.source_language,
+        "--target-lang",
+        config.translation.target_language,
     )
 
 

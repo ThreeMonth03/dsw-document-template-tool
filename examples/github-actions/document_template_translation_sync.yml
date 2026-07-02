@@ -30,6 +30,7 @@ env:
   COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0
   EXPANDED_TEMPLATE_DIR: workspace/document-templates/expanded/dsw-science-europe-1.30.0
   TRANSLATION_TREE_DIR: workspace/document-templates/translation/dsw-science-europe-1.30.0
+  WEBLATE_XLIFF: weblate/dsw-science-europe.zh_Hant.xlf
   TRANSLATED_TEMPLATE_ORGANIZATION_ID: dsw
   TRANSLATED_TEMPLATE_ID: science-europe-zh-hant
   TRANSLATED_TEMPLATE_VERSION: 1.30.0
@@ -95,7 +96,28 @@ jobs:
       # Keep this step when expanded/translation are checked-in generated inputs.
       # If another repository only wants to package already-committed translation
       # edits, it can remove this step and keep only sync/package below.
-      - name: Refresh expanded template and translation tree
+      - name: Import Weblate XLIFF edits
+        run: |
+          set -euo pipefail
+          HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
+          TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
+
+          if [ ! -f "$HOST_ROOT/$WEBLATE_XLIFF" ]; then
+            echo "No Weblate XLIFF file found at $WEBLATE_XLIFF."
+            exit 0
+          fi
+          if [ ! -f "$HOST_ROOT/$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" ]; then
+            echo "No existing translation tree manifest found; skipping XLIFF import."
+            exit 0
+          fi
+
+          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" import-xliff \
+            --tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
+            --xliff "$HOST_ROOT/$WEBLATE_XLIFF" \
+            --source-lang "$TRANSLATION_SOURCE_LANG" \
+            --target-lang "$TRANSLATION_TARGET_LANG"
+
+      - name: Refresh expanded template, translation tree, and XLIFF
         run: |
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
@@ -126,6 +148,12 @@ jobs:
           mkdir -p "$HOST_ROOT/$TRANSLATION_TREE_DIR"
           cp -a "$MERGED_TRANSLATION_TREE/." "$HOST_ROOT/$TRANSLATION_TREE_DIR/"
 
+          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" export-xliff \
+            --tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
+            --output "$HOST_ROOT/$WEBLATE_XLIFF" \
+            --source-lang "$TRANSLATION_SOURCE_LANG" \
+            --target-lang "$TRANSLATION_TARGET_LANG"
+
       - name: Auto-commit repaired translation inputs
         id: auto_commit
         if: ${{ github.actor != 'github-actions[bot]' }}
@@ -141,6 +169,7 @@ jobs:
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json"
             "$TRANSLATION_TREE_DIR/outline.md"
             "$TRANSLATION_TREE_DIR/tree"
+            "$WEBLATE_XLIFF"
           )
 
           if [ -z "$(git status --short -- "${required_paths[@]}")" ]; then
@@ -154,7 +183,8 @@ jobs:
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
             "$TRANSLATION_TREE_DIR/outline.md" \
-            "$TRANSLATION_TREE_DIR/tree"
+            "$TRANSLATION_TREE_DIR/tree" \
+            "$WEBLATE_XLIFF"
           git commit -m "chore(sync): refresh document template translations"
           echo "repaired_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           git push origin "HEAD:refs/heads/$TARGET_REF"
@@ -179,12 +209,14 @@ jobs:
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
             "$TRANSLATION_TREE_DIR/outline.md" \
-            "$TRANSLATION_TREE_DIR/tree"
+            "$TRANSLATION_TREE_DIR/tree" \
+            "$WEBLATE_XLIFF"
           test -z "$(git status --short -- \
             "$EXPANDED_TEMPLATE_DIR" \
             "$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \
             "$TRANSLATION_TREE_DIR/outline.md" \
-            "$TRANSLATION_TREE_DIR/tree")"
+            "$TRANSLATION_TREE_DIR/tree" \
+            "$WEBLATE_XLIFF")"
 
       - name: Audit translation blocks
         run: |

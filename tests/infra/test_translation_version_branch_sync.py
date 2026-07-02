@@ -88,6 +88,11 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
+    monkeypatch.setattr(
+        sync_module,
+        "export_weblate_xliff",
+        _fake_export_weblate_xliff(sync_module),
+    )
 
     result = sync_module.sync_translation_versions(
         repo=translation_repo,
@@ -119,6 +124,13 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+    )
+    assert (
+        _git_show(
+            translation_repo,
+            "translation/v1.30.2:weblate/dsw-science-europe.zh_Hant.xlf",
+        )
+        == '<xliff version="1.2" />\n'
     )
     workflow_text = _git_show(
         translation_repo,
@@ -291,6 +303,11 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
+    monkeypatch.setattr(
+        sync_module,
+        "export_weblate_xliff",
+        _fake_export_weblate_xliff(sync_module),
+    )
 
     result = sync_module.sync_translation_versions(
         repo=translation_repo,
@@ -353,6 +370,13 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.1/'
         'zh-Hant/test-project.pdf"'
     ) in workflow_text
+    assert (
+        _git_show(
+            translation_repo,
+            "translation/v1.30.1:weblate/dsw-science-europe.zh_Hant.xlf",
+        )
+        == '<xliff version="1.2" />\n'
+    )
     assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.1:workspace/projects/test-project.json",
@@ -636,6 +660,11 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
+    monkeypatch.setattr(
+        sync_module,
+        "export_weblate_xliff",
+        _fake_export_weblate_xliff(sync_module),
+    )
 
     try:
         result = sync_module.sync_translation_versions(
@@ -815,6 +844,11 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
         "sync_blank_translation_output",
         fake_sync_blank_translation_output,
     )
+    monkeypatch.setattr(
+        sync_module,
+        "export_weblate_xliff",
+        _fake_export_weblate_xliff(sync_module),
+    )
 
     try:
         result = sync_module.sync_translation_versions(
@@ -984,6 +1018,22 @@ def _write_clean_artifact(artifact_root: Path, *, version: str) -> None:
         directory = workspace_root / kind / template_name
         directory.mkdir(parents=True, exist_ok=True)
         (directory / "artifact.txt").write_text(f"{kind} {version}\n", encoding="utf-8")
+
+
+def _fake_export_weblate_xliff(sync_module: ModuleType):
+    def fake_export_weblate_xliff(
+        *,
+        checkout: Path,
+        config,
+        version: str,
+        **_: object,
+    ) -> None:
+        paths = sync_module.version_paths(config, version)
+        xliff_path = checkout / paths.weblate_xliff_path
+        xliff_path.parent.mkdir(parents=True, exist_ok=True)
+        xliff_path.write_text('<xliff version="1.2" />\n', encoding="utf-8")
+
+    return fake_export_weblate_xliff
 
 
 def _run_git(cwd: Path, *args: str) -> None:

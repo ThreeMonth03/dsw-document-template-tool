@@ -111,6 +111,12 @@ Do not point Weblate at generated compact, expanded, translated output, or
 public publish branches. It should only edit the downstream translation
 repository's version branch XLIFF files.
 
+Version-branch CI uses the same boundary automatically. Before regenerating the
+tree it imports the branch XLIFF file into `translation.md`; after refresh and
+merge it exports a new XLIFF file. That keeps Weblate edits and Markdown
+translation review in sync without making Weblate understand the internal tree
+layout.
+
 ## Sync and Audit
 
 `make sync-translation-tree` applies translator edits into a generated translated

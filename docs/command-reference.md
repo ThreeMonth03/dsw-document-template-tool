@@ -64,7 +64,7 @@ SOURCE_TEMPLATE_VERSION_TAG=v1.30.1
 COMPACT_TEMPLATE_DIR=workspace/document-templates/compact/dsw-science-europe-1.30.1
 EXPANDED_TEMPLATE_DIR=workspace/document-templates/expanded/dsw-science-europe-1.30.1
 TRANSLATION_TREE_DIR=workspace/document-templates/translation/dsw-science-europe-1.30.1
-WEBLATE_XLIFF=weblate/dsw-science-europe.zh-Hant.xlf
+WEBLATE_XLIFF=weblate/dsw-science-europe.zh_Hant.xlf
 ```
 
 Direct CLI examples:
@@ -72,8 +72,8 @@ Direct CLI examples:
 ```shell
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/transform_template.py" expand --source compact --output expanded
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export --source expanded --output translation
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export-xliff --tree translation --output weblate/dsw-science-europe.zh-Hant.xlf
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" import-xliff --tree translation --xliff weblate/dsw-science-europe.zh-Hant.xlf
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export-xliff --tree translation --output weblate/dsw-science-europe.zh_Hant.xlf
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" import-xliff --tree translation --xliff weblate/dsw-science-europe.zh_Hant.xlf
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" merge --old-tree old --new-tree fresh --output merged
 "$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" sync --tree translation --source expanded --output output \
   --template-organization-id dsw \

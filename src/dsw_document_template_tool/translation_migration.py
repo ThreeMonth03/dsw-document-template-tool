@@ -135,6 +135,7 @@ class VersionWorkspacePaths:
     compact_template_dir: Path
     expanded_template_dir: Path
     translation_tree_dir: Path
+    weblate_xliff_path: Path
     project_render_output: Path
     translated_template_dir: Path
     translated_template_package: Path
@@ -507,6 +508,8 @@ def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionW
         / "document-templates"
         / "translation"
         / workspace_template_name,
+        weblate_xliff_path=Path("weblate")
+        / f"{source_template_id}.{config.translation.target_language}.xlf",
         project_render_output=project_render_output,
         translated_template_dir=output_root / translated_workspace_name,
         translated_template_package=output_root / f"{translated_workspace_name}.zip",

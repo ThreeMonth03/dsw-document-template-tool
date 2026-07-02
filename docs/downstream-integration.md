@@ -160,7 +160,8 @@ gh workflow run document_template_translation_sync.yml \
 
 That run downloads the latest clean scaffold artifacts from the tool repo,
 refreshes supported `translation/v*` branches, updates generated branch
-workflows, and may create migration PRs.
+workflows, regenerates the branch `weblate/*.xlf` exchange file, and may create
+migration PRs.
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 
