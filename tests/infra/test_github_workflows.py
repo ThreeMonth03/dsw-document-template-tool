@@ -413,7 +413,7 @@ def test_weblate_promotion_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
     assert workflow["env"]["TOOLING_REF"] == "main"
     assert workflow["jobs"]["promote-weblate-xliff"]["if"] == (
-        "github.event_name == 'workflow_dispatch' || github.ref_name == env.WEBLATE_BRANCH"
+        "github.event_name == 'workflow_dispatch' || startsWith(github.ref_name, 'weblate/')"
     )
     assert "Checkout target translation branch" in workflow_text
     assert "ref: ${{ env.TARGET_BRANCH }}" in workflow_text

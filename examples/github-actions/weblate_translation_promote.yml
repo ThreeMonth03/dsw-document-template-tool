@@ -37,7 +37,7 @@ jobs:
   promote-weblate-xliff:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      github.ref_name == env.WEBLATE_BRANCH
+      startsWith(github.ref_name, 'weblate/')
     runs-on: ubuntu-latest
 
     steps:
