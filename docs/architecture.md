@@ -14,7 +14,11 @@ when deciding where a change belongs.
   configuration.
 - `examples/` contains copy-pasteable workflow templates. Updating examples does
   not update existing downstream branches by itself.
-- `workspace/` contains checked-in fixture KMs and project events only.
+- `fixtures/` contains checked-in demo/regression project fixtures and matching
+  Knowledge Model bundles.
+- `workspace/` is reserved for local or generated document-template workspaces.
+  It should not contain checked-in version workspaces on this tool repo's
+  default branch.
 - `outputs/` and `.cache/` are generated and ignored.
 
 ## Template Transform Layer
@@ -92,8 +96,8 @@ src/dsw_document_template_tool/cli/translation_tree.py
 
 ## Render and Regression Layer
 
-- `render_project.py`: imports KM/template/project fixtures into DSW and renders
-  a PDF preview.
+- `render_project.py`: imports Knowledge Model, template, and project fixtures
+  into DSW and renders a PDF preview.
 - `fixture_generator.py`: creates deterministic generated project fixtures from
   compiled DSW questionnaire models.
 - `html_diff.py`: normalizes rendered HTML and reports behavior differences.

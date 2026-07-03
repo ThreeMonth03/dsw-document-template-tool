@@ -55,9 +55,7 @@ Bad units:
 2. Run:
 
    ```shell
-   make format-check
-   make lint
-   make test
+   make check
    ```
 
 3. Build clean upstream artifacts:

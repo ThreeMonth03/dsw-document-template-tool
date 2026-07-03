@@ -12,7 +12,7 @@ This repository produces:
 - parser and translation-tree infrastructure
 - metamodel-to-DSW runtime compatibility
 - clean scaffold release assets and preview PDFs
-- demo KM/project fixtures used by CI
+- demo project fixtures and matching Knowledge Model bundles used by CI
 - helper scripts and workflow templates consumed by translation repositories
 
 Clean scaffold assets are inputs for translation repositories. They are not
@@ -137,9 +137,7 @@ handoff details.
 
    ```shell
    make sync-dsw-runtime-matrix
-   make format-check
-   make lint
-   make test
+   make check
    ```
 
 Then merge only after human review. A green probe means the tool repo has a
@@ -153,9 +151,7 @@ branch.
 Before asking translators to continue, prove the generated tree is still safe:
 
 ```shell
-make format-check
-make lint
-make test
+make check
 make discover-upstream-compat
 make build-upstream-artifacts
 make generate-compat-ledger

@@ -14,7 +14,7 @@ release automation for clean upstream scaffolds.
 | --- | --- |
 | Parser, transform, migration, render, and CI helper code | Shared infrastructure for document-template translation workflows. |
 | Clean scaffold release assets | Versioned upstream-derived workspaces, packages, checksums, and previews published from CI. |
-| Demo KM/project fixtures | Stable inputs for local and CI render previews. |
+| Demo project fixtures and matching Knowledge Model bundles | Stable inputs for local and CI render previews. |
 | Example workflows and helper scripts | Reusable automation templates for repositories that consume the clean scaffold assets. |
 
 Generated workspaces, generated packages, render outputs, and caches are build
@@ -27,9 +27,7 @@ For a local development sanity check:
 
 ```shell
 make install-dev
-make format-check
-make lint
-make test
+make check
 ```
 
 For anything beyond that, start from the task map below. The root README is only

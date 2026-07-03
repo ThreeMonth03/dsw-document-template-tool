@@ -4,7 +4,7 @@ This directory is reserved for local/generated document-template workspaces.
 Checked-in test inputs live under `fixtures/` instead:
 
 - `fixtures/knowledge-models/`
-  stores KM bundles used by fixture projects and CI regression
+  stores Knowledge Model bundles used by fixture projects and CI regression
 - `fixtures/projects/`
   stores demo and regression project fixtures
 

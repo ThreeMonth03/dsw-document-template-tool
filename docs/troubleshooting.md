@@ -106,7 +106,7 @@ Actions:
 1. Inspect `failed.json`.
 2. Inspect `outputs/ci-dsw/`.
 3. Confirm template `metamodelVersion` matches the DSW runtime.
-4. Confirm KM bundle and project fixture are compatible.
+4. Confirm the Knowledge Model bundle and project fixture are compatible.
 5. Re-run with a clean DSW stack.
 
 ## Release Upload Fails

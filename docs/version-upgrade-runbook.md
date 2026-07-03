@@ -81,9 +81,7 @@ If CI reports an unsupported metamodel:
 6. Run:
 
    ```shell
-   make format-check
-   make lint
-   make test
+   make check
    ```
 
 7. Push and confirm tool CI builds clean scaffold release assets for the new tag.

@@ -65,9 +65,7 @@ Before pushing infra changes:
 
 ```shell
 make sync-dsw-runtime-matrix
-make format-check
-make lint
-make test
+make check
 git diff --check
 ```
 

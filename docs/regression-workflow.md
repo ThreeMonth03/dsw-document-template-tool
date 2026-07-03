@@ -39,9 +39,10 @@ Fixtures use the same logical shape as DSW projects:
 - a stable list of project events
 - a render request using a document template
 
-The repo keeps project fixtures under `fixtures/projects/` and the checked-in KM
-bundle under `fixtures/knowledge-models/`. CI can recreate those projects in an
-ephemeral local DSW stack, render PDFs, and upload previews as artifacts.
+The repo keeps project fixtures under `fixtures/projects/` and the matching
+Knowledge Model bundle under `fixtures/knowledge-models/`. CI can recreate
+those projects in an ephemeral local DSW stack, render PDFs, and upload
+previews as artifacts.
 
 For broad regression coverage, generated fixtures ask the DSW API for the
 compiled questionnaire model and produce deterministic event payloads. The

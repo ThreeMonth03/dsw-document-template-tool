@@ -1,17 +1,15 @@
 # QA Checklist
 
 Use this before trusting tool-generated clean scaffold artifacts or parser
-changes. Translation wording, glossary review, and manual DSW/depositar import
-belong in the downstream translation repository.
+changes. Translation wording, glossary review, and manual import into any public
+DSW instance belong in the downstream translation repository.
 
 ## Structural Checks
 
 Run or confirm CI ran:
 
 ```shell
-make format-check
-make lint
-make test
+make check
 ```
 
 For a generated translation tree or synced output:

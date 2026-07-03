@@ -10,7 +10,7 @@ The tool repo owns reusable infrastructure:
 - parser and template transform logic
 - translation tree export, merge, sync, and audits
 - clean upstream scaffold artifacts for supported template tags
-- demo KM/project fixtures used by CI previews
+- demo project fixtures and matching Knowledge Model bundles used by CI previews
 - helper scripts under `scripts/ci/`
 - copy-paste workflow templates under `examples/`
 

@@ -16,6 +16,7 @@ TRANSLATION_REPO_DIR=/path/to/document-template-translation
 
 ```shell
 make install-dev
+make check
 make format
 make format-check
 make lint
@@ -223,7 +224,7 @@ make publish-translated-template \
 This target pushes a reviewable branch using the configured downstream
 `publish.branch_prefix`, currently `sync/v*` in the translation repository. It
 does not update the downstream default branch and does not import the template
-into DSW/depositar.
+into any DSW instance or public deployment.
 
 Download clean scaffold artifacts from the latest successful tool CI run:
 

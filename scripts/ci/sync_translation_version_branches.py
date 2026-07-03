@@ -95,7 +95,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--tooling-root",
         required=True,
-        help="Checked-out DSW-document-template-tool repository.",
+        help="Checked-out tooling repository.",
     )
     parser.add_argument(
         "--config",
@@ -789,10 +789,10 @@ def _yaml_scalar(value: str) -> str:
 def remove_branch_local_demo_assets(checkout: Path) -> None:
     """Remove stale demo fixtures from translation version branches.
 
-    Version branches should use the demo KM/project checked out from the tooling
-    repository by their workflow. Keeping copies in downstream branches makes
-    preview artifacts depend on whichever stale fixture happened to be committed
-    there.
+    Version branches should use the demo project and Knowledge Model fixtures
+    checked out from the tooling repository by their workflow. Keeping copies in
+    downstream branches makes preview artifacts depend on whichever stale
+    fixture happened to be committed there.
     """
 
     for relative_dir in BRANCH_LOCAL_DEMO_ASSET_DIRS:

@@ -7,7 +7,7 @@ payload, and regression configs may also reference an events payload directly.
 ## Layout
 
 - `knowledge-models/`
-  contains KM bundles referenced by checked-in project fixtures.
+  contains Knowledge Model bundles referenced by checked-in project fixtures.
 - `projects/demo/`
   contains the human-readable sample project used for translated template
   preview PDFs and release assets.

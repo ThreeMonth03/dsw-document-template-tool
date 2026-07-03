@@ -76,7 +76,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile discover-upstream-compat docs docs-clean export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile discover-upstream-compat docs docs-clean export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -89,6 +89,7 @@ help:
 	'  venv              Create $(VENV_DIR) when it does not exist' \
 	'  install-dev       Install local dev dependencies from config/requirements.txt' \
 	'  install-hooks     Install local git pre-commit hooks' \
+	'  check             Run the standard local maintainer checks' \
 	'  compile           Run Python syntax compilation checks' \
 	'  format            Auto-fix imports/style and format Python files' \
 	'  format-check      Check formatting without modifying files' \
@@ -137,6 +138,8 @@ install-dev: venv
 
 install-hooks: venv
 	$(PYTHON) -m pre_commit install
+
+check: format-check lint test
 
 compile: venv
 	$(PYTHON) -m compileall -q $(PYTHON_LINT_PATHS)

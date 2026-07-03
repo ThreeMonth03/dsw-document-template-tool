@@ -6,8 +6,8 @@ repository.
 ## Current Policy
 
 - Tool repo clean scaffold release assets use the built-in `GITHUB_TOKEN`.
-- Tool repo CI does not publish to depositar or to public translated template
-  source repositories.
+- Tool repo CI does not publish to public DSW instances or public translated
+  template source repositories.
 - No downstream publication token is required by this repo's normal workflow.
 
 Downstream translation repositories own their own publication and manual import

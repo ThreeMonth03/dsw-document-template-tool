@@ -52,7 +52,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--tooling-root",
         required=True,
-        help="Checked-out DSW-document-template-tool repository.",
+        help="Checked-out tooling repository.",
     )
     parser.add_argument(
         "--config",
