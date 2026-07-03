@@ -50,7 +50,8 @@ TRANSLATION_OPERATIONS_BRANCH=master
    gh release list \
      --repo "$TOOL_GITHUB_REPO" \
      --limit 30 \
-     | grep '^clean-scaffold-dsw-science-europe-'
+     --json tagName \
+     --jq '.[].tagName | select(startswith("clean-scaffold-dsw-science-europe-"))'
    ```
 
    The release name pattern is:

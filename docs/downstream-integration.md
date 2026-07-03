@@ -59,8 +59,9 @@ A downstream translation repository owns:
 - a configured operations branch containing
   `translation-config.yml`, docs, fixtures, and repository workflows
 - version branches such as `translation/v1.30.1`
-- public handoff branches such as `publish/v1.30.1` when the same repository
-  also stores clean translated template source
+- public handoff branches using the configured publish prefix, such as
+  `sync/v1.30.1`, when the same repository also stores clean translated
+  template source
 - translator-facing `translation.md` edits
 - the user-facing public README copied into generated DSW template packages
 - glossary and i10n review
