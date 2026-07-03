@@ -225,3 +225,8 @@ to avoid requiring elevated token scopes. Apply important workflow fixes in the
 downstream repo by running `sync_translation_version_branches.py` with
 `--sync-workflows`, or by making an explicit workflow-only maintenance commit
 there.
+
+The template is intended for version-specific `translation/v*` branches. It is
+triggered by pull requests, pushes, and manual dispatch. Daily scheduled
+maintenance belongs in the downstream operations workflow on the default branch;
+do not rely on `schedule` triggers in generated version-branch workflows.

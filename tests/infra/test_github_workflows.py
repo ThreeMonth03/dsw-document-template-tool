@@ -263,7 +263,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
 
     assert workflow["on"]["pull_request"]["branches"] == ["master"]
     assert "workflow_dispatch" in workflow["on"]
-    assert workflow["on"]["schedule"][0]["cron"] == "0 20 * * *"
+    assert "schedule" not in workflow["on"]
+    assert "github.event_name == 'schedule'" not in workflow_text
     assert workflow["permissions"]["contents"] == "write"
     assert workflow["permissions"]["statuses"] == "write"
     assert workflow["permissions"]["actions"] == "write"
