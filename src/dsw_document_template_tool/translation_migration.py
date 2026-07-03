@@ -712,11 +712,11 @@ def _load_version_policy(payload: object) -> VersionPolicyConfig:
     defaults = _load_version_policy_values(
         payload.get("defaults", {}),
         fallback=VersionPolicyValues(
-            state="active",
-            refresh="auto",
-            migrate_into="auto",
-            publish_release=True,
-            reason="",
+            state="available",
+            refresh="false",
+            migrate_into="false",
+            publish_release=False,
+            reason="available scaffold only; opt in before translating",
         ),
     )
 

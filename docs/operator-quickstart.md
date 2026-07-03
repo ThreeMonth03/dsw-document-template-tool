@@ -105,10 +105,11 @@ gh workflow run document_template_translation_sync.yml \
 ```
 
 That downstream workflow is responsible for updating its own
-`translation-config.yml`, creating or refreshing `translation/v*` branches, and
-opening migration PRs according to the translation repository policy. Review the
-translation repository run there; do not treat the clean scaffold release as a
-finished translated template.
+`translation-config.yml`, recording newly available scaffold versions, creating
+or refreshing policy-enabled `translation/v*` branches, and opening migration
+PRs according to the translation repository policy. Review the translation
+repository run there; do not treat the clean scaffold release as a finished
+translated template.
 
 Important: a green clean scaffold release only means the upstream template can
 be transformed, packaged, and previewed. It does not mean a translated branch or
@@ -140,7 +141,9 @@ handoff details.
 
 Then merge only after human review. A green probe means the tool repo has a
 tested runtime candidate; it is not an auto-merge signal. Only after that should
-the translation repository create or refresh a matching version branch.
+the translation repository record the new scaffold version and decide, through
+its `version_policy`, whether to create or refresh a matching translation
+branch.
 
 ## When Parser or Translation-Tree Logic Changes
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synchronize translation version branches from clean scaffold artifacts."""
+"""Synchronize known versions and policy-enabled translation branches."""
 
 from __future__ import annotations
 
@@ -80,7 +80,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
     """Build CLI arguments."""
 
     parser = argparse.ArgumentParser(
-        description="Create missing translation version branches from clean artifacts.",
+        description=(
+            "Record clean scaffold versions and create or refresh policy-enabled "
+            "translation version branches."
+        ),
     )
     parser.add_argument(
         "--repo",
@@ -182,7 +185,7 @@ def sync_translation_versions(
     refresh_existing: bool = False,
     policy_mode: str = "auto",
 ) -> SyncResult:
-    """Update supported versions and synchronize version branches."""
+    """Update known versions and synchronize policy-enabled version branches."""
 
     config = load_translation_repository_config(config_path)
     existing_versions = tuple(config.template.supported_versions)
@@ -933,7 +936,7 @@ def merge_preserved_translations(
 
 
 def write_supported_versions(config_path: Path, versions: tuple[str, ...]) -> None:
-    """Update the configured supported version list."""
+    """Update the configured known upstream version ledger."""
 
     payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     payload["template"]["supported_versions"] = list(versions)

@@ -198,6 +198,56 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert not _git_path_exists(translation_repo, "translation/v1.30.2:outputs")
 
 
+def test_sync_translation_versions_records_new_artifact_without_policy_opt_in(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """New clean artifacts should not create translation branches unless policy opts in."""
+
+    sync_module = _load_sync_module(repo_root)
+    origin = tmp_path / "origin.git"
+    translation_repo = tmp_path / "translation-repo"
+    artifact_root = tmp_path / "tooling-artifacts"
+
+    _run_git(tmp_path, "init", "--bare", str(origin))
+    _run_git(tmp_path, "init", "--initial-branch=master", str(translation_repo))
+    _run_git(translation_repo, "config", "user.name", "Test User")
+    _run_git(translation_repo, "config", "user.email", "test@example.invalid")
+    _run_git(translation_repo, "remote", "add", "origin", str(origin))
+    _write_translation_config(
+        translation_repo / "translation-config.yml",
+        include_version_policy=False,
+    )
+    (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
+    _run_git(translation_repo, "add", ".")
+    _run_git(translation_repo, "commit", "-m", "initial operations branch")
+    _run_git(translation_repo, "push", "-u", "origin", "master")
+
+    _write_clean_artifact(artifact_root, version="v1.30.2")
+
+    result = sync_module.sync_translation_versions(
+        repo=translation_repo,
+        tooling_root=repo_root,
+        config_path=translation_repo / "translation-config.yml",
+        clean_artifact_root=artifact_root,
+        tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
+        push=False,
+        dry_run=False,
+    )
+
+    assert result.previous_latest_version == "v1.30.1"
+    assert result.current_latest_version == "v1.30.2"
+    assert result.added_versions == ("v1.30.2",)
+    assert result.created_branches == ()
+    assert result.config_changed is True
+
+    config = yaml.safe_load(
+        (translation_repo / "translation-config.yml").read_text(encoding="utf-8")
+    )
+    assert config["template"]["supported_versions"] == ["v1.30.1", "v1.30.2"]
+    assert not _git_branch_exists(translation_repo, "translation/v1.30.2")
+
+
 def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact(
     repo_root: Path,
     tmp_path: Path,
@@ -930,12 +980,25 @@ def _write_translation_config(
     path: Path,
     *,
     supported_versions: tuple[str, ...] = ("v1.30.1",),
+    include_version_policy: bool = True,
     tooling_repository: str = "ThreeMonth03/DSW-document-template-tool",
     tooling_ref: str = "master",
     translated_template_id: str = "science-europe-zh-hant",
     translated_template_name: str = "Science Europe DMP Template (zh-Hant)",
 ) -> None:
     supported_versions_yaml = "\n".join(f"    - {version}" for version in supported_versions)
+    version_policy_yaml = (
+        """
+version_policy:
+  defaults:
+    state: active
+    refresh: auto
+    migrate_into: auto
+    publish_release: true
+"""
+        if include_version_policy
+        else ""
+    )
     path.write_text(
         f"""
 schema_version: 1
@@ -947,6 +1010,8 @@ template:
   supported_ref_spec: v1.29.1+
   supported_versions:
 {supported_versions_yaml}
+
+{version_policy_yaml}
 
 translation:
   source_language: en
@@ -1075,6 +1140,15 @@ def _git_output(repo: Path, *args: str) -> str:
         text=True,
     )
     return result.stdout.strip()
+
+
+def _git_branch_exists(repo: Path, branch: str) -> bool:
+    result = subprocess.run(
+        ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{branch}"],
+        cwd=repo,
+        check=False,
+    )
+    return result.returncode == 0
 
 
 def _git_path_exists(repo: Path, revision: str) -> bool:

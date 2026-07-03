@@ -122,6 +122,15 @@ automation. Scheduled workflows should keep the default `--policy-mode auto`;
 operator-triggered maintenance refreshes can pass `--policy-mode manual` if the
 downstream repository's `version_policy` allows it.
 
+`template.supported_versions` is the downstream repository's known upstream
+version ledger. It may contain versions that have clean scaffold artifacts but
+are not actively translated. Branch creation and content refresh are controlled
+by `version_policy`: only versions whose effective `refresh` value is `auto`
+for scheduled runs, or `auto`/`manual` for operator-triggered runs, get
+`translation/v*` workspaces. If `version_policy` is omitted, the tool treats
+newly discovered versions as scaffold-only records and does not create
+translation branches.
+
 The branch sync workflow reads `public_readme.path` from the downstream
 `translation-config.yml`. The default is:
 
@@ -164,12 +173,12 @@ gh workflow run document_template_translation_sync.yml \
   --ref ops
 ```
 
-That run downloads the latest clean scaffold artifacts from the tool repo,
-updates `translation-config.yml` on the operations branch, creates or refreshes
-supported `translation/v*` branches, updates generated branch workflows, and may
-create exact-only migration PRs. Version-branch sync treats `translation.md` as
-canonical. Optional XLIFF exchange is available as a helper command, but it is
-not part of the default branch automation.
+That run downloads the latest clean scaffold artifacts from the tool repo and
+updates `translation-config.yml` on the operations branch. It creates or
+refreshes only policy-enabled `translation/v*` branches, updates generated
+branch workflows, and may create exact-only migration PRs. Version-branch sync
+treats `translation.md` as canonical. Optional XLIFF exchange is available as a
+helper command, but it is not part of the default branch automation.
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 

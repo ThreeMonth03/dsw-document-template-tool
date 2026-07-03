@@ -129,7 +129,8 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
         *policy_rows,
         "",
         "All configured upstream tags exist.",
-        "Missing translation branches are created by the migration job.",
+        "The migration job creates or refreshes only versions whose policy allows refresh.",
+        "Versions with `refresh: false` remain scaffold-only records until maintainers opt in.",
         "",
     ]
     return "\n".join(lines)

@@ -70,7 +70,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--target-version",
         action="append",
         default=[],
-        help="Target version tag. May be repeated. Defaults to all other supported versions.",
+        help=(
+            "Target version tag. May be repeated. Defaults to versions whose "
+            "version_policy.migrate_into value is auto."
+        ),
     )
     parser.add_argument(
         "--dry-run",

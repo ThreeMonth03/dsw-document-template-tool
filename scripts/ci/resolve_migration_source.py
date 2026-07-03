@@ -27,12 +27,12 @@ def main() -> None:
     parser.add_argument(
         "--previous-latest-version",
         default="",
-        help="Latest supported version before syncing clean artifacts.",
+        help="Latest known upstream version before syncing clean artifacts.",
     )
     parser.add_argument(
         "--current-latest-version",
         default="",
-        help="Latest supported version after syncing clean artifacts.",
+        help="Latest known upstream version after syncing clean artifacts.",
     )
     parser.add_argument(
         "--github-output",

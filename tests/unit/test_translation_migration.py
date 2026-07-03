@@ -43,6 +43,13 @@ template:
     - v1.30.0
     - v1.30.1
 
+version_policy:
+  defaults:
+    state: active
+    refresh: auto
+    migrate_into: auto
+    publish_release: true
+
 translation:
   source_language: en
   target_language: zh_Hant
@@ -189,6 +196,25 @@ def test_translation_config_rejects_unknown_non_exact_policy(tmp_path: Path) -> 
 
     with pytest.raises(TranslationMigrationError, match="non-exact migration policy"):
         load_translation_repository_config(config_path)
+
+
+def test_translation_config_without_version_policy_is_scaffold_only(tmp_path: Path) -> None:
+    """Missing policy should not accidentally opt every upstream tag into translation."""
+
+    config_path = _write_config(tmp_path)
+    payload = config_path.read_text(encoding="utf-8")
+    start = payload.index("version_policy:\n")
+    end = payload.index("translation:\n")
+    config_path.write_text(payload[:start] + payload[end:], encoding="utf-8")
+
+    config = load_translation_repository_config(config_path)
+
+    assert version_policy_decision(config, "v1.30.1").state == "available"
+    assert version_policy_allows_auto_refresh(config, "v1.30.1") is False
+    assert version_policy_allows_manual_refresh(config, "v1.30.1") is False
+    assert version_policy_decision(config, "v1.30.1").migrate_into == "false"
+    assert version_policy_decision(config, "v1.30.1").publish_release is False
+    assert target_versions(config, "v1.30.0") == []
 
 
 def test_translation_config_rejects_string_booleans(tmp_path: Path) -> None:

@@ -139,6 +139,12 @@ Downstream translation repos commonly use one branch per upstream template
 version. This repo provides helpers for that model, but the branch policy itself
 belongs downstream.
 
+Clean scaffold discovery can record every compatible upstream tag in
+`template.supported_versions`. That does not mean every tag must be translated.
+Downstream repositories opt versions into translator-facing branches with
+`version_policy.refresh`; omitted policy defaults to scaffold-only so new tags
+do not silently become translation work.
+
 Cross-version migration is exact-only by default. A translation is copied only
 when the source hash and executable placeholders match. If the source sentence,
 Jinja shape, or HTML structure changed, the target translation block stays empty

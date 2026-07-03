@@ -45,8 +45,9 @@ def test_validate_translation_config_accepts_existing_upstream_tags(
     assert (
         "Public README path: `workspace/document-templates/public-readme/README.md`" in summary_text
     )
-    assert "| `v1.29.1` | `active` | `auto` | `auto` | `true` |" in summary_text
-    assert "| `v1.30.0` | `active` | `auto` | `auto` | `true` |" in summary_text
+    assert "| `v1.29.1` | `available` | `false` | `false` | `false` |" in summary_text
+    assert "| `v1.30.0` | `available` | `false` | `false` | `false` |" in summary_text
+    assert "Versions with `refresh: false` remain scaffold-only records" in summary_text
 
 
 def test_validate_translation_config_normalizes_github_owner_repo(
