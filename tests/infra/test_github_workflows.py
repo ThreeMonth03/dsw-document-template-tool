@@ -18,6 +18,19 @@ def load_workflow_yaml(path: Path) -> dict[str, object]:
     return yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
 
 
+def test_docs_site_uses_furo_theme(repo_root: Path) -> None:
+    """The public docs should use the same Sphinx theme family as the KM tool."""
+
+    conf_text = (repo_root / "docs" / "conf.py").read_text(encoding="utf-8")
+    requirements_text = (repo_root / "config" / "requirements.txt").read_text(
+        encoding="utf-8",
+    )
+
+    assert 'html_theme = "furo"' in conf_text
+    assert "furo>=2024,<2027" in requirements_text
+    assert "sphinx-rtd-theme" not in requirements_text
+
+
 def test_headless_render_regression_workflow(repo_root: Path) -> None:
     """The checked-in workflow should keep pointing at the supported CI path."""
 

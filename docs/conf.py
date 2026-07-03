@@ -14,7 +14,8 @@ source_suffix = {
 master_doc = "index"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
+html_title = "DSW Document Template Tool"
 html_static_path: list[str] = []
 
 myst_heading_anchors = 3
