@@ -292,6 +292,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     legacy_external_platform_workflow = (
         translation_repo / ".github/workflows/weblate_translation_promote.yml"
     )
+    legacy_external_platform_xliff = translation_repo / "weblate/dsw-science-europe.zh_Hant.xlf"
     old_compact.parent.mkdir(parents=True, exist_ok=True)
     old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
     stale_project.parent.mkdir(parents=True, exist_ok=True)
@@ -309,6 +310,11 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     legacy_workflow.write_text("legacy version workflow\n", encoding="utf-8")
     legacy_external_platform_workflow.write_text(
         "legacy external platform workflow\n",
+        encoding="utf-8",
+    )
+    legacy_external_platform_xliff.parent.mkdir(parents=True, exist_ok=True)
+    legacy_external_platform_xliff.write_text(
+        "legacy external platform exchange file\n",
         encoding="utf-8",
     )
     _run_git(translation_repo, "add", ".")

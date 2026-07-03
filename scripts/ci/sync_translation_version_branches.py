@@ -55,7 +55,10 @@ VERSION_BRANCH_CLEANUP_PATHS = (
     Path("workspace") / "projects",
 )
 
-OBSOLETE_VERSION_BRANCH_PATHS = (Path(".github") / "workflows" / "weblate_translation_promote.yml",)
+OBSOLETE_VERSION_BRANCH_PATHS = (
+    Path(".github") / "workflows" / "weblate_translation_promote.yml",
+    Path("weblate") / "dsw-science-europe.zh_Hant.xlf",
+)
 
 BRANCH_LOCAL_DEMO_ASSET_DIRS = (
     Path("fixtures") / "knowledge-models",
