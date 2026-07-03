@@ -55,11 +55,6 @@ VERSION_BRANCH_CLEANUP_PATHS = (
     Path("workspace") / "projects",
 )
 
-OBSOLETE_VERSION_BRANCH_PATHS = (
-    Path(".github") / "workflows" / "weblate_translation_promote.yml",
-    Path("weblate") / "dsw-science-europe.zh_Hant.xlf",
-)
-
 BRANCH_LOCAL_DEMO_ASSET_DIRS = (
     Path("fixtures") / "knowledge-models",
     Path("fixtures") / "projects" / "demo",
@@ -630,8 +625,6 @@ def finalize_version_branch_workspace(
     for relative_path in VERSION_BRANCH_CLEANUP_PATHS:
         if relative_path == Path(".github") and not sync_workflows:
             continue
-        remove_path(checkout / relative_path)
-    for relative_path in OBSOLETE_VERSION_BRANCH_PATHS:
         remove_path(checkout / relative_path)
     write_version_branch_gitignore(checkout)
     write_version_branch_readme(checkout=checkout, config=config, version=version)

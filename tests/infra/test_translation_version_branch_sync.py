@@ -116,10 +116,6 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    assert not _git_path_exists(
-        translation_repo,
-        "translation/v1.30.2:.github/workflows/weblate_translation_promote.yml",
-    )
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
@@ -128,16 +124,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         translation_repo,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    assert "WEBLATE_BRANCH" not in workflow_text
-    assert "WEBLATE_XLIFF" not in workflow_text
-    assert "scripts/ci/reconcile_weblate_review_branch.py" not in workflow_text
-    assert "scripts/ci/align_weblate_review_branch.py" not in workflow_text
-    assert "steps.reconcile_weblate.outputs.review_revision" not in workflow_text
     assert 'src/translation_tree.py" import-xliff' not in workflow_text
-    assert not _git_path_exists(
-        translation_repo,
-        "translation/v1.30.2:weblate/dsw-science-europe.zh_Hant.xlf",
-    )
     assert (
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.2/'
         'zh-Hant/test-project.pdf"'
@@ -289,10 +276,6 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_workspace_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
     stale_public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
     legacy_workflow = translation_repo / ".github/workflows/document_template_translation_sync.yml"
-    legacy_external_platform_workflow = (
-        translation_repo / ".github/workflows/weblate_translation_promote.yml"
-    )
-    legacy_external_platform_xliff = translation_repo / "weblate/dsw-science-europe.zh_Hant.xlf"
     old_compact.parent.mkdir(parents=True, exist_ok=True)
     old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
     stale_project.parent.mkdir(parents=True, exist_ok=True)
@@ -308,15 +291,6 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_workspace_km.write_text("stale branch-local workspace km\n", encoding="utf-8")
     stale_public_readme.write_text("stale public README\n", encoding="utf-8")
     legacy_workflow.write_text("legacy version workflow\n", encoding="utf-8")
-    legacy_external_platform_workflow.write_text(
-        "legacy external platform workflow\n",
-        encoding="utf-8",
-    )
-    legacy_external_platform_xliff.parent.mkdir(parents=True, exist_ok=True)
-    legacy_external_platform_xliff.write_text(
-        "legacy external platform exchange file\n",
-        encoding="utf-8",
-    )
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
     _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
@@ -423,20 +397,6 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
             "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
         )
         == "legacy version workflow\n"
-    )
-    assert not _git_path_exists(
-        translation_repo,
-        "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
-    )
-    workflow_text = _git_show(
-        translation_repo,
-        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
-    )
-    assert "WEBLATE_BRANCH" not in workflow_text
-    assert "WEBLATE_XLIFF" not in workflow_text
-    assert not _git_path_exists(
-        translation_repo,
-        "translation/v1.30.1:weblate/dsw-science-europe.zh_Hant.xlf",
     )
     assert not _git_path_exists(
         translation_repo,
@@ -753,10 +713,6 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
         origin,
         "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
-    assert not _git_path_exists_bare(
-        origin,
-        "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
-    )
     assert not _git_path_exists_bare(origin, "translation/v1.30.1:outputs")
 
 
@@ -934,10 +890,6 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
     assert _git_path_exists_bare(
         origin,
         "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
-    )
-    assert not _git_path_exists_bare(
-        origin,
-        "translation/v1.30.2:.github/workflows/weblate_translation_promote.yml",
     )
     assert not _git_path_exists_bare(origin, "translation/v1.30.2:outputs")
 

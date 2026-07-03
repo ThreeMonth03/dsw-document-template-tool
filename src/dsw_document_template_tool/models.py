@@ -19,7 +19,7 @@ class TemplateCoordinates:
 
     @property
     def full_id(self) -> str:
-        """Return `organizationId:templateId:version`."""
+        """Return ``organizationId:templateId:version``."""
 
         return f"{self.organization_id}:{self.template_id}:{self.version}"
 

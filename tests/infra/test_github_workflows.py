@@ -349,17 +349,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert '"$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" \\' in workflow_text
     assert '"$TRANSLATION_TREE_DIR/outline.md" \\' in workflow_text
     assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
-    assert '"$WEBLATE_XLIFF"' not in workflow_text
     assert 'git push origin "HEAD:refs/heads/$TARGET_REF"' in workflow_text
-    assert "Reconcile Weblate review branch" not in workflow_text
-    assert "id: reconcile_weblate" not in workflow_text
-    assert "scripts/ci/reconcile_weblate_review_branch.py" not in workflow_text
-    assert "Align Weblate review branch" not in workflow_text
-    assert "scripts/ci/align_weblate_review_branch.py" not in workflow_text
     assert '--target-branch "$GITHUB_REF_NAME"' not in workflow_text
-    assert '--weblate-branch "$WEBLATE_BRANCH"' not in workflow_text
-    assert "WEBLATE_EXPECTED_REVISION" not in workflow_text
-    assert "steps.reconcile_weblate.outputs.review_revision" not in workflow_text
     assert 'src/translation_tree.py" sync' in workflow_text
     assert 'src/translation_tree.py" audit-output' in workflow_text
     assert "--template-organization-id" in workflow_text
