@@ -24,6 +24,7 @@ Set repository names once before copying GitHub commands:
 
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
+TOOL_OPERATIONS_BRANCH=master
 TRANSLATION_GITHUB_REPO=owner/document-template-translation
 TRANSLATION_OPERATIONS_BRANCH=master
 ```
@@ -79,7 +80,7 @@ NEW_TAG=vX.Y.Z
    ```shell
    gh workflow run headless_render_regression.yml \
      --repo "$TOOL_GITHUB_REPO" \
-     --ref master
+     --ref "$TOOL_OPERATIONS_BRANCH"
    ```
 
 2. Check the latest tool CI run. For a tag whose `metamodelVersion` is already

@@ -704,6 +704,9 @@ def write_version_branch_workflow(
             f"TOOLING_REPOSITORY: {_yaml_scalar(config.tooling.repository)}"
         ),
         "TOOLING_REF: main": f"TOOLING_REF: {_yaml_scalar(config.tooling.ref)}",
+        "OPERATIONS_BRANCH: master": (
+            f"OPERATIONS_BRANCH: {_yaml_scalar(config.branches.control_branch)}"
+        ),
         "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0": (
             f"COMPACT_TEMPLATE_DIR: {_yaml_scalar(paths.compact_template_dir.as_posix())}"
         ),
@@ -766,7 +769,6 @@ def write_version_branch_workflow(
         'PUBLISH_RELEASE_ASSETS: "true"': (
             f"PUBLISH_RELEASE_ASSETS: {_yaml_scalar(str(policy.publish_release).lower())}"
         ),
-        "--ref master": f"--ref {config.branches.control_branch}",
     }
     for old, new in replacements.items():
         if old not in workflow:

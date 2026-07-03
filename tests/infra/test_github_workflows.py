@@ -275,6 +275,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "skip-fork-pr" in workflow["jobs"]
     assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
     assert workflow["env"]["TOOLING_REF"] == "main"
+    assert workflow["env"]["OPERATIONS_BRANCH"] == "master"
     assert workflow["env"]["COMPACT_TEMPLATE_DIR"].startswith(
         "workspace/document-templates/compact/"
     )
@@ -380,7 +381,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
         "'chore(sync): refresh document template translations')"
     ) in workflow_text
     assert "gh workflow run document_template_translation_sync.yml" in workflow_text
-    assert "--ref master" in workflow_text
+    assert '--ref "$OPERATIONS_BRANCH"' in workflow_text
+    assert "--ref master" not in workflow_text
     assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
     assert "Operations migration dispatched" in workflow_text
     assert "::error title=Translation sync failed::" in workflow_text

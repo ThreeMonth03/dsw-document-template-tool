@@ -22,6 +22,7 @@ env:
   # Pin this to a released branch/tag in production.
   TOOLING_REPOSITORY: owner/document-template-tool
   TOOLING_REF: main
+  OPERATIONS_BRANCH: master
 
   # Change only these paths for the host repository.
   COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0
@@ -445,13 +446,13 @@ jobs:
           set -euo pipefail
           gh workflow run document_template_translation_sync.yml \
             --repo "$GITHUB_REPOSITORY" \
-            --ref master \
+            --ref "$OPERATIONS_BRANCH" \
             -f source_version="v$TRANSLATED_TEMPLATE_VERSION"
 
           {
             echo "## Operations migration dispatched"
             echo
-            echo "Requested master operations migration from"
+            echo "Requested \`$OPERATIONS_BRANCH\` operations migration from"
             echo "\`v$TRANSLATED_TEMPLATE_VERSION\` after this version branch passed."
           } >> "$GITHUB_STEP_SUMMARY"
 

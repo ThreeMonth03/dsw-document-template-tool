@@ -171,7 +171,7 @@ Add a new runtime only after verifying the matching DSW server and TDK versions.
 ## Outputs
 
 Regression artifacts are generated under `outputs/` and uploaded by CI. They are
-not committed to `master`.
+not committed to the repository's default branch.
 
 Important output families:
 
