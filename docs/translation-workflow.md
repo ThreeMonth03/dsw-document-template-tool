@@ -110,9 +110,8 @@ so the validation rules stay centralized.
 
 Do not point an external platform at generated compact, expanded, translated
 output, or public publish branches. It should only edit an explicit XLIFF
-exchange file. The default downstream workflow does not create or synchronize
-XLIFF review branches; teams can enable that separately if they decide to run an
-external translation service later.
+exchange file. This tool ships import/export helpers, not a hosted translation
+service or branch-based review workflow.
 
 ## Sync and Audit
 

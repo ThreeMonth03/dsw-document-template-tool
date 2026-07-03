@@ -46,7 +46,7 @@ class BranchConfig:
 
 @dataclass(frozen=True)
 class XliffExchangeConfig:
-    """Optional XLIFF exchange policy for external translation platforms."""
+    """Optional branch-local XLIFF exchange policy."""
 
     enabled: bool
     path: Path

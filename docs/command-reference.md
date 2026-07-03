@@ -264,9 +264,9 @@ intentionally regenerate `.github/workflows/` on translation branches, add
 
 ## Optional XLIFF Exchange Helpers
 
-The default downstream workflow edits `translation.md` directly and does not
-create external review branches. These commands are lower-level escape hatches
-for a future translation platform or manual XLIFF round trip.
+The default downstream workflow edits `translation.md` directly. These commands
+are lower-level escape hatches for a manual XLIFF round trip or a future
+project-specific translation platform.
 
 Export or import XLIFF manually:
 
