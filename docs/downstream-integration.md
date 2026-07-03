@@ -118,6 +118,15 @@ Refresh version branches from downloaded artifacts:
   --refresh-existing
 ```
 
+Check cross-version migration status after the refresh:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/check_translation_migration_status.py" \
+  --repo "$TRANSLATION_REPO_DIR" \
+  --tooling-root "$TOOL_REPO_DIR" \
+  --clean-artifact-root /tmp/clean-scaffolds
+```
+
 Use `--dry-run` first when changing parser logic, supported versions, or branch
 automation. Scheduled workflows should keep the default `--policy-mode auto`;
 operator-triggered maintenance refreshes can pass `--policy-mode manual` if the
@@ -188,6 +197,10 @@ workflow files; use `--sync-workflows` only for explicit workflow maintenance.
 Version-branch sync treats `translation.md` as canonical. Optional XLIFF
 exchange is available as a helper command, but it is not part of the default
 branch automation.
+
+If no migration PR appears, use `check_translation_migration_status.py` against
+the same clean scaffold artifacts to distinguish "nothing to migrate" from "the
+workflow did not run the migration step."
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 

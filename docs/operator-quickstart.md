@@ -183,12 +183,19 @@ TRANSLATION_REPO_DIR=/path/to/document-template-translation
   --clean-artifact-root /tmp/clean-scaffolds \
   --dry-run \
   --refresh-existing
+
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/check_translation_migration_status.py" \
+  --repo "$TRANSLATION_REPO_DIR" \
+  --tooling-root "$TOOL_REPO_DIR" \
+  --clean-artifact-root /tmp/clean-scaffolds
 ```
 
 This refresh intentionally leaves version-branch workflow files alone. If the
 workflow template itself changed and you need to update active translation
 branches, rerun the helper with `--sync-workflows` using a token with workflow
-scope.
+scope. The migration status command should report `OK` for every source version
+when there are no exact-safe translations waiting to be carried across version
+branches.
 
 Use [Parser and Translation Tree](parser-and-translation-tree.md) for the full
 parser-change checklist.

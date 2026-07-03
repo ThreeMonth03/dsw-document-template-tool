@@ -45,6 +45,7 @@ TRANSLATED_TEMPLATE_ORGANIZATION_ID ?= dsw
 TRANSLATED_TEMPLATE_PACKAGE ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME).zip
 TRANSLATED_TEMPLATE_VERSION ?= $(SOURCE_TEMPLATE_VERSION)
 TRANSLATED_WORKSPACE_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(TRANSLATED_TEMPLATE_ID)-$(TRANSLATED_TEMPLATE_VERSION)
+TRANSLATION_CLEAN_ARTIFACT_ROOT ?=
 TRANSLATION_LOCALE ?= zh-Hant
 TRANSLATION_REPO ?= ../DSW-document-template-translation
 TRANSLATION_SOURCE_LOCALE ?= en
@@ -69,13 +70,13 @@ UPSTREAM_TEMPLATE_TEST_MIN_REF ?= v1.30.0
 UPSTREAM_TEMPLATE_TEST_REFS ?= latest main $(UPSTREAM_TEMPLATE_TEST_MIN_REF)+
 UPSTREAM_TEMPLATE_TEST_ROOT ?= .cache/upstream-tag-tests
 VENV_DIR ?= .venv
-WEBLATE_XLIFF ?= weblate/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 WORKSPACE_TEMPLATE_NAME ?= $(SOURCE_TEMPLATE_ID)-$(SOURCE_TEMPLATE_VERSION)
+XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix ci-dsw-logs clean compact-template compile discover-upstream-compat docs docs-clean export-fresh-translation-tree export-translation-tree export-weblate-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-weblate-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile discover-upstream-compat docs docs-clean export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -107,8 +108,8 @@ help:
 	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
 	'  export-fresh-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(FRESH_TRANSLATION_TREE_DIR)' \
 	'  merge-translation-tree Merge $(TRANSLATION_TREE_DIR) into $(MERGED_TRANSLATION_TREE_DIR)' \
-	'  export-weblate-xliff Export $(TRANSLATION_TREE_DIR) into $(WEBLATE_XLIFF)' \
-	'  import-weblate-xliff Import $(WEBLATE_XLIFF) back into $(TRANSLATION_TREE_DIR)' \
+	'  export-xliff Export $(TRANSLATION_TREE_DIR) into $(XLIFF_FILE)' \
+	'  import-xliff Import $(XLIFF_FILE) back into $(TRANSLATION_TREE_DIR)' \
 	'  audit-translation-tree Check translation blocks for unsafe Jinja/control syntax' \
 	'  sync-translation-tree Apply translations and package $(TRANSLATED_TEMPLATE_PACKAGE)' \
 	'  audit-translated-template Check translated output kept expanded template structure' \
@@ -118,6 +119,7 @@ help:
 	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
 	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
+	'  check-translation-migrations Dry-run exact-only migration across active translation branches' \
 	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
@@ -165,6 +167,12 @@ sync-dsw-runtime-matrix: venv
 check-dsw-runtime-matrix: venv
 	$(PYTHON) scripts/ci/sync_dsw_runtime_matrix.py --check
 
+check-translation-migrations: venv
+	TRANSLATION_CLEAN_ARTIFACT_ROOT="$(TRANSLATION_CLEAN_ARTIFACT_ROOT)" \
+		$(PYTHON) scripts/ci/check_translation_migration_status.py \
+		--repo "$(TRANSLATION_REPO)" \
+		--tooling-root "."
+
 verify-template: venv
 	@test -n "$(TEMPLATE_DIR)" || (echo "Set TEMPLATE_DIR=/path/to/template" && exit 2)
 	$(DSW_TDK) verify $(TEMPLATE_DIR)
@@ -194,17 +202,17 @@ merge-translation-tree: export-fresh-translation-tree venv
 		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
 		--target-lang "$(TRANSLATION_TARGET_LANG)"
 
-export-weblate-xliff: venv
+export-xliff: venv
 	$(PYTHON) src/translation_tree.py export-xliff \
 		--tree "$(TRANSLATION_TREE_DIR)" \
-		--output "$(WEBLATE_XLIFF)" \
+		--output "$(XLIFF_FILE)" \
 		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
 		--target-lang "$(TRANSLATION_TARGET_LANG)"
 
-import-weblate-xliff: venv
+import-xliff: venv
 	$(PYTHON) src/translation_tree.py import-xliff \
 		--tree "$(TRANSLATION_TREE_DIR)" \
-		--xliff "$(WEBLATE_XLIFF)" \
+		--xliff "$(XLIFF_FILE)" \
 		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
 		--target-lang "$(TRANSLATION_TARGET_LANG)"
 

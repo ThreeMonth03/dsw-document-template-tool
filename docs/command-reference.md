@@ -254,6 +254,19 @@ Dry-run downstream branch refresh:
   --refresh-existing
 ```
 
+Check whether active version branches still need exact-only migration PRs:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/check_translation_migration_status.py" \
+  --repo "$TRANSLATION_REPO_DIR" \
+  --tooling-root "$TOOL_REPO_DIR" \
+  --clean-artifact-root /tmp/clean-scaffolds
+```
+
+Use `--fail-on-pending` only when you want CI to fail if a dry-run migration
+would create changes. Without that flag, the command is an operator status
+report.
+
 Scheduled downstream automation should use the default `--policy-mode auto`.
 For an operator-triggered maintenance refresh, add `--policy-mode manual` if the
 downstream `translation-config.yml` allows it.
