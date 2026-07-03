@@ -124,37 +124,36 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
 
 
 def test_docs_pages_workflow(repo_root: Path) -> None:
-    """The documentation site should build on PRs and deploy only from master."""
+    """The documentation site should deploy through the standard Pages workflow."""
 
-    workflow_path = repo_root / ".github" / "workflows" / "docs_pages.yml"
+    workflow_path = repo_root / ".github" / "workflows" / "pages.yml"
     workflow = load_workflow_yaml(workflow_path)
     workflow_text = workflow_path.read_text(encoding="utf-8")
 
-    assert workflow["on"]["pull_request"]["branches"] == ["master"]
+    assert workflow["name"] == "Deploy Documentation"
     assert workflow["on"]["push"]["branches"] == ["master"]
     assert "workflow_dispatch" in workflow["on"]
-    assert workflow["permissions"]["contents"] == "read"
-    assert workflow["concurrency"]["group"] == "docs-pages-${{ github.ref }}"
-
-    build_job = workflow["jobs"]["build"]
-    assert build_job["runs-on"] == "ubuntu-latest"
-    assert "make install-dev" in workflow_text
-    assert "make docs" in workflow_text
-    assert "actions/upload-pages-artifact@v4" in workflow_text
-
-    deploy_job = workflow["jobs"]["deploy"]
-    assert deploy_job["if"] == (
-        "github.event_name != 'pull_request' && "
-        "github.ref == 'refs/heads/master' && "
-        "vars.ENABLE_GITHUB_PAGES == 'true'\n"
-    )
-    assert deploy_job["needs"] == "build"
-    assert deploy_job["permissions"] == {
+    assert "pull_request" not in workflow["on"]
+    assert workflow["permissions"] == {
         "contents": "read",
         "id-token": "write",
         "pages": "write",
     }
-    assert "actions/deploy-pages@v4" in workflow_text
+    assert workflow["concurrency"]["group"] == "github-pages"
+
+    build_job = workflow["jobs"]["build"]
+    assert build_job["runs-on"] == "ubuntu-latest"
+    assert "actions/checkout@v5" in workflow_text
+    assert 'python-version: "3.13"' in workflow_text
+    assert "make install-dev BOOTSTRAP_PYTHON=python" in workflow_text
+    assert "make docs" in workflow_text
+    assert "actions/configure-pages@v6" in workflow_text
+    assert "actions/upload-pages-artifact@v5" in workflow_text
+    assert "path: docs/_build/html" in workflow_text
+
+    deploy_job = workflow["jobs"]["deploy"]
+    assert deploy_job["needs"] == "build"
+    assert "actions/deploy-pages@v5" in workflow_text
 
 
 def test_dsw_runtime_matrix_sync_helper_detects_and_repairs_drift(
