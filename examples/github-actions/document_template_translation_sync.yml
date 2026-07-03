@@ -391,20 +391,36 @@ jobs:
           release_title="Science Europe DMP Template zh-Hant v$TRANSLATED_TEMPLATE_VERSION"
           release_target="$(git -C "$HOST_ROOT" rev-parse HEAD)"
 
-          if gh release view "$release_tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          edit_release() {
             gh release edit "$release_tag" \
               --repo "$GITHUB_REPOSITORY" \
               --title "$release_title" \
               --notes-file "$release_dir/release-notes.md" \
               --prerelease
-          else
-            gh release create "$release_tag" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "$release_title" \
-              --notes-file "$release_dir/release-notes.md" \
-              --prerelease \
-              --latest=false \
-              --target "$release_target"
+          }
+
+          create_release() {
+            create_args=(
+              "$release_tag"
+              --repo "$GITHUB_REPOSITORY"
+              --title "$release_title"
+              --notes-file "$release_dir/release-notes.md"
+              --prerelease
+              --latest=false
+            )
+            if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$release_tag" >/dev/null 2>&1; then
+              create_args+=(--target "$release_target")
+            fi
+            gh release create "${create_args[@]}"
+          }
+
+          if gh release view "$release_tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            edit_release
+          elif ! create_release; then
+            # GitHub release APIs are occasionally eventually consistent. If a
+            # concurrent or previous run created the release after our view
+            # check, fall back to edit before uploading clobbered assets.
+            edit_release
           fi
 
           gh release upload "$release_tag" "$release_dir"/* --repo "$GITHUB_REPOSITORY" --clobber

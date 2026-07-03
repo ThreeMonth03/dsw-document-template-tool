@@ -115,6 +115,7 @@ Symptoms:
 
 - `Publish ... release assets` step fails
 - `gh release view` says not a git repository
+- `Release.tag_name already exists`
 - `gh release upload --clobber` fails
 
 Actions:
@@ -122,7 +123,10 @@ Actions:
 1. Confirm workflow commands pass `--repo "$GITHUB_REPOSITORY"` to `gh release`.
 2. Confirm workflow has `permissions: contents: write`.
 3. Confirm release assets were staged under `outputs/release-assets/...`.
-4. If GitHub immutable releases are enabled, `--clobber` cannot overwrite
+4. If `Release.tag_name already exists` appears, confirm the workflow template
+   contains the create-then-edit fallback. This handles the case where the Git
+   tag already exists or GitHub release APIs are briefly inconsistent.
+5. If GitHub immutable releases are enabled, `--clobber` cannot overwrite
    assets. Disable immutability for these CI download-bucket releases or switch
    to run-id-specific release tags.
 
