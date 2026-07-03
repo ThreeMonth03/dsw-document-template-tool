@@ -94,7 +94,7 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     assert migration_branch(config, "v1.30.0", "v1.30.1") == (
         "automation/migrate-v1.30.0-to-v1.30.1"
     )
-    assert config.branches.control_branch == "ops"
+    assert config.branches.control_branch == "master"
     assert config.publish.target_repository == "depositar/science-europe-template-zh_Hant"
     assert config.publish.branch_prefix == "publish/"
     assert config.xliff_exchange.enabled is False

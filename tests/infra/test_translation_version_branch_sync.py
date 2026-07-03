@@ -147,13 +147,10 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         in workflow_text
     )
     assert "--public-readme" in workflow_text
-    assert (
-        "control"
-        not in _git_show(
-            translation_repo,
-            "translation/v1.30.2:README.md",
-        ).lower()
-    )
+    version_readme = _git_show(translation_repo, "translation/v1.30.2:README.md")
+    assert "The repository `master` branch is not" not in version_readme
+    assert "Keep translation edits on this version" in version_readme
+    assert "do not use the control branch for translator-facing work." in version_readme
     assert (
         _git_show(
             translation_repo,

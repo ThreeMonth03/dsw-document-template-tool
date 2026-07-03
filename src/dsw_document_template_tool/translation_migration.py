@@ -302,7 +302,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         ),
     )
     branches = BranchConfig(
-        control_branch=_optional_str(branch_payload, "control_branch", default="ops"),
+        control_branch=_optional_str(branch_payload, "control_branch", default="master"),
         version_branch_prefix=_required_str(branch_payload, "version_branch_prefix"),
     )
     tooling = ToolingConfig(

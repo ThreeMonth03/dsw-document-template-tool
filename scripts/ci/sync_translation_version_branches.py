@@ -673,8 +673,8 @@ pull requests and branch pushes. Those files are uploaded as GitHub Actions
 artifacts or release assets; they are not committed to this branch.
 
 Repository operations, supported-version policy, and migration automation live
-on `{config.branches.control_branch}`. The repository `master` branch is not
-part of the automated translation or publish flow.
+on `{config.branches.control_branch}`. Keep translation edits on this version
+branch; do not use the control branch for translator-facing work.
 """
     (checkout / "README.md").write_text(readme, encoding="utf-8")
 
