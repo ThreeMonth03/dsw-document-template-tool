@@ -122,6 +122,12 @@ automation. Scheduled workflows should keep the default `--policy-mode auto`;
 operator-triggered maintenance refreshes can pass `--policy-mode manual` if the
 downstream repository's `version_policy` allows it.
 
+By default, version-branch sync does not create, update, or delete files under
+`.github/workflows/`. This keeps routine scaffold refreshes usable with the
+standard GitHub Actions token, which cannot modify workflow files. When you
+intentionally need to regenerate version-branch workflow files, rerun the helper
+with `--sync-workflows` and a token that has GitHub Actions workflow scope.
+
 `template.supported_versions` is the downstream repository's known upstream
 version ledger. It may contain versions that have clean scaffold artifacts but
 are not actively translated. Branch creation and content refresh are controlled
@@ -175,10 +181,12 @@ gh workflow run document_template_translation_sync.yml \
 
 That run downloads the latest clean scaffold artifacts from the tool repo and
 updates `translation-config.yml` on the operations branch. It creates or
-refreshes only policy-enabled `translation/v*` branches, updates generated
-branch workflows, and may create exact-only migration PRs. Version-branch sync
-treats `translation.md` as canonical. Optional XLIFF exchange is available as a
-helper command, but it is not part of the default branch automation.
+refreshes only policy-enabled `translation/v*` branches and may create
+exact-only migration PRs. Routine version-branch sync preserves existing
+workflow files; use `--sync-workflows` only for explicit workflow maintenance.
+Version-branch sync treats `translation.md` as canonical. Optional XLIFF
+exchange is available as a helper command, but it is not part of the default
+branch automation.
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 
@@ -198,5 +206,8 @@ there.
 
 `examples/github-actions/document_template_translation_sync.yml` is a template
 for downstream repositories. Updating it here does not update existing
-downstream version branches. Apply important workflow fixes to each supported
-translation branch in the downstream repo.
+downstream version branches. Routine branch refreshes preserve workflow files
+to avoid requiring elevated token scopes. Apply important workflow fixes in the
+downstream repo by running `sync_translation_version_branches.py` with
+`--sync-workflows`, or by making an explicit workflow-only maintenance commit
+there.

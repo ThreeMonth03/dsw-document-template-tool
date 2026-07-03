@@ -96,6 +96,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
         push=False,
         dry_run=False,
+        sync_workflows=True,
     )
 
     assert result.previous_latest_version == "v1.30.1"
@@ -290,12 +291,15 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_fixture_km = translation_repo / "fixtures/knowledge-models/root-zh-hant-2.7.0.km"
     stale_workspace_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
     stale_public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
+    legacy_workflow = translation_repo / ".github/workflows/document_template_translation_sync.yml"
+    legacy_weblate_workflow = translation_repo / ".github/workflows/weblate_translation_promote.yml"
     old_compact.parent.mkdir(parents=True, exist_ok=True)
     old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
     stale_project.parent.mkdir(parents=True, exist_ok=True)
     stale_demo_fixture.parent.mkdir(parents=True, exist_ok=True)
     stale_fixture_km.parent.mkdir(parents=True, exist_ok=True)
     stale_workspace_km.parent.mkdir(parents=True, exist_ok=True)
+    legacy_workflow.parent.mkdir(parents=True, exist_ok=True)
     old_compact.write_text("old compact\n", encoding="utf-8")
     old_translation_marker.write_text("manual translation\n", encoding="utf-8")
     stale_project.write_text("stale branch-local project\n", encoding="utf-8")
@@ -303,6 +307,8 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_fixture_km.write_text("stale branch-local fixture km\n", encoding="utf-8")
     stale_workspace_km.write_text("stale branch-local workspace km\n", encoding="utf-8")
     stale_public_readme.write_text("stale public README\n", encoding="utf-8")
+    legacy_workflow.write_text("legacy version workflow\n", encoding="utf-8")
+    legacy_weblate_workflow.write_text("legacy Weblate workflow\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
     _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
@@ -403,13 +409,19 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
             "dsw-science-europe-zh-hant-1.30.1.zip"
         ),
     )
-    assert "translation/v1.30.1" in _git_show(
-        translation_repo,
-        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+    assert (
+        _git_show(
+            translation_repo,
+            "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+        )
+        == "legacy version workflow\n"
     )
-    assert not _git_path_exists(
-        translation_repo,
-        "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
+    assert (
+        _git_show(
+            translation_repo,
+            "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
+        )
+        == "legacy Weblate workflow\n"
     )
     workflow_text = _git_show(
         translation_repo,
@@ -417,14 +429,6 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     )
     assert "WEBLATE_BRANCH" not in workflow_text
     assert "WEBLATE_XLIFF" not in workflow_text
-    assert "scripts/ci/reconcile_weblate_review_branch.py" not in workflow_text
-    assert "scripts/ci/align_weblate_review_branch.py" not in workflow_text
-    assert "steps.reconcile_weblate.outputs.review_revision" not in workflow_text
-    assert 'src/translation_tree.py" import-xliff' not in workflow_text
-    assert (
-        'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.1/'
-        'zh-Hant/test-project.pdf"'
-    ) in workflow_text
     assert not _git_path_exists(
         translation_repo,
         "translation/v1.30.1:weblate/dsw-science-europe.zh_Hant.xlf",
@@ -524,6 +528,7 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
         push=False,
         dry_run=False,
         refresh_existing=True,
+        sync_workflows=True,
     )
 
     assert result.refreshed_branches == ()
@@ -722,6 +727,7 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
             push=True,
             dry_run=False,
             refresh_existing=True,
+            sync_workflows=True,
         )
     finally:
         _run_git(translation_repo, "worktree", "remove", "--force", str(branch_worktree))
@@ -903,6 +909,7 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
             tdk_executable=Path(sys.executable).with_name("dsw-tdk"),
             push=True,
             dry_run=False,
+            sync_workflows=True,
         )
     finally:
         _run_git(translation_repo, "worktree", "remove", "--force", str(branch_worktree))

@@ -128,6 +128,14 @@ def build_argument_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--sync-workflows",
+        action="store_true",
+        help=(
+            "Also create or update version-branch GitHub workflow files. "
+            "This requires a token with GitHub Actions workflow scope."
+        ),
+    )
+    parser.add_argument(
         "--github-output",
         help="Optional GitHub Actions output file to write sync metadata to.",
     )
@@ -166,6 +174,7 @@ def main() -> None:
         push=args.push,
         dry_run=args.dry_run,
         refresh_existing=args.refresh_existing,
+        sync_workflows=args.sync_workflows,
         policy_mode=args.policy_mode,
     )
     print_summary(result)
@@ -183,6 +192,7 @@ def sync_translation_versions(
     push: bool,
     dry_run: bool,
     refresh_existing: bool = False,
+    sync_workflows: bool = False,
     policy_mode: str = "auto",
 ) -> SyncResult:
     """Update known versions and synchronize policy-enabled version branches."""
@@ -266,6 +276,7 @@ def sync_translation_versions(
                         branch=branch,
                         temp_root=temp_root,
                         push=push,
+                        sync_workflows=sync_workflows,
                     ):
                         updated_control_branches.append(branch)
                     continue
@@ -283,6 +294,7 @@ def sync_translation_versions(
                     clean_artifact_root=clean_artifact_root,
                     temp_root=temp_root,
                     push=push,
+                    sync_workflows=sync_workflows,
                 ):
                     refreshed_branches.append(branch)
                 continue
@@ -312,6 +324,7 @@ def sync_translation_versions(
                 clean_artifact_root=clean_artifact_root,
                 temp_root=temp_root,
                 push=push,
+                sync_workflows=sync_workflows,
             )
 
     return SyncResult(
@@ -346,6 +359,7 @@ def update_version_branch_controls(
     branch: str,
     temp_root: Path,
     push: bool,
+    sync_workflows: bool,
 ) -> bool:
     """Update generated branch control files without touching translation content."""
 
@@ -363,6 +377,7 @@ def update_version_branch_controls(
             checkout=checkout,
             config=config,
             version=version,
+            sync_workflows=sync_workflows,
         )
         ensure_git_identity(checkout)
         _run(["git", "add", "-A"], cwd=checkout)
@@ -392,6 +407,7 @@ def refresh_version_branch(
     clean_artifact_root: Path,
     temp_root: Path,
     push: bool,
+    sync_workflows: bool,
 ) -> bool:
     """Refresh one existing translation branch from the latest clean artifact."""
 
@@ -455,6 +471,7 @@ def refresh_version_branch(
             checkout=checkout,
             config=config,
             version=version,
+            sync_workflows=sync_workflows,
         )
         ensure_git_identity(checkout)
         _run(["git", "add", "-A"], cwd=checkout)
@@ -484,6 +501,7 @@ def create_version_branch(
     clean_artifact_root: Path,
     temp_root: Path,
     push: bool,
+    sync_workflows: bool,
 ) -> None:
     """Create and initialize one missing translation version branch."""
 
@@ -525,6 +543,7 @@ def create_version_branch(
             checkout=checkout,
             config=config,
             version=version,
+            sync_workflows=sync_workflows,
         )
         ensure_git_identity(checkout)
         _run(["git", "add", "-A"], cwd=checkout)
@@ -599,15 +618,19 @@ def finalize_version_branch_workspace(
     checkout: Path,
     config: TranslationRepositoryConfig,
     version: str,
+    sync_workflows: bool,
 ) -> None:
     """Keep a translation version branch focused on translator-facing files."""
 
     for relative_path in VERSION_BRANCH_CLEANUP_PATHS:
+        if relative_path == Path(".github") and not sync_workflows:
+            continue
         remove_path(checkout / relative_path)
     write_version_branch_gitignore(checkout)
     write_version_branch_readme(checkout=checkout, config=config, version=version)
-    write_version_branch_workflow(checkout=checkout, config=config, version=version)
-    remove_path(checkout / ".github" / "workflows" / "weblate_translation_promote.yml")
+    if sync_workflows:
+        write_version_branch_workflow(checkout=checkout, config=config, version=version)
+        remove_path(checkout / ".github" / "workflows" / "weblate_translation_promote.yml")
 
 
 def write_version_branch_gitignore(checkout: Path) -> None:

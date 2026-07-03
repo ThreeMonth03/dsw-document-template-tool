@@ -184,6 +184,11 @@ TRANSLATION_REPO_DIR=/path/to/document-template-translation
   --refresh-existing
 ```
 
+This refresh intentionally leaves version-branch workflow files alone. If the
+workflow template itself changed and you need to update active translation
+branches, rerun the helper with `--sync-workflows` using a token with workflow
+scope.
+
 Use [Parser and Translation Tree](parser-and-translation-tree.md) for the full
 parser-change checklist.
 

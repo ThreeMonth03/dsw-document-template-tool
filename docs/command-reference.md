@@ -258,6 +258,10 @@ Scheduled downstream automation should use the default `--policy-mode auto`.
 For an operator-triggered maintenance refresh, add `--policy-mode manual` if the
 downstream `translation-config.yml` allows it.
 
+Routine refreshes preserve existing version-branch workflow files. To
+intentionally regenerate `.github/workflows/` on translation branches, add
+`--sync-workflows` and run with a token that has GitHub Actions workflow scope.
+
 ## Optional XLIFF Exchange Helpers
 
 The default downstream workflow edits `translation.md` directly and does not
