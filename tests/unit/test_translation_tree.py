@@ -18,8 +18,8 @@ from dsw_document_template_tool.translation_tree import (
     audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
-    export_weblate_xliff,
-    import_weblate_xliff,
+    export_xliff,
+    import_xliff,
     merge_translation_tree,
     sync_translation_tree,
 )
@@ -283,8 +283,8 @@ def test_translation_document_preserves_collapsed_metadata_when_synced(
     )
 
 
-def test_weblate_xliff_round_trip_updates_translation_document(tmp_path: Path) -> None:
-    """Weblate exchange files should update only the editable translation block."""
+def test_xliff_round_trip_updates_translation_document(tmp_path: Path) -> None:
+    """XLIFF exchange files should update only the editable translation block."""
 
     compact_dir = _write_compact_template(
         tmp_path,
@@ -294,14 +294,14 @@ def test_weblate_xliff_round_trip_updates_translation_document(tmp_path: Path) -
     )
     expanded_dir = tmp_path / "expanded"
     tree_dir = tmp_path / "translation-tree"
-    xliff_path = tmp_path / "weblate" / "science-europe.zh-Hant.xlf"
+    xliff_path = tmp_path / "xliff" / "science-europe.zh-Hant.xlf"
     expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
     export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
 
     document_path = _find_translation_doc(tree_dir, "Hello {name}.")
     _write_translation_block(document_path, "你好 {name}。")
 
-    export_weblate_xliff(
+    export_xliff(
         tree_dir=tree_dir,
         output_path=xliff_path,
         source_lang="en",
@@ -320,7 +320,7 @@ def test_weblate_xliff_round_trip_updates_translation_document(tmp_path: Path) -
     _xml_elements(root, "target")[0].text = "哈囉 {name}。"
     ET.ElementTree(root).write(xliff_path, encoding="utf-8", xml_declaration=True)
 
-    report = import_weblate_xliff(
+    report = import_xliff(
         tree_dir=tree_dir,
         xliff_path=xliff_path,
         source_lang="en",
@@ -336,8 +336,8 @@ def test_weblate_xliff_round_trip_updates_translation_document(tmp_path: Path) -
     assert "- [x] [file] src/index.html.j2 (1/1)" in outline
 
 
-def test_weblate_xliff_import_rejects_stale_source_hash(tmp_path: Path) -> None:
-    """Stale Weblate files must not be imported into a changed translation tree."""
+def test_xliff_import_rejects_stale_source_hash(tmp_path: Path) -> None:
+    """Stale XLIFF files must not be imported into a changed translation tree."""
 
     compact_dir = _write_compact_template(
         tmp_path,
@@ -347,10 +347,10 @@ def test_weblate_xliff_import_rejects_stale_source_hash(tmp_path: Path) -> None:
     )
     expanded_dir = tmp_path / "expanded"
     tree_dir = tmp_path / "translation-tree"
-    xliff_path = tmp_path / "weblate" / "science-europe.zh-Hant.xlf"
+    xliff_path = tmp_path / "xliff" / "science-europe.zh-Hant.xlf"
     expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
     export_translation_tree(source_dir=expanded_dir, output_dir=tree_dir)
-    export_weblate_xliff(
+    export_xliff(
         tree_dir=tree_dir,
         output_path=xliff_path,
         source_lang="en",
@@ -364,7 +364,7 @@ def test_weblate_xliff_import_rejects_stale_source_hash(tmp_path: Path) -> None:
     ET.ElementTree(root).write(xliff_path, encoding="utf-8", xml_declaration=True)
 
     with pytest.raises(TranslationTreeError, match="source hash does not match"):
-        import_weblate_xliff(
+        import_xliff(
             tree_dir=tree_dir,
             xliff_path=xliff_path,
             source_lang="en",

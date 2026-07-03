@@ -9,8 +9,8 @@ from dsw_document_template_tool.translation_tree import (
     audit_translated_template_structure,
     audit_translation_tree,
     export_translation_tree,
-    export_weblate_xliff,
-    import_weblate_xliff,
+    export_xliff,
+    import_xliff,
     merge_translation_tree,
     sync_translation_tree,
 )
@@ -33,7 +33,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
     export_xliff_parser = subparsers.add_parser(
         "export-xliff",
-        help="Export one translation tree to XLIFF for Weblate.",
+        help="Export one translation tree to XLIFF.",
     )
     export_xliff_parser.add_argument("--tree", required=True, help="Translation tree directory.")
     export_xliff_parser.add_argument("--output", required=True, help="XLIFF output path.")
@@ -50,7 +50,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
     import_xliff_parser = subparsers.add_parser(
         "import-xliff",
-        help="Import Weblate-edited XLIFF targets back into a translation tree.",
+        help="Import edited XLIFF targets back into a translation tree.",
     )
     import_xliff_parser.add_argument("--tree", required=True, help="Translation tree directory.")
     import_xliff_parser.add_argument("--xliff", required=True, help="XLIFF file to import.")
@@ -170,17 +170,17 @@ def main() -> None:
         return
 
     if args.command == "export-xliff":
-        output_path = export_weblate_xliff(
+        output_path = export_xliff(
             tree_dir=args.tree,
             output_path=args.output,
             source_lang=args.source_lang,
             target_lang=args.target_lang,
         )
-        print(f"SUCCESS: Weblate XLIFF written to {output_path}")
+        print(f"SUCCESS: XLIFF written to {output_path}")
         return
 
     if args.command == "import-xliff":
-        report = import_weblate_xliff(
+        report = import_xliff(
             tree_dir=args.tree,
             xliff_path=args.xliff,
             source_lang=args.source_lang,

@@ -289,7 +289,9 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_workspace_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
     stale_public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
     legacy_workflow = translation_repo / ".github/workflows/document_template_translation_sync.yml"
-    legacy_weblate_workflow = translation_repo / ".github/workflows/weblate_translation_promote.yml"
+    legacy_external_platform_workflow = (
+        translation_repo / ".github/workflows/weblate_translation_promote.yml"
+    )
     old_compact.parent.mkdir(parents=True, exist_ok=True)
     old_translation_marker.parent.mkdir(parents=True, exist_ok=True)
     stale_project.parent.mkdir(parents=True, exist_ok=True)
@@ -305,7 +307,10 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_workspace_km.write_text("stale branch-local workspace km\n", encoding="utf-8")
     stale_public_readme.write_text("stale public README\n", encoding="utf-8")
     legacy_workflow.write_text("legacy version workflow\n", encoding="utf-8")
-    legacy_weblate_workflow.write_text("legacy Weblate workflow\n", encoding="utf-8")
+    legacy_external_platform_workflow.write_text(
+        "legacy external platform workflow\n",
+        encoding="utf-8",
+    )
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
     _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
@@ -413,12 +418,9 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         )
         == "legacy version workflow\n"
     )
-    assert (
-        _git_show(
-            translation_repo,
-            "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
-        )
-        == "legacy Weblate workflow\n"
+    assert not _git_path_exists(
+        translation_repo,
+        "translation/v1.30.1:.github/workflows/weblate_translation_promote.yml",
     )
     workflow_text = _git_show(
         translation_repo,
@@ -1086,22 +1088,6 @@ def _write_clean_artifact(artifact_root: Path, *, version: str) -> None:
         directory = workspace_root / kind / template_name
         directory.mkdir(parents=True, exist_ok=True)
         (directory / "artifact.txt").write_text(f"{kind} {version}\n", encoding="utf-8")
-
-
-def _fake_export_weblate_xliff(sync_module: ModuleType):
-    def fake_export_weblate_xliff(
-        *,
-        checkout: Path,
-        config,
-        version: str,
-        **_: object,
-    ) -> None:
-        paths = sync_module.version_paths(config, version)
-        xliff_path = checkout / paths.xliff_exchange_path
-        xliff_path.parent.mkdir(parents=True, exist_ok=True)
-        xliff_path.write_text('<xliff version="1.2" />\n', encoding="utf-8")
-
-    return fake_export_weblate_xliff
 
 
 def _run_git(cwd: Path, *args: str) -> None:

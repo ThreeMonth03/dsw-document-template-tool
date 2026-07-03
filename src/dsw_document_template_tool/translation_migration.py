@@ -50,7 +50,6 @@ class XliffExchangeConfig:
 
     enabled: bool
     path: Path
-    review_branch_prefix: str
 
 
 @dataclass(frozen=True)
@@ -349,11 +348,6 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
                 default=(f"xliff/{source_template_id}.{translation.target_language}.xlf"),
             )
         ),
-        review_branch_prefix=_optional_str(
-            xliff_exchange_payload,
-            "review_branch_prefix",
-            default="xliff/",
-        ),
     )
     public_readme_payload = payload.get("public_readme", {})
     if public_readme_payload is None:
@@ -403,8 +397,6 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         raise TranslationMigrationError("public_readme.path must be a repo-relative path")
     if xliff_exchange.path.is_absolute() or ".." in xliff_exchange.path.parts:
         raise TranslationMigrationError("xliff_exchange.path must be a repo-relative path")
-    if not xliff_exchange.review_branch_prefix:
-        raise TranslationMigrationError("xliff_exchange.review_branch_prefix must not be empty")
 
     return TranslationRepositoryConfig(
         template=template,

@@ -23,8 +23,8 @@ the executable Jinja behavior of the original template.
 - Generic marker, branch, and inline conditional behavior belongs under
   `_template_transform/`.
 - Translation Markdown format and metadata belongs under `_translation_tree/`.
-- Weblate/XLIFF exchange belongs under `_translation_tree/xliff.py`; keep it
-  as a thin adapter around the canonical Markdown tree.
+- XLIFF exchange belongs under `_translation_tree/xliff.py`; keep it as a thin
+  adapter around the canonical Markdown tree.
 - Cross-version translation reuse belongs in `_translation_tree/merge.py` and
   `translation_migration.py`.
 - Target-language output cleanup belongs in `_translation_tree/output_polish.py`.

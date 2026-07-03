@@ -1,4 +1,4 @@
-"""XLIFF exchange helpers for Weblate-style translation workflows."""
+"""XLIFF exchange helpers for translation trees."""
 
 from __future__ import annotations
 
@@ -22,20 +22,20 @@ ET.register_namespace("", XLIFF_NS)
 
 
 @dataclass(frozen=True)
-class WeblateImportReport:
+class XliffImportReport:
     """Summary of one XLIFF import into a translation tree."""
 
     imported_units: int
 
 
-def export_weblate_xliff(
+def export_xliff(
     *,
     tree_dir: Path,
     output_path: Path,
     source_lang: str,
     target_lang: str,
 ) -> Path:
-    """Export a translation tree to one XLIFF 1.2 file for Weblate."""
+    """Export a translation tree to one XLIFF 1.2 file."""
 
     tree_dir = Path(tree_dir).resolve()
     output_path = Path(output_path).resolve()
@@ -108,14 +108,14 @@ def export_weblate_xliff(
     return output_path
 
 
-def import_weblate_xliff(
+def import_xliff(
     *,
     tree_dir: Path,
     xliff_path: Path,
     source_lang: str,
     target_lang: str,
-) -> WeblateImportReport:
-    """Import Weblate-edited XLIFF targets back into a translation tree."""
+) -> XliffImportReport:
+    """Import edited XLIFF targets back into a translation tree."""
 
     tree_dir = Path(tree_dir).resolve()
     xliff_path = Path(xliff_path).resolve()
@@ -182,7 +182,7 @@ def import_weblate_xliff(
         source_lang=source_lang,
         target_lang=target_lang,
     )
-    return WeblateImportReport(imported_units=imported_units)
+    return XliffImportReport(imported_units=imported_units)
 
 
 def _manifest_units(manifest: dict, *, tree_dir: Path) -> list[dict]:

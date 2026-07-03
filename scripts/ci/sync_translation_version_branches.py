@@ -55,6 +55,8 @@ VERSION_BRANCH_CLEANUP_PATHS = (
     Path("workspace") / "projects",
 )
 
+OBSOLETE_VERSION_BRANCH_PATHS = (Path(".github") / "workflows" / "weblate_translation_promote.yml",)
+
 BRANCH_LOCAL_DEMO_ASSET_DIRS = (
     Path("fixtures") / "knowledge-models",
     Path("fixtures") / "projects" / "demo",
@@ -626,11 +628,12 @@ def finalize_version_branch_workspace(
         if relative_path == Path(".github") and not sync_workflows:
             continue
         remove_path(checkout / relative_path)
+    for relative_path in OBSOLETE_VERSION_BRANCH_PATHS:
+        remove_path(checkout / relative_path)
     write_version_branch_gitignore(checkout)
     write_version_branch_readme(checkout=checkout, config=config, version=version)
     if sync_workflows:
         write_version_branch_workflow(checkout=checkout, config=config, version=version)
-        remove_path(checkout / ".github" / "workflows" / "weblate_translation_promote.yml")
 
 
 def write_version_branch_gitignore(checkout: Path) -> None:
@@ -880,14 +883,14 @@ def sync_blank_translation_output(
     )
 
 
-def export_weblate_xliff(
+def export_xliff(
     *,
     checkout: Path,
     tooling_root: Path,
     config: TranslationRepositoryConfig,
     version: str,
 ) -> None:
-    """Export the version branch translation tree to Weblate XLIFF."""
+    """Export the version branch translation tree to XLIFF."""
 
     paths = version_paths(config, version)
     _run_tool(
@@ -916,7 +919,7 @@ def sync_xliff_exchange(
 
     paths = version_paths(config, version)
     if config.xliff_exchange.enabled:
-        export_weblate_xliff(
+        export_xliff(
             checkout=checkout,
             tooling_root=tooling_root,
             config=config,

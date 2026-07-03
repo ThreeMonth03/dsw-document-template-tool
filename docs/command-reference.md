@@ -265,8 +265,8 @@ intentionally regenerate `.github/workflows/` on translation branches, add
 ## Optional XLIFF Exchange Helpers
 
 The default downstream workflow edits `translation.md` directly and does not
-create Weblate branches. These commands are lower-level escape hatches for a
-future external translation platform.
+create external review branches. These commands are lower-level escape hatches
+for a future translation platform or manual XLIFF round trip.
 
 Export or import XLIFF manually:
 
@@ -279,64 +279,6 @@ Export or import XLIFF manually:
   --tree translation \
   --xliff xliff/dsw-science-europe.zh_Hant.xlf
 ```
-
-Promote a Weblate-style review-branch XLIFF into a checked-out version branch:
-
-```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/promote_weblate_xliff.py" \
-  --host-root "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --target-branch translation/v1.30.1 \
-  --weblate-branch weblate/v1.30.1 \
-  --compact-template-dir workspace/document-templates/compact/dsw-science-europe-1.30.1 \
-  --expanded-template-dir workspace/document-templates/expanded/dsw-science-europe-1.30.1 \
-  --translation-tree-dir workspace/document-templates/translation/dsw-science-europe-1.30.1 \
-  --weblate-xliff xliff/dsw-science-europe.zh_Hant.xlf \
-  --translated-template-dir outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/dsw-science-europe-zh-hant-1.30.1 \
-  --template-organization-id dsw \
-  --template-id science-europe-zh-hant \
-  --template-name "Science Europe DMP Template (zh-Hant)" \
-  --template-version 1.30.1 \
-  --public-readme workspace/document-templates/public-readme/README.md \
-  --source-lang en \
-  --target-lang zh_Hant \
-  --github-output "$GITHUB_OUTPUT"
-```
-
-Use this only if a downstream repository intentionally enables a Weblate-style
-review branch. The promotion helper uses a three-way XLIFF reconciliation before
-import, so stale external-platform files do not overwrite newer
-`translation.md` edits.
-
-Reconcile a divergent Weblate review branch during version-branch sync:
-
-```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/reconcile_weblate_review_branch.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --target-branch translation/v1.30.1 \
-  --weblate-branch weblate/v1.30.1 \
-  --translation-tree-dir workspace/document-templates/translation/dsw-science-europe-1.30.1 \
-  --weblate-xliff xliff/dsw-science-europe.zh_Hant.xlf \
-  --source-lang en \
-  --target-lang zh_Hant
-```
-
-This imports only non-conflicting XLIFF unit changes. Same-unit conflicts keep
-the checked-out `translation/v*` value.
-
-Align a Weblate review branch to a validated translation branch:
-
-```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/align_weblate_review_branch.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --target-branch translation/v1.30.1 \
-  --weblate-branch weblate/v1.30.1
-```
-
-When a previous reconcile step handled a divergent review branch, pass
-`--expected-revision <sha>` so the reset is allowed only if Weblate did not push
-again during validation. Use it directly only when debugging branch state.
 
 Dry-run an unsupported metamodel probe report:
 

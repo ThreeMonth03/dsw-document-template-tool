@@ -441,39 +441,3 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     events = yaml.safe_load(events_path.read_text(encoding="utf-8"))
     assert isinstance(events, list)
     assert len(events) == 490
-
-
-def test_weblate_promotion_example_workflow(repo_root: Path) -> None:
-    """The Weblate promotion workflow should copy XLIFF into a version branch."""
-
-    workflow_path = (
-        repo_root / "examples" / "github-actions" / "optional" / "weblate_translation_promote.yml"
-    )
-    workflow = load_workflow_yaml(workflow_path)
-    workflow_text = workflow_path.read_text(encoding="utf-8")
-
-    assert workflow["on"]["push"]["branches"] == ["weblate/v1.30.0"]
-    assert "workflow_dispatch" in workflow["on"]
-    assert workflow["permissions"]["actions"] == "write"
-    assert workflow["permissions"]["contents"] == "write"
-    assert workflow["env"]["TARGET_BRANCH"] == "translation/v1.30.0"
-    assert workflow["env"]["WEBLATE_BRANCH"] == "weblate/v1.30.0"
-    assert workflow["env"]["WEBLATE_XLIFF"] == "weblate/dsw-science-europe.zh_Hant.xlf"
-    assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
-    assert workflow["env"]["TOOLING_REF"] == "main"
-    assert workflow["concurrency"]["group"] == (
-        "document-template-translation-sync-translation/v1.30.0"
-    )
-    assert workflow["jobs"]["promote-weblate-xliff"]["if"] == (
-        "github.event_name == 'workflow_dispatch' || startsWith(github.ref_name, 'weblate/')"
-    )
-    assert "Checkout target translation branch" in workflow_text
-    assert "ref: ${{ env.TARGET_BRANCH }}" in workflow_text
-    assert "scripts/ci/promote_weblate_xliff.py" in workflow_text
-    assert "id: promote" in workflow_text
-    assert '--weblate-branch "$WEBLATE_BRANCH"' in workflow_text
-    assert '--target-branch "$TARGET_BRANCH"' in workflow_text
-    assert '--public-readme "$PUBLIC_README_PATH"' in workflow_text
-    assert '--github-output "$GITHUB_OUTPUT"' in workflow_text
-    assert "if: steps.promote.outputs.changed == 'true'" in workflow_text
-    assert "gh workflow run document_template_translation_sync.yml" in workflow_text

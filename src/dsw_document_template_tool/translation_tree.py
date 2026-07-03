@@ -55,9 +55,9 @@ from ._translation_tree.structure_audit import (
 from ._translation_tree.tree_audit import audit_translation_tree as audit_translation_tree
 from ._translation_tree.workspace import validate_expanded_workspace
 from ._translation_tree.xliff import (
-    WeblateImportReport,
-    export_weblate_xliff,
-    import_weblate_xliff,
+    XliffImportReport,
+    export_xliff,
+    import_xliff,
 )
 
 TREE_ROOT_NAME = "tree"
@@ -69,12 +69,12 @@ __all__ = [
     "TREE_ROOT_NAME",
     "TranslationMergeReport",
     "TranslationTreeError",
-    "WeblateImportReport",
+    "XliffImportReport",
     "audit_translated_template_structure",
     "audit_translation_tree",
     "export_translation_tree",
-    "export_weblate_xliff",
-    "import_weblate_xliff",
+    "export_xliff",
+    "import_xliff",
     "merge_translation_tree",
     "sync_translation_tree",
 ]
