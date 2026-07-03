@@ -56,7 +56,7 @@ for provenance.
 
 A downstream translation repository owns:
 
-- an operations branch, conventionally `ops`, containing
+- a configured operations branch containing
   `translation-config.yml`, docs, fixtures, and repository workflows
 - version branches such as `translation/v1.30.1`
 - public handoff branches such as `publish/v1.30.1` when the same repository
@@ -79,6 +79,7 @@ Set repository paths once:
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
 TRANSLATION_GITHUB_REPO=owner/document-template-translation
+TRANSLATION_OPERATIONS_BRANCH=master
 TOOL_REPO_DIR=/path/to/document-template-tool
 TRANSLATION_REPO_DIR=/path/to/document-template-translation
 ```
@@ -176,7 +177,7 @@ schedule:
 ```shell
 gh workflow run document_template_translation_sync.yml \
   --repo "$TRANSLATION_GITHUB_REPO" \
-  --ref ops
+  --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
 That run downloads the latest clean scaffold artifacts from the tool repo and
@@ -193,7 +194,7 @@ To choose the source branch used for migration fan-out, pass `source_version`:
 ```shell
 gh workflow run document_template_translation_sync.yml \
   --repo "$TRANSLATION_GITHUB_REPO" \
-  --ref ops \
+  --ref "$TRANSLATION_OPERATIONS_BRANCH" \
   -f source_version=v1.30.1
 ```
 

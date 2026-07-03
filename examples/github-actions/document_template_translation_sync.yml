@@ -433,13 +433,13 @@ jobs:
           set -euo pipefail
           gh workflow run document_template_translation_sync.yml \
             --repo "$GITHUB_REPOSITORY" \
-            --ref ops \
+            --ref master \
             -f source_version="v$TRANSLATED_TEMPLATE_VERSION"
 
           {
             echo "## Operations migration dispatched"
             echo
-            echo "Requested ops operations migration from"
+            echo "Requested master operations migration from"
             echo "\`v$TRANSLATED_TEMPLATE_VERSION\` after this version branch passed."
           } >> "$GITHUB_STEP_SUMMARY"
 

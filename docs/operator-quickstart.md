@@ -25,6 +25,7 @@ Set repository names once before copying GitHub commands:
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
 TRANSLATION_GITHUB_REPO=owner/document-template-translation
+TRANSLATION_OPERATIONS_BRANCH=master
 ```
 
 1. Check the latest tool CI run:
@@ -101,7 +102,7 @@ workflow after the clean scaffold release exists:
 ```shell
 gh workflow run document_template_translation_sync.yml \
   --repo "$TRANSLATION_GITHUB_REPO" \
-  --ref ops
+  --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
 That downstream workflow is responsible for updating its own

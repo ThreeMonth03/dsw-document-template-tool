@@ -763,7 +763,7 @@ def write_version_branch_workflow(
         'PUBLISH_RELEASE_ASSETS: "true"': (
             f"PUBLISH_RELEASE_ASSETS: {_yaml_scalar(str(policy.publish_release).lower())}"
         ),
-        "--ref ops": f"--ref {config.branches.control_branch}",
+        "--ref master": f"--ref {config.branches.control_branch}",
     }
     for old, new in replacements.items():
         if old not in workflow:

@@ -379,7 +379,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
         "'chore(sync): refresh document template translations')"
     ) in workflow_text
     assert "gh workflow run document_template_translation_sync.yml" in workflow_text
-    assert "--ref ops" in workflow_text
+    assert "--ref master" in workflow_text
     assert '-f source_version="v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
     assert "Operations migration dispatched" in workflow_text
     assert "::error title=Translation sync failed::" in workflow_text
