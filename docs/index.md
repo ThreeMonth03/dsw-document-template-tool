@@ -50,6 +50,7 @@ operator-quickstart
 README
 architecture
 development-guidelines
+internal-change-guide
 configuration-reference
 command-reference
 parser-and-translation-tree

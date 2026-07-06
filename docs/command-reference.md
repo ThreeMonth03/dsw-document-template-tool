@@ -293,33 +293,29 @@ make publish-clean-scaffold-releases \
 
 ## Direct CLI Use
 
-Prefer `make` for routine work. Direct Python entrypoints are useful when you
+Prefer `make` for routine work. Direct CLI commands are useful when you
 need to reproduce exactly what CI ran, pass uncommon flags, or debug one layer
 without the Makefile defaults.
 
 The maintained CLI code lives in
-[`src/dsw_document_template_tool/cli/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/cli),
+[`src/dsw_document_template_tool/cli/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/cli).
+The installed command names are declared in
+[`pyproject.toml`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/pyproject.toml),
 and the stable package APIs are listed in the Package Reference section of the
-Sphinx navigation. Because this repository uses a `src` layout without an
-installable package wrapper, direct module commands must expose `src` through
-`PYTHONPATH`.
+Sphinx navigation.
 
 Show help:
 
 ```shell
-PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
-  -m dsw_document_template_tool.cli.transform_template --help
-PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
-  -m dsw_document_template_tool.cli.translation_tree --help
-PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
-  -m dsw_document_template_tool.cli.render_regression --help
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-transform" --help
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-tree" --help
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-render-regression" --help
 ```
 
 Run transform directly:
 
 ```shell
-PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
-  -m dsw_document_template_tool.cli.transform_template expand \
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-transform" expand \
   --source workspace/document-templates/compact/dsw-science-europe-1.30.1 \
   --output workspace/document-templates/expanded/dsw-science-europe-1.30.1
 ```
@@ -327,13 +323,11 @@ PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
 Run translation tree export/sync directly:
 
 ```shell
-PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
-  -m dsw_document_template_tool.cli.translation_tree export \
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-tree" export \
   --source workspace/document-templates/expanded/dsw-science-europe-1.30.1 \
   --output workspace/document-templates/translation/dsw-science-europe-1.30.1
 
-PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
-  -m dsw_document_template_tool.cli.translation_tree sync \
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-tree" sync \
   --tree workspace/document-templates/translation/dsw-science-europe-1.30.1 \
   --source workspace/document-templates/expanded/dsw-science-europe-1.30.1 \
   --output outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/dsw-science-europe-zh-hant-1.30.1 \

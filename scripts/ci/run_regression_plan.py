@@ -7,16 +7,14 @@ import argparse
 import json
 import os
 import subprocess
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
-sys.path.insert(0, str(SCRIPT_DIR))
+DEFAULT_RENDER_COMMAND = str(REPO_ROOT / ".venv" / "bin" / "dsw-template-render-regression")
 
-from cli_commands import RENDER_REGRESSION_MODULE, module_command, package_env  # noqa: E402
 from generate_regression_config import (  # noqa: E402
     select_regression_workspace,
     write_regression_config,
@@ -54,8 +52,7 @@ def main() -> None:
     parser.add_argument("--generated-config-dir", type=Path, required=True)
     parser.add_argument("--metamodel-version", required=True)
     parser.add_argument("--plan", type=Path, required=True)
-    parser.add_argument("--python", default=sys.executable)
-    parser.add_argument("--render-module", default=RENDER_REGRESSION_MODULE)
+    parser.add_argument("--render-command", default=DEFAULT_RENDER_COMMAND)
     parser.add_argument(
         "--smoke-generated-fixture-count",
         type=int,
@@ -82,8 +79,7 @@ def main() -> None:
             generated_config_dir=args.generated_config_dir,
             metamodel_version=args.metamodel_version,
             planned=planned,
-            python=args.python,
-            render_module=args.render_module,
+            render_command=args.render_command,
             smoke_generated_fixture_count=args.smoke_generated_fixture_count,
             source_template_id=args.source_template_id,
             workspace_root=args.workspace_root,
@@ -130,8 +126,7 @@ def run_planned_regression(
     generated_config_dir: Path,
     metamodel_version: str,
     planned: PlannedRegression,
-    python: str,
-    render_module: str,
+    render_command: str,
     smoke_generated_fixture_count: int,
     source_template_id: str,
     workspace_root: Path,
@@ -167,14 +162,14 @@ def run_planned_regression(
         print(f"INFO: Dry run; generated {config_path} and skipped DSW regression")
         return
     subprocess.run(
-        module_command(python, render_module, "--config", config_path),
+        [render_command, "--config", str(config_path)],
         check=True,
         env=_regression_env(),
     )
 
 
 def _regression_env() -> dict[str, str]:
-    env = package_env(REPO_ROOT, os.environ)
+    env = dict(os.environ)
     api_port = env.get("DSW_CI_API_PORT", "3000")
     env.setdefault("DSW_API_URL", f"http://localhost:{api_port}/wizard-api")
     env.setdefault("DSW_DOWNLOAD_HOST_ALIAS", "host.docker.internal=localhost")

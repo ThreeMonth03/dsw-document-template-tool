@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dsw-document-template-tool"
+version = "0.1.0"
+description = "Tooling for DSW document template transformation, translation scaffolding, and render validation."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "beautifulsoup4>=4.12,<5",
+    "dsw-tdk>=4,<5",
+    "Jinja2>=3.1,<4",
+    "PyYAML==6.0.3",
+    "requests>=2.32,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "furo>=2024,<2027",
+    "myst-parser>=4,<5",
+    "pre-commit>=4,<5",
+    "pytest>=8,<9",
+    "ruff>=0.12,<1.0",
+    "Sphinx>=8,<9",
+]
+
+[project.scripts]
+dsw-template-render-project = "dsw_document_template_tool.cli.render_project:main"
+dsw-template-render-regression = "dsw_document_template_tool.cli.render_regression:main"
+dsw-template-transform = "dsw_document_template_tool.cli.transform_template:main"
+dsw-template-tree = "dsw_document_template_tool.cli.translation_tree:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["dsw_document_template_tool*"]

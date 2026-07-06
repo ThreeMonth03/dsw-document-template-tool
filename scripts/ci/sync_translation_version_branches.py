@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -24,9 +23,8 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from cli_commands import (  # noqa: E402
-    TRANSLATION_TREE_MODULE,
-    module_command,
-    package_env,
+    TRANSLATION_TREE_COMMAND,
+    tool_command,
 )
 
 from dsw_document_template_tool.translation_migration import (  # noqa: E402
@@ -842,7 +840,7 @@ def sync_blank_translation_output(
     paths = version_paths(config, version)
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "audit",
         "--tree",
         checkout / paths.translation_tree_dir,
@@ -851,7 +849,7 @@ def sync_blank_translation_output(
     )
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "sync",
         "--tree",
         checkout / paths.translation_tree_dir,
@@ -872,7 +870,7 @@ def sync_blank_translation_output(
     )
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "audit-output",
         "--source",
         checkout / paths.expanded_template_dir,
@@ -905,7 +903,7 @@ def export_xliff(
     paths = version_paths(config, version)
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "export-xliff",
         "--tree",
         checkout / paths.translation_tree_dir,
@@ -955,7 +953,7 @@ def merge_preserved_translations(
     fresh_tree = checkout / paths.translation_tree_dir
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "merge",
         "--old-tree",
         preserved_tree,
@@ -1183,11 +1181,8 @@ def staged_changed_paths(repo: Path) -> list[str]:
     return [line for line in result.stdout.splitlines() if line]
 
 
-def _run_tool(tooling_root: Path, module: str, *args: object) -> None:
-    _run(
-        module_command(tooling_root / ".venv" / "bin" / "python", module, *args),
-        env=package_env(tooling_root, os.environ),
-    )
+def _run_tool(tooling_root: Path, command: str, *args: object) -> None:
+    _run(tool_command(tooling_root, command, *args))
 
 
 def _run(

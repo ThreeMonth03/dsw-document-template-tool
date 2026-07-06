@@ -5,6 +5,7 @@ from __future__ import annotations
 import stat
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 import yaml
@@ -22,13 +23,12 @@ def test_docs_site_uses_furo_theme(repo_root: Path) -> None:
     """The public docs should use the same Sphinx theme family as the KM tool."""
 
     conf_text = (repo_root / "docs" / "conf.py").read_text(encoding="utf-8")
-    requirements_text = (repo_root / "config" / "requirements.txt").read_text(
-        encoding="utf-8",
-    )
+    pyproject = tomllib.loads((repo_root / "pyproject.toml").read_text(encoding="utf-8"))
+    dev_dependencies = pyproject["project"]["optional-dependencies"]["dev"]
 
     assert 'html_theme = "furo"' in conf_text
-    assert "furo>=2024,<2027" in requirements_text
-    assert "sphinx-rtd-theme" not in requirements_text
+    assert "furo>=2024,<2027" in dev_dependencies
+    assert "sphinx-rtd-theme" not in dev_dependencies
 
 
 def test_headless_render_regression_workflow(repo_root: Path) -> None:
@@ -353,18 +353,18 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
     assert "github.event.pull_request.head.ref" in workflow_text
-    assert "-m dsw_document_template_tool.cli.transform_template expand" in workflow_text
-    assert "-m dsw_document_template_tool.cli.translation_tree export" in workflow_text
-    assert "-m dsw_document_template_tool.cli.translation_tree import-xliff" not in workflow_text
-    assert "-m dsw_document_template_tool.cli.translation_tree export-xliff" not in workflow_text
-    assert "-m dsw_document_template_tool.cli.translation_tree merge" in workflow_text
+    assert '.venv/bin/dsw-template-transform" expand' in workflow_text
+    assert '.venv/bin/dsw-template-tree" export' in workflow_text
+    assert '.venv/bin/dsw-template-tree" import-xliff' not in workflow_text
+    assert '.venv/bin/dsw-template-tree" export-xliff' not in workflow_text
+    assert '.venv/bin/dsw-template-tree" merge' in workflow_text
     assert "--old-tree" in workflow_text
     assert "--new-tree" in workflow_text
     assert "--source-lang" in workflow_text
     assert "--target-lang" in workflow_text
     assert "FRESH_TRANSLATION_TREE=" in workflow_text
     assert "MERGED_TRANSLATION_TREE=" in workflow_text
-    assert "-m dsw_document_template_tool.cli.translation_tree audit" in workflow_text
+    assert '.venv/bin/dsw-template-tree" audit' in workflow_text
     assert "Translation block audit failed" in workflow_text
     assert "Auto-commit repaired translation inputs" in workflow_text
     assert "id: auto_commit" in workflow_text
@@ -377,8 +377,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert '"$TRANSLATION_TREE_DIR/tree"' in workflow_text
     assert 'git push origin "HEAD:refs/heads/$TARGET_REF"' in workflow_text
     assert '--target-branch "$GITHUB_REF_NAME"' not in workflow_text
-    assert "-m dsw_document_template_tool.cli.translation_tree sync" in workflow_text
-    assert "-m dsw_document_template_tool.cli.translation_tree audit-output" in workflow_text
+    assert '.venv/bin/dsw-template-tree" sync' in workflow_text
+    assert '.venv/bin/dsw-template-tree" audit-output' in workflow_text
     assert "--template-organization-id" in workflow_text
     assert "--template-id" in workflow_text
     assert "--template-name" in workflow_text
@@ -418,7 +418,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "::error title=Translated output structure audit failed::" in workflow_text
     assert 'dsw-tdk" package' in workflow_text
     assert "make start-ci-dsw" in workflow_text
-    assert "dsw_document_template_tool.cli.render_project" in workflow_text
+    assert ".venv/bin/dsw-template-render-project" in workflow_text
+    assert "-m dsw_document_template_tool.cli" not in workflow_text
     assert 'case "$PROJECT_REF" in' in workflow_text
     assert 'project_ref_path="$GITHUB_WORKSPACE/$PROJECT_REF"' in workflow_text
     assert '--project-ref "$project_ref_path"' in workflow_text

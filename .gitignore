@@ -10,5 +10,6 @@ outputs/
 workspace/document-templates/
 dist/
 build/
+*.egg-info/
 .github/dsw/config/application.yml
 .github/dsw/config/jwtRS256.key

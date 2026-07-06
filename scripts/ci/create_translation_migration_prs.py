@@ -23,10 +23,9 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from cli_commands import (  # noqa: E402
-    TRANSFORM_TEMPLATE_MODULE,
-    TRANSLATION_TREE_MODULE,
-    module_command,
-    package_env,
+    TRANSFORM_TEMPLATE_COMMAND,
+    TRANSLATION_TREE_COMMAND,
+    tool_command,
 )
 
 from dsw_document_template_tool.translation_migration import (  # noqa: E402
@@ -320,7 +319,7 @@ def refresh_target_with_source(
     else:
         _run_tool(
             tooling_root,
-            TRANSFORM_TEMPLATE_MODULE,
+            TRANSFORM_TEMPLATE_COMMAND,
             "expand",
             "--source",
             target_checkout / target_paths.compact_template_dir,
@@ -329,7 +328,7 @@ def refresh_target_with_source(
         )
         _run_tool(
             tooling_root,
-            TRANSLATION_TREE_MODULE,
+            TRANSLATION_TREE_COMMAND,
             "export",
             "--source",
             target_checkout / target_paths.expanded_template_dir,
@@ -358,7 +357,7 @@ def refresh_target_with_source(
 
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "audit",
         "--tree",
         target_tree,
@@ -367,7 +366,7 @@ def refresh_target_with_source(
     )
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "sync",
         "--tree",
         target_tree,
@@ -386,7 +385,7 @@ def refresh_target_with_source(
     )
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_MODULE,
+        TRANSLATION_TREE_COMMAND,
         "audit-output",
         "--source",
         target_checkout / target_paths.expanded_template_dir,
@@ -495,7 +494,7 @@ def _merge_or_copy(
     if old_tree.joinpath(MERGE_REPORT_PATH.parent, "manifest.json").is_file():
         _run_tool(
             tooling_root,
-            TRANSLATION_TREE_MODULE,
+            TRANSLATION_TREE_COMMAND,
             "merge",
             "--old-tree",
             old_tree,
@@ -842,11 +841,8 @@ def append_github_summary(lines: list[str]) -> None:
         summary_file.write("\n")
 
 
-def _run_tool(tooling_root: Path, module: str, *args: object) -> None:
-    _run(
-        module_command(tooling_root / ".venv" / "bin" / "python", module, *args),
-        env=package_env(tooling_root),
-    )
+def _run_tool(tooling_root: Path, command: str, *args: object) -> None:
+    _run(tool_command(tooling_root, command, *args))
 
 
 def _run(

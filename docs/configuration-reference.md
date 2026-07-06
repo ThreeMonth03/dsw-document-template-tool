@@ -14,7 +14,7 @@ All paths below are repository-relative references.
 | [`config/regression.ci.yml`](../config/regression.ci.yml) | Tool repo | Base CI regression template. Generated CI configs rewrite its baseline/candidate paths to the latest compatible built upstream workspace. | `make generate-regression-config`, `make render-regression-ci`, `make render-regression-ci-plan` |
 | [`config/regression.preview.yml`](../config/regression.preview.yml) | Tool repo | Local preview regression config for a manually controlled DSW instance. It expects API token auth. | `make render-regression CONFIG=config/regression.preview.yml` |
 | [`config/regression.document.yml`](../config/regression.document.yml) | Tool repo | Released-template document regression config. Use it when both baseline and candidate are already installed in DSW and referenced by released template id. | `make render-regression CONFIG=config/regression.document.yml` |
-| [`config/requirements.txt`](../config/requirements.txt) | Tool repo | Python, Sphinx, test, and DSW tooling dependencies for local and CI runs. | `make install-dev` |
+| [`pyproject.toml`](../pyproject.toml) | Tool repo | Python package metadata, dependencies, development extras, and installed `dsw-template-*` console scripts. | `make install-dev` |
 | [`config/ruff.toml`](../config/ruff.toml) | Tool repo | Formatting and linting rules for Python source, scripts, tests, and Sphinx config. | `make format`, `make format-check`, `make lint` |
 
 ## Workflow and Stack Configs

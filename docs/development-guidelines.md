@@ -9,6 +9,7 @@ Commit source and fixtures:
 
 - `src/`
 - `scripts/ci/`
+- `pyproject.toml`
 - `config/`
 - `examples/`
 - `tests/`
@@ -32,6 +33,8 @@ Use `make clean` when generated files make local review noisy.
   [`src/dsw_document_template_tool/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool).
 - Put maintained direct CLI entrypoints in
   [`src/dsw_document_template_tool/cli/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/cli).
+- Expose user-facing CLI commands through
+  [`pyproject.toml`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/pyproject.toml).
 - Put GitHub Actions helpers in
   [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci).
 - Keep GitHub Actions YAML thin. YAML should describe the flow; Python helpers

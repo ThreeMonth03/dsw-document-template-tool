@@ -15,11 +15,10 @@ REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from cli_commands import (  # noqa: E402
-    RENDER_PROJECT_MODULE,
-    TRANSFORM_TEMPLATE_MODULE,
-    TRANSLATION_TREE_MODULE,
-    module_command,
-    package_env,
+    RENDER_PROJECT_COMMAND,
+    TRANSFORM_TEMPLATE_COMMAND,
+    TRANSLATION_TREE_COMMAND,
+    tool_command,
 )
 from resolve_upstream_refs import normalize_git_remote, resolve_refs  # noqa: E402
 
@@ -89,7 +88,6 @@ def main() -> None:
 def add_common_build_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--remote", required=True)
     parser.add_argument("--refs", nargs="+", required=True)
-    parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--source-template-id", required=True)
     parser.add_argument("--tdk-executable", required=True)
     parser.add_argument("--translated-template-id", required=True)
@@ -165,10 +163,9 @@ def smoke_test_upstream_tags(args: argparse.Namespace) -> None:
             continue
 
         print(f"INFO: [{ref}] transform/export/sync/package version {version}")
-        expand_template(args.python, source=cache_dir, output=expanded_dir)
-        export_translation_tree(args.python, source=expanded_dir, output=tree_dir)
+        expand_template(source=cache_dir, output=expanded_dir)
+        export_translation_tree(source=expanded_dir, output=tree_dir)
         sync_translation_tree(
-            args.python,
             tree=tree_dir,
             source=expanded_dir,
             output=output_dir,
@@ -177,7 +174,7 @@ def smoke_test_upstream_tags(args: argparse.Namespace) -> None:
             template_name=f"{args.translated_template_name} Smoke Test",
             template_version=version,
         )
-        audit_output(args.python, source=expanded_dir, output=output_dir)
+        audit_output(source=expanded_dir, output=output_dir)
         run([args.tdk_executable, "verify", str(output_dir)])
         run(
             [
@@ -248,13 +245,10 @@ def build_upstream_artifacts(args: argparse.Namespace) -> None:
         )
 
         print(f"INFO: [{ref}] transform/export/sync/package version {version}")
-        expand_template(
-            args.python, source=compact_dir, output=regression_expanded_dir, local_patches=False
-        )
-        expand_template(args.python, source=compact_dir, output=expanded_dir)
-        export_translation_tree(args.python, source=expanded_dir, output=tree_dir)
+        expand_template(source=compact_dir, output=regression_expanded_dir, local_patches=False)
+        expand_template(source=compact_dir, output=expanded_dir)
+        export_translation_tree(source=expanded_dir, output=tree_dir)
         sync_translation_tree(
-            args.python,
             tree=tree_dir,
             source=expanded_dir,
             output=output_dir,
@@ -263,7 +257,7 @@ def build_upstream_artifacts(args: argparse.Namespace) -> None:
             template_name=args.scaffold_template_name,
             template_version=version,
         )
-        audit_output(args.python, source=expanded_dir, output=output_dir)
+        audit_output(source=expanded_dir, output=output_dir)
         run([args.tdk_executable, "verify", str(output_dir)])
         run(
             [
@@ -327,9 +321,9 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
 
         print(f"INFO: Rendering scaffold demo for {version_tag} to {output_path}")
         render_status = run(
-            module_command(
-                args.python,
-                RENDER_PROJECT_MODULE,
+            tool_command(
+                REPO_ROOT,
+                RENDER_PROJECT_COMMAND,
                 "--project-ref",
                 args.project_ref,
                 "--template-dir",
@@ -342,7 +336,6 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
                 args.tdk_executable,
             ),
             check=False,
-            env=package_env(REPO_ROOT),
         ).returncode
         if render_status == 0:
             continue
@@ -422,17 +415,9 @@ def write_upstream_metadata(
     )
 
 
-def expand_template(
-    python: str,
-    *,
-    source: Path,
-    output: Path,
-    local_patches: bool = True,
-) -> None:
+def expand_template(*, source: Path, output: Path, local_patches: bool = True) -> None:
     args = [
-        python,
-        "-m",
-        TRANSFORM_TEMPLATE_MODULE,
+        *tool_command(REPO_ROOT, TRANSFORM_TEMPLATE_COMMAND),
         "expand",
         "--source",
         str(source),
@@ -441,26 +426,24 @@ def expand_template(
     ]
     if not local_patches:
         args.append("--no-local-patches")
-    run(args, env=package_env(REPO_ROOT))
+    run(args)
 
 
-def export_translation_tree(python: str, *, source: Path, output: Path) -> None:
+def export_translation_tree(*, source: Path, output: Path) -> None:
     run(
-        module_command(
-            python,
-            TRANSLATION_TREE_MODULE,
+        tool_command(
+            REPO_ROOT,
+            TRANSLATION_TREE_COMMAND,
             "export",
             "--source",
             source,
             "--output",
             output,
         ),
-        env=package_env(REPO_ROOT),
     )
 
 
 def sync_translation_tree(
-    python: str,
     *,
     tree: Path,
     source: Path,
@@ -471,9 +454,9 @@ def sync_translation_tree(
     template_version: str,
 ) -> None:
     run(
-        module_command(
-            python,
-            TRANSLATION_TREE_MODULE,
+        tool_command(
+            REPO_ROOT,
+            TRANSLATION_TREE_COMMAND,
             "sync",
             "--tree",
             tree,
@@ -490,22 +473,20 @@ def sync_translation_tree(
             "--template-version",
             template_version,
         ),
-        env=package_env(REPO_ROOT),
     )
 
 
-def audit_output(python: str, *, source: Path, output: Path) -> None:
+def audit_output(*, source: Path, output: Path) -> None:
     run(
-        module_command(
-            python,
-            TRANSLATION_TREE_MODULE,
+        tool_command(
+            REPO_ROOT,
+            TRANSLATION_TREE_COMMAND,
             "audit-output",
             "--source",
             source,
             "--output",
             output,
         ),
-        env=package_env(REPO_ROOT),
     )
 
 

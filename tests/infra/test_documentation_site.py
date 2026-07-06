@@ -33,6 +33,9 @@ def test_command_reference_keeps_make_as_primary_interface(repo_root: Path) -> N
     assert "## Direct CLI Use" in command_reference
     assert "Prefer `make` for routine work" in command_reference
     assert "src/dsw_document_template_tool/cli/" in command_reference
+    assert "pyproject.toml" in command_reference
+    assert "dsw-template-transform" in command_reference
+    assert "dsw-template-tree" in command_reference
     assert "make build-upstream-artifacts" in command_reference
     assert "make render-regression-ci-plan" in command_reference
     assert "make render-regression-ci-plan-dry-run" in command_reference
@@ -60,8 +63,8 @@ def test_configuration_reference_covers_maintained_config_files(repo_root: Path)
         "config/regression.ci.yml",
         "config/regression.preview.yml",
         "config/regression.document.yml",
-        "config/requirements.txt",
         "config/ruff.toml",
+        "pyproject.toml",
         ".github/workflows/headless_render_regression.yml",
         ".github/workflows/pages.yml",
         ".github/dsw/docker-compose.yml",

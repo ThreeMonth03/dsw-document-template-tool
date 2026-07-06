@@ -13,24 +13,21 @@ from types import ModuleType
 import yaml
 
 
-def _module_cli(repo_root: Path, module: str, *args: str) -> subprocess.CompletedProcess[str]:
-    """Run one package module CLI with the repository src path exposed."""
+def _tool_cli(repo_root: Path, command: str, *args: str) -> subprocess.CompletedProcess[str]:
+    """Run one installed package console script from the repository virtualenv."""
 
-    env = os.environ.copy()
-    env["PYTHONPATH"] = str(repo_root / "src")
     return subprocess.run(
-        [sys.executable, "-m", module, *args],
+        [str(repo_root / ".venv" / "bin" / command), *args],
         capture_output=True,
         text=True,
         check=False,
-        env=env,
     )
 
 
 def test_render_regression_help(repo_root) -> None:
     """The main regression CLI should expose a working help screen."""
 
-    result = _module_cli(repo_root, "dsw_document_template_tool.cli.render_regression", "--help")
+    result = _tool_cli(repo_root, "dsw-template-render-regression", "--help")
     assert result.returncode == 0
     assert "headless DSW template regression" in result.stdout
     assert "--config" in result.stdout
@@ -39,7 +36,7 @@ def test_render_regression_help(repo_root) -> None:
 def test_render_project_help(repo_root) -> None:
     """The project render CLI should expose a working help screen."""
 
-    result = _module_cli(repo_root, "dsw_document_template_tool.cli.render_project", "--help")
+    result = _tool_cli(repo_root, "dsw-template-render-project", "--help")
     assert result.returncode == 0
     assert "existing or fixture DSW project" in result.stdout
     assert "--project-uuid" in result.stdout
@@ -49,7 +46,7 @@ def test_render_project_help(repo_root) -> None:
 def test_transform_template_help(repo_root) -> None:
     """The transform CLI should expose its subcommands."""
 
-    result = _module_cli(repo_root, "dsw_document_template_tool.cli.transform_template", "--help")
+    result = _tool_cli(repo_root, "dsw-template-transform", "--help")
     assert result.returncode == 0
     assert "Expand or compact DSW document templates" in result.stdout
     assert "expand" in result.stdout
@@ -59,7 +56,7 @@ def test_transform_template_help(repo_root) -> None:
 def test_translation_tree_help(repo_root) -> None:
     """The translation-tree CLI should expose export/audit/sync commands."""
 
-    result = _module_cli(repo_root, "dsw_document_template_tool.cli.translation_tree", "--help")
+    result = _tool_cli(repo_root, "dsw-template-tree", "--help")
     assert result.returncode == 0
     assert "translator-facing trees" in result.stdout
     assert "export" in result.stdout
@@ -68,18 +65,18 @@ def test_translation_tree_help(repo_root) -> None:
     assert "sync" in result.stdout
     assert "merge" in result.stdout
 
-    result = _module_cli(
+    result = _tool_cli(
         repo_root,
-        "dsw_document_template_tool.cli.translation_tree",
+        "dsw-template-tree",
         "sync",
         "--help",
     )
     assert result.returncode == 0
     assert "--template-id" in result.stdout
 
-    result = _module_cli(
+    result = _tool_cli(
         repo_root,
-        "dsw_document_template_tool.cli.translation_tree",
+        "dsw-template-tree",
         "audit",
         "--help",
     )
@@ -87,9 +84,9 @@ def test_translation_tree_help(repo_root) -> None:
     assert "--tree" in result.stdout
     assert "--source" in result.stdout
 
-    result = _module_cli(
+    result = _tool_cli(
         repo_root,
-        "dsw_document_template_tool.cli.translation_tree",
+        "dsw-template-tree",
         "audit-output",
         "--help",
     )
@@ -97,9 +94,9 @@ def test_translation_tree_help(repo_root) -> None:
     assert "--source" in result.stdout
     assert "--output" in result.stdout
 
-    result = _module_cli(
+    result = _tool_cli(
         repo_root,
-        "dsw_document_template_tool.cli.translation_tree",
+        "dsw-template-tree",
         "merge",
         "--help",
     )

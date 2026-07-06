@@ -26,6 +26,8 @@ Choose the path closest to your task:
 
 - [Development Guidelines](development-guidelines.md) defines code review and
   maintenance expectations.
+- [Internal Change Guide](internal-change-guide.md) maps common implementation
+  changes to the owning modules and tests.
 - [Configuration Reference](configuration-reference.md) explains source configs
   and generated config boundaries.
 - [Command Reference](command-reference.md) lists Make targets, required
