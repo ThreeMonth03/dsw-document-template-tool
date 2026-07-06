@@ -11,16 +11,19 @@ The tool repo owns reusable infrastructure:
 - translation tree export, merge, sync, and audits
 - clean upstream scaffold artifacts for supported template tags
 - demo project fixtures and matching Knowledge Model bundles used by CI previews
-- helper scripts under `scripts/ci/`
-- copy-paste workflow templates under `examples/`
+- helper scripts under
+  [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci)
+- copy-paste workflow templates under
+  [`examples/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples)
 
 The clean scaffold outputs are inputs for downstream repositories. They are not
 finished translations.
 
 This repo exposes those outputs in two places:
 
-- GitHub Actions artifacts from `headless_render_regression.yml`, which the
-  downstream translation workflow downloads during automated sync.
+- GitHub Actions artifacts from
+  [`.github/workflows/headless_render_regression.yml`](../.github/workflows/headless_render_regression.yml),
+  which the downstream translation workflow downloads during automated sync.
 - GitHub Release assets named `clean-scaffold-dsw-science-europe-vX.Y.Z`, which
   are stable human-facing download buckets for review and handoff.
 
@@ -56,8 +59,8 @@ for provenance.
 
 A downstream translation repository owns:
 
-- a configured operations branch containing
-  `translation-config.yml`, docs, fixtures, and repository workflows
+- a configured operations branch containing `translation-config.yml`, docs,
+  fixtures, and repository workflows
 - version branches such as `translation/v1.30.1`
 - public handoff branches using the configured publish prefix, such as
   `sync/v1.30.1`, when the same repository also stores clean translated
@@ -88,10 +91,9 @@ TRANSLATION_REPO_DIR=/path/to/document-template-translation
 Download clean scaffold artifacts:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
-  --repo "$TOOL_GITHUB_REPO" \
-  --workflow headless_render_regression.yml \
-  --output-dir /tmp/clean-scaffolds
+make download-clean-scaffold-artifacts \
+  TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
+  CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
 ```
 
 Downstream repositories normally cannot receive a cross-repository
@@ -103,29 +105,27 @@ downloaded artifacts are tied to that exact run:
 ```shell
 TOOLING_RUN_ID=123456789
 
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
-  --repo "$TOOL_GITHUB_REPO" \
-  --run-id "$TOOLING_RUN_ID" \
-  --output-dir /tmp/clean-scaffolds
+make download-clean-scaffold-artifacts \
+  TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
+  CLEAN_SCAFFOLD_ARTIFACT_RUN_ID="$TOOLING_RUN_ID" \
+  CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
 ```
 
 Refresh version branches from downloaded artifacts:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/sync_translation_version_branches.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --clean-artifact-root /tmp/clean-scaffolds \
-  --refresh-existing
+make sync-translation-version-branches \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds \
+  TRANSLATION_SYNC_REFRESH_EXISTING=true
 ```
 
 Check cross-version migration status after the refresh:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/check_translation_migration_status.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --clean-artifact-root /tmp/clean-scaffolds
+make check-translation-migrations \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
 Use `--dry-run` first when changing parser logic, supported versions, or branch
@@ -199,8 +199,8 @@ Version-branch sync treats `translation.md` as canonical. Optional XLIFF
 exchange is available as a helper command, but it is not part of the default
 branch automation.
 
-If no migration PR appears, use `check_translation_migration_status.py` against
-the same clean scaffold artifacts to distinguish "nothing to migrate" from "the
+If no migration PR appears, use `make check-translation-migrations` against the
+same clean scaffold artifacts to distinguish "nothing to migrate" from "the
 workflow did not run the migration step."
 
 To choose the source branch used for migration fan-out, pass `source_version`:
@@ -219,13 +219,13 @@ there.
 
 ## Workflow Template
 
-`examples/github-actions/document_template_translation_sync.yml` is a template
-for downstream repositories. Updating it here does not update existing
-downstream version branches. Routine branch refreshes preserve workflow files
-to avoid requiring elevated token scopes. Apply important workflow fixes in the
-downstream repo by running `sync_translation_version_branches.py` with
-`--sync-workflows`, or by making an explicit workflow-only maintenance commit
-there.
+[`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml)
+is a template for downstream repositories. Updating it here does not update
+existing downstream version branches. Routine branch refreshes preserve workflow
+files to avoid requiring elevated token scopes. Apply important workflow fixes
+in the downstream repo by running `make sync-translation-version-branches` with
+`TRANSLATION_SYNC_WORKFLOWS=true`, or by making an explicit workflow-only
+maintenance commit there.
 
 The template is intended for version-specific `translation/v*` branches. It is
 triggered by pull requests, pushes, and manual dispatch. Daily scheduled

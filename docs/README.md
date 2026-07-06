@@ -1,8 +1,9 @@
 # Documentation Index
 
 Use this directory as the maintenance manual for the document-template tooling.
-The root `README.md` is only an entry point; operational detail should live
-here.
+The root
+[`README.md`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/README.md)
+is only an entry point; operational detail should live here.
 
 ## Start Here
 
@@ -44,7 +45,9 @@ Choose the path closest to your task:
 
 ## Documentation Rules
 
-- Keep the root `README.md` short and navigational.
+- Keep the root
+  [`README.md`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/README.md)
+  short and navigational.
 - Put durable procedures in runbooks, not in GitHub Actions comments.
 - When adding a new CI helper, document both the command and the failure mode it
   is meant to prevent.

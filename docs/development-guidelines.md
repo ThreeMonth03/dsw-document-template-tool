@@ -28,9 +28,12 @@ Use `make clean` when generated files make local review noisy.
 
 ## Code Organization
 
-- Keep root `src/*.py` files as compatibility shims.
-- Put reusable behavior in `src/dsw_document_template_tool/`.
-- Put GitHub Actions helpers in `scripts/ci/`.
+- Put reusable behavior in
+  [`src/dsw_document_template_tool/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool).
+- Put maintained direct CLI entrypoints in
+  [`src/dsw_document_template_tool/cli/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/cli).
+- Put GitHub Actions helpers in
+  [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci).
 - Keep GitHub Actions YAML thin. YAML should describe the flow; Python helpers
   should perform parsing, branching, validation, and GitHub API logic.
 - Add a `--help` smoke test for every new helper in

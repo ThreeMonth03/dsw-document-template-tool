@@ -43,7 +43,8 @@ make docs
 make docs-clean
 ```
 
-GitHub Pages uses `make docs` through `.github/workflows/pages.yml`.
+GitHub Pages uses `make docs` through
+[`.github/workflows/pages.yml`](../.github/workflows/pages.yml).
 
 ## DSW Stack
 
@@ -131,6 +132,8 @@ make discover-upstream-compat \
 
 If discovery finds an unsupported metamodel, the workflow opens a follow-up PR
 with a report and smoke-test checklist. It does not auto-merge runtime changes.
+The report is staged at
+[`docs/compatibility/dsw-compatibility-probe.md`](compatibility/dsw-compatibility-probe.md).
 Local dry-run:
 
 ```shell
@@ -257,8 +260,8 @@ make check-translation-migrations \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
-Add `--fail-on-pending` only when CI should fail on pending migration changes.
-Use the script directly for that stricter CI-only flag.
+Set `TRANSLATION_MIGRATION_FAIL_ON_PENDING=true` only when CI should fail on
+pending migration changes.
 
 Manually copy reviewed translated source to a target branch:
 
@@ -294,22 +297,29 @@ Prefer `make` for routine work. Direct Python entrypoints are useful when you
 need to reproduce exactly what CI ran, pass uncommon flags, or debug one layer
 without the Makefile defaults.
 
-The root scripts under `src/` are compatibility shims. The maintained CLI code
-lives in `src/dsw_document_template_tool/cli/`, and the stable package APIs are
-listed in the Package Reference section of the Sphinx navigation.
+The maintained CLI code lives in
+[`src/dsw_document_template_tool/cli/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/cli),
+and the stable package APIs are listed in the Package Reference section of the
+Sphinx navigation. Because this repository uses a `src` layout without an
+installable package wrapper, direct module commands must expose `src` through
+`PYTHONPATH`.
 
 Show help:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/transform_template.py" --help
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" --help
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/render_regression.py" --help
+PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
+  -m dsw_document_template_tool.cli.transform_template --help
+PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
+  -m dsw_document_template_tool.cli.translation_tree --help
+PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
+  -m dsw_document_template_tool.cli.render_regression --help
 ```
 
 Run transform directly:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/transform_template.py" expand \
+PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
+  -m dsw_document_template_tool.cli.transform_template expand \
   --source workspace/document-templates/compact/dsw-science-europe-1.30.1 \
   --output workspace/document-templates/expanded/dsw-science-europe-1.30.1
 ```
@@ -317,11 +327,13 @@ Run transform directly:
 Run translation tree export/sync directly:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" export \
+PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
+  -m dsw_document_template_tool.cli.translation_tree export \
   --source workspace/document-templates/expanded/dsw-science-europe-1.30.1 \
   --output workspace/document-templates/translation/dsw-science-europe-1.30.1
 
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/src/translation_tree.py" sync \
+PYTHONPATH="$TOOL_REPO_DIR/src" "$TOOL_REPO_DIR/.venv/bin/python" \
+  -m dsw_document_template_tool.cli.translation_tree sync \
   --tree workspace/document-templates/translation/dsw-science-europe-1.30.1 \
   --source workspace/document-templates/expanded/dsw-science-europe-1.30.1 \
   --output outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/dsw-science-europe-zh-hant-1.30.1 \

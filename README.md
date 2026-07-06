@@ -19,7 +19,7 @@ release automation for clean upstream scaffolds.
 
 Generated workspaces, generated packages, render outputs, and caches are build
 artifacts. Keep them out of `master` unless a file is explicitly a reusable
-fixture under `fixtures/`.
+fixture under [`fixtures/`](fixtures/).
 
 ## First Five Minutes
 
@@ -31,7 +31,7 @@ make check
 ```
 
 For anything beyond that, start from the task map below. The root README is only
-an entry point; operational detail lives in `docs/`.
+an entry point; operational detail lives in [`docs/`](docs/).
 
 ## Start Here
 
@@ -49,7 +49,7 @@ If you are new to the project, start with the
 
 The tooling supports Science Europe template versions from `v1.29.1` upward.
 The DSW runtime matrix is declared in
-[config/dsw-compat.yml](config/dsw-compat.yml).
+[`config/dsw-compat.yml`](config/dsw-compat.yml).
 
 On non-PR CI runs, this repository publishes clean scaffold prerelease assets
 such as `clean-scaffold-dsw-science-europe-v1.30.1`. These are download buckets

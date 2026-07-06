@@ -13,15 +13,24 @@ from types import ModuleType
 import yaml
 
 
-def test_render_regression_help(repo_root) -> None:
-    """The main regression CLI should expose a working help screen."""
+def _module_cli(repo_root: Path, module: str, *args: str) -> subprocess.CompletedProcess[str]:
+    """Run one package module CLI with the repository src path exposed."""
 
-    result = subprocess.run(
-        [sys.executable, str(repo_root / "src" / "render_regression.py"), "--help"],
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(repo_root / "src")
+    return subprocess.run(
+        [sys.executable, "-m", module, *args],
         capture_output=True,
         text=True,
         check=False,
+        env=env,
     )
+
+
+def test_render_regression_help(repo_root) -> None:
+    """The main regression CLI should expose a working help screen."""
+
+    result = _module_cli(repo_root, "dsw_document_template_tool.cli.render_regression", "--help")
     assert result.returncode == 0
     assert "headless DSW template regression" in result.stdout
     assert "--config" in result.stdout
@@ -30,12 +39,7 @@ def test_render_regression_help(repo_root) -> None:
 def test_render_project_help(repo_root) -> None:
     """The project render CLI should expose a working help screen."""
 
-    result = subprocess.run(
-        [sys.executable, str(repo_root / "src" / "render_project.py"), "--help"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = _module_cli(repo_root, "dsw_document_template_tool.cli.render_project", "--help")
     assert result.returncode == 0
     assert "existing or fixture DSW project" in result.stdout
     assert "--project-uuid" in result.stdout
@@ -45,12 +49,7 @@ def test_render_project_help(repo_root) -> None:
 def test_transform_template_help(repo_root) -> None:
     """The transform CLI should expose its subcommands."""
 
-    result = subprocess.run(
-        [sys.executable, str(repo_root / "src" / "transform_template.py"), "--help"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = _module_cli(repo_root, "dsw_document_template_tool.cli.transform_template", "--help")
     assert result.returncode == 0
     assert "Expand or compact DSW document templates" in result.stdout
     assert "expand" in result.stdout
@@ -60,12 +59,7 @@ def test_transform_template_help(repo_root) -> None:
 def test_translation_tree_help(repo_root) -> None:
     """The translation-tree CLI should expose export/audit/sync commands."""
 
-    result = subprocess.run(
-        [sys.executable, str(repo_root / "src" / "translation_tree.py"), "--help"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = _module_cli(repo_root, "dsw_document_template_tool.cli.translation_tree", "--help")
     assert result.returncode == 0
     assert "translator-facing trees" in result.stdout
     assert "export" in result.stdout
@@ -74,50 +68,40 @@ def test_translation_tree_help(repo_root) -> None:
     assert "sync" in result.stdout
     assert "merge" in result.stdout
 
-    result = subprocess.run(
-        [sys.executable, str(repo_root / "src" / "translation_tree.py"), "sync", "--help"],
-        capture_output=True,
-        text=True,
-        check=False,
+    result = _module_cli(
+        repo_root,
+        "dsw_document_template_tool.cli.translation_tree",
+        "sync",
+        "--help",
     )
     assert result.returncode == 0
     assert "--template-id" in result.stdout
 
-    result = subprocess.run(
-        [sys.executable, str(repo_root / "src" / "translation_tree.py"), "audit", "--help"],
-        capture_output=True,
-        text=True,
-        check=False,
+    result = _module_cli(
+        repo_root,
+        "dsw_document_template_tool.cli.translation_tree",
+        "audit",
+        "--help",
     )
     assert result.returncode == 0
     assert "--tree" in result.stdout
     assert "--source" in result.stdout
 
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(repo_root / "src" / "translation_tree.py"),
-            "audit-output",
-            "--help",
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
+    result = _module_cli(
+        repo_root,
+        "dsw_document_template_tool.cli.translation_tree",
+        "audit-output",
+        "--help",
     )
     assert result.returncode == 0
     assert "--source" in result.stdout
     assert "--output" in result.stdout
 
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(repo_root / "src" / "translation_tree.py"),
-            "merge",
-            "--help",
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
+    result = _module_cli(
+        repo_root,
+        "dsw_document_template_tool.cli.translation_tree",
+        "merge",
+        "--help",
     )
     assert result.returncode == 0
     assert "--old-tree" in result.stdout
@@ -211,7 +195,7 @@ def test_repository_does_not_reference_retired_translation_control_worktree(
 ) -> None:
     """Retired local worktree paths should not leak into commands or docs."""
 
-    retired_path = "DSW-document-template-translation-master-control"
+    retired_path = "dsw-document-template-translation-master-control"
     scanned_paths = [
         repo_root / "Makefile",
         *sorted((repo_root / "docs").glob("*.md")),

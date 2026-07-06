@@ -10,21 +10,21 @@ All paths below are repository-relative references.
 
 | File | Owner | Purpose | Main Commands |
 | --- | --- | --- | --- |
-| `config/dsw-compat.yml` | Tool repo | Declares the proven DSW server, document worker, and `dsw-tdk` runtime for each supported template metamodel range. This is the source of truth for runtime matrix generation. | `make sync-dsw-runtime-matrix`, `make check-dsw-runtime-matrix`, `make discover-upstream-compat` |
-| `config/regression.ci.yml` | Tool repo | Base CI regression template. Generated CI configs rewrite its baseline/candidate paths to the latest compatible built upstream workspace. | `make generate-regression-config`, `make render-regression-ci`, `make render-regression-ci-plan` |
-| `config/regression.preview.yml` | Tool repo | Local preview regression config for a manually controlled DSW instance. It expects API token auth. | `make render-regression CONFIG=config/regression.preview.yml` |
-| `config/regression.document.yml` | Tool repo | Released-template document regression config. Use it when both baseline and candidate are already installed in DSW and referenced by released template id. | `make render-regression CONFIG=config/regression.document.yml` |
-| `config/requirements.txt` | Tool repo | Python, Sphinx, test, and DSW tooling dependencies for local and CI runs. | `make install-dev` |
-| `config/ruff.toml` | Tool repo | Formatting and linting rules for Python source, scripts, tests, and Sphinx config. | `make format`, `make format-check`, `make lint` |
+| [`config/dsw-compat.yml`](../config/dsw-compat.yml) | Tool repo | Declares the proven DSW server, document worker, and `dsw-tdk` runtime for each supported template metamodel range. This is the source of truth for runtime matrix generation. | `make sync-dsw-runtime-matrix`, `make check-dsw-runtime-matrix`, `make discover-upstream-compat` |
+| [`config/regression.ci.yml`](../config/regression.ci.yml) | Tool repo | Base CI regression template. Generated CI configs rewrite its baseline/candidate paths to the latest compatible built upstream workspace. | `make generate-regression-config`, `make render-regression-ci`, `make render-regression-ci-plan` |
+| [`config/regression.preview.yml`](../config/regression.preview.yml) | Tool repo | Local preview regression config for a manually controlled DSW instance. It expects API token auth. | `make render-regression CONFIG=config/regression.preview.yml` |
+| [`config/regression.document.yml`](../config/regression.document.yml) | Tool repo | Released-template document regression config. Use it when both baseline and candidate are already installed in DSW and referenced by released template id. | `make render-regression CONFIG=config/regression.document.yml` |
+| [`config/requirements.txt`](../config/requirements.txt) | Tool repo | Python, Sphinx, test, and DSW tooling dependencies for local and CI runs. | `make install-dev` |
+| [`config/ruff.toml`](../config/ruff.toml) | Tool repo | Formatting and linting rules for Python source, scripts, tests, and Sphinx config. | `make format`, `make format-check`, `make lint` |
 
 ## Workflow and Stack Configs
 
 | File | Owner | Purpose | Main Commands |
 | --- | --- | --- | --- |
-| `.github/workflows/headless_render_regression.yml` | Tool repo | Main CI workflow for checks, upstream discovery, clean scaffold artifacts, release assets, and DSW render regression. Its runtime matrix is generated from `config/dsw-compat.yml`. | `make check`, `make sync-dsw-runtime-matrix` |
-| `.github/workflows/pages.yml` | Tool repo | GitHub Pages deployment for this documentation site. | `make docs` |
-| `.github/dsw/docker-compose.yml` | Tool repo | Ephemeral DSW stack used by local and CI render tests. | `make start-ci-dsw`, `make stop-ci-dsw`, `make ci-dsw-logs` |
-| `examples/github-actions/document_template_translation_sync.yml` | Tool repo example | Template workflow copied into downstream translation version branches. The sync script renders version-specific values from `translation-config.yml`. | `make sync-translation-version-branches` |
+| [`.github/workflows/headless_render_regression.yml`](../.github/workflows/headless_render_regression.yml) | Tool repo | Main CI workflow for checks, upstream discovery, clean scaffold artifacts, release assets, and DSW render regression. Its runtime matrix is generated from [`config/dsw-compat.yml`](../config/dsw-compat.yml). | `make check`, `make sync-dsw-runtime-matrix` |
+| [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) | Tool repo | GitHub Pages deployment for this documentation site. | `make docs` |
+| [`.github/dsw/docker-compose.yml`](../.github/dsw/docker-compose.yml) | Tool repo | Ephemeral DSW stack used by local and CI render tests. | `make start-ci-dsw`, `make stop-ci-dsw`, `make ci-dsw-logs` |
+| [`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml) | Tool repo example | Template workflow copied into downstream translation version branches. The sync script renders version-specific values from `translation-config.yml`. | `make sync-translation-version-branches` |
 
 ## Generated Configs
 

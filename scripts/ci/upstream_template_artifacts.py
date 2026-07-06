@@ -14,9 +14,14 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
+from cli_commands import (  # noqa: E402
+    RENDER_PROJECT_MODULE,
+    TRANSFORM_TEMPLATE_MODULE,
+    TRANSLATION_TREE_MODULE,
+    module_command,
+    package_env,
+)
 from resolve_upstream_refs import normalize_git_remote, resolve_refs  # noqa: E402
-
-TRANSLATION_TREE_CLI = "src/translation_tree.py"
 
 
 def main() -> None:
@@ -322,21 +327,22 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
 
         print(f"INFO: Rendering scaffold demo for {version_tag} to {output_path}")
         render_status = run(
-            [
+            module_command(
                 args.python,
-                "src/render_project.py",
+                RENDER_PROJECT_MODULE,
                 "--project-ref",
                 args.project_ref,
                 "--template-dir",
-                str(template_dir),
+                template_dir,
                 "--format-uuid",
                 args.format_uuid,
                 "--output",
-                str(output_path),
+                output_path,
                 "--tdk-executable",
                 args.tdk_executable,
-            ],
+            ),
             check=False,
+            env=package_env(REPO_ROOT),
         ).returncode
         if render_status == 0:
             continue
@@ -425,7 +431,8 @@ def expand_template(
 ) -> None:
     args = [
         python,
-        "src/transform_template.py",
+        "-m",
+        TRANSFORM_TEMPLATE_MODULE,
         "expand",
         "--source",
         str(source),
@@ -434,20 +441,21 @@ def expand_template(
     ]
     if not local_patches:
         args.append("--no-local-patches")
-    run(args)
+    run(args, env=package_env(REPO_ROOT))
 
 
 def export_translation_tree(python: str, *, source: Path, output: Path) -> None:
     run(
-        [
+        module_command(
             python,
-            TRANSLATION_TREE_CLI,
+            TRANSLATION_TREE_MODULE,
             "export",
             "--source",
-            str(source),
+            source,
             "--output",
-            str(output),
-        ]
+            output,
+        ),
+        env=package_env(REPO_ROOT),
     )
 
 
@@ -463,16 +471,16 @@ def sync_translation_tree(
     template_version: str,
 ) -> None:
     run(
-        [
+        module_command(
             python,
-            TRANSLATION_TREE_CLI,
+            TRANSLATION_TREE_MODULE,
             "sync",
             "--tree",
-            str(tree),
+            tree,
             "--source",
-            str(source),
+            source,
             "--output",
-            str(output),
+            output,
             "--template-organization-id",
             organization_id,
             "--template-id",
@@ -481,21 +489,23 @@ def sync_translation_tree(
             template_name,
             "--template-version",
             template_version,
-        ]
+        ),
+        env=package_env(REPO_ROOT),
     )
 
 
 def audit_output(python: str, *, source: Path, output: Path) -> None:
     run(
-        [
+        module_command(
             python,
-            TRANSLATION_TREE_CLI,
+            TRANSLATION_TREE_MODULE,
             "audit-output",
             "--source",
-            str(source),
+            source,
             "--output",
-            str(output),
-        ]
+            output,
+        ),
+        env=package_env(REPO_ROOT),
     )
 
 
@@ -553,8 +563,13 @@ def git_stdout(repo: Path | None, *args: str) -> str:
     return subprocess.run(command, check=True, stdout=subprocess.PIPE, text=True).stdout
 
 
-def run(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(args, check=check)
+def run(
+    args: list[str],
+    *,
+    check: bool = True,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(args, check=check, env=env)
 
 
 if __name__ == "__main__":

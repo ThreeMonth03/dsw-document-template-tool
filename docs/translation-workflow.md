@@ -94,8 +94,10 @@ the source of truth.
 Use XLIFF as the exchange boundary:
 
 ```shell
-python src/translation_tree.py export-xliff --tree translation --output xliff/messages.xlf
-python src/translation_tree.py import-xliff --tree translation --xliff xliff/messages.xlf
+PYTHONPATH=src python -m dsw_document_template_tool.cli.translation_tree \
+  export-xliff --tree translation --output xliff/messages.xlf
+PYTHONPATH=src python -m dsw_document_template_tool.cli.translation_tree \
+  import-xliff --tree translation --xliff xliff/messages.xlf
 ```
 
 `export-xliff` reads the current translation tree and writes a standard XLIFF

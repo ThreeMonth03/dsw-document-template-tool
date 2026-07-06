@@ -36,10 +36,13 @@ PROJECT_UUID ?= $(DSW_PROJECT_UUID)
 PUBLISH_BASE_BRANCH ?= main
 PUBLISH_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
 PYTHON ?= $(VENV_PYTHON)
+PYTHONPATH ?= src
 PYTHON_LINT_PATHS ?= docs/conf.py scripts/ci/*.py src tests
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
 REGRESSION_PLAN_PATH ?= $(COMPAT_LEDGER_DIR)/regression-plan.json
 REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT ?= 20
+RENDER_PROJECT_MODULE ?= dsw_document_template_tool.cli.render_project
+RENDER_REGRESSION_MODULE ?= dsw_document_template_tool.cli.render_regression
 SCAFFOLD_ARTIFACT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)
 SCAFFOLD_TEMPLATE_ID ?= $(TRANSLATED_TEMPLATE_ID)-scaffold
 SCAFFOLD_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_NAME) Scaffold
@@ -49,6 +52,7 @@ SOURCE_TEMPLATE_VERSION_TAG ?= v$(SOURCE_TEMPLATE_VERSION)
 SPHINXOPTS ?= -W --keep-going
 TEMPLATE_DIR ?=
 TOOL_GITHUB_REPO ?= $(if $(GITHUB_REPOSITORY),$(GITHUB_REPOSITORY),owner/document-template-tool)
+TRANSFORM_TEMPLATE_MODULE ?= dsw_document_template_tool.cli.transform_template
 TRANSLATED_EXPANDED_TEMPLATE_DIR ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
 TRANSLATED_OUTPUT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
 TRANSLATED_TEMPLATE_ID ?= science-europe-zh-hant
@@ -60,7 +64,8 @@ TRANSLATED_WORKSPACE_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(T
 TRANSLATION_CLEAN_ARTIFACT_ROOT ?= $(CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR)
 TRANSLATION_CONFIG_PATH ?= $(TRANSLATION_REPO)/translation-config.yml
 TRANSLATION_LOCALE ?= zh-Hant
-TRANSLATION_REPO ?= ../DSW-document-template-translation
+TRANSLATION_MIGRATION_FAIL_ON_PENDING ?= false
+TRANSLATION_REPO ?= ../dsw-document-template-translation
 TRANSLATION_SOURCE_LOCALE ?= en
 TRANSLATION_SYNC_DRY_RUN ?= true
 TRANSLATION_SYNC_POLICY_MODE ?= auto
@@ -69,6 +74,7 @@ TRANSLATION_SYNC_REFRESH_EXISTING ?= true
 TRANSLATION_SYNC_WORKFLOWS ?= false
 TRANSLATION_TARGET_LANG ?= zh_Hant
 TRANSLATION_TREE_DIR ?= workspace/document-templates/translation/$(WORKSPACE_TEMPLATE_NAME)
+TRANSLATION_TREE_MODULE ?= dsw_document_template_tool.cli.translation_tree
 UPSTREAM_TEMPLATE_ARTIFACT_CACHE_ROOT ?= .cache/upstream-artifacts
 UPSTREAM_TEMPLATE_ARTIFACT_METAMODEL_VERSION ?=
 UPSTREAM_TEMPLATE_ARTIFACT_MIN_REF ?= v1.29.1
@@ -195,10 +201,16 @@ check-dsw-runtime-matrix: venv
 	$(PYTHON) scripts/ci/sync_dsw_runtime_matrix.py --check
 
 check-translation-migrations: venv
-	TRANSLATION_CLEAN_ARTIFACT_ROOT="$(TRANSLATION_CLEAN_ARTIFACT_ROOT)" \
-		$(PYTHON) scripts/ci/check_translation_migration_status.py \
+	@set -euo pipefail; \
+	args=( \
 		--repo "$(TRANSLATION_REPO)" \
-		--tooling-root "."
+		--tooling-root "." \
+	); \
+	if [ "$(TRANSLATION_MIGRATION_FAIL_ON_PENDING)" = "true" ]; then \
+		args+=(--fail-on-pending); \
+	fi; \
+	TRANSLATION_CLEAN_ARTIFACT_ROOT="$(TRANSLATION_CLEAN_ARTIFACT_ROOT)" \
+		$(PYTHON) scripts/ci/check_translation_migration_status.py "$${args[@]}"
 
 create-dsw-compat-pr: venv
 	@set -euo pipefail; \
@@ -227,16 +239,16 @@ package-template: venv
 	$(DSW_TDK) package $(TEMPLATE_DIR) --output $(PACKAGE_OUT) --force
 
 transform: venv
-	$(PYTHON) src/transform_template.py expand --source $(COMPACT_TEMPLATE_DIR) --output $(EXPANDED_TEMPLATE_DIR)
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSFORM_TEMPLATE_MODULE) expand --source $(COMPACT_TEMPLATE_DIR) --output $(EXPANDED_TEMPLATE_DIR)
 
 export-translation-tree: transform venv
-	$(PYTHON) src/translation_tree.py export --source $(EXPANDED_TEMPLATE_DIR) --output $(TRANSLATION_TREE_DIR)
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) export --source $(EXPANDED_TEMPLATE_DIR) --output $(TRANSLATION_TREE_DIR)
 
 export-fresh-translation-tree: transform venv
-	$(PYTHON) src/translation_tree.py export --source $(EXPANDED_TEMPLATE_DIR) --output $(FRESH_TRANSLATION_TREE_DIR)
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) export --source $(EXPANDED_TEMPLATE_DIR) --output $(FRESH_TRANSLATION_TREE_DIR)
 
 merge-translation-tree: export-fresh-translation-tree venv
-	$(PYTHON) src/translation_tree.py merge \
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) merge \
 		--old-tree "$(TRANSLATION_TREE_DIR)" \
 		--new-tree "$(FRESH_TRANSLATION_TREE_DIR)" \
 		--output "$(MERGED_TRANSLATION_TREE_DIR)" \
@@ -244,24 +256,24 @@ merge-translation-tree: export-fresh-translation-tree venv
 		--target-lang "$(TRANSLATION_TARGET_LANG)"
 
 export-xliff: venv
-	$(PYTHON) src/translation_tree.py export-xliff \
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) export-xliff \
 		--tree "$(TRANSLATION_TREE_DIR)" \
 		--output "$(XLIFF_FILE)" \
 		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
 		--target-lang "$(TRANSLATION_TARGET_LANG)"
 
 import-xliff: venv
-	$(PYTHON) src/translation_tree.py import-xliff \
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) import-xliff \
 		--tree "$(TRANSLATION_TREE_DIR)" \
 		--xliff "$(XLIFF_FILE)" \
 		--source-lang "$(TRANSLATION_SOURCE_LOCALE)" \
 		--target-lang "$(TRANSLATION_TARGET_LANG)"
 
 audit-translation-tree: venv
-	$(PYTHON) src/translation_tree.py audit --source $(EXPANDED_TEMPLATE_DIR) --tree $(TRANSLATION_TREE_DIR)
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) audit --source $(EXPANDED_TEMPLATE_DIR) --tree $(TRANSLATION_TREE_DIR)
 
 sync-translation-tree: audit-translation-tree
-	$(PYTHON) src/translation_tree.py sync \
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) sync \
 		--tree "$(TRANSLATION_TREE_DIR)" \
 		--source "$(EXPANDED_TEMPLATE_DIR)" \
 		--output "$(TRANSLATED_EXPANDED_TEMPLATE_DIR)" \
@@ -269,18 +281,18 @@ sync-translation-tree: audit-translation-tree
 		--template-id "$(TRANSLATED_TEMPLATE_ID)" \
 		--template-name "$(TRANSLATED_TEMPLATE_NAME)" \
 		--template-version "$(TRANSLATED_TEMPLATE_VERSION)"
-	$(PYTHON) src/translation_tree.py audit-output \
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) audit-output \
 		--source "$(EXPANDED_TEMPLATE_DIR)" \
 		--output "$(TRANSLATED_EXPANDED_TEMPLATE_DIR)"
 	$(DSW_TDK) package $(TRANSLATED_EXPANDED_TEMPLATE_DIR) --output $(TRANSLATED_TEMPLATE_PACKAGE) --force
 
 audit-translated-template: venv
-	$(PYTHON) src/translation_tree.py audit-output \
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSLATION_TREE_MODULE) audit-output \
 		--source "$(EXPANDED_TEMPLATE_DIR)" \
 		--output "$(TRANSLATED_EXPANDED_TEMPLATE_DIR)"
 
 compact-template: venv
-	$(PYTHON) src/transform_template.py compact --source $(EXPANDED_TEMPLATE_DIR) --output $(REBUILT_TEMPLATE_DIR)
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(TRANSFORM_TEMPLATE_MODULE) compact --source $(EXPANDED_TEMPLATE_DIR) --output $(REBUILT_TEMPLATE_DIR)
 
 list-upstream-template-tags: venv
 	$(PYTHON) scripts/ci/upstream_template_artifacts.py list-tags \
@@ -414,7 +426,7 @@ ci-dsw-logs:
 	scripts/ci/collect_dsw_logs.sh
 
 render-project: venv
-	$(PYTHON) src/render_project.py \
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(RENDER_PROJECT_MODULE) \
 		--project-uuid "$(PROJECT_UUID)" \
 		--project-ref "$(PROJECT_REF)" \
 		--template-dir "$(PROJECT_RENDER_TEMPLATE_DIR)" \
@@ -422,14 +434,14 @@ render-project: venv
 		--output "$(PROJECT_RENDER_OUTPUT)"
 
 render-regression: venv
-	$(PYTHON) src/render_regression.py --config $(CONFIG)
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(RENDER_REGRESSION_MODULE) --config $(CONFIG)
 
 render-regression-ci: generate-regression-config
 	DSW_API_URL=$${DSW_API_URL:-http://localhost:$${DSW_CI_API_PORT:-3000}/wizard-api} \
 	DSW_EMAIL=$${DSW_EMAIL:-albert.einstein@example.com} \
 	DSW_PASSWORD=$${DSW_PASSWORD:-password} \
 	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
-	$(PYTHON) src/render_regression.py --config "$(GENERATED_CI_CONFIG)"
+	PYTHONPATH="$(PYTHONPATH)" $(PYTHON) -m $(RENDER_REGRESSION_MODULE) --config "$(GENERATED_CI_CONFIG)"
 
 render-regression-ci-plan: venv
 	$(PYTHON) scripts/ci/run_regression_plan.py \
@@ -439,7 +451,7 @@ render-regression-ci-plan: venv
 		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
 		--plan "$(REGRESSION_PLAN_PATH)" \
 		--python "$(PYTHON)" \
-		--render-script "src/render_regression.py" \
+		--render-module "$(RENDER_REGRESSION_MODULE)" \
 		--smoke-generated-fixture-count "$(REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT)" \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
 		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"
@@ -453,7 +465,7 @@ render-regression-ci-plan-dry-run: venv
 		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
 		--plan "$(REGRESSION_PLAN_PATH)" \
 		--python "$(PYTHON)" \
-		--render-script "src/render_regression.py" \
+		--render-module "$(RENDER_REGRESSION_MODULE)" \
 		--smoke-generated-fixture-count "$(REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT)" \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
 		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"

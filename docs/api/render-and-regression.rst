@@ -39,8 +39,11 @@ TDK Helpers
    :members: TemplateToolError, read_local_template_coordinates, stage_local_template_dir, verify_template_dir, put_template_dir, parse_template_coordinates
    :show-inheritance:
 
-CLI Entry Point
----------------
+CLI Entry Points
+----------------
+
+.. automodule:: dsw_document_template_tool.cli.render_project
+   :members: main
 
 .. automodule:: dsw_document_template_tool.cli.render_regression
    :members: build_argument_parser, main

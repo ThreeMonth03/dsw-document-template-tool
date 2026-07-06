@@ -16,6 +16,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
+from cli_commands import RENDER_REGRESSION_MODULE, module_command, package_env  # noqa: E402
 from generate_regression_config import (  # noqa: E402
     select_regression_workspace,
     write_regression_config,
@@ -54,11 +55,7 @@ def main() -> None:
     parser.add_argument("--metamodel-version", required=True)
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--python", default=sys.executable)
-    parser.add_argument(
-        "--render-script",
-        type=Path,
-        default=REPO_ROOT / "src/render_regression.py",
-    )
+    parser.add_argument("--render-module", default=RENDER_REGRESSION_MODULE)
     parser.add_argument(
         "--smoke-generated-fixture-count",
         type=int,
@@ -86,7 +83,7 @@ def main() -> None:
             metamodel_version=args.metamodel_version,
             planned=planned,
             python=args.python,
-            render_script=args.render_script,
+            render_module=args.render_module,
             smoke_generated_fixture_count=args.smoke_generated_fixture_count,
             source_template_id=args.source_template_id,
             workspace_root=args.workspace_root,
@@ -134,7 +131,7 @@ def run_planned_regression(
     metamodel_version: str,
     planned: PlannedRegression,
     python: str,
-    render_script: Path,
+    render_module: str,
     smoke_generated_fixture_count: int,
     source_template_id: str,
     workspace_root: Path,
@@ -170,14 +167,14 @@ def run_planned_regression(
         print(f"INFO: Dry run; generated {config_path} and skipped DSW regression")
         return
     subprocess.run(
-        [python, str(render_script), "--config", str(config_path)],
+        module_command(python, render_module, "--config", config_path),
         check=True,
         env=_regression_env(),
     )
 
 
 def _regression_env() -> dict[str, str]:
-    env = os.environ.copy()
+    env = package_env(REPO_ROOT, os.environ)
     api_port = env.get("DSW_CI_API_PORT", "3000")
     env.setdefault("DSW_API_URL", f"http://localhost:{api_port}/wizard-api")
     env.setdefault("DSW_DOWNLOAD_HOST_ALIAS", "host.docker.internal=localhost")

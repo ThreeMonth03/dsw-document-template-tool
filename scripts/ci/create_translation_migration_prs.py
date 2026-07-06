@@ -15,9 +15,19 @@ from pathlib import Path
 from urllib.parse import quote
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
+
+from cli_commands import (  # noqa: E402
+    TRANSFORM_TEMPLATE_MODULE,
+    TRANSLATION_TREE_MODULE,
+    module_command,
+    package_env,
+)
 
 from dsw_document_template_tool.translation_migration import (  # noqa: E402
     TranslationRepositoryConfig,
@@ -30,8 +40,6 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
 )
 
 MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
-TRANSFORM_TEMPLATE_CLI = "src/transform_template.py"
-TRANSLATION_TREE_CLI = "src/translation_tree.py"
 
 
 @dataclass(frozen=True)
@@ -312,7 +320,7 @@ def refresh_target_with_source(
     else:
         _run_tool(
             tooling_root,
-            TRANSFORM_TEMPLATE_CLI,
+            TRANSFORM_TEMPLATE_MODULE,
             "expand",
             "--source",
             target_checkout / target_paths.compact_template_dir,
@@ -321,7 +329,7 @@ def refresh_target_with_source(
         )
         _run_tool(
             tooling_root,
-            TRANSLATION_TREE_CLI,
+            TRANSLATION_TREE_MODULE,
             "export",
             "--source",
             target_checkout / target_paths.expanded_template_dir,
@@ -350,7 +358,7 @@ def refresh_target_with_source(
 
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_CLI,
+        TRANSLATION_TREE_MODULE,
         "audit",
         "--tree",
         target_tree,
@@ -359,7 +367,7 @@ def refresh_target_with_source(
     )
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_CLI,
+        TRANSLATION_TREE_MODULE,
         "sync",
         "--tree",
         target_tree,
@@ -378,7 +386,7 @@ def refresh_target_with_source(
     )
     _run_tool(
         tooling_root,
-        TRANSLATION_TREE_CLI,
+        TRANSLATION_TREE_MODULE,
         "audit-output",
         "--source",
         target_checkout / target_paths.expanded_template_dir,
@@ -487,7 +495,7 @@ def _merge_or_copy(
     if old_tree.joinpath(MERGE_REPORT_PATH.parent, "manifest.json").is_file():
         _run_tool(
             tooling_root,
-            TRANSLATION_TREE_CLI,
+            TRANSLATION_TREE_MODULE,
             "merge",
             "--old-tree",
             old_tree,
@@ -834,13 +842,10 @@ def append_github_summary(lines: list[str]) -> None:
         summary_file.write("\n")
 
 
-def _run_tool(tooling_root: Path, script: str, *args: object) -> None:
+def _run_tool(tooling_root: Path, module: str, *args: object) -> None:
     _run(
-        [
-            str(tooling_root / ".venv" / "bin" / "python"),
-            str(tooling_root / script),
-            *map(str, args),
-        ]
+        module_command(tooling_root / ".venv" / "bin" / "python", module, *args),
+        env=package_env(tooling_root),
     )
 
 
@@ -849,11 +854,13 @@ def _run(
     *,
     cwd: Path | None = None,
     check: bool = True,
+    env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     print("+ " + " ".join(args))
     return subprocess.run(
         args,
         cwd=cwd,
+        env=env,
         text=True,
         check=check,
     )

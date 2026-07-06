@@ -43,7 +43,7 @@ TRANSLATION_OPERATIONS_BRANCH=master
 
    - `offline-checks`
    - one `render-regression (...)` job for each runtime row in
-     `config/dsw-compat.yml`
+     [`config/dsw-compat.yml`](../config/dsw-compat.yml)
 
 3. Confirm clean scaffold releases exist for the currently supported tags:
 
@@ -62,8 +62,8 @@ TRANSLATION_OPERATIONS_BRANCH=master
    ```
 
 If these checks pass, the tool repo has a healthy baseline for versions already
-covered by `config/dsw-compat.yml`. New upstream tags and downstream translation
-sync still need the upgrade and handoff flow below.
+covered by [`config/dsw-compat.yml`](../config/dsw-compat.yml). New upstream tags
+and downstream translation sync still need the upgrade and handoff flow below.
 
 ## When Upstream Publishes a New Tag
 
@@ -84,8 +84,8 @@ NEW_TAG=vX.Y.Z
    ```
 
 2. Check the latest tool CI run. For a tag whose `metamodelVersion` is already
-   covered by `config/dsw-compat.yml`, the run should publish a clean scaffold
-   release:
+   covered by [`config/dsw-compat.yml`](../config/dsw-compat.yml), the run should
+   publish a clean scaffold release:
 
    ```shell
    gh release view "clean-scaffold-dsw-science-europe-$NEW_TAG" \
@@ -128,8 +128,9 @@ handoff details.
 2. Check whether CI opened a compatibility probe PR, usually named
    `automation/dsw-compat-probe-*`.
 3. Review the probe PR. It copies the closest previous DSW/TDK runtime into a
-   new `config/dsw-compat.yml` row and lets CI test the assumption that the API,
-   import, package, preview, and PDF paths still behave the same way.
+   new [`config/dsw-compat.yml`](../config/dsw-compat.yml) row and lets CI test
+   the assumption that the API, import, package, preview, and PDF paths still
+   behave the same way.
 4. If CI passes, inspect the clean scaffold artifacts and preview output before
    merging. If CI fails, update the probe row with a newer DSW server image,
    matching `dsw-tdk`, or code compatibility fix.
@@ -157,12 +158,14 @@ make build-upstream-artifacts
 make generate-compat-ledger
 ```
 
-Review `outputs/compat-ledger/dsw-science-europe/summary.md` for unexpected
+Review the generated compatibility summary at
+`outputs/compat-ledger/dsw-science-europe/summary.md` for unexpected
 cross-version changes in expanded blocks, translation units, placeholders, or
 missing scaffold packages before handing artifacts to the translation repo.
-Then review `outputs/compat-ledger/dsw-science-europe/regression-plan.md` to see
-which versions deserve full DSW regression if you need deeper compatibility
-coverage than the automated plan-recommended matrix run.
+Then review the generated regression plan at
+`outputs/compat-ledger/dsw-science-europe/regression-plan.md` to see which
+versions deserve full DSW regression if you need deeper compatibility coverage
+than the automated plan-recommended matrix run.
 
 Then run a downstream dry-run against the translation repository:
 
@@ -170,22 +173,19 @@ Then run a downstream dry-run against the translation repository:
 TOOL_REPO_DIR=/path/to/document-template-tool
 TRANSLATION_REPO_DIR=/path/to/document-template-translation
 
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
-  --repo "$TOOL_GITHUB_REPO" \
-  --workflow headless_render_regression.yml \
-  --output-dir /tmp/clean-scaffolds
+make download-clean-scaffold-artifacts \
+  TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
+  CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
 
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/sync_translation_version_branches.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --clean-artifact-root /tmp/clean-scaffolds \
-  --dry-run \
-  --refresh-existing
+make sync-translation-version-branches \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds \
+  TRANSLATION_SYNC_DRY_RUN=true \
+  TRANSLATION_SYNC_REFRESH_EXISTING=true
 
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/check_translation_migration_status.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --clean-artifact-root /tmp/clean-scaffolds
+make check-translation-migrations \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
 This refresh intentionally leaves version-branch workflow files alone. If the
@@ -203,7 +203,8 @@ parser-change checklist.
 - Do not commit generated `outputs/`, `.cache/`, or generated document-template
   workspaces.
 - Do not edit generated workflow matrix rows by hand; update
-  `config/dsw-compat.yml` and run `make sync-dsw-runtime-matrix`.
+  [`config/dsw-compat.yml`](../config/dsw-compat.yml) and run
+  `make sync-dsw-runtime-matrix`.
 - Do not treat clean scaffold releases as translated releases.
 - Do not add downstream publication tokens to this repo without updating
   [Security and Permissions](security-and-permissions.md).

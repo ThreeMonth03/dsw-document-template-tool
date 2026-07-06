@@ -97,16 +97,16 @@ jobs:
           FRESH_TRANSLATION_TREE="$(mktemp -d)"
           MERGED_TRANSLATION_TREE="$(mktemp -d)"
 
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/transform_template.py" expand \
+          PYTHONPATH="$TOOL_ROOT/src" "$TOOL_ROOT/.venv/bin/python" -m dsw_document_template_tool.cli.transform_template expand \
             --source "$HOST_ROOT/$COMPACT_TEMPLATE_DIR" \
             --output "$HOST_ROOT/$EXPANDED_TEMPLATE_DIR"
 
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" export \
+          PYTHONPATH="$TOOL_ROOT/src" "$TOOL_ROOT/.venv/bin/python" -m dsw_document_template_tool.cli.translation_tree export \
             --source "$HOST_ROOT/$EXPANDED_TEMPLATE_DIR" \
             --output "$FRESH_TRANSLATION_TREE"
 
           if [ -f "$HOST_ROOT/$TRANSLATION_TREE_DIR/.translation-tree/manifest.json" ]; then
-            "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" merge \
+            PYTHONPATH="$TOOL_ROOT/src" "$TOOL_ROOT/.venv/bin/python" -m dsw_document_template_tool.cli.translation_tree merge \
               --old-tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
               --new-tree "$FRESH_TRANSLATION_TREE" \
               --output "$MERGED_TRANSLATION_TREE" \
@@ -187,7 +187,7 @@ jobs:
           TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
           AUDIT_LOG="$(mktemp)"
 
-          if ! "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" audit \
+          if ! PYTHONPATH="$TOOL_ROOT/src" "$TOOL_ROOT/.venv/bin/python" -m dsw_document_template_tool.cli.translation_tree audit \
             --tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
             --source "$HOST_ROOT/$EXPANDED_TEMPLATE_DIR" 2>&1 | tee "$AUDIT_LOG"; then
             {
@@ -218,7 +218,7 @@ jobs:
           TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
           SYNC_LOG="$(mktemp)"
 
-          if ! "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" sync \
+          if ! PYTHONPATH="$TOOL_ROOT/src" "$TOOL_ROOT/.venv/bin/python" -m dsw_document_template_tool.cli.translation_tree sync \
             --tree "$HOST_ROOT/$TRANSLATION_TREE_DIR" \
             --source "$HOST_ROOT/$EXPANDED_TEMPLATE_DIR" \
             --output "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR" \
@@ -248,7 +248,7 @@ jobs:
           fi
 
           STRUCTURE_LOG="$(mktemp)"
-          if ! "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/translation_tree.py" audit-output \
+          if ! PYTHONPATH="$TOOL_ROOT/src" "$TOOL_ROOT/.venv/bin/python" -m dsw_document_template_tool.cli.translation_tree audit-output \
             --source "$HOST_ROOT/$EXPANDED_TEMPLATE_DIR" \
             --output "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR" 2>&1 | tee "$STRUCTURE_LOG"; then
             {
@@ -315,7 +315,7 @@ jobs:
           esac
 
           set +e
-          "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/src/render_project.py" \
+          PYTHONPATH="$TOOL_ROOT/src" "$TOOL_ROOT/.venv/bin/python" -m dsw_document_template_tool.cli.render_project \
             --project-ref "$project_ref_path" \
             --template-dir "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR" \
             --format-uuid "$PROJECT_RENDER_FORMAT_UUID" \
