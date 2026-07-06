@@ -10,6 +10,9 @@ from dsw_document_template_tool.template_transform import (
     expand_template_dir,
 )
 
+COMPACT_TEMPLATE_HELP = "Compact template directory."
+EXPANDED_WORKSPACE_HELP = "Expanded workspace directory."
+
 
 def build_argument_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
@@ -23,8 +26,8 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "expand",
         help="Expand one compact template into a translation-friendly workspace.",
     )
-    expand_parser.add_argument("--source", required=True, help="Compact template directory.")
-    expand_parser.add_argument("--output", required=True, help="Expanded workspace directory.")
+    expand_parser.add_argument("--source", required=True, help=COMPACT_TEMPLATE_HELP)
+    expand_parser.add_argument("--output", required=True, help=EXPANDED_WORKSPACE_HELP)
     expand_parser.add_argument(
         "--no-local-patches",
         action="store_true",
@@ -39,8 +42,8 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "compact",
         help="Compact one expanded workspace back into DSW uploadable form.",
     )
-    compact_parser.add_argument("--source", required=True, help="Expanded workspace directory.")
-    compact_parser.add_argument("--output", required=True, help="Compact template directory.")
+    compact_parser.add_argument("--source", required=True, help=EXPANDED_WORKSPACE_HELP)
+    compact_parser.add_argument("--output", required=True, help=COMPACT_TEMPLATE_HELP)
     return parser
 
 

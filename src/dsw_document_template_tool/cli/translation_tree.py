@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable
 
 from dsw_document_template_tool.translation_tree import (
     audit_translated_template_structure,
@@ -14,6 +15,13 @@ from dsw_document_template_tool.translation_tree import (
     merge_translation_tree,
     sync_translation_tree,
 )
+
+EXPANDED_WORKSPACE_HELP = "Expanded workspace directory."
+SOURCE_LANG_HELP = "Source language code used by translation documents."
+TARGET_LANG_HELP = "Target language code used by translation documents."
+TRANSLATION_TREE_HELP = "Translation tree directory."
+
+CommandHandler = Callable[[argparse.Namespace], None]
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
@@ -28,49 +36,49 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "export",
         help="Export one expanded workspace into unit-by-unit translation files.",
     )
-    export_parser.add_argument("--source", required=True, help="Expanded workspace directory.")
-    export_parser.add_argument("--output", required=True, help="Translation tree directory.")
+    export_parser.add_argument("--source", required=True, help=EXPANDED_WORKSPACE_HELP)
+    export_parser.add_argument("--output", required=True, help=TRANSLATION_TREE_HELP)
 
     export_xliff_parser = subparsers.add_parser(
         "export-xliff",
         help="Export one translation tree to XLIFF.",
     )
-    export_xliff_parser.add_argument("--tree", required=True, help="Translation tree directory.")
+    export_xliff_parser.add_argument("--tree", required=True, help=TRANSLATION_TREE_HELP)
     export_xliff_parser.add_argument("--output", required=True, help="XLIFF output path.")
     export_xliff_parser.add_argument(
         "--source-lang",
         default="en",
-        help="Source language code used by translation documents.",
+        help=SOURCE_LANG_HELP,
     )
     export_xliff_parser.add_argument(
         "--target-lang",
         default="zh_Hant",
-        help="Target language code used by translation documents.",
+        help=TARGET_LANG_HELP,
     )
 
     import_xliff_parser = subparsers.add_parser(
         "import-xliff",
         help="Import edited XLIFF targets back into a translation tree.",
     )
-    import_xliff_parser.add_argument("--tree", required=True, help="Translation tree directory.")
+    import_xliff_parser.add_argument("--tree", required=True, help=TRANSLATION_TREE_HELP)
     import_xliff_parser.add_argument("--xliff", required=True, help="XLIFF file to import.")
     import_xliff_parser.add_argument(
         "--source-lang",
         default="en",
-        help="Source language code used by translation documents.",
+        help=SOURCE_LANG_HELP,
     )
     import_xliff_parser.add_argument(
         "--target-lang",
         default="zh_Hant",
-        help="Target language code used by translation documents.",
+        help=TARGET_LANG_HELP,
     )
 
     sync_parser = subparsers.add_parser(
         "sync",
         help="Apply one translation tree back into a generated expanded workspace.",
     )
-    sync_parser.add_argument("--tree", required=True, help="Translation tree directory.")
-    sync_parser.add_argument("--source", required=True, help="Expanded workspace directory.")
+    sync_parser.add_argument("--tree", required=True, help=TRANSLATION_TREE_HELP)
+    sync_parser.add_argument("--source", required=True, help=EXPANDED_WORKSPACE_HELP)
     sync_parser.add_argument("--output", required=True, help="Translated expanded directory.")
     sync_parser.add_argument(
         "--template-organization-id",
@@ -100,8 +108,8 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "audit",
         help="Check that translation blocks are safe for translators to edit.",
     )
-    audit_parser.add_argument("--tree", required=True, help="Translation tree directory.")
-    audit_parser.add_argument("--source", required=True, help="Expanded workspace directory.")
+    audit_parser.add_argument("--tree", required=True, help=TRANSLATION_TREE_HELP)
+    audit_parser.add_argument("--source", required=True, help=EXPANDED_WORKSPACE_HELP)
 
     audit_output_parser = subparsers.add_parser(
         "audit-output",
@@ -140,12 +148,12 @@ def build_argument_parser() -> argparse.ArgumentParser:
     merge_parser.add_argument(
         "--source-lang",
         default="en",
-        help="Source language code used by translation documents.",
+        help=SOURCE_LANG_HELP,
     )
     merge_parser.add_argument(
         "--target-lang",
         default="zh_Hant",
-        help="Target language code used by translation documents.",
+        help=TARGET_LANG_HELP,
     )
     merge_parser.add_argument(
         "--allow-sentence-matches",
@@ -163,74 +171,86 @@ def main() -> None:
 
     parser = build_argument_parser()
     args = parser.parse_args()
+    handlers: dict[str, CommandHandler] = {
+        "audit": _run_audit,
+        "audit-output": _run_audit_output,
+        "export": _run_export,
+        "export-xliff": _run_export_xliff,
+        "import-xliff": _run_import_xliff,
+        "merge": _run_merge,
+        "sync": _run_sync,
+    }
+    handlers[args.command](args)
 
-    if args.command == "export":
-        output_dir = export_translation_tree(source_dir=args.source, output_dir=args.output)
-        print(f"SUCCESS: Translation tree written to {output_dir}")
-        return
 
-    if args.command == "export-xliff":
-        output_path = export_xliff(
-            tree_dir=args.tree,
-            output_path=args.output,
-            source_lang=args.source_lang,
-            target_lang=args.target_lang,
-        )
-        print(f"SUCCESS: XLIFF written to {output_path}")
-        return
+def _run_export(args: argparse.Namespace) -> None:
+    output_dir = export_translation_tree(source_dir=args.source, output_dir=args.output)
+    print(f"SUCCESS: Translation tree written to {output_dir}")
 
-    if args.command == "import-xliff":
-        report = import_xliff(
-            tree_dir=args.tree,
-            xliff_path=args.xliff,
-            source_lang=args.source_lang,
-            target_lang=args.target_lang,
-        )
-        print(f"SUCCESS: Imported {report.imported_units} XLIFF unit(s)")
-        return
 
-    if args.command == "audit":
-        issues = audit_translation_tree(tree_dir=args.tree, source_dir=args.source)
-        if issues:
-            print(f"FAILURE: Found {len(issues)} unsafe translation block issue(s)")
-            for issue in issues:
-                print(f"- {issue.code}: {issue.location}")
-                print(f"  {issue.message}")
-            raise SystemExit(1)
-        print("SUCCESS: Translation tree is safe for translator edits")
-        return
+def _run_export_xliff(args: argparse.Namespace) -> None:
+    output_path = export_xliff(
+        tree_dir=args.tree,
+        output_path=args.output,
+        source_lang=args.source_lang,
+        target_lang=args.target_lang,
+    )
+    print(f"SUCCESS: XLIFF written to {output_path}")
 
-    if args.command == "audit-output":
-        issues = audit_translated_template_structure(
-            source_dir=args.source,
-            output_dir=args.output,
-        )
-        if issues:
-            print(f"FAILURE: Found {len(issues)} translated output structure issue(s)")
-            for issue in issues:
-                print(f"- {issue.code}: {issue.location}")
-                print(f"  {issue.message}")
-            raise SystemExit(1)
-        print("SUCCESS: Translated output keeps the expanded template structure")
-        return
 
-    if args.command == "merge":
-        report = merge_translation_tree(
-            old_tree_dir=args.old_tree,
-            new_tree_dir=args.new_tree,
-            output_dir=args.output,
-            source_lang=args.source_lang,
-            target_lang=args.target_lang,
-            allow_sentence_matches=args.allow_sentence_matches,
-        )
-        print(
-            "SUCCESS: Merged translation tree "
-            f"({report.migrated_units} migrated, "
-            f"{report.preserved_units} preserved, "
-            f"{report.untranslated_units} untranslated)"
-        )
-        return
+def _run_import_xliff(args: argparse.Namespace) -> None:
+    report = import_xliff(
+        tree_dir=args.tree,
+        xliff_path=args.xliff,
+        source_lang=args.source_lang,
+        target_lang=args.target_lang,
+    )
+    print(f"SUCCESS: Imported {report.imported_units} XLIFF unit(s)")
 
+
+def _run_audit(args: argparse.Namespace) -> None:
+    issues = audit_translation_tree(tree_dir=args.tree, source_dir=args.source)
+    if issues:
+        print(f"FAILURE: Found {len(issues)} unsafe translation block issue(s)")
+        for issue in issues:
+            print(f"- {issue.code}: {issue.location}")
+            print(f"  {issue.message}")
+        raise SystemExit(1)
+    print("SUCCESS: Translation tree is safe for translator edits")
+
+
+def _run_audit_output(args: argparse.Namespace) -> None:
+    issues = audit_translated_template_structure(
+        source_dir=args.source,
+        output_dir=args.output,
+    )
+    if issues:
+        print(f"FAILURE: Found {len(issues)} translated output structure issue(s)")
+        for issue in issues:
+            print(f"- {issue.code}: {issue.location}")
+            print(f"  {issue.message}")
+        raise SystemExit(1)
+    print("SUCCESS: Translated output keeps the expanded template structure")
+
+
+def _run_merge(args: argparse.Namespace) -> None:
+    report = merge_translation_tree(
+        old_tree_dir=args.old_tree,
+        new_tree_dir=args.new_tree,
+        output_dir=args.output,
+        source_lang=args.source_lang,
+        target_lang=args.target_lang,
+        allow_sentence_matches=args.allow_sentence_matches,
+    )
+    print(
+        "SUCCESS: Merged translation tree "
+        f"({report.migrated_units} migrated, "
+        f"{report.preserved_units} preserved, "
+        f"{report.untranslated_units} untranslated)"
+    )
+
+
+def _run_sync(args: argparse.Namespace) -> None:
     output_dir = sync_translation_tree(
         tree_dir=args.tree,
         source_dir=args.source,

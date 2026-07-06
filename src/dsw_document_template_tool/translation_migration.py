@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -654,7 +655,7 @@ def merge_version_policy_values(
     )
 
 
-def sorted_versions(versions: list[str] | tuple[str, ...]) -> list[str]:
+def sorted_versions(versions: Iterable[str]) -> list[str]:
     """Sort version tags using numeric semantic version ordering."""
 
     return sorted(versions, key=version_sort_key)

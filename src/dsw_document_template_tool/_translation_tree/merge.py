@@ -39,6 +39,23 @@ class TranslationCandidate:
 
 
 @dataclass(frozen=True)
+class ReuseIndexes:
+    """Lookup tables for translations that are safe to migrate."""
+
+    by_key: dict[tuple[str, str], TranslationCandidate]
+    by_hash: dict[str, TranslationCandidate]
+    by_sentence: dict[str, TranslationCandidate]
+
+
+@dataclass(frozen=True)
+class CandidateMatch:
+    """One old-tree candidate selected for one new-tree unit."""
+
+    candidate: TranslationCandidate
+    kind: str
+
+
+@dataclass(frozen=True)
 class TranslationMergeReport:
     """Summary of one old-tree to new-tree translation merge."""
 
@@ -100,55 +117,35 @@ def merge_translation_tree(
     ]
     skipped_unsafe_old_units = len(translated_old_units) - len(reusable_old_candidates)
 
-    by_key = {
-        (candidate.source_file, candidate.unit_key): candidate
-        for candidate in reusable_old_candidates
-    }
-    by_hash = _unique_index(
+    reuse_indexes = _build_reuse_indexes(
         reusable_old_candidates,
-        key=lambda candidate: candidate.unit_source_hash,
+        allow_sentence_matches=allow_sentence_matches,
     )
-    by_sentence: dict[str, TranslationCandidate] = {}
-    if allow_sentence_matches:
-        by_sentence = _unique_index(
-            reusable_old_candidates,
-            key=lambda candidate: _normalize_sentence(candidate.sentence_text),
-        )
 
     preserved = 0
     migrated = 0
-    exact_key_matches = 0
-    source_hash_matches = 0
-    sentence_matches = 0
+    match_counts: Counter[str] = Counter()
 
     for candidate in new_candidates:
         if candidate.translation_text.strip():
             preserved += 1
             continue
 
-        match = by_key.get((candidate.source_file, candidate.unit_key))
-        match_kind = "exact-key" if match is not None else ""
+        match = _find_reusable_match(
+            candidate,
+            reuse_indexes=reuse_indexes,
+            allow_sentence_matches=allow_sentence_matches,
+        )
         if match is None:
-            match = by_hash.get(candidate.unit_source_hash)
-            match_kind = "source-hash" if match is not None else ""
-        if match is None and allow_sentence_matches:
-            match = by_sentence.get(_normalize_sentence(candidate.sentence_text))
-            match_kind = "sentence" if match is not None else ""
-        if match is None or not match.translation_text.strip():
             continue
 
         replace_translation_text(
             document_path=output_dir / candidate.document_path,
             target_lang=target_lang,
-            translation_text=match.translation_text,
+            translation_text=match.candidate.translation_text,
         )
         migrated += 1
-        if match_kind == "exact-key":
-            exact_key_matches += 1
-        elif match_kind == "source-hash":
-            source_hash_matches += 1
-        elif match_kind == "sentence":
-            sentence_matches += 1
+        match_counts[match.kind] += 1
 
     report = TranslationMergeReport(
         total_units=len(new_candidates),
@@ -156,9 +153,9 @@ def merge_translation_tree(
         migrated_units=migrated,
         untranslated_units=len(new_candidates) - preserved - migrated,
         skipped_unsafe_old_units=skipped_unsafe_old_units,
-        exact_key_matches=exact_key_matches,
-        source_hash_matches=source_hash_matches,
-        sentence_matches=sentence_matches,
+        exact_key_matches=match_counts["exact-key"],
+        source_hash_matches=match_counts["source-hash"],
+        sentence_matches=match_counts["sentence"],
     )
     report_path = output_dir / MERGE_REPORT_PATH
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -208,6 +205,50 @@ def _load_candidates(
             raise
         candidates.append(candidate)
     return candidates
+
+
+def _build_reuse_indexes(
+    candidates: list[TranslationCandidate],
+    *,
+    allow_sentence_matches: bool,
+) -> ReuseIndexes:
+    by_sentence: dict[str, TranslationCandidate] = {}
+    if allow_sentence_matches:
+        by_sentence = _unique_index(
+            candidates,
+            key=lambda candidate: _normalize_sentence(candidate.sentence_text),
+        )
+    return ReuseIndexes(
+        by_key={(candidate.source_file, candidate.unit_key): candidate for candidate in candidates},
+        by_hash=_unique_index(
+            candidates,
+            key=lambda candidate: candidate.unit_source_hash,
+        ),
+        by_sentence=by_sentence,
+    )
+
+
+def _find_reusable_match(
+    candidate: TranslationCandidate,
+    *,
+    reuse_indexes: ReuseIndexes,
+    allow_sentence_matches: bool,
+) -> CandidateMatch | None:
+    key_match = reuse_indexes.by_key.get((candidate.source_file, candidate.unit_key))
+    if key_match is not None:
+        return CandidateMatch(candidate=key_match, kind="exact-key")
+
+    hash_match = reuse_indexes.by_hash.get(candidate.unit_source_hash)
+    if hash_match is not None:
+        return CandidateMatch(candidate=hash_match, kind="source-hash")
+
+    if not allow_sentence_matches:
+        return None
+
+    sentence_match = reuse_indexes.by_sentence.get(_normalize_sentence(candidate.sentence_text))
+    if sentence_match is None:
+        return None
+    return CandidateMatch(candidate=sentence_match, kind="sentence")
 
 
 def _candidate_from_manifest_unit(

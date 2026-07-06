@@ -12,6 +12,17 @@ DSW_EMAIL="${DSW_EMAIL:-albert.einstein@example.com}"
 DSW_PASSWORD="${DSW_PASSWORD:-password}"
 DSW_CI_MINIO_PORT="${DSW_CI_MINIO_PORT:-9000}"
 DSW_STARTUP_TIMEOUT_SECONDS="${DSW_STARTUP_TIMEOUT_SECONDS:-300}"
+DSW_CI_APP_SECRET="${DSW_CI_APP_SECRET:-$(openssl rand -hex 32)}"
+DSW_CI_POSTGRES_USER="${DSW_CI_POSTGRES_USER:-dsw_ci}"
+DSW_CI_POSTGRES_PASSWORD="${DSW_CI_POSTGRES_PASSWORD:-$(openssl rand -hex 24)}"
+DSW_CI_MINIO_ROOT_USER="${DSW_CI_MINIO_ROOT_USER:-dswci}"
+DSW_CI_MINIO_ROOT_PASSWORD="${DSW_CI_MINIO_ROOT_PASSWORD:-$(openssl rand -hex 24)}"
+
+export DSW_CI_APP_SECRET
+export DSW_CI_POSTGRES_USER
+export DSW_CI_POSTGRES_PASSWORD
+export DSW_CI_MINIO_ROOT_USER
+export DSW_CI_MINIO_ROOT_PASSWORD
 
 mkdir -p "${CONFIG_DIR}"
 
@@ -20,20 +31,20 @@ if [[ ! -f "${PRIVATE_KEY}" ]]; then
 fi
 
 {
-  cat <<'YAML'
+  cat <<YAML
 general:
   clientUrl: http://localhost:8080/wizard
-  secret: 0123456789abcdef0123456789abcdef
+  secret: ${DSW_CI_APP_SECRET}
   rsaPrivateKey: |
 YAML
   sed 's/^/    /' "${PRIVATE_KEY}"
   cat <<YAML
 database:
-  connectionString: postgresql://postgres:postgres@postgres:5432/engine-wizard
+  connectionString: postgresql://${DSW_CI_POSTGRES_USER}:${DSW_CI_POSTGRES_PASSWORD}@postgres:5432/engine-wizard
 s3:
   url: http://host.docker.internal:${DSW_CI_MINIO_PORT}
-  username: minio
-  password: minioPassword
+  username: ${DSW_CI_MINIO_ROOT_USER}
+  password: ${DSW_CI_MINIO_ROOT_PASSWORD}
   bucket: engine-wizard
 mail:
   enabled: false

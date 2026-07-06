@@ -18,7 +18,11 @@ from dsw_document_template_tool._template_transform.jinja_literals import (
 from .models import TranslationTreeError
 from .syntax import HTML_TAG_PATTERN, JINJA_EXPR_PATTERN
 
-TRANSLATOR_PLACEHOLDER_PATTERN = re.compile(r"(?<!\{)\{(?P<name>[A-Za-z_][A-Za-z0-9_.]*)\}(?!\})")
+ASCII_IDENTIFIER_PATTERN = r"(?a:[^\W\d]\w*)"
+ASCII_DOTTED_IDENTIFIER_PATTERN = rf"{ASCII_IDENTIFIER_PATTERN}(?:\.{ASCII_IDENTIFIER_PATTERN})*"
+TRANSLATOR_PLACEHOLDER_PATTERN = re.compile(
+    rf"(?<!\{{)\{{(?P<name>{ASCII_DOTTED_IDENTIFIER_PATTERN})\}}(?!\}})"
+)
 RAW_JINJA_IN_TRANSLATION_PATTERN = re.compile(r"\{[#%{]")
 
 
@@ -193,7 +197,7 @@ def jinja_expr_to_placeholder(expr: str) -> str:
     if literal_value is not None:
         return literal_value
     literals = _extract_translatable_jinja_literals(expr)
-    fallback_match = re.match(r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s+if\s+", normalized)
+    fallback_match = re.match(rf"(?P<name>{ASCII_IDENTIFIER_PATTERN})\s+if\s+", normalized)
     if fallback_match is not None:
         placeholder = "{" + fallback_match.group("name") + "}"
         if literals:
@@ -205,7 +209,7 @@ def jinja_expr_to_placeholder(expr: str) -> str:
     indexed_placeholder = indexed_expr_to_placeholder(base)
     if indexed_placeholder is not None:
         return indexed_placeholder
-    if re.match(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$", base):
+    if re.match(rf"^{ASCII_DOTTED_IDENTIFIER_PATTERN}$", base):
         return "{" + base + "}"
     inferred_placeholder = identifier_expr_to_placeholder(base)
     if inferred_placeholder is not None:
@@ -222,14 +226,14 @@ def identifier_expr_to_placeholder(expr: str) -> str | None:
         expr,
         flags=re.DOTALL,
     )
-    without_filters = re.sub(r"\|[A-Za-z_][A-Za-z0-9_]*", " ", without_literals)
+    without_filters = re.sub(rf"\|{ASCII_IDENTIFIER_PATTERN}", " ", without_literals)
     without_call_names = re.sub(
-        r"\b[A-Za-z_][A-Za-z0-9_.]*\s*(?=\()",
+        rf"\b{ASCII_DOTTED_IDENTIFIER_PATTERN}\s*(?=\()",
         " ",
         without_filters,
     )
     without_attr_prefixes = re.sub(
-        r"\b[A-Za-z_][A-Za-z0-9_]*\.",
+        rf"\b{ASCII_IDENTIFIER_PATTERN}\.",
         "",
         without_call_names,
     )
@@ -246,7 +250,7 @@ def identifier_expr_to_placeholder(expr: str) -> str | None:
         "true",
     }
     names: list[str] = []
-    for match in re.finditer(r"\b[A-Za-z_][A-Za-z0-9_]*\b", without_attr_prefixes):
+    for match in re.finditer(rf"\b{ASCII_IDENTIFIER_PATTERN}\b", without_attr_prefixes):
         name = match.group(0)
         if name.lower() in reserved_words or name in names:
             continue
@@ -259,7 +263,7 @@ def identifier_expr_to_placeholder(expr: str) -> str | None:
 def indexed_expr_to_placeholder(expr: str) -> str | None:
     """Infer a placeholder name for simple indexed expressions."""
 
-    match = re.match(r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)\[(?P<index>[^\]]+)\]$", expr)
+    match = re.match(rf"(?P<name>{ASCII_IDENTIFIER_PATTERN})\[(?P<index>[^\]]+)\]$", expr)
     if match is None:
         return None
     name = match.group("name")

@@ -131,7 +131,7 @@ def _find_next_innermost_branch_sentence_rewrite(source_text: str) -> tuple[int,
         start, payload = stack.pop()
         try:
             original = decode_marker_payload(payload)
-        except (ValueError, UnicodeDecodeError) as exc:
+        except ValueError as exc:
             raise TemplateTransformError("Invalid branch sentence rewrite marker") from exc
         return (start, match.end(), original)
     return None

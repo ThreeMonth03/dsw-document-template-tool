@@ -22,7 +22,7 @@ from stage_release_assets import (  # noqa: E402
 )
 
 
-def main() -> int:
+def main() -> None:
     """Publish or dry-run clean scaffold release assets."""
 
     args = parse_args()
@@ -33,7 +33,7 @@ def main() -> int:
     )
     if not packages:
         print("No clean scaffold packages were produced for this runtime.")
-        return 0
+        return
 
     repository = args.repository or os.environ.get("GITHUB_REPOSITORY", "")
     commit_sha = args.commit_sha or os.environ.get("GITHUB_SHA", "")
@@ -62,8 +62,6 @@ def main() -> int:
             print(f"INFO: dry-run staged {release.release_tag} in {release.release_dir}")
             continue
         publish_release(release)
-
-    return 0
 
 
 def parse_args() -> argparse.Namespace:
@@ -285,7 +283,7 @@ def run(args: list[str]) -> None:
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        main()
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: command failed with exit code {exc.returncode}: {exc.cmd}", file=sys.stderr)
         raise SystemExit(exc.returncode) from exc

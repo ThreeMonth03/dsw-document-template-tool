@@ -151,6 +151,8 @@ ZH_HANT_ALLOWED_PACKAGE_RULE = {
     "minVersion": "2.7.0",
     "maxVersion": None,
 }
+TEMPLATE_JSON_NAME = "template.json"
+TEMPLATE_JSON_TRAILING_NEWLINE_KEY = "template_json_trailing_newline"
 
 
 class LocalizationPatchError(RuntimeError):
@@ -160,9 +162,9 @@ class LocalizationPatchError(RuntimeError):
 def build_post_expand_patch_state(*, output_dir: Path) -> dict[str, object]:
     """Capture source formatting details needed for patch reversal."""
 
-    template_json_path = output_dir / "template.json"
+    template_json_path = output_dir / TEMPLATE_JSON_NAME
     return {
-        "template_json_trailing_newline": (
+        TEMPLATE_JSON_TRAILING_NEWLINE_KEY: (
             template_json_path.read_bytes().endswith(b"\n")
             if template_json_path.is_file()
             else None
@@ -198,7 +200,7 @@ def revert_post_expand_patches(
     if ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME in patch_names:
         _remove_zh_hant_allowed_package(
             output_dir=output_dir,
-            trailing_newline=state.get("template_json_trailing_newline"),
+            trailing_newline=state.get(TEMPLATE_JSON_TRAILING_NEWLINE_KEY),
         )
     if ZH_HANT_GLOBALS_PATCH_NAME in patch_names:
         _remove_zh_hant_globals(output_dir=output_dir)
@@ -207,7 +209,7 @@ def revert_post_expand_patches(
 
 
 def _patch_zh_hant_allowed_package(*, output_dir: Path) -> bool:
-    template_json_path = output_dir / "template.json"
+    template_json_path = output_dir / TEMPLATE_JSON_NAME
     if not template_json_path.is_file():
         return False
     payload = json.loads(template_json_path.read_text(encoding="utf-8"))
@@ -233,7 +235,7 @@ def _patch_zh_hant_allowed_package(*, output_dir: Path) -> bool:
 
 
 def _remove_zh_hant_allowed_package(*, output_dir: Path, trailing_newline: object) -> None:
-    template_json_path = output_dir / "template.json"
+    template_json_path = output_dir / TEMPLATE_JSON_NAME
     if not template_json_path.is_file():
         return
     payload = json.loads(template_json_path.read_text(encoding="utf-8"))

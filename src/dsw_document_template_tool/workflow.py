@@ -70,43 +70,24 @@ class DocumentTemplateWorkflowService:
             )
 
             fixture_results: list[FixtureRegressionResult] = []
-            for fixture in config.fixtures:
-                resolved_fixture = self._prepare_fixture(
-                    client=client,
-                    fixture=fixture,
-                    cleanup_projects=config.regression.cleanup_projects,
-                )
-                if resolved_fixture.created_by_tool:
-                    created_projects.append(resolved_fixture)
-                fixture_result = self._compare_fixture(
+            fixture_results.extend(
+                self._run_configured_fixtures(
                     client=client,
                     config=config,
-                    fixture=fixture,
-                    resolved_fixture=resolved_fixture,
                     baseline=baseline,
                     candidate=candidate,
+                    created_projects=created_projects,
                 )
-                fixture_results.append(fixture_result)
-
-            for generated_fixture in config.generated_fixtures:
-                for case_index in range(generated_fixture.count):
-                    fixture, resolved_fixture = self._prepare_generated_fixture(
-                        client=client,
-                        config=config,
-                        generated_fixture=generated_fixture,
-                        case_index=case_index,
-                    )
-                    if resolved_fixture.created_by_tool:
-                        created_projects.append(resolved_fixture)
-                    fixture_result = self._compare_fixture(
-                        client=client,
-                        config=config,
-                        fixture=fixture,
-                        resolved_fixture=resolved_fixture,
-                        baseline=baseline,
-                        candidate=candidate,
-                    )
-                    fixture_results.append(fixture_result)
+            )
+            fixture_results.extend(
+                self._run_generated_fixtures(
+                    client=client,
+                    config=config,
+                    baseline=baseline,
+                    candidate=candidate,
+                    created_projects=created_projects,
+                )
+            )
 
             passed = all(result.equal for result in fixture_results)
             report_path = config.regression.output_dir / "regression_report.json"
@@ -123,21 +104,98 @@ class DocumentTemplateWorkflowService:
             )
             return report
         finally:
-            if config.regression.cleanup_projects:
-                for fixture_project in reversed(created_projects):
-                    try:
-                        client.delete_project(fixture_project.project_uuid)
-                    except Exception as exc:
-                        print(
-                            "WARNING: Failed to clean up project "
-                            f"{fixture_project.project_uuid}: {exc}"
-                        )
+            self._cleanup_projects(
+                client=client,
+                cleanup_projects=config.regression.cleanup_projects,
+                created_projects=created_projects,
+            )
             client.close()
-            for staged_dir in staged_dirs:
-                try:
-                    shutil.rmtree(staged_dir.parent)
-                except Exception:
-                    pass
+            self._cleanup_staged_dirs(staged_dirs)
+
+    def _run_configured_fixtures(
+        self,
+        *,
+        client: DSWApiClient,
+        config: WorkflowConfig,
+        baseline: ResolvedSubject,
+        candidate: ResolvedSubject,
+        created_projects: list[FixtureProject],
+    ) -> list[FixtureRegressionResult]:
+        fixture_results: list[FixtureRegressionResult] = []
+        for fixture in config.fixtures:
+            resolved_fixture = self._prepare_fixture(
+                client=client,
+                fixture=fixture,
+                cleanup_projects=config.regression.cleanup_projects,
+            )
+            if resolved_fixture.created_by_tool:
+                created_projects.append(resolved_fixture)
+            fixture_results.append(
+                self._compare_fixture(
+                    client=client,
+                    config=config,
+                    fixture=fixture,
+                    resolved_fixture=resolved_fixture,
+                    baseline=baseline,
+                    candidate=candidate,
+                )
+            )
+        return fixture_results
+
+    def _run_generated_fixtures(
+        self,
+        *,
+        client: DSWApiClient,
+        config: WorkflowConfig,
+        baseline: ResolvedSubject,
+        candidate: ResolvedSubject,
+        created_projects: list[FixtureProject],
+    ) -> list[FixtureRegressionResult]:
+        fixture_results: list[FixtureRegressionResult] = []
+        for generated_fixture in config.generated_fixtures:
+            for case_index in range(generated_fixture.count):
+                fixture, resolved_fixture = self._prepare_generated_fixture(
+                    client=client,
+                    config=config,
+                    generated_fixture=generated_fixture,
+                    case_index=case_index,
+                )
+                if resolved_fixture.created_by_tool:
+                    created_projects.append(resolved_fixture)
+                fixture_results.append(
+                    self._compare_fixture(
+                        client=client,
+                        config=config,
+                        fixture=fixture,
+                        resolved_fixture=resolved_fixture,
+                        baseline=baseline,
+                        candidate=candidate,
+                    )
+                )
+        return fixture_results
+
+    def _cleanup_projects(
+        self,
+        *,
+        client: DSWApiClient,
+        cleanup_projects: bool,
+        created_projects: list[FixtureProject],
+    ) -> None:
+        if not cleanup_projects:
+            return
+        for fixture_project in reversed(created_projects):
+            try:
+                client.delete_project(fixture_project.project_uuid)
+            except Exception as exc:
+                print(f"WARNING: Failed to clean up project {fixture_project.project_uuid}: {exc}")
+
+    @staticmethod
+    def _cleanup_staged_dirs(staged_dirs: list[Path]) -> None:
+        for staged_dir in staged_dirs:
+            try:
+                shutil.rmtree(staged_dir.parent)
+            except Exception:
+                pass
 
     def _authenticate(self, client: DSWApiClient, config: WorkflowConfig) -> None:
         if config.api.token is not None:
@@ -159,75 +217,117 @@ class DocumentTemplateWorkflowService:
         print(f"INFO: Resolving {label} subject ({subject.kind})")
 
         if subject.kind == "local_dir":
-            local_dir = Path(subject.value).resolve()
-            staged_dir, staged_coordinates = stage_local_template_dir(
-                source_dir=local_dir,
-                subject_label=label,
-                stage_id=subject.stage_id,
-            )
-            staged_dirs.append(staged_dir)
-            if subject.verify:
-                print(f"INFO: Verifying staged template {staged_coordinates.full_id}")
-                verify_template_dir(
-                    executable=config.tdk.executable,
-                    template_dir=staged_dir,
-                )
-            print(f"INFO: Uploading staged draft {staged_coordinates.full_id}")
-            if client.token is None:
-                raise TemplateToolError(
-                    "Local template upload requires a bearer token, but login did not produce one."
-                )
-            put_template_dir(
-                executable=config.tdk.executable,
-                template_dir=staged_dir,
-                api_url=config.api.url,
-                api_key=client.token,
-            )
-            draft_uuid = client.find_draft_uuid_by_id(staged_coordinates.full_id)
-            if draft_uuid is None:
-                raise TemplateToolError(
-                    f"Could not resolve uploaded draft UUID for {staged_coordinates.full_id}"
-                )
-            return ResolvedSubject(
+            return self._resolve_local_subject(
+                client=client,
+                config=config,
                 label=label,
-                mode="draft",
-                source_value=subject.value,
-                display_id=staged_coordinates.full_id,
-                draft_uuid=draft_uuid,
-                local_dir=local_dir,
-                staged_dir=staged_dir,
+                subject=subject,
+                staged_dirs=staged_dirs,
             )
 
         if subject.kind == "draft_id":
-            if subject.value.count(":") == 2:
-                draft_uuid = client.find_draft_uuid_by_id(subject.value)
-                display_id = subject.value
-            else:
-                draft_uuid = subject.value if client.check_draft_exists(subject.value) else None
-                display_id = subject.value
-            if draft_uuid is None:
-                raise DSWAPIError(f"Could not resolve draft subject {subject.value!r}")
-            return ResolvedSubject(
-                label=label,
-                mode="draft",
-                source_value=subject.value,
-                display_id=display_id,
-                draft_uuid=draft_uuid,
-            )
+            return self._resolve_draft_subject(client=client, label=label, subject=subject)
 
         if subject.kind == "released_id":
-            parse_template_coordinates(subject.value)
-            template_uuid = client.resolve_document_template_uuid(subject.value)
-            return ResolvedSubject(
-                label=label,
-                mode="released",
-                source_value=subject.value,
-                display_id=subject.value,
-                template_id=subject.value,
-                template_uuid=template_uuid,
-            )
+            return self._resolve_released_subject(client=client, label=label, subject=subject)
 
         raise TemplateToolError(f"Unsupported subject kind {subject.kind!r}")
+
+    def _resolve_local_subject(
+        self,
+        *,
+        client: DSWApiClient,
+        config: WorkflowConfig,
+        label: str,
+        subject: SubjectConfig,
+        staged_dirs: list[Path],
+    ) -> ResolvedSubject:
+        local_dir = Path(subject.value).resolve()
+        staged_dir, staged_coordinates = stage_local_template_dir(
+            source_dir=local_dir,
+            subject_label=label,
+            stage_id=subject.stage_id,
+        )
+        staged_dirs.append(staged_dir)
+        if subject.verify:
+            print(f"INFO: Verifying staged template {staged_coordinates.full_id}")
+            verify_template_dir(
+                executable=config.tdk.executable,
+                template_dir=staged_dir,
+            )
+        print(f"INFO: Uploading staged draft {staged_coordinates.full_id}")
+        if client.token is None:
+            raise TemplateToolError(
+                "Local template upload requires a bearer token, but login did not produce one."
+            )
+        put_template_dir(
+            executable=config.tdk.executable,
+            template_dir=staged_dir,
+            api_url=config.api.url,
+            api_key=client.token,
+        )
+        draft_uuid = client.find_draft_uuid_by_id(staged_coordinates.full_id)
+        if draft_uuid is None:
+            raise TemplateToolError(
+                f"Could not resolve uploaded draft UUID for {staged_coordinates.full_id}"
+            )
+        return ResolvedSubject(
+            label=label,
+            mode="draft",
+            source_value=subject.value,
+            display_id=staged_coordinates.full_id,
+            draft_uuid=draft_uuid,
+            local_dir=local_dir,
+            staged_dir=staged_dir,
+        )
+
+    def _resolve_draft_subject(
+        self,
+        *,
+        client: DSWApiClient,
+        label: str,
+        subject: SubjectConfig,
+    ) -> ResolvedSubject:
+        draft_uuid = self._draft_uuid_for_subject(client=client, subject=subject)
+        if draft_uuid is None:
+            raise DSWAPIError(f"Could not resolve draft subject {subject.value!r}")
+        return ResolvedSubject(
+            label=label,
+            mode="draft",
+            source_value=subject.value,
+            display_id=subject.value,
+            draft_uuid=draft_uuid,
+        )
+
+    @staticmethod
+    def _draft_uuid_for_subject(
+        *,
+        client: DSWApiClient,
+        subject: SubjectConfig,
+    ) -> str | None:
+        if subject.value.count(":") == 2:
+            return client.find_draft_uuid_by_id(subject.value)
+        if client.check_draft_exists(subject.value):
+            return subject.value
+        return None
+
+    def _resolve_released_subject(
+        self,
+        *,
+        client: DSWApiClient,
+        label: str,
+        subject: SubjectConfig,
+    ) -> ResolvedSubject:
+        parse_template_coordinates(subject.value)
+        template_uuid = client.resolve_document_template_uuid(subject.value)
+        return ResolvedSubject(
+            label=label,
+            mode="released",
+            source_value=subject.value,
+            display_id=subject.value,
+            template_id=subject.value,
+            template_uuid=template_uuid,
+        )
 
     def _prepare_fixture(
         self,

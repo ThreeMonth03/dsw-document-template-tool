@@ -74,7 +74,7 @@ def restore_append_sentence_rewrites(source_text: str) -> str:
     def replace(match: re.Match[str]) -> str:
         try:
             return decode_marker_payload(match.group("payload"))
-        except (ValueError, UnicodeDecodeError) as exc:
+        except ValueError as exc:
             raise TemplateTransformError("Invalid append sentence rewrite marker") from exc
 
     return APPEND_SENTENCE_REWRITE_PATTERN.sub(replace, source_text)

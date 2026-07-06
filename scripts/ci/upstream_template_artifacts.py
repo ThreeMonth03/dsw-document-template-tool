@@ -16,6 +16,8 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from resolve_upstream_refs import normalize_git_remote, resolve_refs  # noqa: E402
 
+TRANSLATION_TREE_CLI = "src/translation_tree.py"
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -439,7 +441,7 @@ def export_translation_tree(python: str, *, source: Path, output: Path) -> None:
     run(
         [
             python,
-            "src/translation_tree.py",
+            TRANSLATION_TREE_CLI,
             "export",
             "--source",
             str(source),
@@ -463,7 +465,7 @@ def sync_translation_tree(
     run(
         [
             python,
-            "src/translation_tree.py",
+            TRANSLATION_TREE_CLI,
             "sync",
             "--tree",
             str(tree),
@@ -487,7 +489,7 @@ def audit_output(python: str, *, source: Path, output: Path) -> None:
     run(
         [
             python,
-            "src/translation_tree.py",
+            TRANSLATION_TREE_CLI,
             "audit-output",
             "--source",
             str(source),

@@ -45,7 +45,7 @@ def restore_inline_conditional_rewrites(source_text: str) -> str:
     def replace(match: re.Match[str]) -> str:
         try:
             return decode_marker_payload(match.group("payload"))
-        except (ValueError, UnicodeDecodeError) as exc:
+        except ValueError as exc:
             raise TemplateTransformError("Invalid inline conditional rewrite marker") from exc
 
     return INLINE_CONDITIONAL_REWRITE_PATTERN.sub(replace, source_text)

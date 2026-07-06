@@ -30,6 +30,8 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
 )
 
 MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
+TRANSFORM_TEMPLATE_CLI = "src/transform_template.py"
+TRANSLATION_TREE_CLI = "src/translation_tree.py"
 
 
 @dataclass(frozen=True)
@@ -310,7 +312,7 @@ def refresh_target_with_source(
     else:
         _run_tool(
             tooling_root,
-            "src/transform_template.py",
+            TRANSFORM_TEMPLATE_CLI,
             "expand",
             "--source",
             target_checkout / target_paths.compact_template_dir,
@@ -319,7 +321,7 @@ def refresh_target_with_source(
         )
         _run_tool(
             tooling_root,
-            "src/translation_tree.py",
+            TRANSLATION_TREE_CLI,
             "export",
             "--source",
             target_checkout / target_paths.expanded_template_dir,
@@ -348,7 +350,7 @@ def refresh_target_with_source(
 
     _run_tool(
         tooling_root,
-        "src/translation_tree.py",
+        TRANSLATION_TREE_CLI,
         "audit",
         "--tree",
         target_tree,
@@ -357,7 +359,7 @@ def refresh_target_with_source(
     )
     _run_tool(
         tooling_root,
-        "src/translation_tree.py",
+        TRANSLATION_TREE_CLI,
         "sync",
         "--tree",
         target_tree,
@@ -376,7 +378,7 @@ def refresh_target_with_source(
     )
     _run_tool(
         tooling_root,
-        "src/translation_tree.py",
+        TRANSLATION_TREE_CLI,
         "audit-output",
         "--source",
         target_checkout / target_paths.expanded_template_dir,
@@ -485,7 +487,7 @@ def _merge_or_copy(
     if old_tree.joinpath(MERGE_REPORT_PATH.parent, "manifest.json").is_file():
         _run_tool(
             tooling_root,
-            "src/translation_tree.py",
+            TRANSLATION_TREE_CLI,
             "merge",
             "--old-tree",
             old_tree,

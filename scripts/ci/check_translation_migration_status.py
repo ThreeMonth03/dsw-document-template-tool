@@ -253,11 +253,21 @@ def print_human_summary(statuses: list[SourceMigrationStatus]) -> None:
         print("- No source versions are enabled for migration checks.")
         return
     for status in statuses:
-        state = "ERROR" if status.error else "PENDING" if status.pending else "OK"
+        state = migration_state_label(status)
         targets = ", ".join(status.target_versions) or "(no targets)"
         print(f"- {status.source_version}: {state}; targets: {targets}")
         for line in status.summary_lines:
             print(f"  {line}")
+
+
+def migration_state_label(status: SourceMigrationStatus) -> str:
+    """Return the operator-facing state label for one migration source."""
+
+    if status.error:
+        return "ERROR"
+    if status.pending:
+        return "PENDING"
+    return "OK"
 
 
 if __name__ == "__main__":

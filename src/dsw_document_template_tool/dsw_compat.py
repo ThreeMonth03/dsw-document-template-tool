@@ -45,7 +45,7 @@ def fetch_official_template_metamodel_support(
         )
         with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
             text = response.read().decode("utf-8")
-    except (OSError, urllib.error.URLError) as exc:
+    except OSError as exc:
         raise DswCompatSourceError(
             f"Could not load official DSW metamodel source {source_url!r}: {exc}"
         ) from exc

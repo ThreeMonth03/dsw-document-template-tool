@@ -81,6 +81,7 @@ from ._template_transform.workspace import (
 )
 
 MANIFEST_VERSION = 2
+README_NAME = "README.md"
 
 
 def expand_template_dir(
@@ -123,8 +124,8 @@ def expand_template_dir(
         "version": MANIFEST_VERSION,
         "format": "sentence_comment_markers",
         "files": transformed_files,
-        "workspace_readme": "README.md",
-        "upstream_readme": UPSTREAM_README_NAME if (source_dir / "README.md").is_file() else None,
+        "workspace_readme": README_NAME,
+        "upstream_readme": UPSTREAM_README_NAME if (source_dir / README_NAME).is_file() else None,
         "post_expand_patches": post_expand_patches,
         "post_expand_patch_state": post_expand_patch_state,
     }
@@ -176,7 +177,7 @@ def compact_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
     if isinstance(upstream_readme, str) and upstream_readme:
         upstream_path = output_dir / upstream_readme
         if upstream_path.is_file():
-            (output_dir / "README.md").write_text(
+            (output_dir / README_NAME).write_text(
                 upstream_path.read_text(encoding="utf-8"),
                 encoding="utf-8",
             )

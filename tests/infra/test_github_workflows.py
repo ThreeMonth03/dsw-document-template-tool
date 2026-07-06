@@ -244,6 +244,13 @@ def test_ephemeral_dsw_compose_stack_is_checked_in(repo_root: Path) -> None:
     assert services["minio"]["ports"] == ["${DSW_CI_MINIO_PORT:-9000}:9000"]
     assert "host.docker.internal:host-gateway" in services["server"]["extra_hosts"]
     assert "host.docker.internal:host-gateway" in services["docworker"]["extra_hosts"]
+    assert services["postgres"]["environment"]["POSTGRES_PASSWORD"].startswith(
+        "${DSW_CI_POSTGRES_PASSWORD:"
+    )
+    assert services["minio"]["environment"]["MINIO_ROOT_PASSWORD"].startswith(
+        "${DSW_CI_MINIO_ROOT_PASSWORD:"
+    )
+    assert "$${MINIO_ROOT_PASSWORD}" in services["minio-init"]["entrypoint"][-1]
 
     for relative_path in (
         "scripts/ci/start_dsw.sh",
@@ -262,6 +269,11 @@ def test_ephemeral_dsw_compose_stack_is_checked_in(repo_root: Path) -> None:
         'DSW_API_URL="${DSW_API_URL:-http://localhost:${DSW_CI_API_PORT}/wizard-api}"'
         in start_script
     )
+    assert "openssl rand -hex" in start_script
+    assert "cat <<'YAML'\ngeneral:" not in start_script
+    assert "export DSW_CI_APP_SECRET" in start_script
+    assert "postgres:postgres" not in start_script
+    assert "minioPassword" not in start_script
 
 
 def test_external_translation_sync_example_workflow(repo_root: Path) -> None:

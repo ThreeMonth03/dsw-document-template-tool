@@ -15,20 +15,35 @@ def normalize_html(html: str, *, ignore_patterns: list[str] | None = None) -> st
     """Normalize rendered HTML so meaningful regressions diff cleanly."""
 
     soup = BeautifulSoup(html, "html.parser")
+    _sort_tag_attributes(soup)
+    _collapse_text_nodes(soup)
+
+    normalized = soup.decode(formatter="minimal")
+    normalized = re.sub(r">\s+<", "><", normalized)
+    normalized = normalized.strip()
+    return _remove_ignored_patterns(normalized, ignore_patterns or [])
+
+
+def _sort_tag_attributes(soup: BeautifulSoup) -> None:
+    """Sort attributes so equivalent HTML serializes consistently."""
 
     for tag in soup.find_all(True):
-        if not isinstance(tag, Tag):
-            continue
-        ordered_attrs: dict[str, str | list[str]] = {}
-        for key in sorted(tag.attrs):
-            value = tag.attrs[key]
-            if isinstance(value, list):
-                ordered_attrs[key] = [str(item) for item in value]
-            else:
-                ordered_attrs[key] = str(value)
-        tag.attrs = ordered_attrs
+        if isinstance(tag, Tag):
+            tag.attrs = {
+                key: _stringify_attribute_value(tag.attrs[key]) for key in sorted(tag.attrs)
+            }
 
-    for node in list(soup.find_all(string=True)):
+
+def _stringify_attribute_value(value: object) -> str | list[str]:
+    if isinstance(value, list):
+        return [str(item) for item in value]
+    return str(value)
+
+
+def _collapse_text_nodes(soup: BeautifulSoup) -> None:
+    """Collapse non-preformatted text nodes."""
+
+    for node in soup.find_all(string=True):
         if not isinstance(node, NavigableString):
             continue
         parent_name = node.parent.name if node.parent is not None else None
@@ -37,13 +52,10 @@ def normalize_html(html: str, *, ignore_patterns: list[str] | None = None) -> st
         collapsed = re.sub(r"\s+", " ", str(node)).strip()
         node.replace_with(collapsed)
 
-    normalized = soup.decode(formatter="minimal")
-    normalized = re.sub(r">\s+<", "><", normalized)
-    normalized = normalized.strip()
 
-    for pattern in ignore_patterns or []:
+def _remove_ignored_patterns(normalized: str, ignore_patterns: list[str]) -> str:
+    for pattern in ignore_patterns:
         normalized = re.sub(pattern, "", normalized, flags=re.MULTILINE)
-
     return normalized
 
 

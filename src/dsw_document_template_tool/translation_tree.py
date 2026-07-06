@@ -208,85 +208,14 @@ def sync_translation_tree(
         target_lang=target_lang,
     )
 
-    units_by_file: dict[str, list[dict[str, str | int]]] = {}
-    for unit in units:
-        source_file = unit["source_file"]
-        if not isinstance(source_file, str):
-            raise TranslationTreeError(
-                f"Invalid source_file in translation-tree manifest: {source_file!r}"
-            )
-        units_by_file.setdefault(source_file, []).append(unit)
-
     translated_files: dict[str, str] = {}
-    for source_file, file_units in units_by_file.items():
-        source_path = source_dir / source_file
-        source_text = source_path.read_text(encoding="utf-8")
-        wrapper_matches = list(GENERATED_BLOCK_PATTERN.finditer(source_text))
-
-        units_by_wrapper: dict[int, list[dict[str, str | int]]] = {}
-        for unit in file_units:
-            wrapper_order = unit["wrapper_order"]
-            if not isinstance(wrapper_order, int):
-                raise TranslationTreeError(
-                    f"Invalid wrapper_order in translation-tree manifest: {wrapper_order!r}"
-                )
-            units_by_wrapper.setdefault(wrapper_order, []).append(unit)
-
-        rebuilt_parts: list[str] = []
-        cursor = 0
-        for wrapper_order, match in enumerate(wrapper_matches, start=1):
-            rebuilt_parts.append(source_text[cursor : match.start()])
-
-            wrapper_units = units_by_wrapper.get(wrapper_order)
-            if not wrapper_units:
-                rebuilt_parts.append(match.group(0))
-                cursor = match.end()
-                continue
-
-            wrapper_name = generated_block_name(match)
-            first_unit = wrapper_units[0]
-            expected_wrapper_name = first_unit["wrapper_name"]
-            if not isinstance(expected_wrapper_name, str) or wrapper_name != expected_wrapper_name:
-                raise TranslationTreeError(
-                    "Wrapper mismatch while syncing translation tree for "
-                    f"{source_file}: expected {expected_wrapper_name}, found {wrapper_name}"
-                )
-
-            wrapper_body = generated_block_body(match)
-            wrapper_hash = hash_text(wrapper_body)
-            expected_wrapper_hash = first_unit["wrapper_source_hash"]
-            if not isinstance(expected_wrapper_hash, str) or wrapper_hash != expected_wrapper_hash:
-                raise TranslationTreeError(
-                    "Expanded source wrapper changed since the translation tree was exported for "
-                    f"{source_file} ({first_unit['wrapper_folder_name']}). {TREE_REFRESH_HINT}"
-                )
-
-            rebuilt_parts.append(
-                wrap_translatable_block(
-                    wrapper_name,
-                    apply_unit_translations(
-                        source_file=source_file,
-                        wrapper_body=wrapper_body,
-                        wrapper_units=wrapper_units,
-                        translations=translations,
-                    ),
-                )
-            )
-            cursor = match.end()
-
-        unknown_wrapper_orders = [
-            wrapper_order
-            for wrapper_order in units_by_wrapper
-            if wrapper_order < 1 or wrapper_order > len(wrapper_matches)
-        ]
-        if unknown_wrapper_orders:
-            raise TranslationTreeError(
-                "Translation tree references wrapper orders that do not exist in "
-                f"{source_file}: {unknown_wrapper_orders}"
-            )
-
-        rebuilt_parts.append(source_text[cursor:])
-        translated_files[source_file] = "".join(rebuilt_parts)
+    for source_file, file_units in _group_units_by_file(units).items():
+        translated_files[source_file] = _sync_source_file_text(
+            source_dir=source_dir,
+            source_file=source_file,
+            file_units=file_units,
+            translations=translations,
+        )
 
     reset_dir(output_dir)
     shutil.copytree(source_dir, output_dir, dirs_exist_ok=True)
@@ -307,3 +236,151 @@ def sync_translation_tree(
     )
 
     return output_dir
+
+
+def _group_units_by_file(units: list[object]) -> dict[str, list[dict[str, str | int]]]:
+    units_by_file: dict[str, list[dict[str, str | int]]] = {}
+    for unit in units:
+        if not isinstance(unit, dict):
+            raise TranslationTreeError(
+                f"Invalid translation-tree manifest unit: {type(unit).__name__}"
+            )
+        source_file = unit.get("source_file")
+        if not isinstance(source_file, str):
+            raise TranslationTreeError(
+                f"Invalid source_file in translation-tree manifest: {source_file!r}"
+            )
+        units_by_file.setdefault(source_file, []).append(unit)
+    return units_by_file
+
+
+def _sync_source_file_text(
+    *,
+    source_dir: Path,
+    source_file: str,
+    file_units: list[dict[str, str | int]],
+    translations,
+) -> str:
+    source_path = source_dir / source_file
+    source_text = source_path.read_text(encoding="utf-8")
+    wrapper_matches = list(GENERATED_BLOCK_PATTERN.finditer(source_text))
+    units_by_wrapper = _group_units_by_wrapper(file_units)
+
+    rebuilt_parts: list[str] = []
+    cursor = 0
+    for wrapper_order, match in enumerate(wrapper_matches, start=1):
+        rebuilt_parts.append(source_text[cursor : match.start()])
+        rebuilt_parts.append(
+            _sync_wrapper_text(
+                source_file=source_file,
+                match=match,
+                wrapper_units=units_by_wrapper.get(wrapper_order, []),
+                translations=translations,
+            )
+        )
+        cursor = match.end()
+
+    _validate_known_wrapper_orders(
+        source_file=source_file,
+        units_by_wrapper=units_by_wrapper,
+        wrapper_count=len(wrapper_matches),
+    )
+    rebuilt_parts.append(source_text[cursor:])
+    return "".join(rebuilt_parts)
+
+
+def _group_units_by_wrapper(
+    file_units: list[dict[str, str | int]],
+) -> dict[int, list[dict[str, str | int]]]:
+    units_by_wrapper: dict[int, list[dict[str, str | int]]] = {}
+    for unit in file_units:
+        wrapper_order = unit["wrapper_order"]
+        if not isinstance(wrapper_order, int):
+            raise TranslationTreeError(
+                f"Invalid wrapper_order in translation-tree manifest: {wrapper_order!r}"
+            )
+        units_by_wrapper.setdefault(wrapper_order, []).append(unit)
+    return units_by_wrapper
+
+
+def _sync_wrapper_text(
+    *,
+    source_file: str,
+    match,
+    wrapper_units: list[dict[str, str | int]],
+    translations,
+) -> str:
+    if not wrapper_units:
+        return match.group(0)
+
+    wrapper_name = _validated_wrapper_name(
+        source_file=source_file,
+        match=match,
+        wrapper_units=wrapper_units,
+    )
+    wrapper_body = generated_block_body(match)
+    _validate_wrapper_hash(
+        source_file=source_file,
+        wrapper_body=wrapper_body,
+        wrapper_units=wrapper_units,
+    )
+    return wrap_translatable_block(
+        wrapper_name,
+        apply_unit_translations(
+            source_file=source_file,
+            wrapper_body=wrapper_body,
+            wrapper_units=wrapper_units,
+            translations=translations,
+        ),
+    )
+
+
+def _validated_wrapper_name(
+    *,
+    source_file: str,
+    match,
+    wrapper_units: list[dict[str, str | int]],
+) -> str:
+    wrapper_name = generated_block_name(match)
+    first_unit = wrapper_units[0]
+    expected_wrapper_name = first_unit["wrapper_name"]
+    if not isinstance(expected_wrapper_name, str) or wrapper_name != expected_wrapper_name:
+        raise TranslationTreeError(
+            "Wrapper mismatch while syncing translation tree for "
+            f"{source_file}: expected {expected_wrapper_name}, found {wrapper_name}"
+        )
+    return wrapper_name
+
+
+def _validate_wrapper_hash(
+    *,
+    source_file: str,
+    wrapper_body: str,
+    wrapper_units: list[dict[str, str | int]],
+) -> None:
+    first_unit = wrapper_units[0]
+    wrapper_hash = hash_text(wrapper_body)
+    expected_wrapper_hash = first_unit["wrapper_source_hash"]
+    if not isinstance(expected_wrapper_hash, str) or wrapper_hash != expected_wrapper_hash:
+        raise TranslationTreeError(
+            "Expanded source wrapper changed since the translation tree was exported for "
+            f"{source_file} ({first_unit['wrapper_folder_name']}). {TREE_REFRESH_HINT}"
+        )
+
+
+def _validate_known_wrapper_orders(
+    *,
+    source_file: str,
+    units_by_wrapper: dict[int, list[dict[str, str | int]]],
+    wrapper_count: int,
+) -> None:
+    unknown_wrapper_orders = [
+        wrapper_order
+        for wrapper_order in units_by_wrapper
+        if wrapper_order < 1 or wrapper_order > wrapper_count
+    ]
+    if unknown_wrapper_orders:
+        raise TranslationTreeError(
+            "Translation tree references wrapper orders that do not exist in "
+            f"{source_file}: {unknown_wrapper_orders}"
+        )

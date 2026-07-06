@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,6 +32,16 @@ from dsw_document_template_tool.translation_tree import sync_translation_tree  #
 # workspace still keeps these files for audit/debug, but they are not part of
 # the public handoff repository.
 PUBLIC_HANDOFF_EXCLUDED_ROOTS = frozenset({".transform", "UPSTREAM-README.md"})
+
+
+@dataclass(frozen=True)
+class PublishSource:
+    """Resolved translated template source and config-derived publish defaults."""
+
+    source_dir: Path
+    target_repo: str | None = None
+    target_branch: str | None = None
+    translation_worktree: Path | None = None
 
 
 def run(
@@ -312,71 +323,115 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def resolve_publish_source(args: argparse.Namespace, temp_root: Path) -> PublishSource:
+    """Resolve the translated template source requested by CLI arguments."""
+
+    if args.translation_repo:
+        if not args.version:
+            raise SystemExit("--version is required with --translation-repo")
+        source_dir, target_repo, target_branch, translation_worktree = source_from_translation_repo(
+            args.translation_repo.resolve(),
+            args.version,
+            temp_root,
+            args.translation_config,
+        )
+        return PublishSource(
+            source_dir=source_dir,
+            target_repo=target_repo,
+            target_branch=target_branch,
+            translation_worktree=translation_worktree,
+        )
+    return PublishSource(source_dir=args.source_dir.resolve())
+
+
+def resolved_target_repo(args: argparse.Namespace, publish_source: PublishSource) -> str:
+    """Return the explicit or config-derived target repository."""
+
+    target_repo = args.target_repo or publish_source.target_repo
+    if target_repo:
+        return target_repo
+    raise SystemExit("--target-repo is required when no publish target exists in config")
+
+
+def resolved_target_branch(args: argparse.Namespace, publish_source: PublishSource) -> str:
+    """Return the explicit or config-derived target branch."""
+
+    target_branch = args.target_branch or publish_source.target_branch
+    if target_branch:
+        return target_branch
+    raise SystemExit("--target-branch is required when no version/config default is available")
+
+
+def publish_template_source(
+    *,
+    args: argparse.Namespace,
+    publish_source: PublishSource,
+    temp_root: Path,
+) -> int:
+    """Copy, commit, and optionally push the translated template source."""
+
+    target_repo_arg = resolved_target_repo(args, publish_source)
+    target_branch = resolved_target_branch(args, publish_source)
+
+    validate_source_dir(publish_source.source_dir)
+    target_repo = clone_or_use_target_repo(target_repo_arg, temp_root)
+    checkout_branch(target_repo, target_branch, args.base_branch, detach=args.push)
+    clear_repository_content(target_repo)
+    copy_template_source(publish_source.source_dir, target_repo)
+
+    if not has_changes(target_repo):
+        print(f"{target_branch} is already up to date.")
+        return 0
+
+    version_suffix = f" {args.version}" if args.version else ""
+    message = args.message or f"chore: publish translated template{version_suffix}"
+    commit_changes(target_repo, message)
+
+    if args.push:
+        push_publish_branch(
+            target_repo=target_repo,
+            target_repo_arg=target_repo_arg,
+            target_branch=target_branch,
+        )
+    else:
+        print(f"Updated local target checkout {target_repo} on {target_branch}.")
+    return 0
+
+
+def push_publish_branch(
+    *,
+    target_repo: Path,
+    target_repo_arg: str,
+    target_branch: str,
+) -> None:
+    """Push the generated commit to the target repository origin."""
+
+    if not git_remote_exists(target_repo, "origin"):
+        raise SystemExit("--push requires the target repository to have an origin remote")
+    git(["push", "origin", f"HEAD:refs/heads/{target_branch}"], cwd=target_repo)
+    print(f"Pushed translated template to {target_repo_arg}#{target_branch}.")
+
+
 def main() -> int:
     args = parse_args()
     with tempfile.TemporaryDirectory(prefix="dsw-template-publish-") as temp_name:
         temp_root = Path(temp_name)
-        translation_worktree: Path | None = None
-
+        publish_source = resolve_publish_source(args, temp_root)
         try:
-            config_target_repo: str | None = None
-            config_target_branch: str | None = None
-            if args.translation_repo:
-                if not args.version:
-                    raise SystemExit("--version is required with --translation-repo")
-                (
-                    source_dir,
-                    config_target_repo,
-                    config_target_branch,
-                    translation_worktree,
-                ) = source_from_translation_repo(
-                    args.translation_repo.resolve(),
-                    args.version,
-                    temp_root,
-                    args.translation_config,
-                )
-            else:
-                source_dir = args.source_dir.resolve()
-
-            target_repo_arg = args.target_repo or config_target_repo
-            target_branch = args.target_branch or config_target_branch
-            if not target_repo_arg:
-                raise SystemExit(
-                    "--target-repo is required when no publish target exists in config"
-                )
-            if not target_branch:
-                raise SystemExit(
-                    "--target-branch is required when no version/config default is available"
-                )
-
-            validate_source_dir(source_dir)
-            target_repo = clone_or_use_target_repo(target_repo_arg, temp_root)
-            checkout_branch(target_repo, target_branch, args.base_branch, detach=args.push)
-            clear_repository_content(target_repo)
-            copy_template_source(source_dir, target_repo)
-
-            if not has_changes(target_repo):
-                print(f"{target_branch} is already up to date.")
-                return 0
-
-            version_suffix = f" {args.version}" if args.version else ""
-            message = args.message or f"chore: publish translated template{version_suffix}"
-            commit_changes(target_repo, message)
-
-            if args.push:
-                if not git_remote_exists(target_repo, "origin"):
-                    raise SystemExit(
-                        "--push requires the target repository to have an origin remote"
-                    )
-                git(["push", "origin", f"HEAD:refs/heads/{target_branch}"], cwd=target_repo)
-                print(f"Pushed translated template to {target_repo_arg}#{target_branch}.")
-            else:
-                print(f"Updated local target checkout {target_repo} on {target_branch}.")
-            return 0
+            return publish_template_source(
+                args=args,
+                publish_source=publish_source,
+                temp_root=temp_root,
+            )
         finally:
-            if args.translation_repo and translation_worktree is not None:
+            if publish_source.translation_worktree is not None:
                 git(
-                    ["worktree", "remove", "--force", str(translation_worktree)],
+                    [
+                        "worktree",
+                        "remove",
+                        "--force",
+                        str(publish_source.translation_worktree),
+                    ],
                     cwd=args.translation_repo.resolve(),
                     check=False,
                 )

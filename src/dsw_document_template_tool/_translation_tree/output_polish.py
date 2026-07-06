@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 _CJK = "\u3400-\u9fff"
@@ -34,6 +35,14 @@ _COST_DESCRIPTION_DOT_REPLACEMENT = (
     '{{ "。" if __tr_dot_value[-1] not in ".。!！?？" else "" }}{%- endif -%}'
 )
 _REMAINING_DOT_FILTER_PATTERN = re.compile(r"\|dot\b")
+
+
+@dataclass(frozen=True)
+class SilentSpacingCollapse:
+    """Silent Jinja tags to keep while removing following visible whitespace."""
+
+    silent_tags: list[str]
+    next_index: int
 
 
 def _is_cjk(char: str) -> bool:
@@ -109,30 +118,18 @@ def _collapse_silent_jinja_leading_spacing_before_cjk(text: str) -> str:
         silent_tag = _read_silent_jinja_tag(text, index)
         if silent_tag is not None:
             tag_text, tag_end = silent_tag
-            if last_visible_char in _VISIBLE_BOUNDARY_BEFORE_SILENT_JINJA_CJK:
-                lookahead = tag_end
-                silent_tags = [tag_text]
-                while True:
-                    while lookahead < len(text) and text[lookahead] in " \t\r\n":
-                        lookahead += 1
-
-                    next_silent_tag = _read_silent_jinja_tag(text, lookahead)
-                    if next_silent_tag is None:
-                        break
-
-                    next_tag_text, lookahead = next_silent_tag
-                    silent_tags.append(next_tag_text)
-
-                if (
-                    lookahead > tag_end
-                    and lookahead < len(text)
-                    and (_is_cjk(text[lookahead]) or text[lookahead] == "（")
-                ):
-                    while result and result[-1].isspace():
-                        result.pop()
-                    result.extend(silent_tags)
-                    index = lookahead
-                    continue
+            collapse = _silent_spacing_collapse_after_tag(
+                text=text,
+                tag_text=tag_text,
+                tag_end=tag_end,
+                last_visible_char=last_visible_char,
+            )
+            if collapse is not None:
+                while result and result[-1].isspace():
+                    result.pop()
+                result.extend(collapse.silent_tags)
+                index = collapse.next_index
+                continue
 
             result.append(tag_text)
             index = tag_end
@@ -145,6 +142,36 @@ def _collapse_silent_jinja_leading_spacing_before_cjk(text: str) -> str:
         index += 1
 
     return "".join(result)
+
+
+def _silent_spacing_collapse_after_tag(
+    *,
+    text: str,
+    tag_text: str,
+    tag_end: int,
+    last_visible_char: str,
+) -> SilentSpacingCollapse | None:
+    if last_visible_char not in _VISIBLE_BOUNDARY_BEFORE_SILENT_JINJA_CJK:
+        return None
+
+    lookahead = tag_end
+    silent_tags = [tag_text]
+    while True:
+        while lookahead < len(text) and text[lookahead] in " \t\r\n":
+            lookahead += 1
+
+        next_silent_tag = _read_silent_jinja_tag(text, lookahead)
+        if next_silent_tag is None:
+            break
+
+        next_tag_text, lookahead = next_silent_tag
+        silent_tags.append(next_tag_text)
+
+    if lookahead <= tag_end or lookahead >= len(text):
+        return None
+    if not (_is_cjk(text[lookahead]) or text[lookahead] == "（"):
+        return None
+    return SilentSpacingCollapse(silent_tags=silent_tags, next_index=lookahead)
 
 
 def polish_translated_output_dir(*, output_dir: Path, target_lang: str) -> None:
@@ -168,6 +195,16 @@ def polish_translated_output_dir(*, output_dir: Path, target_lang: str) -> None:
 def polish_zh_hant_template_text(text: str) -> str:
     """Normalize punctuation patterns that are outside translation units."""
 
+    text = _normalize_dot_filters(text)
+    text = _normalize_template_punctuation(text)
+    text = _collapse_silent_jinja_leading_spacing_before_cjk(text)
+    text = _collapse_fullwidth_spacing_before_cjk(text)
+    text = re.sub(rf"(?<=[{_CJK}])、\s+", "、", text)
+    text = re.sub(rf"(?<=[{_CJK}]),\s+(?=[{_CJK}])", "、", text)
+    return text
+
+
+def _normalize_dot_filters(text: str) -> str:
     for placeholder in _DOT_FILTER_PLACEHOLDERS_WITH_TRANSLATED_PUNCTUATION:
         text = re.sub(
             r"\{\{\s*" + re.escape(placeholder) + r"\|dot\s*\}\}",
@@ -176,6 +213,10 @@ def polish_zh_hant_template_text(text: str) -> str:
         )
     text = _COST_DESCRIPTION_DOT_PATTERN.sub(_COST_DESCRIPTION_DOT_REPLACEMENT, text)
     text = _REMAINING_DOT_FILTER_PATTERN.sub("|trim", text)
+    return text
+
+
+def _normalize_template_punctuation(text: str) -> str:
     text = _FAIRSHARING_MACRO_LINE_PATTERN.sub(r"\1：\2。", text)
     text = _LOOP_COMMA_PERIOD_PATTERN.sub('{{ "、" if not loop.last else "。" }}', text)
     text = _JOIN_COMMA_PATTERN.sub('|join("、")', text)
@@ -192,8 +233,4 @@ def polish_zh_hant_template_text(text: str) -> str:
     text = _INLINE_TAG_BEFORE_FULLWIDTH_PAREN_PATTERN.sub(r"\1（", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\.", "。", text)
     text = text.replace("。.", "。")
-    text = _collapse_silent_jinja_leading_spacing_before_cjk(text)
-    text = _collapse_fullwidth_spacing_before_cjk(text)
-    text = re.sub(rf"(?<=[{_CJK}])、\s+", "、", text)
-    text = re.sub(rf"(?<=[{_CJK}]),\s+(?=[{_CJK}])", "、", text)
     return text

@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 import sys
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
@@ -357,10 +357,16 @@ def close_previous_runtime(
         <= version_sort_key(max_version)
     ]
     artifact_refs = " ".join(sorted(covered_refs, key=version_sort_key))
-    return replace(
-        runtime,
+    return RuntimeRow(
+        metamodel_key=runtime.metamodel_key,
+        metamodel_version=runtime.metamodel_version,
+        dsw_version=runtime.dsw_version,
+        tdk_version=runtime.tdk_version,
+        min_version=runtime.min_version,
         max_version=max_version,
         upstream_template_artifact_refs=artifact_refs or runtime.upstream_template_artifact_refs,
+        run_preview_regression=runtime.run_preview_regression,
+        strict_project_preview=runtime.strict_project_preview,
     )
 
 

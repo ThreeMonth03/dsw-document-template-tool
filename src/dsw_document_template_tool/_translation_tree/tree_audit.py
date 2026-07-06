@@ -127,67 +127,21 @@ def _audit_manifest_unit(
         source_unit_text = None
 
     if source_unit_text is not None:
-        if contains_jinja_block_or_comment(source_unit_text):
-            issues.append(
-                TranslationTreeAuditIssue(
-                    code="unsafe-source-jinja-block",
-                    location=location,
-                    message=(
-                        "Source unit contains raw Jinja block/comment syntax. "
-                        "Expand/export must split this before translators edit it."
-                    ),
-                )
-            )
+        issues.extend(_audit_source_unit_text(source_unit_text, location=location))
 
-        hard_fragment_message = hard_fragment_sentence_message(source_unit_text)
-        if hard_fragment_message is not None:
-            issues.append(
-                TranslationTreeAuditIssue(
-                    code="hard-to-translate-source-fragment",
-                    location=location,
-                    message=hard_fragment_message,
-                )
-            )
-
-        placeholder_map = build_source_placeholder_map(source_unit_text)
-        source_placeholder_names = set(source_placeholder_counts(source_unit_text))
-        ambiguous_names = sorted(source_placeholder_names - set(placeholder_map))
-        if ambiguous_names:
-            issues.append(
-                TranslationTreeAuditIssue(
-                    code="ambiguous-source-placeholder",
-                    location=location,
-                    message=(
-                        "Source unit has placeholder names that cannot be mapped back "
-                        f"unambiguously: {', '.join('{' + name + '}' for name in ambiguous_names)}"
-                    ),
-                )
-            )
-
-    if not isinstance(document_path_raw, str):
-        issues.append(
-            TranslationTreeAuditIssue(
-                code="invalid-manifest-unit",
-                location=location,
-                message="Manifest unit is missing a valid document_path.",
-            )
-        )
+    document_path_issue = _audit_document_path(
+        tree_dir=tree_dir,
+        document_path_raw=document_path_raw,
+        location=location,
+    )
+    if document_path_issue is not None:
+        issues.append(document_path_issue)
         return issues
 
-    document_path = tree_dir / document_path_raw
-    if not document_path.is_file():
-        issues.append(
-            TranslationTreeAuditIssue(
-                code="missing-translation-document",
-                location=document_path_raw,
-                message="Translation document is missing. Re-run export to restore it.",
-            )
-        )
-        return issues
-
+    assert isinstance(document_path_raw, str)
     try:
         translation_text = parse_translation_document(
-            document_path=document_path,
+            document_path=tree_dir / document_path_raw,
             source_lang=source_lang,
             target_lang=target_lang,
         )
@@ -201,6 +155,100 @@ def _audit_manifest_unit(
         )
         return issues
 
+    issues.extend(
+        _audit_translation_text(
+            source_file=source_file,
+            unit_key=unit_key,
+            document_path_raw=document_path_raw,
+            source_unit_text=source_unit_text,
+            translation_text=translation_text,
+        )
+    )
+
+    return issues
+
+
+def _audit_source_unit_text(
+    source_unit_text: str,
+    *,
+    location: str,
+) -> list[TranslationTreeAuditIssue]:
+    issues: list[TranslationTreeAuditIssue] = []
+    if contains_jinja_block_or_comment(source_unit_text):
+        issues.append(
+            TranslationTreeAuditIssue(
+                code="unsafe-source-jinja-block",
+                location=location,
+                message=(
+                    "Source unit contains raw Jinja block/comment syntax. "
+                    "Expand/export must split this before translators edit it."
+                ),
+            )
+        )
+
+    hard_fragment_message = hard_fragment_sentence_message(source_unit_text)
+    if hard_fragment_message is not None:
+        issues.append(
+            TranslationTreeAuditIssue(
+                code="hard-to-translate-source-fragment",
+                location=location,
+                message=hard_fragment_message,
+            )
+        )
+
+    ambiguous_names = _ambiguous_source_placeholder_names(source_unit_text)
+    if ambiguous_names:
+        issues.append(
+            TranslationTreeAuditIssue(
+                code="ambiguous-source-placeholder",
+                location=location,
+                message=(
+                    "Source unit has placeholder names that cannot be mapped back "
+                    f"unambiguously: {', '.join('{' + name + '}' for name in ambiguous_names)}"
+                ),
+            )
+        )
+    return issues
+
+
+def _ambiguous_source_placeholder_names(source_unit_text: str) -> list[str]:
+    placeholder_map = build_source_placeholder_map(source_unit_text)
+    source_placeholder_names = set(source_placeholder_counts(source_unit_text))
+    return sorted(source_placeholder_names - set(placeholder_map))
+
+
+def _audit_document_path(
+    *,
+    tree_dir: Path,
+    document_path_raw: object,
+    location: str,
+) -> TranslationTreeAuditIssue | None:
+    if not isinstance(document_path_raw, str):
+        return TranslationTreeAuditIssue(
+            code="invalid-manifest-unit",
+            location=location,
+            message="Manifest unit is missing a valid document_path.",
+        )
+
+    document_path = tree_dir / document_path_raw
+    if not document_path.is_file():
+        return TranslationTreeAuditIssue(
+            code="missing-translation-document",
+            location=document_path_raw,
+            message="Translation document is missing. Re-run export to restore it.",
+        )
+    return None
+
+
+def _audit_translation_text(
+    *,
+    source_file: str,
+    unit_key: str,
+    document_path_raw: str,
+    source_unit_text: str | None,
+    translation_text: str,
+) -> list[TranslationTreeAuditIssue]:
+    issues: list[TranslationTreeAuditIssue] = []
     has_raw_jinja_translation = contains_raw_jinja_in_translation(translation_text)
     if has_raw_jinja_translation:
         issues.append(
@@ -214,24 +262,25 @@ def _audit_manifest_unit(
             )
         )
 
-    if source_unit_text is not None and translation_text.strip() and not has_raw_jinja_translation:
-        try:
-            validate_translation_placeholders(
-                source_file=source_file,
-                unit_key=unit_key,
-                translation_document_path=document_path_raw,
-                source_text=source_unit_text,
-                translation_text=translation_text,
-            )
-        except TranslationTreeError as exc:
-            issues.append(
-                TranslationTreeAuditIssue(
-                    code="invalid-translation-placeholders",
-                    location=document_path_raw,
-                    message=str(exc),
-                )
-            )
+    if source_unit_text is None or not translation_text.strip() or has_raw_jinja_translation:
+        return issues
 
+    try:
+        validate_translation_placeholders(
+            source_file=source_file,
+            unit_key=unit_key,
+            translation_document_path=document_path_raw,
+            source_text=source_unit_text,
+            translation_text=translation_text,
+        )
+    except TranslationTreeError as exc:
+        issues.append(
+            TranslationTreeAuditIssue(
+                code="invalid-translation-placeholders",
+                location=document_path_raw,
+                message=str(exc),
+            )
+        )
     return issues
 
 
