@@ -45,9 +45,9 @@ For implementation helpers below these facades, use
 ```{toctree}
 :maxdepth: 2
 :caption: Maintainer Docs
+:hidden:
 
 operator-quickstart
-README
 architecture
 development-guidelines
 internal-change-guide
@@ -68,6 +68,7 @@ security-and-permissions
 ```{toctree}
 :maxdepth: 2
 :caption: Package Reference
+:hidden:
 
 api/template-transform
 api/translation-tree

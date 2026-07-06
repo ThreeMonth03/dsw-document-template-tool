@@ -36,7 +36,7 @@ an entry point; operational detail lives in [`docs/`](docs/).
 ## Start Here
 
 If you are new to the project, start with the
-[Documentation Index](docs/README.md). For common follow-up tasks:
+[Documentation Index](docs/index.md). For common follow-up tasks:
 
 | Task | Read |
 | --- | --- |
