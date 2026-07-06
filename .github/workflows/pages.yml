@@ -31,7 +31,12 @@ jobs:
         run: make install-dev BOOTSTRAP_PYTHON=python
 
       - name: Build docs
-        run: make docs
+        run: make docs-clean docs
+
+      - name: Verify docs artifact
+        run: |
+          test -f docs/_build/html/index.html
+          test ! -e docs/_build/html/README.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
