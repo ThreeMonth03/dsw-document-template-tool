@@ -253,6 +253,7 @@ def test_ephemeral_dsw_compose_stack_is_checked_in(repo_root: Path) -> None:
     assert "$${MINIO_ROOT_PASSWORD}" in services["minio-init"]["entrypoint"][-1]
 
     for relative_path in (
+        "scripts/ci/dsw_env.sh",
         "scripts/ci/start_dsw.sh",
         "scripts/ci/collect_dsw_logs.sh",
         "scripts/ci/stop_dsw.sh",
@@ -269,11 +270,24 @@ def test_ephemeral_dsw_compose_stack_is_checked_in(repo_root: Path) -> None:
         'DSW_API_URL="${DSW_API_URL:-http://localhost:${DSW_CI_API_PORT}/wizard-api}"'
         in start_script
     )
-    assert "openssl rand -hex" in start_script
     assert "cat <<'YAML'\ngeneral:" not in start_script
-    assert "export DSW_CI_APP_SECRET" in start_script
+    assert 'source "${DSW_ENV_FILE}"' in start_script
     assert "postgres:postgres" not in start_script
     assert "minioPassword" not in start_script
+
+    env_script = (repo_root / "scripts" / "ci" / "dsw_env.sh").read_text(
+        encoding="utf-8",
+    )
+    assert "openssl rand -hex 16" in env_script
+    assert "export DSW_CI_APP_SECRET" in env_script
+    assert "postgres:postgres" not in env_script
+    assert "minioPassword" not in env_script
+
+    for helper_name in ("collect_dsw_logs.sh", "stop_dsw.sh"):
+        helper = (repo_root / "scripts" / "ci" / helper_name).read_text(
+            encoding="utf-8",
+        )
+        assert 'source "${DSW_ENV_FILE}"' in helper
 
 
 def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
