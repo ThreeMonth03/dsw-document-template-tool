@@ -72,6 +72,7 @@ def test_configuration_reference_covers_maintained_config_files(repo_root: Path)
         ".github/workflows/pages.yml",
         ".github/dsw/docker-compose.yml",
         "examples/github-actions/document_template_translation_sync.yml",
+        "examples/translation-repository/",
         "translation-config.yml",
     )
     for reference in expected_references:
@@ -79,3 +80,40 @@ def test_configuration_reference_covers_maintained_config_files(repo_root: Path)
 
     assert "Generated configs are ignored by git" in config_reference
     assert "make validate-translation-config" in config_reference
+
+
+def test_translation_repository_templates_are_copy_ready(repo_root: Path) -> None:
+    """Downstream translation docs templates should describe the branch model."""
+
+    template_dir = repo_root / "examples" / "translation-repository"
+    expected_files = (
+        template_dir / ".gitignore",
+        template_dir / "README.md",
+        template_dir / "docs" / "README.md",
+        template_dir / "docs" / "branch-policy.md",
+        template_dir / "docs" / "maintenance-runbook.md",
+        template_dir / "docs" / "security-and-permissions.md",
+    )
+    for path in expected_files:
+        assert path.is_file(), path
+
+    templates_doc = (repo_root / "docs" / "translation-repository-templates.md").read_text(
+        encoding="utf-8"
+    )
+    branch_policy = (template_dir / "docs" / "branch-policy.md").read_text(
+        encoding="utf-8",
+    )
+    maintenance_runbook = (template_dir / "docs" / "maintenance-runbook.md").read_text(
+        encoding="utf-8"
+    )
+    security_policy = (template_dir / "docs" / "security-and-permissions.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "examples/translation-repository/" in templates_doc
+    assert "translation/v*" in branch_policy
+    assert "sync/v*" in branch_policy
+    assert "public" in branch_policy
+    assert "private" in branch_policy
+    assert "gh workflow run document_template_translation_sync.yml" in (maintenance_runbook)
+    assert "GITHUB_TOKEN" in security_policy

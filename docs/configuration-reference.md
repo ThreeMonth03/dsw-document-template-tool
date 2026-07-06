@@ -25,6 +25,7 @@ All paths below are repository-relative references.
 | [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) | Tool repo | GitHub Pages deployment for this documentation site. | `make docs` |
 | [`.github/dsw/docker-compose.yml`](../.github/dsw/docker-compose.yml) | Tool repo | Ephemeral DSW stack used by local and CI render tests. | `make start-ci-dsw`, `make stop-ci-dsw`, `make ci-dsw-logs` |
 | [`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml) | Tool repo example | Template workflow copied into downstream translation version branches. The sync script renders version-specific values from `translation-config.yml`. | `make sync-translation-version-branches` |
+| [`examples/translation-repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository) | Tool repo example | Copy-ready README and docs templates for downstream translation repositories. Active downstream copies are repository-owned. | Manual copy after `make docs` |
 
 ## Generated Configs
 

@@ -18,6 +18,7 @@ small test before editing support code.
 | Translation unit extraction, placeholder handling, or Jinja safety | [`translation_tree.py`][translation-tree-py] | [`extraction.py`][tree-extraction-py], [`placeholders.py`][tree-placeholders-py], [`syntax.py`][tree-syntax-py], [`tree_audit.py`][tree-audit-py] | [`tests/unit/test_translation_tree.py`][test-translation-tree-py], [`tests/unit/test_markers.py`][test-markers-py] |
 | Exact-only migration between template versions | [`_translation_tree/merge.py`][tree-merge-py], [`translation_migration.py`][translation-migration-py] | [`scripts/ci/create_translation_migration_prs.py`][migration-prs-py], [`scripts/ci/check_translation_migration_status.py`][migration-status-py] | [`tests/infra/test_translation_migration_prs.py`][test-migration-prs-py], [`tests/infra/test_translation_migration_status.py`][test-migration-status-py] |
 | Downstream `translation/v*` branch refresh | [`scripts/ci/sync_translation_version_branches.py`][sync-version-branches-py] | [`examples/github-actions/document_template_translation_sync.yml`][translation-sync-workflow] and version policy config | [`tests/infra/test_translation_version_branch_sync.py`][test-version-branch-sync-py], [`tests/infra/test_github_workflows.py`][test-github-workflows-py] |
+| Downstream repository documentation templates | [`examples/translation-repository/`][translation-repo-template-dir] | [`docs/translation-repository-templates.md`][translation-repository-templates-doc] | [`tests/infra/test_documentation_site.py`][test-documentation-site-py] |
 | DSW runtime compatibility and unsupported metamodel probes | [`dsw_compat.py`][dsw-compat-py], [`config/dsw-compat.yml`][dsw-compat-yml] | [`scripts/ci/discover_dsw_compat.py`][discover-compat-py], [`scripts/ci/create_dsw_compat_pr.py`][create-compat-pr-py] | [`tests/unit/test_dsw_compat.py`][test-dsw-compat-py], [`tests/infra/test_ci_control_helpers.py`][test-ci-control-py] |
 | Clean scaffold artifact generation and release assets | [`scripts/ci/upstream_template_artifacts.py`][upstream-artifacts-py] | [`compat_ledger.py`][compat-ledger-py], [`scripts/ci/publish_clean_scaffold_releases.py`][publish-clean-scaffold-py] | [`tests/unit/test_compat_ledger.py`][test-compat-ledger-py], [`tests/infra/test_stage_release_assets.py`][test-stage-assets-py] |
 | Render preview or regression behavior | [`workflow.py`][workflow-py], [`render_project.py`][render-project-py] | [`api.py`][api-py], [`fixture_generator.py`][fixture-generator-py], [`html_diff.py`][html-diff-py] | [`tests/unit/test_workflow.py`][test-workflow-py], [`tests/unit/test_render_project.py`][test-render-project-py], [`tests/unit/test_fixture_generator.py`][test-fixture-generator-py] |
@@ -62,6 +63,7 @@ small test before editing support code.
 [test-cli-entrypoints-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/infra/test_cli_entrypoints.py
 [test-compat-ledger-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/unit/test_compat_ledger.py
 [test-dsw-compat-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/unit/test_dsw_compat.py
+[test-documentation-site-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/infra/test_documentation_site.py
 [test-fixture-generator-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/unit/test_fixture_generator.py
 [test-github-workflows-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/infra/test_github_workflows.py
 [test-markers-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/unit/test_markers.py
@@ -76,6 +78,8 @@ small test before editing support code.
 [test-workflow-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/tests/unit/test_workflow.py
 [tests-infra]: https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/tests/infra
 [translation-migration-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/src/dsw_document_template_tool/translation_migration.py
+[translation-repo-template-dir]: https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository
+[translation-repository-templates-doc]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/docs/translation-repository-templates.md
 [translation-sync-workflow]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/examples/github-actions/document_template_translation_sync.yml
 [translation-tree-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/src/dsw_document_template_tool/translation_tree.py
 [tree-audit-py]: https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/src/dsw_document_template_tool/_translation_tree/tree_audit.py

@@ -16,7 +16,8 @@ when deciding where a change belongs.
 - [`config/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/config)
   contains regression, compatibility, lint, and dependency configuration.
 - [`examples/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples)
-  contains copy-pasteable workflow templates.
+  contains copy-pasteable workflow templates and downstream repository
+  documentation templates.
   Updating examples does not update existing downstream branches by itself.
 - [`fixtures/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/fixtures)
   contains checked-in demo/regression project fixtures and matching Knowledge

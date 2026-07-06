@@ -25,7 +25,9 @@ Choose the path closest to what you are doing:
   [Architecture](architecture.md), then follow
   [Parser and Translation Tree](parser-and-translation-tree.md).
 - Connecting a downstream translation repository: use
-  [Downstream Integration](downstream-integration.md).
+  [Downstream Integration](downstream-integration.md). If you need copy-ready
+  README/runbook files for that repository, start from
+  [Translation Repository Templates](translation-repository-templates.md).
 - Finding commands: use the [Command Reference](command-reference.md) for Make
   targets, required variables, and lower-level helper scripts.
 
@@ -58,6 +60,7 @@ version-upgrade-runbook
 ci-and-release-runbook
 compatibility/dsw-compatibility-probe
 downstream-integration
+translation-repository-templates
 regression-workflow
 translation-workflow
 qa-checklist

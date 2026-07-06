@@ -15,6 +15,8 @@ The tool repo owns reusable infrastructure:
   [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci)
 - copy-paste workflow templates under
   [`examples/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples)
+- copy-ready downstream documentation templates under
+  [`examples/translation-repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository)
 
 The clean scaffold outputs are inputs for downstream repositories. They are not
 finished translations.
@@ -75,6 +77,28 @@ Keep those operational details in the translation repository documentation. This
 repo should only document the artifact contract and helper commands.
 If the downstream repo also has a `master` branch, this tooling does not require
 automation to write to it.
+
+## Integrated Translation Repository Layout
+
+To reduce repository count, the same downstream repository may hold both
+translation work and clean public handoff branches. Keep the responsibilities
+branch-separated:
+
+| Branch or asset | Purpose |
+| --- | --- |
+| operations branch, usually `master` | Repository-level config, workflows, and docs. |
+| `translation/v*` | Translator-facing workspaces and review PRs. |
+| `sync/v*` or configured publish branches | Clean translated template source for handoff. |
+| release assets | Package zip, preview PDF, checksums, and notes. |
+
+This layout is an organizational boundary, not a privacy boundary. If the
+downstream repository is public, draft translation branches, PRs, logs, and
+artifacts may be public too. Keep `translation/v*` branches in a private repo or
+private fork if draft wording must stay private.
+
+Use [Translation Repository Templates](translation-repository-templates.md) for
+copy-ready README/runbook files. The copies in the downstream repo become
+downstream-owned; updating this tool repo does not rewrite them automatically.
 
 ## Helper Scripts Used By Downstream
 

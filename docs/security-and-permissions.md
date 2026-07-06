@@ -13,6 +13,13 @@ repository.
 Downstream translation repositories own their own publication and manual import
 policy.
 
+If a downstream repository combines translation work and public handoff in one
+public repo, its draft `translation/v*` branches, pull requests, logs, Actions
+artifacts, and release assets may be visible. Keep draft translation branches in
+a private repository or private fork if work-in-progress wording must remain
+private. This tool repo only provides templates and helper scripts; it cannot
+make downstream branch visibility private.
+
 ## GitHub Actions Permissions
 
 Workflows that upload release assets need:
@@ -40,6 +47,7 @@ decide:
 
 - which repository or DSW instance the token can modify
 - whether pushes go to draft/sync branches or directly to public default branch
+- whether draft `translation/v*` branches are allowed on a public remote
 - who can trigger the workflow
 - whether fork PRs can access the secret
 - how rollback works
