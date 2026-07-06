@@ -56,3 +56,7 @@ such as `clean-scaffold-dsw-science-europe-v1.30.1`. These are download buckets
 for downstream maintenance, not finished translations. Their assets are
 refreshed by CI; the Git tag commit is not the source of truth for generated
 files.
+
+## License
+
+This repository is distributed under the [MIT License](LICENSE).
