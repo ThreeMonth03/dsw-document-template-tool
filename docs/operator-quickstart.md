@@ -212,5 +212,5 @@ parser-change checklist.
   [`config/dsw-compat.yml`](../config/dsw-compat.yml) and run
   `make sync-dsw-runtime-matrix`.
 - Do not treat clean scaffold releases as translated releases.
-- Do not add downstream publication tokens to this repo without updating
-  [Security and Permissions](security-and-permissions.md).
+- Do not add downstream publication tokens to this repo. Downstream publication
+  and manual import policy belong in the downstream repository.

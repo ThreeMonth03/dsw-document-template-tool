@@ -9,6 +9,8 @@ repository.
 - Tool repo CI does not publish to public DSW instances or public translated
   template source repositories.
 - No downstream publication token is required by this repo's normal workflow.
+- Do not add tokens that let this repo push translated outputs to downstream
+  repositories or DSW instances. Downstream repositories own that handoff.
 
 Downstream translation repositories own their own publication and manual import
 policy.
@@ -39,23 +41,6 @@ gh release upload "$release_tag" "$release_dir"/* \
 
 Without `--repo`, `gh` may fail when the working directory is not the checked-out
 repository root.
-
-## If Automatic Downstream Publishing Is Reintroduced
-
-Before adding any token that can push to another repository or DSW instance,
-decide:
-
-- which repository or DSW instance the token can modify
-- whether pushes go to draft/sync branches or directly to public default branch
-- whether draft `translation/v*` branches are allowed on a public remote
-- who can trigger the workflow
-- whether fork PRs can access the secret
-- how rollback works
-- how release artifacts and public source branches stay traceable
-
-Prefer a narrow token that can only push to the intended target repository. Do
-not expose publication tokens to pull requests from forks. Document the final
-policy in the downstream repository as well.
 
 ## Sensitive Artifacts
 
