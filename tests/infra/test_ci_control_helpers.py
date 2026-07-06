@@ -457,7 +457,7 @@ branches:
   version_branch_prefix: translation/
 
 tooling:
-  repository: ThreeMonth03/DSW-document-template-tool
+  repository: ThreeMonth03/dsw-document-template-tool
   ref: master
 
 migration:

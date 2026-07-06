@@ -15,7 +15,7 @@ from dataclasses import dataclass
 OFFICIAL_TEMPLATE_METAMODEL_SPEC_URL = (
     "https://guide.ds-wizard.org/en/latest/more/development/document-templates/specification.html"
 )
-HTTP_USER_AGENT = "DSW-document-template-tool/compat-discovery"
+HTTP_USER_AGENT = "dsw-document-template-tool/compat-discovery"
 
 
 class DswCompatSourceError(RuntimeError):

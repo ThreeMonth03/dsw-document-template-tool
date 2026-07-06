@@ -945,7 +945,7 @@ def _write_translation_config(
     *,
     supported_versions: tuple[str, ...] = ("v1.30.1",),
     include_version_policy: bool = True,
-    tooling_repository: str = "ThreeMonth03/DSW-document-template-tool",
+    tooling_repository: str = "ThreeMonth03/dsw-document-template-tool",
     tooling_ref: str = "master",
     translated_template_id: str = "science-europe-zh-hant",
     translated_template_name: str = "Science Europe DMP Template (zh-Hant)",
