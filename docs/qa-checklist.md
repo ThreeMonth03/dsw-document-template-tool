@@ -33,8 +33,9 @@ For each target version:
 
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
+CHECK_TAG=vX.Y.Z
 
-gh release view clean-scaffold-dsw-science-europe-vX.Y.Z \
+gh release view "clean-scaffold-dsw-science-europe-$CHECK_TAG" \
   --repo "$TOOL_GITHUB_REPO"
 ```
 

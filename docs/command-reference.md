@@ -1,7 +1,7 @@
 # Command Reference
 
 Use this page when you need a command, not background context. The normal
-operator interface is `make`; direct Python entrypoints are for reproducing an
+operator interface is `make`; direct CLI commands are for reproducing an
 exact workflow step or debugging one tool in isolation.
 
 Repository paths should be variables so commands survive repository transfers:
@@ -43,8 +43,9 @@ make docs
 make docs-clean
 ```
 
-GitHub Pages uses `make docs` through
-[`.github/workflows/pages.yml`](../.github/workflows/pages.yml).
+GitHub Pages uses `make docs-clean docs` through
+[`.github/workflows/pages.yml`](../.github/workflows/pages.yml), then verifies
+that `index.html` exists and `README.html` was not generated.
 
 ## DSW Stack
 

@@ -67,10 +67,14 @@ and downstream translation sync still need the upgrade and handoff flow below.
 
 ## When Upstream Publishes a New Tag
 
-Set the tag once:
+The scheduled tool workflow automatically scans configured upstream ranges such
+as `v1.29.1+`. You do not need to set a tag for the automated path.
+
+When you are manually checking one specific upstream tag, set a local helper
+variable to keep the commands short:
 
 ```shell
-NEW_TAG=vX.Y.Z
+CHECK_TAG=vX.Y.Z
 ```
 
 ### Tooling side
@@ -85,10 +89,11 @@ NEW_TAG=vX.Y.Z
 
 2. Check the latest tool CI run. For a tag whose `metamodelVersion` is already
    covered by [`config/dsw-compat.yml`](../config/dsw-compat.yml), the run should
-   publish a clean scaffold release:
+   publish a clean scaffold release. Use `CHECK_TAG` only for this manual
+   lookup:
 
    ```shell
-   gh release view "clean-scaffold-dsw-science-europe-$NEW_TAG" \
+   gh release view "clean-scaffold-dsw-science-europe-$CHECK_TAG" \
      --repo "$TOOL_GITHUB_REPO"
    ```
 
@@ -107,10 +112,11 @@ gh workflow run document_template_translation_sync.yml \
   --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
-That downstream workflow is responsible for updating its own
-`translation-config.yml`, recording newly available scaffold versions, creating
-or refreshing policy-enabled `translation/v*` branches, and opening migration
-PRs according to the translation repository policy. Review the translation
+That downstream operations workflow is owned by the translation repository. In
+the current downstream design, it downloads the latest successful tool-repo
+clean scaffold artifacts, updates its own `translation-config.yml`, creates or
+refreshes only policy-enabled `translation/v*` branches, and opens migration
+PRs according to translation repository policy. Review the translation
 repository run there; do not treat the clean scaffold release as a finished
 translated template.
 

@@ -37,12 +37,13 @@ does not mean any downstream translation branch exists yet.
 If CI finds that the new upstream tag uses an already configured metamodel:
 
 1. Confirm the tool repo CI is green.
-2. Confirm a clean scaffold release exists:
+2. Confirm a clean scaffold release exists. For a manual single-tag check, set:
 
    ```shell
    TOOL_GITHUB_REPO=owner/document-template-tool
+   CHECK_TAG=vX.Y.Z
 
-   gh release view clean-scaffold-dsw-science-europe-vX.Y.Z \
+   gh release view "clean-scaffold-dsw-science-europe-$CHECK_TAG" \
      --repo "$TOOL_GITHUB_REPO"
    ```
 

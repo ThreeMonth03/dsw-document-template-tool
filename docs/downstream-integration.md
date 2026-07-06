@@ -31,7 +31,7 @@ If upstream publishes a tag with an unsupported metamodel, scheduled/manual tool
 repo CI may open a compatibility probe PR instead of producing clean scaffold
 outputs for that tag. Downstream repositories should wait for a successful
 tool-repo run, and preferably the matching version-specific release, before
-creating or refreshing a matching translation branch.
+recording the new version or refreshing a matching translation branch.
 
 ## Clean Scaffold Outputs
 
@@ -180,9 +180,12 @@ tool-internal metadata such as `.transform/` and `UPSTREAM-README.md`.
 
 ## Manual Downstream Sync
 
-If the downstream translation repository uses the operations workflow from
-this repo, operators can trigger a branch refresh without waiting for the daily
-schedule:
+The tool repo provides helper scripts and a version-branch workflow template,
+but the default-branch operations workflow belongs to the downstream
+translation repository. If that downstream repository has an operations workflow
+that calls `make download-clean-scaffold-artifacts` and
+`make sync-translation-version-branches`, operators can trigger a branch refresh
+without waiting for its daily schedule:
 
 ```shell
 gh workflow run document_template_translation_sync.yml \
@@ -190,14 +193,14 @@ gh workflow run document_template_translation_sync.yml \
   --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
-That run downloads the latest clean scaffold artifacts from the tool repo and
-updates `translation-config.yml` on the operations branch. It creates or
-refreshes only policy-enabled `translation/v*` branches and may create
-exact-only migration PRs. Routine version-branch sync preserves existing
-workflow files; use `--sync-workflows` only for explicit workflow maintenance.
-Version-branch sync treats `translation.md` as canonical. Optional XLIFF
-exchange is available as a helper command, but it is not part of the default
-branch automation.
+In the current downstream design, that run downloads the latest successful
+clean scaffold artifacts from the tool repo and updates `translation-config.yml`
+on the downstream operations branch. It creates or refreshes only
+policy-enabled `translation/v*` branches and may create exact-only migration
+PRs. Routine version-branch sync preserves existing workflow files; use
+`--sync-workflows` only for explicit workflow maintenance. Version-branch sync
+treats `translation.md` as canonical. Optional XLIFF exchange is available as a
+helper command, but it is not part of the default branch automation.
 
 If no migration PR appears, use `make check-translation-migrations` against the
 same clean scaffold artifacts to distinguish "nothing to migrate" from "the
@@ -220,14 +223,16 @@ there.
 ## Workflow Template
 
 [`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml)
-is a template for downstream repositories. Updating it here does not update
-existing downstream version branches. Routine branch refreshes preserve workflow
-files to avoid requiring elevated token scopes. Apply important workflow fixes
-in the downstream repo by running `make sync-translation-version-branches` with
+is a template for downstream version branches. It is not the downstream
+default-branch operations workflow. Updating it here does not update existing
+downstream version branches. Routine branch refreshes preserve workflow files
+to avoid requiring elevated token scopes. Apply important workflow fixes in the
+downstream repo by running `make sync-translation-version-branches` with
 `TRANSLATION_SYNC_WORKFLOWS=true`, or by making an explicit workflow-only
 maintenance commit there.
 
 The template is intended for version-specific `translation/v*` branches. It is
-triggered by pull requests, pushes, and manual dispatch. Daily scheduled
-maintenance belongs in the downstream operations workflow on the default branch;
-do not rely on `schedule` triggers in generated version-branch workflows.
+triggered by pull requests, pushes, and manual dispatch on those branches. Daily
+scheduled maintenance belongs in the downstream operations workflow on the
+default branch; do not rely on `schedule` triggers in generated version-branch
+workflows.
