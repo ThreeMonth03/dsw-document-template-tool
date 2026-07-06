@@ -19,6 +19,7 @@ For workflow context, read the matching runbook first:
 | First local setup | [Operator Quickstart](operator-quickstart.md) |
 | Upstream tag update | [Version Upgrade Runbook](version-upgrade-runbook.md) |
 | CI/release operation | [CI and Release Runbook](ci-and-release-runbook.md) |
+| Config file ownership | [Configuration Reference](configuration-reference.md) |
 | Parser or tree behavior changes | [Parser and Translation Tree](parser-and-translation-tree.md) |
 | Translation repo handoff | [Downstream Integration](downstream-integration.md) |
 
@@ -118,6 +119,7 @@ verify DSW runtime compatibility.
 | `make discover-upstream-compat` | Detect upstream refs that need a configured DSW runtime. |
 | `make sync-dsw-runtime-matrix` | Regenerate the workflow runtime matrix from config. |
 | `make check-dsw-runtime-matrix` | Check that the workflow matrix matches config. |
+| `make create-dsw-compat-pr` | Stage or open the unsupported-metamodel follow-up PR. |
 
 Typical scheduled-discovery invocation:
 
@@ -129,6 +131,14 @@ make discover-upstream-compat \
 
 If discovery finds an unsupported metamodel, the workflow opens a follow-up PR
 with a report and smoke-test checklist. It does not auto-merge runtime changes.
+Local dry-run:
+
+```shell
+make create-dsw-compat-pr \
+  COMPAT_PROBE_REPORT=outputs/upstream-compat/discovery.md
+```
+
+To push the probe PR branch, set `COMPAT_PROBE_DRY_RUN=false`.
 
 ## Clean Scaffold Artifacts
 
@@ -185,15 +195,7 @@ make render-regression-ci UPSTREAM_TEMPLATE_REGRESSION_VERSION=v1.30.1
 Validate a regression plan without a DSW server:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/run_regression_plan.py" \
-  --base-config config/regression.ci.yml \
-  --dry-run \
-  --generated-config-dir config \
-  --metamodel-version 18.0 \
-  --plan outputs/compat-ledger/dsw-science-europe/regression-plan.json \
-  --smoke-generated-fixture-count 20 \
-  --source-template-id dsw-science-europe \
-  --workspace-root outputs/upstream-workspaces/dsw-science-europe
+make render-regression-ci-plan-dry-run
 ```
 
 ## Render Preview
@@ -217,43 +219,46 @@ They do not publish to DSW and do not update public deployment repositories.
 Download clean scaffold artifacts from a tool workflow run:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
-  --repo "$TOOL_GITHUB_REPO" \
-  --workflow headless_render_regression.yml \
-  --output-dir /tmp/clean-scaffolds
+make download-clean-scaffold-artifacts \
+  TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
+  CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
 ```
 
 Download from an exact run:
 
 ```shell
 TOOLING_RUN_ID=28346995193
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/download_clean_scaffold_artifacts.py" \
-  --repo "$TOOL_GITHUB_REPO" \
-  --run-id "$TOOLING_RUN_ID" \
-  --output-dir /tmp/clean-scaffolds
+make download-clean-scaffold-artifacts \
+  TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
+  CLEAN_SCAFFOLD_ARTIFACT_RUN_ID="$TOOLING_RUN_ID" \
+  CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
+```
+
+Validate a downstream translation config:
+
+```shell
+make validate-translation-config \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR"
 ```
 
 Dry-run downstream branch refresh:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/sync_translation_version_branches.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --clean-artifact-root /tmp/clean-scaffolds \
-  --dry-run \
-  --refresh-existing
+make sync-translation-version-branches \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
 Check whether exact-only migration would still create branch updates:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/check_translation_migration_status.py" \
-  --repo "$TRANSLATION_REPO_DIR" \
-  --tooling-root "$TOOL_REPO_DIR" \
-  --clean-artifact-root /tmp/clean-scaffolds
+make check-translation-migrations \
+  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
 Add `--fail-on-pending` only when CI should fail on pending migration changes.
+Use the script directly for that stricter CI-only flag.
 
 Manually copy reviewed translated source to a target branch:
 
@@ -271,21 +276,16 @@ downstream `publish.branch_prefix`, currently `sync/v*`.
 Stage release assets locally:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/stage_release_assets.py" \
-  --output-dir outputs/release-assets/demo \
-  --notes-title "Demo release" \
-  --asset path/to/template.zip=template.zip \
-  --optional-asset path/to/test-project.pdf=test-project.pdf
+make publish-clean-scaffold-releases
 ```
 
-Preview clean scaffold release staging without uploading:
+The target defaults to `CLEAN_SCAFFOLD_RELEASE_DRY_RUN=true`, so it stages the
+release tree without uploading. To publish from a trusted CI/manual context:
 
 ```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/publish_clean_scaffold_releases.py" \
-  --repository "$TOOL_GITHUB_REPO" \
-  --run-id local \
-  --commit-sha "$(git rev-parse HEAD)" \
-  --dry-run
+make publish-clean-scaffold-releases \
+  TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
+  CLEAN_SCAFFOLD_RELEASE_DRY_RUN=false
 ```
 
 ## Direct CLI Use
@@ -329,15 +329,6 @@ Run translation tree export/sync directly:
   --template-id science-europe-zh-hant \
   --template-name "Science Europe DMP Template (zh-Hant)" \
   --template-version 1.30.1
-```
-
-Run a compatibility PR probe dry-run directly:
-
-```shell
-"$TOOL_REPO_DIR/.venv/bin/python" "$TOOL_REPO_DIR/scripts/ci/create_dsw_compat_pr.py" \
-  --report outputs/upstream-compat/discovery.md \
-  --repository "$TOOL_GITHUB_REPO" \
-  --dry-run
 ```
 
 If a direct command becomes common in daily work, wrap it in `make` instead of

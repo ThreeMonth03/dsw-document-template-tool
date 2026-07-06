@@ -10,9 +10,11 @@ level `README.md` is only an entry point; operational detail should live here.
 | Take over day-to-day operation | [Operator Quickstart](operator-quickstart.md) |
 | Understand the repo layout and module responsibilities | [Architecture](architecture.md) |
 | Change code safely | [Development Guidelines](development-guidelines.md) |
+| Understand config files and generated config boundaries | [Configuration Reference](configuration-reference.md) |
 | Find a Make target or helper script | [Command Reference](command-reference.md) |
 | Modify parsing, markers, translation tree export, merge, or sync behavior | [Parser and Translation Tree](parser-and-translation-tree.md) |
 | Handle a new upstream Science Europe tag or metamodel | [Version Upgrade Runbook](version-upgrade-runbook.md) |
+| Review an unsupported metamodel probe | [DSW Compatibility Probe](compatibility/dsw-compatibility-probe.md) |
 | Debug CI, clean scaffold release assets, or DSW previews | [CI and Release Runbook](ci-and-release-runbook.md) and [Troubleshooting](troubleshooting.md) |
 | Connect a translation repository to clean scaffold artifacts | [Downstream Integration](downstream-integration.md) |
 | Validate tool-generated scaffold artifacts | [QA Checklist](qa-checklist.md) |

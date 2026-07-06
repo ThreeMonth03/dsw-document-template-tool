@@ -4,8 +4,19 @@ SHELL := bash
 # CI/maintenance knobs stay easy to scan.
 BOOTSTRAP_PYTHON ?= python3
 CI_CONFIG ?= config/regression.ci.yml
+CLEAN_SCAFFOLD_ARTIFACT_BRANCH ?= master
+CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR ?= outputs/downloaded-clean-scaffolds
+CLEAN_SCAFFOLD_ARTIFACT_RUN_ID ?=
+CLEAN_SCAFFOLD_ARTIFACT_WORKFLOW ?= headless_render_regression.yml
+CLEAN_SCAFFOLD_RELEASE_COMMIT_SHA ?= $(shell git rev-parse HEAD)
+CLEAN_SCAFFOLD_RELEASE_DRY_RUN ?= true
+CLEAN_SCAFFOLD_RELEASE_ROOT ?= outputs/release-assets/clean-scaffold
 COMPACT_TEMPLATE_DIR ?= workspace/document-templates/compact/$(WORKSPACE_TEMPLATE_NAME)
 COMPAT_LEDGER_DIR ?= outputs/compat-ledger/$(SOURCE_TEMPLATE_ID)
+COMPAT_PROBE_BASE_BRANCH ?= master
+COMPAT_PROBE_DRY_RUN ?= true
+COMPAT_PROBE_REPORT ?= outputs/upstream-compat/discovery.md
+COMPAT_PROBE_REPORT_PATH ?= docs/compatibility/dsw-compatibility-probe.md
 CONFIG ?= config/regression.preview.yml
 DOCS_BUILD_DIR ?= docs/_build/html
 DOCS_SOURCE_DIR ?= docs
@@ -37,6 +48,7 @@ SOURCE_TEMPLATE_VERSION ?= 1.30.0
 SOURCE_TEMPLATE_VERSION_TAG ?= v$(SOURCE_TEMPLATE_VERSION)
 SPHINXOPTS ?= -W --keep-going
 TEMPLATE_DIR ?=
+TOOL_GITHUB_REPO ?= $(if $(GITHUB_REPOSITORY),$(GITHUB_REPOSITORY),owner/document-template-tool)
 TRANSLATED_EXPANDED_TEMPLATE_DIR ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
 TRANSLATED_OUTPUT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
 TRANSLATED_TEMPLATE_ID ?= science-europe-zh-hant
@@ -45,10 +57,16 @@ TRANSLATED_TEMPLATE_ORGANIZATION_ID ?= dsw
 TRANSLATED_TEMPLATE_PACKAGE ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME).zip
 TRANSLATED_TEMPLATE_VERSION ?= $(SOURCE_TEMPLATE_VERSION)
 TRANSLATED_WORKSPACE_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(TRANSLATED_TEMPLATE_ID)-$(TRANSLATED_TEMPLATE_VERSION)
-TRANSLATION_CLEAN_ARTIFACT_ROOT ?=
+TRANSLATION_CLEAN_ARTIFACT_ROOT ?= $(CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR)
+TRANSLATION_CONFIG_PATH ?= $(TRANSLATION_REPO)/translation-config.yml
 TRANSLATION_LOCALE ?= zh-Hant
 TRANSLATION_REPO ?= ../DSW-document-template-translation
 TRANSLATION_SOURCE_LOCALE ?= en
+TRANSLATION_SYNC_DRY_RUN ?= true
+TRANSLATION_SYNC_POLICY_MODE ?= auto
+TRANSLATION_SYNC_PUSH ?= false
+TRANSLATION_SYNC_REFRESH_EXISTING ?= true
+TRANSLATION_SYNC_WORKFLOWS ?= false
 TRANSLATION_TARGET_LANG ?= zh_Hant
 TRANSLATION_TREE_DIR ?= workspace/document-templates/translation/$(WORKSPACE_TEMPLATE_NAME)
 UPSTREAM_TEMPLATE_ARTIFACT_CACHE_ROOT ?= .cache/upstream-artifacts
@@ -76,7 +94,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile discover-upstream-compat docs docs-clean export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree test test-infra test-unit test-upstream-tags transform venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -91,6 +109,7 @@ help:
 	'  install-hooks     Install local git pre-commit hooks' \
 	'  check             Run the standard local maintainer checks' \
 	'  compile           Run Python syntax compilation checks' \
+	'  create-dsw-compat-pr Create/update a DSW compatibility probe PR from $(COMPAT_PROBE_REPORT)' \
 	'  format            Auto-fix imports/style and format Python files' \
 	'  format-check      Check formatting without modifying files' \
 	'  lint              Run Ruff lint checks' \
@@ -119,11 +138,13 @@ help:
 	'  fetch-upstream-template Fetch upstream template into $(UPSTREAM_TEMPLATE_CACHE)' \
 	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
 	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
+	'  download-clean-scaffold-artifacts Download clean scaffold artifacts from a tool workflow run' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
 	'  check-translation-migrations Dry-run exact-only migration across active translation branches' \
 	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
+	'  publish-clean-scaffold-releases Stage or publish clean scaffold GitHub release assets' \
 	'  publish-translated-template Manually publish a translated version branch to its target repository' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
@@ -131,7 +152,10 @@ help:
 	'  render-project    Render PROJECT_UUID or $(PROJECT_REF) with $(PROJECT_RENDER_TEMPLATE_DIR)' \
 	'  render-regression Run the DSW headless regression workflow using CONFIG=$(CONFIG)' \
 	'  render-regression-ci Generate latest-version CI config and run local DSW regression' \
-	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions'
+	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions' \
+	'  render-regression-ci-plan-dry-run Validate the compatibility regression plan without DSW' \
+	'  sync-translation-version-branches Create/refresh downstream translation/v* branches' \
+	'  validate-translation-config Validate downstream translation-config.yml'
 
 install-dev: venv
 	$(PIP) install -r config/requirements.txt
@@ -175,6 +199,20 @@ check-translation-migrations: venv
 		$(PYTHON) scripts/ci/check_translation_migration_status.py \
 		--repo "$(TRANSLATION_REPO)" \
 		--tooling-root "."
+
+create-dsw-compat-pr: venv
+	@set -euo pipefail; \
+	args=( \
+		--report "$(COMPAT_PROBE_REPORT)" \
+		--compat "$(DSW_COMPAT_CONFIG)" \
+		--report-path "$(COMPAT_PROBE_REPORT_PATH)" \
+		--repository "$(TOOL_GITHUB_REPO)" \
+		--base "$(COMPAT_PROBE_BASE_BRANCH)" \
+	); \
+	if [ "$(COMPAT_PROBE_DRY_RUN)" = "true" ]; then \
+		args+=(--dry-run); \
+	fi; \
+	$(PYTHON) scripts/ci/create_dsw_compat_pr.py "$${args[@]}"
 
 verify-template: venv
 	@test -n "$(TEMPLATE_DIR)" || (echo "Set TEMPLATE_DIR=/path/to/template" && exit 2)
@@ -275,6 +313,22 @@ discover-upstream-compat: venv
 		--cache ".cache/upstream-compat-discovery" \
 		$(UPSTREAM_TEMPLATE_DISCOVERY_REFS)
 
+download-clean-scaffold-artifacts: venv
+	@set -euo pipefail; \
+	args=( \
+		--repo "$(TOOL_GITHUB_REPO)" \
+		--output-dir "$(CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR)" \
+	); \
+	if [ -n "$(CLEAN_SCAFFOLD_ARTIFACT_RUN_ID)" ]; then \
+		args+=(--run-id "$(CLEAN_SCAFFOLD_ARTIFACT_RUN_ID)"); \
+	else \
+		args+=( \
+			--workflow "$(CLEAN_SCAFFOLD_ARTIFACT_WORKFLOW)" \
+			--branch "$(CLEAN_SCAFFOLD_ARTIFACT_BRANCH)" \
+		); \
+	fi; \
+	$(PYTHON) scripts/ci/download_clean_scaffold_artifacts.py "$${args[@]}"
+
 docs: venv
 	$(PYTHON) -m sphinx -b html $(SPHINXOPTS) "$(DOCS_SOURCE_DIR)" "$(DOCS_BUILD_DIR)"
 
@@ -329,6 +383,20 @@ render-upstream-artifact-previews: venv
 		--preview-strict "$(UPSTREAM_TEMPLATE_PREVIEW_STRICT)" \
 		--python "$(PYTHON)"
 
+publish-clean-scaffold-releases: venv
+	@set -euo pipefail; \
+	args=( \
+		--repository "$(TOOL_GITHUB_REPO)" \
+		--commit-sha "$(CLEAN_SCAFFOLD_RELEASE_COMMIT_SHA)" \
+		--release-root "$(CLEAN_SCAFFOLD_RELEASE_ROOT)" \
+		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
+		--translation-locale "$(TRANSLATION_LOCALE)" \
+	); \
+	if [ "$(CLEAN_SCAFFOLD_RELEASE_DRY_RUN)" = "true" ]; then \
+		args+=(--dry-run); \
+	fi; \
+	$(PYTHON) scripts/ci/publish_clean_scaffold_releases.py "$${args[@]}"
+
 publish-translated-template: venv
 	$(PYTHON) scripts/ci/publish_translated_template.py \
 		--translation-repo "$(TRANSLATION_REPO)" \
@@ -375,6 +443,47 @@ render-regression-ci-plan: venv
 		--smoke-generated-fixture-count "$(REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT)" \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
 		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"
+
+render-regression-ci-plan-dry-run: venv
+	$(PYTHON) scripts/ci/run_regression_plan.py \
+		--base-config "$(CI_CONFIG)" \
+		--dry-run \
+		--fallback-version "$(UPSTREAM_TEMPLATE_REGRESSION_VERSION)" \
+		--generated-config-dir "$(GENERATED_CI_CONFIG_DIR)" \
+		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
+		--plan "$(REGRESSION_PLAN_PATH)" \
+		--python "$(PYTHON)" \
+		--render-script "src/render_regression.py" \
+		--smoke-generated-fixture-count "$(REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT)" \
+		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
+		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"
+
+sync-translation-version-branches: venv
+	@set -euo pipefail; \
+	args=( \
+		--repo "$(TRANSLATION_REPO)" \
+		--tooling-root "." \
+		--clean-artifact-root "$(TRANSLATION_CLEAN_ARTIFACT_ROOT)" \
+		--tdk-executable "$(DSW_TDK)" \
+		--policy-mode "$(TRANSLATION_SYNC_POLICY_MODE)" \
+	); \
+	if [ "$(TRANSLATION_SYNC_DRY_RUN)" = "true" ]; then \
+		args+=(--dry-run); \
+	fi; \
+	if [ "$(TRANSLATION_SYNC_PUSH)" = "true" ]; then \
+		args+=(--push); \
+	fi; \
+	if [ "$(TRANSLATION_SYNC_REFRESH_EXISTING)" = "true" ]; then \
+		args+=(--refresh-existing); \
+	fi; \
+	if [ "$(TRANSLATION_SYNC_WORKFLOWS)" = "true" ]; then \
+		args+=(--sync-workflows); \
+	fi; \
+	$(PYTHON) scripts/ci/sync_translation_version_branches.py "$${args[@]}"
+
+validate-translation-config: venv
+	$(PYTHON) scripts/ci/validate_translation_config.py \
+		--config "$(TRANSLATION_CONFIG_PATH)"
 
 clean:
 	rm -rf outputs dist build docs/_build .pytest_cache .ruff_cache

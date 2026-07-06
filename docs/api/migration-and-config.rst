@@ -33,3 +33,10 @@ DSW Compatibility
 .. automodule:: dsw_document_template_tool.dsw_compat
    :members:
    :show-inheritance:
+
+Compatibility Ledger
+--------------------
+
+.. automodule:: dsw_document_template_tool.compat_ledger
+   :members:
+   :show-inheritance:

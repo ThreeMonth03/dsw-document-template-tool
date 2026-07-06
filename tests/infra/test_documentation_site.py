@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 
@@ -26,12 +27,49 @@ def test_command_reference_keeps_make_as_primary_interface(repo_root: Path) -> N
     command_reference = (repo_root / "docs" / "command-reference.md").read_text(
         encoding="utf-8",
     )
+    makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
+    make_targets = set(re.findall(r"^([a-z][a-z0-9-]+):", makefile, flags=re.MULTILINE))
 
     assert "## Direct CLI Use" in command_reference
     assert "Prefer `make` for routine work" in command_reference
     assert "src/dsw_document_template_tool/cli/" in command_reference
     assert "make build-upstream-artifacts" in command_reference
     assert "make render-regression-ci-plan" in command_reference
+    assert "make render-regression-ci-plan-dry-run" in command_reference
+    assert "make download-clean-scaffold-artifacts" in command_reference
+    assert "make sync-translation-version-branches" in command_reference
+    assert "make validate-translation-config" in command_reference
+    assert "download-clean-scaffold-artifacts" in make_targets
+    assert "render-regression-ci-plan-dry-run" in make_targets
+    assert "sync-translation-version-branches" in make_targets
+    assert "validate-translation-config" in make_targets
     assert "If a direct command becomes common in daily work, wrap it in `make`" in (
         command_reference
     )
+
+
+def test_configuration_reference_covers_maintained_config_files(repo_root: Path) -> None:
+    """The config guide should explain source configs and generated boundaries."""
+
+    config_reference = (repo_root / "docs" / "configuration-reference.md").read_text(
+        encoding="utf-8",
+    )
+
+    expected_references = (
+        "config/dsw-compat.yml",
+        "config/regression.ci.yml",
+        "config/regression.preview.yml",
+        "config/regression.document.yml",
+        "config/requirements.txt",
+        "config/ruff.toml",
+        ".github/workflows/headless_render_regression.yml",
+        ".github/workflows/pages.yml",
+        ".github/dsw/docker-compose.yml",
+        "examples/github-actions/document_template_translation_sync.yml",
+        "translation-config.yml",
+    )
+    for reference in expected_references:
+        assert reference in config_reference
+
+    assert "Generated configs are ignored by git" in config_reference
+    assert "make validate-translation-config" in config_reference

@@ -17,10 +17,12 @@ operator-quickstart
 README
 architecture
 development-guidelines
+configuration-reference
 command-reference
 parser-and-translation-tree
 version-upgrade-runbook
 ci-and-release-runbook
+compatibility/dsw-compatibility-probe
 downstream-integration
 regression-workflow
 translation-workflow
