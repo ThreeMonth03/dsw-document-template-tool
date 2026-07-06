@@ -59,7 +59,7 @@ translation:
   translated_template_name: Science Europe DMP Template (zh-Hant)
 
 branches:
-  version_branch_prefix: translation/
+  version_branch_prefix: sync/
 
 tooling:
   repository: ThreeMonth03/dsw-document-template-tool
@@ -90,7 +90,7 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
 
     assert config.template.supported_ref_spec == "v1.29.1+"
     assert config.template.supported_versions == ("v1.30.0", "v1.30.1")
-    assert version_branch(config, "v1.30.1") == "translation/v1.30.1"
+    assert version_branch(config, "v1.30.1") == "sync/v1.30.1"
     assert migration_branch(config, "v1.30.0", "v1.30.1") == (
         "automation/migrate-v1.30.0-to-v1.30.1"
     )

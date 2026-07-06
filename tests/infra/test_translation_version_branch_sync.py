@@ -58,9 +58,9 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "initialize v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
 
     _write_clean_artifact(artifact_root, version="v1.30.2")
@@ -102,7 +102,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert result.previous_latest_version == "v1.30.1"
     assert result.current_latest_version == "v1.30.2"
     assert result.added_versions == ("v1.30.2",)
-    assert result.created_branches == ("translation/v1.30.2",)
+    assert result.created_branches == ("sync/v1.30.2",)
     assert result.config_changed is True
 
     config = yaml.safe_load(
@@ -110,19 +110,19 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     )
     assert config["template"]["supported_versions"] == ["v1.30.1", "v1.30.2"]
 
-    assert not _git_path_exists(translation_repo, "translation/v1.30.2:translation-config.yml")
-    assert not _git_path_exists(translation_repo, "translation/v1.30.2:docs/ops.md")
-    assert "translation/v1.30.2" in _git_show(
+    assert not _git_path_exists(translation_repo, "sync/v1.30.2:translation-config.yml")
+    assert not _git_path_exists(translation_repo, "sync/v1.30.2:docs/ops.md")
+    assert "sync/v1.30.2" in _git_show(
         translation_repo,
-        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+        "sync/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
     assert 'TRANSLATED_TEMPLATE_VERSION: "1.30.2"' in _git_show(
         translation_repo,
-        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+        "sync/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
     workflow_text = _git_show(
         translation_repo,
-        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+        "sync/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
     assert "-m dsw_document_template_tool.cli.translation_tree import-xliff" not in workflow_text
     assert (
@@ -134,14 +134,14 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         in workflow_text
     )
     assert "--public-readme" in workflow_text
-    version_readme = _git_show(translation_repo, "translation/v1.30.2:README.md")
+    version_readme = _git_show(translation_repo, "sync/v1.30.2:README.md")
     assert "The repository `master` branch is not" not in version_readme
     assert "Keep translation edits on this version" in version_readme
     assert "do not use the control branch for translator-facing work." in version_readme
     assert (
         _git_show(
             translation_repo,
-            "translation/v1.30.2:workspace/document-templates/public-readme/README.md",
+            "sync/v1.30.2:workspace/document-templates/public-readme/README.md",
         )
         == "public README from control branch\n"
     )
@@ -149,7 +149,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         _git_show(
             translation_repo,
             (
-                "translation/v1.30.2:"
+                "sync/v1.30.2:"
                 "workspace/document-templates/compact/dsw-science-europe-1.30.2/"
                 "artifact.txt"
             ),
@@ -159,28 +159,28 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     assert not _git_path_exists(
         translation_repo,
         (
-            "translation/v1.30.2:"
+            "sync/v1.30.2:"
             "outputs/document-templates/dsw-science-europe/v1.30.2/zh-Hant/"
             "dsw-science-europe-zh-hant-1.30.2.zip"
         ),
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.2:workspace/projects/test-project.json",
+        "sync/v1.30.2:workspace/projects/test-project.json",
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.2:fixtures/projects/demo/test-project.json",
+        "sync/v1.30.2:fixtures/projects/demo/test-project.json",
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.2:fixtures/knowledge-models/root-zh-hant-2.7.0.km",
+        "sync/v1.30.2:fixtures/knowledge-models/root-zh-hant-2.7.0.km",
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.2:workspace/knowledge-models/root-zh-hant-2.7.0.km",
+        "sync/v1.30.2:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
-    assert not _git_path_exists(translation_repo, "translation/v1.30.2:outputs")
+    assert not _git_path_exists(translation_repo, "sync/v1.30.2:outputs")
 
 
 def test_sync_translation_versions_records_new_artifact_without_policy_opt_in(
@@ -230,7 +230,7 @@ def test_sync_translation_versions_records_new_artifact_without_policy_opt_in(
         (translation_repo / "translation-config.yml").read_text(encoding="utf-8")
     )
     assert config["template"]["supported_versions"] == ["v1.30.1", "v1.30.2"]
-    assert not _git_branch_exists(translation_repo, "translation/v1.30.2")
+    assert not _git_branch_exists(translation_repo, "sync/v1.30.2")
 
 
 def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact(
@@ -261,7 +261,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
 
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     old_compact = (
         translation_repo
         / "workspace/document-templates/compact/dsw-science-europe-1.30.1/artifact.txt"
@@ -295,7 +295,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     existing_workflow.write_text("existing version workflow\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
 
     _write_clean_artifact(artifact_root, version="v1.30.1")
@@ -359,13 +359,13 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert result.current_latest_version == "v1.30.1"
     assert result.added_versions == ()
     assert result.created_branches == ()
-    assert result.refreshed_branches == ("translation/v1.30.1",)
+    assert result.refreshed_branches == ("sync/v1.30.1",)
     assert result.config_changed is False
     assert (
         _git_show(
             translation_repo,
             (
-                "translation/v1.30.1:"
+                "sync/v1.30.1:"
                 "workspace/document-templates/compact/dsw-science-europe-1.30.1/"
                 "artifact.txt"
             ),
@@ -376,19 +376,19 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         _git_show(
             translation_repo,
             (
-                "translation/v1.30.1:"
+                "sync/v1.30.1:"
                 "workspace/document-templates/translation/dsw-science-europe-1.30.1/"
                 "translator.txt"
             ),
         )
         == "manual translation\n"
     )
-    assert not _git_path_exists(translation_repo, "translation/v1.30.1:translation-config.yml")
-    assert not _git_path_exists(translation_repo, "translation/v1.30.1:docs/ops.md")
+    assert not _git_path_exists(translation_repo, "sync/v1.30.1:translation-config.yml")
+    assert not _git_path_exists(translation_repo, "sync/v1.30.1:docs/ops.md")
     assert not _git_path_exists(
         translation_repo,
         (
-            "translation/v1.30.1:"
+            "sync/v1.30.1:"
             "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/"
             "dsw-science-europe-zh-hant-1.30.1.zip"
         ),
@@ -396,34 +396,34 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     assert (
         _git_show(
             translation_repo,
-            "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+            "sync/v1.30.1:.github/workflows/document_template_translation_sync.yml",
         )
         == "existing version workflow\n"
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.1:workspace/projects/test-project.json",
+        "sync/v1.30.1:workspace/projects/test-project.json",
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.1:fixtures/projects/demo/test-project.json",
+        "sync/v1.30.1:fixtures/projects/demo/test-project.json",
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.1:fixtures/knowledge-models/root-zh-hant-2.7.0.km",
+        "sync/v1.30.1:fixtures/knowledge-models/root-zh-hant-2.7.0.km",
     )
     assert not _git_path_exists(
         translation_repo,
-        "translation/v1.30.1:workspace/knowledge-models/root-zh-hant-2.7.0.km",
+        "sync/v1.30.1:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
     assert (
         _git_show(
             translation_repo,
-            "translation/v1.30.1:workspace/document-templates/public-readme/README.md",
+            "sync/v1.30.1:workspace/document-templates/public-readme/README.md",
         )
         == "fresh public README\n"
     )
-    assert not _git_path_exists(translation_repo, "translation/v1.30.1:outputs")
+    assert not _git_path_exists(translation_repo, "sync/v1.30.1:outputs")
 
 
 def test_sync_translation_versions_updates_controls_without_refreshing_archived_branch(
@@ -462,7 +462,7 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
 
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     old_compact = (
         translation_repo
         / "workspace/document-templates/compact/dsw-science-europe-1.30.1/artifact.txt"
@@ -481,7 +481,7 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
     archived_public_readme.write_text("archived public README\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize archived v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
 
     _write_clean_artifact(artifact_root, version="v1.30.1")
@@ -499,14 +499,14 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
     )
 
     assert result.refreshed_branches == ()
-    assert result.updated_control_branches == ("translation/v1.30.1",)
+    assert result.updated_control_branches == ("sync/v1.30.1",)
     assert (
         _git_output(
             translation_repo,
             "log",
             "-1",
             "--format=%s",
-            "translation/v1.30.1",
+            "sync/v1.30.1",
         )
         == "chore: refresh v1.30.1 branch policy controls"
     )
@@ -514,7 +514,7 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
         _git_show(
             translation_repo,
             (
-                "translation/v1.30.1:"
+                "sync/v1.30.1:"
                 "workspace/document-templates/compact/dsw-science-europe-1.30.1/"
                 "artifact.txt"
             ),
@@ -525,7 +525,7 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
         _git_show(
             translation_repo,
             (
-                "translation/v1.30.1:"
+                "sync/v1.30.1:"
                 "workspace/document-templates/translation/dsw-science-europe-1.30.1/"
                 "translator.txt"
             ),
@@ -535,13 +535,13 @@ def test_sync_translation_versions_updates_controls_without_refreshing_archived_
     assert (
         _git_show(
             translation_repo,
-            "translation/v1.30.1:workspace/document-templates/public-readme/README.md",
+            "sync/v1.30.1:workspace/document-templates/public-readme/README.md",
         )
         == "archived public README\n"
     )
     assert 'PUBLISH_RELEASE_ASSETS: "false"' in _git_show(
         translation_repo,
-        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+        "sync/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
 
 
@@ -566,11 +566,11 @@ def test_refresh_existing_branch_requires_push_when_branch_is_open_elsewhere(
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "initialize v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
-    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "translation/v1.30.1")
+    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "sync/v1.30.1")
     _write_clean_artifact(artifact_root, version="v1.30.1")
 
     try:
@@ -609,15 +609,15 @@ def test_refresh_existing_branch_rejects_unpushed_local_branch(
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "initialize v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "local unpushed refresh")
-    local_branch_sha = _git_output(translation_repo, "rev-parse", "translation/v1.30.1")
+    local_branch_sha = _git_output(translation_repo, "rev-parse", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
     _write_clean_artifact(artifact_root, version="v1.30.1")
 
-    with pytest.raises(SystemExit, match="differs from origin/translation/v1.30.1"):
+    with pytest.raises(SystemExit, match="differs from origin/sync/v1.30.1"):
         sync_module.sync_translation_versions(
             repo=translation_repo,
             tooling_root=repo_root,
@@ -629,7 +629,7 @@ def test_refresh_existing_branch_rejects_unpushed_local_branch(
             refresh_existing=True,
         )
 
-    assert _git_output(translation_repo, "rev-parse", "translation/v1.30.1") == local_branch_sha
+    assert _git_output(translation_repo, "rev-parse", "sync/v1.30.1") == local_branch_sha
 
 
 def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
@@ -654,11 +654,11 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "initialize v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
-    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "translation/v1.30.1")
+    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "sync/v1.30.1")
     _write_clean_artifact(artifact_root, version="v1.30.1")
 
     def fake_sync_blank_translation_output(
@@ -699,12 +699,12 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
     finally:
         _run_git(translation_repo, "worktree", "remove", "--force", str(branch_worktree))
 
-    assert result.refreshed_branches == ("translation/v1.30.1",)
+    assert result.refreshed_branches == ("sync/v1.30.1",)
     assert (
         _git_show_bare(
             origin,
             (
-                "translation/v1.30.1:"
+                "sync/v1.30.1:"
                 "workspace/document-templates/compact/dsw-science-europe-1.30.1/"
                 "artifact.txt"
             ),
@@ -713,9 +713,9 @@ def test_refresh_existing_branch_can_push_when_branch_is_open_elsewhere(
     )
     assert _git_path_exists_bare(
         origin,
-        "translation/v1.30.1:.github/workflows/document_template_translation_sync.yml",
+        "sync/v1.30.1:.github/workflows/document_template_translation_sync.yml",
     )
-    assert not _git_path_exists_bare(origin, "translation/v1.30.1:outputs")
+    assert not _git_path_exists_bare(origin, "sync/v1.30.1:outputs")
 
 
 def test_create_new_branch_requires_push_when_branch_is_open_elsewhere(
@@ -739,14 +739,14 @@ def test_create_new_branch_requires_push_when_branch_is_open_elsewhere(
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "existing v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.2")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.2")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "local stale v1.30.2")
     _run_git(translation_repo, "checkout", "master")
-    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "translation/v1.30.2")
+    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "sync/v1.30.2")
     _write_clean_artifact(artifact_root, version="v1.30.2")
 
     try:
@@ -784,13 +784,13 @@ def test_create_new_branch_requires_push_when_local_branch_already_exists(
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "existing v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.2")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.2")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "local stale v1.30.2")
-    stale_branch_sha = _git_output(translation_repo, "rev-parse", "translation/v1.30.2")
+    stale_branch_sha = _git_output(translation_repo, "rev-parse", "sync/v1.30.2")
     _run_git(translation_repo, "checkout", "master")
     _write_clean_artifact(artifact_root, version="v1.30.2")
 
@@ -805,7 +805,7 @@ def test_create_new_branch_requires_push_when_local_branch_already_exists(
             dry_run=False,
         )
 
-    assert _git_output(translation_repo, "rev-parse", "translation/v1.30.2") == stale_branch_sha
+    assert _git_output(translation_repo, "rev-parse", "sync/v1.30.2") == stale_branch_sha
 
 
 def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
@@ -830,14 +830,14 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "existing v1.30.1")
-    _run_git(translation_repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(translation_repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(translation_repo, "checkout", "master")
-    _run_git(translation_repo, "checkout", "-b", "translation/v1.30.2")
+    _run_git(translation_repo, "checkout", "-b", "sync/v1.30.2")
     _run_git(translation_repo, "commit", "--allow-empty", "-m", "local stale v1.30.2")
     _run_git(translation_repo, "checkout", "master")
-    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "translation/v1.30.2")
+    _run_git(translation_repo, "worktree", "add", str(branch_worktree), "sync/v1.30.2")
     _write_clean_artifact(artifact_root, version="v1.30.2")
 
     def fake_sync_blank_translation_output(
@@ -877,12 +877,12 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
     finally:
         _run_git(translation_repo, "worktree", "remove", "--force", str(branch_worktree))
 
-    assert result.created_branches == ("translation/v1.30.2",)
+    assert result.created_branches == ("sync/v1.30.2",)
     assert (
         _git_show_bare(
             origin,
             (
-                "translation/v1.30.2:"
+                "sync/v1.30.2:"
                 "workspace/document-templates/compact/dsw-science-europe-1.30.2/"
                 "artifact.txt"
             ),
@@ -891,9 +891,9 @@ def test_create_new_branch_can_push_when_local_branch_is_open_elsewhere(
     )
     assert _git_path_exists_bare(
         origin,
-        "translation/v1.30.2:.github/workflows/document_template_translation_sync.yml",
+        "sync/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
-    assert not _git_path_exists_bare(origin, "translation/v1.30.2:outputs")
+    assert not _git_path_exists_bare(origin, "sync/v1.30.2:outputs")
 
 
 def test_sync_translation_versions_uses_semantic_previous_latest(
@@ -989,7 +989,7 @@ translation:
 
 branches:
   control_branch: ops
-  version_branch_prefix: translation/
+  version_branch_prefix: sync/
 
 tooling:
   repository: {tooling_repository}

@@ -63,9 +63,9 @@ A downstream translation repository owns:
 
 - a configured operations branch containing `translation-config.yml`, docs,
   fixtures, and repository workflows
-- version branches such as `translation/v1.30.1`
+- version branches such as `sync/v1.30.1`
 - public handoff branches using the configured handoff prefix, such as
-  `sync/v1.30.1`, when the same repository also stores clean translated
+  `publish/v1.30.1`, when the same repository also stores clean translated
   template source
 - translator-facing `translation.md` edits
 - the user-facing public README copied into generated DSW template packages
@@ -87,13 +87,13 @@ branch-separated:
 | Branch or asset | Purpose |
 | --- | --- |
 | operations branch, usually `master` | Repository-level config, workflows, and docs. |
-| `translation/v*` | Translator-facing workspaces and review PRs. |
-| `sync/v*` or the configured handoff branch prefix | Clean translated template source for handoff. |
+| `sync/v*` | Translator-facing workspaces and review PRs. |
+| `publish/v*` or the configured handoff branch prefix | Clean translated template source for handoff. |
 | release assets | Package zip, preview PDF, checksums, and notes. |
 
 This layout is an organizational boundary, not a privacy boundary. If the
 downstream repository is public, draft translation branches, PRs, logs, and
-artifacts may be public too. Keep `translation/v*` branches in a private repo or
+artifacts may be public too. Keep `sync/v*` branches in a private repo or
 private fork if draft wording must stay private.
 
 Use [Translation Repository Templates](translation-repository-templates.md) for
@@ -168,7 +168,7 @@ version ledger. It may contain versions that have clean scaffold artifacts but
 are not actively translated. Branch creation and content refresh are controlled
 by `version_policy`: only versions whose effective `refresh` value is `auto`
 for scheduled runs, or `auto`/`manual` for operator-triggered runs, get
-`translation/v*` workspaces. If `version_policy` is omitted, the tool treats
+`sync/v*` workspaces. If `version_policy` is omitted, the tool treats
 newly discovered versions as scaffold-only records and does not create
 translation branches.
 
@@ -220,7 +220,7 @@ gh workflow run document_template_translation_sync.yml \
 In the current downstream design, that run downloads the latest successful
 clean scaffold artifacts from the tool repo and updates `translation-config.yml`
 on the downstream operations branch. It creates or refreshes only
-policy-enabled `translation/v*` branches and may create exact-only migration
+policy-enabled `sync/v*` branches and may create exact-only migration
 PRs. Routine version-branch sync preserves existing workflow files; use
 `--sync-workflows` only for explicit workflow maintenance. Version-branch sync
 treats `translation.md` as canonical. Optional XLIFF exchange is available as a
@@ -255,7 +255,7 @@ downstream repo by running `make sync-translation-version-branches` with
 `TRANSLATION_SYNC_WORKFLOWS=true`, or by making an explicit workflow-only
 maintenance commit there.
 
-The template is intended for version-specific `translation/v*` branches. It is
+The template is intended for version-specific `sync/v*` branches. It is
 triggered by pull requests, pushes, and manual dispatch on those branches. Daily
 scheduled maintenance belongs in the downstream operations workflow on the
 default branch; do not rely on `schedule` triggers in generated version-branch

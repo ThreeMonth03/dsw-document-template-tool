@@ -8,8 +8,8 @@ repository, but the responsibilities must stay separated by branch.
 | Branch or asset | Purpose |
 | --- | --- |
 | `master` or the configured operations branch | Repository-level docs, `translation-config.yml`, and workflows. |
-| `translation/v*` | Translator-facing Markdown workspaces and review PRs. |
-| `sync/v*` or the configured handoff branch prefix | Clean translated template source for handoff or manual import. |
+| `sync/v*` | Translator-facing Markdown workspaces and review PRs. |
+| `publish/v*` or the configured handoff branch prefix | Clean translated template source for handoff or manual import. |
 | Release assets | Package zip, preview PDF, checksums, and release notes. |
 
 Do not publish translator-facing workspaces as final template source. Use the
@@ -21,8 +21,8 @@ If this repository is public, translation branches and pull requests are public
 too. That means draft translation wording, CI logs, preview artifacts, and
 review discussions may be visible.
 
-If draft translation work must stay private, keep `translation/v*` branches in a
-private repository or private fork and publish only reviewed `sync/v*` branches
+If draft translation work must stay private, keep `sync/v*` branches in a
+private repository or private fork and publish only reviewed `publish/v*` branches
 or release assets to the public repository.
 
 ## Version Policy

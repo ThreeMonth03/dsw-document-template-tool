@@ -274,7 +274,7 @@ make stage-translated-handoff \
 
 The handoff target creates or updates a reviewable branch using the configured
 downstream handoff branch prefix (`publish.branch_prefix` in
-`translation-config.yml`), currently `sync/v*`.
+`translation-config.yml`), currently `publish/v*`.
 
 ## Release Helpers
 

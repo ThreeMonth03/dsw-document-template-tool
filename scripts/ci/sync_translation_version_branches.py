@@ -1032,7 +1032,7 @@ def add_existing_branch_worktree(
     """Check out an existing remote branch for refresh work.
 
     A local branch can only be checked out by one worktree at a time. During
-    day-to-day maintenance it is common to already have a translation/v...
+    day-to-day maintenance it is common to already have a sync/v...
     branch open elsewhere, so CI-safe refresh runs can use a detached worktree
     and push HEAD back to the remote branch.
     """

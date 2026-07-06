@@ -90,7 +90,7 @@ policy is intentionally conservative:
 - sentence-match suggestions should be treated as review hints, not automatic
   truth
 
-When a parser change is broad, refresh downstream `translation/v*` branches with
+When a parser change is broad, refresh downstream `sync/v*` branches with
 clean scaffold artifacts and inspect what became untranslated before asking
 translators to continue.
 

@@ -79,17 +79,17 @@ def test_add_detached_remote_worktree_ignores_open_local_branch(
     _run_git(repo, "add", "README.md")
     _run_git(repo, "commit", "-m", "initial")
     _run_git(repo, "push", "-u", "origin", "master")
-    _run_git(repo, "checkout", "-b", "translation/v1.30.1")
+    _run_git(repo, "checkout", "-b", "sync/v1.30.1")
     _run_git(repo, "commit", "--allow-empty", "-m", "version branch")
-    _run_git(repo, "push", "-u", "origin", "translation/v1.30.1")
+    _run_git(repo, "push", "-u", "origin", "sync/v1.30.1")
     _run_git(repo, "checkout", "master")
-    _run_git(repo, "worktree", "add", str(open_worktree), "translation/v1.30.1")
+    _run_git(repo, "worktree", "add", str(open_worktree), "sync/v1.30.1")
 
     try:
         module.add_detached_remote_worktree(
             repo=repo,
             checkout=detached_worktree,
-            branch="translation/v1.30.1",
+            branch="sync/v1.30.1",
         )
 
         assert _git_symbolic_ref(detached_worktree) is None
@@ -118,7 +118,7 @@ def test_add_detached_remote_worktree_reports_missing_branch(
         module.add_detached_remote_worktree(
             repo=repo,
             checkout=tmp_path / "detached",
-            branch="translation/v9.99.9",
+            branch="sync/v9.99.9",
         )
 
 
@@ -133,13 +133,13 @@ def test_manual_pull_request_url_uses_github_environment(
     monkeypatch.setenv("GITHUB_REPOSITORY", "ThreeMonth03/example")
 
     url = module.manual_pull_request_url(
-        base_branch="translation/v1.29.1",
+        base_branch="sync/v1.29.1",
         head_branch="automation/migrate-v1.30.1-to-v1.29.1",
     )
 
     assert url == (
         "https://github.com/ThreeMonth03/example/compare/"
-        "translation%2Fv1.29.1...automation%2Fmigrate-v1.30.1-to-v1.29.1?expand=1"
+        "sync%2Fv1.29.1...automation%2Fmigrate-v1.30.1-to-v1.29.1?expand=1"
     )
 
 
@@ -158,7 +158,7 @@ def test_pr_command_permission_failure_is_warning(
         ["bash", "-lc", "exit 1"],
         checkout=tmp_path,
         bot_branch="automation/migrate-v1.30.1-to-v1.29.1",
-        target_branch="translation/v1.29.1",
+        target_branch="sync/v1.29.1",
     )
 
     captured = capsys.readouterr()
@@ -182,12 +182,12 @@ def test_pr_command_permission_failure_writes_github_summary(
         ["bash", "-lc", "exit 1"],
         checkout=tmp_path,
         bot_branch="automation/migrate-v1.30.1-to-v1.29.1",
-        target_branch="translation/v1.29.1",
+        target_branch="sync/v1.29.1",
     )
 
     summary = summary_path.read_text(encoding="utf-8")
     assert "Migration PR needs manual creation" in summary
-    assert "translation/v1.29.1" in summary
+    assert "sync/v1.29.1" in summary
     assert "automation/migrate-v1.30.1-to-v1.29.1" in summary
     assert "https://github.com/ThreeMonth03/example/compare/" in summary
 
@@ -256,7 +256,7 @@ def test_enable_auto_merge_requests_guarded_squash_merge(
         pull_request_number="42",
         head_sha="abc123",
         bot_branch="automation/migrate-v1.30.1-to-v1.30.0",
-        target_branch="translation/v1.30.0",
+        target_branch="sync/v1.30.0",
     )
 
     assert commands == [
@@ -301,7 +301,7 @@ def test_enable_auto_merge_falls_back_to_guarded_immediate_merge(
         pull_request_number="42",
         head_sha="abc123",
         bot_branch="automation/migrate-v1.30.1-to-v1.30.0",
-        target_branch="translation/v1.30.0",
+        target_branch="sync/v1.30.0",
     )
 
     assert commands == [

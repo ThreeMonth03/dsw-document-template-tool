@@ -159,7 +159,7 @@ help:
 	'  render-regression-ci Generate latest-version CI config and run local DSW regression' \
 	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions' \
 	'  render-regression-ci-plan-dry-run Validate the compatibility regression plan without DSW' \
-	'  sync-translation-version-branches Create/refresh downstream translation/v* branches' \
+	'  sync-translation-version-branches Create/refresh downstream sync/v* branches' \
 	'  validate-translation-config Validate downstream translation-config.yml'
 
 install-dev: venv

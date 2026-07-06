@@ -115,7 +115,7 @@ gh workflow run document_template_translation_sync.yml \
 That downstream operations workflow is owned by the translation repository. In
 the current downstream design, it downloads the latest successful tool-repo
 clean scaffold artifacts, updates its own `translation-config.yml`, creates or
-refreshes only policy-enabled `translation/v*` branches, and opens migration
+refreshes only policy-enabled `sync/v*` branches, and opens migration
 PRs according to translation repository policy. Review the translation
 repository run there; do not treat the clean scaffold release as a finished
 translated template.

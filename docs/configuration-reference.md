@@ -117,7 +117,7 @@ version_policy:
       reason: archived; do not refresh or republish
 ```
 
-`refresh` controls whether `translation/v*` branches are created or refreshed.
+`refresh` controls whether `sync/v*` branches are created or refreshed.
 `migrate_into` controls whether translations from another version may be merged
 into this version. `publish_release` controls translated release asset
 generation. `state` and `reason` are maintainer-facing labels that make CI

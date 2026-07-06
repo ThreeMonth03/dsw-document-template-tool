@@ -454,7 +454,7 @@ translation:
 
 branches:
   control_branch: ops
-  version_branch_prefix: translation/
+  version_branch_prefix: sync/
 
 tooling:
   repository: ThreeMonth03/dsw-document-template-tool

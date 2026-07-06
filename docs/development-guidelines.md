@@ -65,7 +65,7 @@ Use `make clean` when generated files make local review noisy.
 - Downstream publication or DSW import policy belongs in the downstream
   translation repository.
 - If a downstream repository combines translation work and public handoff in
-  one public repo, draft `translation/v*` branches, PRs, logs, and artifacts may
+  one public repo, draft `sync/v*` branches, PRs, logs, and artifacts may
   be visible. Use the copy-ready docs in
   [`examples/translation-repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository)
   to document that local policy.

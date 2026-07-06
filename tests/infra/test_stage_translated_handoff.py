@@ -48,7 +48,7 @@ translation:
 
 branches:
   control_branch: ops
-  version_branch_prefix: translation/
+  version_branch_prefix: sync/
 
 tooling:
   repository: ThreeMonth03/dsw-document-template-tool
@@ -64,7 +64,7 @@ migration:
 publish:
   enabled: false
   target_repository: {target_repo.as_posix()}
-  branch_prefix: sync/
+  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )
@@ -130,7 +130,7 @@ def test_stage_translated_handoff_replaces_target_contents(tmp_path: Path) -> No
             "--target-repo",
             str(target),
             "--target-branch",
-            "sync/v1.30.1",
+            "publish/v1.30.1",
         ]
     )
 
@@ -140,7 +140,7 @@ def test_stage_translated_handoff_replaces_target_contents(tmp_path: Path) -> No
     assert not (target / ".transform").exists()
     assert not (target / "UPSTREAM-README.md").exists()
     assert not (target / "stale.txt").exists()
-    assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "sync/v1.30.1"
+    assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "publish/v1.30.1"
 
 
 def test_stage_translated_handoff_synthesizes_source_from_workspace(
@@ -166,11 +166,11 @@ def test_stage_translated_handoff_synthesizes_source_from_workspace(
     run(["git", "commit", "-m", "config"], cwd=translation_repo)
     run(["git", "push", "origin", "master"], cwd=translation_repo)
 
-    run(["git", "checkout", "-b", "translation/v1.30.1"], cwd=translation_repo)
+    run(["git", "checkout", "-b", "sync/v1.30.1"], cwd=translation_repo)
     write_minimal_version_workspace(translation_repo, "v1.30.1")
     run(["git", "add", "-A"], cwd=translation_repo)
     run(["git", "commit", "-m", "workspace only"], cwd=translation_repo)
-    run(["git", "push", "origin", "translation/v1.30.1"], cwd=translation_repo)
+    run(["git", "push", "origin", "sync/v1.30.1"], cwd=translation_repo)
     run(["git", "checkout", "master"], cwd=translation_repo)
 
     result = run(
@@ -218,7 +218,7 @@ def test_stage_translated_handoff_can_read_translation_version_branch(
     run(["git", "commit", "-m", "config"], cwd=translation_repo)
     run(["git", "push", "origin", "master"], cwd=translation_repo)
 
-    run(["git", "checkout", "-b", "translation/v1.30.1"], cwd=translation_repo)
+    run(["git", "checkout", "-b", "sync/v1.30.1"], cwd=translation_repo)
     template_dir = (
         translation_repo / "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/"
         "dsw-science-europe-zh-hant-1.30.1"
@@ -227,7 +227,7 @@ def test_stage_translated_handoff_can_read_translation_version_branch(
     (template_dir / "template.json").write_text('{"name": "From branch"}\n', encoding="utf-8")
     run(["git", "add", "-A"], cwd=translation_repo)
     run(["git", "commit", "-m", "translated output"], cwd=translation_repo)
-    run(["git", "push", "origin", "translation/v1.30.1"], cwd=translation_repo)
+    run(["git", "push", "origin", "sync/v1.30.1"], cwd=translation_repo)
     run(["git", "checkout", "master"], cwd=translation_repo)
 
     result = run(
@@ -244,7 +244,7 @@ def test_stage_translated_handoff_can_read_translation_version_branch(
     assert "Updated local target checkout" in result.stdout
     assert (target / "template.json").read_text(encoding="utf-8") == '{"name": "From branch"}\n'
     assert not (target / "old.txt").exists()
-    assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "sync/v1.30.1"
+    assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "publish/v1.30.1"
 
     worktree_list = run(["git", "worktree", "list", "--porcelain"], cwd=translation_repo).stdout
     assert "dsw-template-handoff-" not in worktree_list
@@ -267,15 +267,15 @@ def test_stage_translated_handoff_pushes_when_target_branch_is_open_elsewhere(
     run(["git", "commit", "-m", "base"], cwd=target)
     run(["git", "push", "-u", "origin", "main"], cwd=target)
 
-    run(["git", "checkout", "-b", "sync/v1.30.1"], cwd=target)
+    run(["git", "checkout", "-b", "publish/v1.30.1"], cwd=target)
     (target / "old.txt").write_text("old\n", encoding="utf-8")
     run(["git", "add", "-A"], cwd=target)
     run(["git", "commit", "-m", "old handoff branch"], cwd=target)
-    run(["git", "push", "-u", "origin", "sync/v1.30.1"], cwd=target)
+    run(["git", "push", "-u", "origin", "publish/v1.30.1"], cwd=target)
     run(["git", "checkout", "main"], cwd=target)
 
     open_worktree = tmp_path / "open-handoff-branch"
-    run(["git", "worktree", "add", str(open_worktree), "sync/v1.30.1"], cwd=target)
+    run(["git", "worktree", "add", str(open_worktree), "publish/v1.30.1"], cwd=target)
     try:
         result = run(
             [
@@ -286,7 +286,7 @@ def test_stage_translated_handoff_pushes_when_target_branch_is_open_elsewhere(
                 "--target-repo",
                 str(target),
                 "--target-branch",
-                "sync/v1.30.1",
+                "publish/v1.30.1",
                 "--push",
             ]
         )
@@ -294,8 +294,8 @@ def test_stage_translated_handoff_pushes_when_target_branch_is_open_elsewhere(
         run(["git", "worktree", "remove", "--force", str(open_worktree)], cwd=target)
 
     assert "Pushed translated handoff" in result.stdout
-    assert _git_show_bare(origin, "sync/v1.30.1:template.json") == '{"name": "Translated"}\n'
-    assert not _git_path_exists(origin, "sync/v1.30.1:old.txt")
+    assert _git_show_bare(origin, "publish/v1.30.1:template.json") == '{"name": "Translated"}\n'
+    assert not _git_path_exists(origin, "publish/v1.30.1:old.txt")
 
 
 def test_stage_translated_handoff_local_mode_preserves_existing_local_branch(
@@ -315,18 +315,18 @@ def test_stage_translated_handoff_local_mode_preserves_existing_local_branch(
     run(["git", "commit", "-m", "base"], cwd=target)
     run(["git", "push", "-u", "origin", "main"], cwd=target)
 
-    run(["git", "checkout", "-b", "sync/v1.30.1"], cwd=target)
+    run(["git", "checkout", "-b", "publish/v1.30.1"], cwd=target)
     (target / "local-only.txt").write_text("local base\n", encoding="utf-8")
     run(["git", "add", "-A"], cwd=target)
     run(["git", "commit", "-m", "local handoff branch"], cwd=target)
-    local_branch_sha = _git_output(target, "rev-parse", "sync/v1.30.1")
+    local_branch_sha = _git_output(target, "rev-parse", "publish/v1.30.1")
 
     run(["git", "checkout", "main"], cwd=target)
     run(["git", "checkout", "-b", "remote-handoff", "main"], cwd=target)
     (target / "remote-only.txt").write_text("remote base\n", encoding="utf-8")
     run(["git", "add", "-A"], cwd=target)
     run(["git", "commit", "-m", "remote handoff branch"], cwd=target)
-    run(["git", "push", "origin", "remote-handoff:refs/heads/sync/v1.30.1"], cwd=target)
+    run(["git", "push", "origin", "remote-handoff:refs/heads/publish/v1.30.1"], cwd=target)
     run(["git", "checkout", "main"], cwd=target)
 
     result = run(
@@ -338,14 +338,14 @@ def test_stage_translated_handoff_local_mode_preserves_existing_local_branch(
             "--target-repo",
             str(target),
             "--target-branch",
-            "sync/v1.30.1",
+            "publish/v1.30.1",
         ]
     )
 
     assert "Updated local target checkout" in result.stdout
     assert _git_output(target, "rev-parse", "HEAD^") == local_branch_sha
     assert not (target / "remote-only.txt").exists()
-    assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "sync/v1.30.1"
+    assert run(["git", "branch", "--show-current"], cwd=target).stdout.strip() == "publish/v1.30.1"
 
 
 def _git_show_bare(repo: Path, revision: str) -> str:

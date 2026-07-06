@@ -15,13 +15,13 @@ Healthy outcomes:
 
 - the workflow found no new clean scaffold artifacts;
 - the workflow updated `translation-config.yml`;
-- the workflow refreshed policy-enabled `translation/v*` branches;
+- the workflow refreshed policy-enabled `sync/v*` branches;
 - the workflow opened exact-only migration PRs for safe carry-over changes.
 
 Check version-branch validation after translation PRs:
 
 ```shell
-gh run list --workflow document_template_translation_sync.yml --branch translation/v1.30.1 --limit 5
+gh run list --workflow document_template_translation_sync.yml --branch sync/v1.30.1 --limit 5
 ```
 
 ## Manual Sync
@@ -47,7 +47,7 @@ Before handing off a translated template:
 1. Confirm the version branch workflow passed.
 2. Download the translated package, preview PDF, and `SHA256SUMS`.
 3. Review glossary/i10n terminology and representative PDF pages.
-4. Publish or manually import only reviewed release assets or clean `sync/v*`
+4. Publish or manually import only reviewed release assets or clean `publish/v*`
    branches.
 
 Do not treat tool-repo clean scaffold releases as translated outputs.

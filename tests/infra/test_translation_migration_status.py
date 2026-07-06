@@ -159,7 +159,7 @@ translation:
   translated_template_name: Science Europe DMP Template (zh-Hant)
 branches:
   control_branch: master
-  version_branch_prefix: translation/
+  version_branch_prefix: sync/
 tooling:
   repository: owner/tool
   ref: master
@@ -172,7 +172,7 @@ migration:
 publish:
   enabled: false
   target_repository: owner/publish
-  branch_prefix: sync/
+  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )

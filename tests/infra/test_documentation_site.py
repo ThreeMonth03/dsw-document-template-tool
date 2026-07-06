@@ -111,8 +111,8 @@ def test_translation_repository_templates_are_copy_ready(repo_root: Path) -> Non
     )
 
     assert "examples/translation-repository/" in templates_doc
-    assert "translation/v*" in branch_policy
     assert "sync/v*" in branch_policy
+    assert "publish/v*" in branch_policy
     assert "public" in branch_policy
     assert "private" in branch_policy
     assert "gh workflow run document_template_translation_sync.yml" in (maintenance_runbook)
