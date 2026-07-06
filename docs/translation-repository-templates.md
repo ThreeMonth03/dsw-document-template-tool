@@ -29,32 +29,12 @@ Copy workflow templates separately from
 The docs templates explain the expected branch model; the workflow templates
 implement the version-branch validation and packaging flow.
 
-## Public Visibility Policy
+## Policy Source
 
-Do not describe a downstream repository as "private" or "public" in the tool
-repo docs unless that is a project decision. The safe general rule is:
-
-- public repositories make `translation/v*` branches, pull requests, logs,
-  Actions artifacts, and release assets visible to anyone who can view the
-  repository;
-- private repositories keep that work hidden from the public, but public release
-  or sync branches must still be treated as public deliverables;
-- if translation drafts must remain private, do not push draft
-  `translation/v*` branches to a public remote;
-- if a single public repository is used for both work and publish handoff,
-  expect translation drafts to be visible.
-
-The supported integrated layout is branch-based separation:
-
-| Branch or asset | Purpose |
-| --- | --- |
-| `master` or another operations branch | Repository-level config, workflows, and docs. |
-| `translation/v*` | Translator-facing workspaces and review PRs. |
-| `sync/v*` or the configured handoff branch prefix | Clean translated template source for handoff. |
-| release assets | Package zip, preview PDF, checksums, and notes. |
-
-This layout reduces repository count, but it does not hide work-in-progress
-translation branches if the repository is public.
+Keep the branch layout and visibility rules in one place:
+[Downstream Integration](downstream-integration.md). The templates listed above
+are starting files for the downstream repository; they should not become a
+second copy of the policy in this tool repo.
 
 ## Update Rule
 

@@ -5,15 +5,9 @@ for this translation repository.
 
 ## Visibility
 
-Repository visibility controls who can see translation work:
-
-- public repository: draft translation branches, PRs, logs, artifacts, and
-  releases may be visible publicly;
-- private repository: translation work is hidden from the public, but any public
-  handoff branch or release asset should be treated as published output.
-
-If translation drafts must stay private, do not push `translation/v*` branches
-to a public remote.
+Use [Branch Policy](branch-policy.md) for repository visibility and branch
+separation rules. This page focuses on workflow permissions and sensitive
+artifacts.
 
 ## Workflow Permissions
 

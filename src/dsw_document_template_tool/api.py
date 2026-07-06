@@ -26,7 +26,7 @@ class KnowledgeModelPackageReference:
     uuid: str | None = None
 
     def require_project_create_identifier(self) -> str:
-        """Return the best package identifier for legacy project creation payloads."""
+        """Return the best package identifier for older project create payloads."""
 
         if self.package_id:
             return self.package_id
@@ -168,7 +168,7 @@ class DSWApiClient:
     def resolve_knowledge_model_package_reference(
         self, package_id: str
     ) -> KnowledgeModelPackageReference:
-        """Resolve a KM package for both current and legacy DSW APIs."""
+        """Resolve a KM package across current and older DSW API shapes."""
 
         if _looks_like_uuid(package_id):
             return KnowledgeModelPackageReference(uuid=package_id)
@@ -322,7 +322,7 @@ class DSWApiClient:
     def upload_knowledge_model_package_bundle_reference(
         self, bundle_path: Path
     ) -> KnowledgeModelPackageReference:
-        """Upload one local KM bundle and normalize legacy/current response shapes."""
+        """Upload one local KM bundle and normalize current/older response shapes."""
 
         package_id = _read_knowledge_model_package_id_from_bundle(bundle_path)
         endpoint = "/knowledge-model-packages/bundle"

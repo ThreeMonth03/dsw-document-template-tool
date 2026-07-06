@@ -12,15 +12,9 @@ repository.
 - Do not add tokens that let this repo push translated outputs to downstream
   repositories or DSW instances. Downstream repositories own that handoff.
 
-Downstream translation repositories own their own publication and manual import
-policy.
-
-If a downstream repository combines translation work and public handoff in one
-public repo, its draft `translation/v*` branches, pull requests, logs, Actions
-artifacts, and release assets may be visible. Keep draft translation branches in
-a private repository or private fork if work-in-progress wording must remain
-private. This tool repo only provides templates and helper scripts; it cannot
-make downstream branch visibility private.
+Downstream translation repositories own their own publication, manual import,
+and branch visibility policy. See
+[Downstream Integration](downstream-integration.md) for the handoff boundary.
 
 ## GitHub Actions Permissions
 

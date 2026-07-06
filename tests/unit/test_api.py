@@ -46,7 +46,7 @@ def _package_payload(*, uuid: str | None = None) -> dict[str, Any]:
     return payload
 
 
-class LegacyPackageListingClient(DSWApiClient):
+class MissingPackageListingClient(DSWApiClient):
     """Client whose DSW server does not expose filtered KM package listing."""
 
     def __init__(self) -> None:
@@ -197,10 +197,10 @@ def test_apply_download_host_alias_preserves_original_host_header(monkeypatch) -
     assert headers == {"Host": "host.docker.internal:9100"}
 
 
-def test_find_draft_reference_accepts_legacy_id_field() -> None:
+def test_find_draft_reference_accepts_id_field_from_older_dsw() -> None:
     """DSW 4.26 draft lists expose `id`, not `uuid`."""
 
-    class LegacyDraftClient(DSWApiClient):
+    class OlderDraftClient(DSWApiClient):
         def _request(
             self,
             method: str,
@@ -227,7 +227,7 @@ def test_find_draft_reference_accepts_legacy_id_field() -> None:
                 url=f"{self.api_url}{endpoint}",
             )
 
-    client = LegacyDraftClient(api_url="http://localhost:3000/wizard-api")
+    client = OlderDraftClient(api_url="http://localhost:3000/wizard-api")
 
     assert (
         client.find_draft_uuid_by_id("dsw:science-europe-zh-hant:1.29.1")
@@ -235,15 +235,15 @@ def test_find_draft_reference_accepts_legacy_id_field() -> None:
     )
 
 
-def test_find_knowledge_model_package_uuid_returns_none_for_legacy_404() -> None:
+def test_find_knowledge_model_package_uuid_returns_none_when_listing_is_missing() -> None:
     """Missing KM package listing endpoint should be reported as unresolved."""
 
-    client = LegacyPackageListingClient()
+    client = MissingPackageListingClient()
 
     assert client.find_knowledge_model_package_uuid_by_id("dsw:root-zh-hant:2.7.0") is None
 
 
-def test_local_knowledge_model_bundle_uploads_when_legacy_listing_is_missing(
+def test_local_knowledge_model_bundle_uploads_when_listing_is_missing(
     tmp_path: Path,
 ) -> None:
     """Local KM bundles should upload when package coordinates are not listed."""
@@ -258,7 +258,7 @@ def test_local_knowledge_model_bundle_uploads_when_legacy_listing_is_missing(
         + "\n",
         encoding="utf-8",
     )
-    client = LegacyPackageListingClient()
+    client = MissingPackageListingClient()
 
     resolved_uuid = client.resolve_knowledge_model_package_uuid(str(bundle_path))
 
@@ -280,7 +280,7 @@ def test_bundle_upload_accepts_list_payload(tmp_path: Path) -> None:
     assert package_ref.uuid is None
 
 
-def test_project_create_falls_back_to_legacy_package_id_field() -> None:
+def test_project_create_falls_back_to_package_id_field() -> None:
     """DSW 4.26/4.29 project creation still uses `knowledgeModelPackageId`."""
 
     client = ProjectCreateFallbackClient(

@@ -59,6 +59,70 @@ Important fields:
 | `publish.branch_prefix` | Branch prefix used when manually staging reviewed translated source for public handoff. |
 | `xliff_exchange` | Optional XLIFF export/import settings. The default workflow still treats `translation.md` as canonical. |
 
+### Common Version Policy Snippets
+
+Use these snippets under `version_policy.overrides` when a version needs an
+explicit lifecycle. The default policy should usually stay scaffold-only, so new
+upstream tags do not silently become translation work.
+
+Scaffold exists, but translation has not started:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: available
+      refresh: false
+      migrate_into: false
+      publish_release: false
+      reason: scaffold available; translation not started
+```
+
+Actively translated and allowed to update automatically:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: active
+      refresh: auto
+      migrate_into: auto
+      publish_release: true
+      reason: actively translated
+```
+
+Already published, still open for explicit maintenance:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: maintenance
+      refresh: manual
+      migrate_into: manual
+      publish_release: true
+      reason: published; maintenance changes require operator action
+```
+
+Published and frozen:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: archived
+      refresh: false
+      migrate_into: false
+      publish_release: false
+      reason: archived; do not refresh or republish
+```
+
+`refresh` controls whether `translation/v*` branches are created or refreshed.
+`migrate_into` controls whether translations from another version may be merged
+into this version. `publish_release` controls translated release asset
+generation. `state` and `reason` are maintainer-facing labels that make CI
+summaries and reviews easier to understand.
+
 Use [Downstream Integration](downstream-integration.md) for the operational
 sequence and [Translation Workflow](translation-workflow.md) for translator-facing
 behavior.
