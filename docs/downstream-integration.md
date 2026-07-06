@@ -64,7 +64,7 @@ A downstream translation repository owns:
 - a configured operations branch containing `translation-config.yml`, docs,
   fixtures, and repository workflows
 - version branches such as `translation/v1.30.1`
-- public handoff branches using the configured publish prefix, such as
+- public handoff branches using the configured handoff prefix, such as
   `sync/v1.30.1`, when the same repository also stores clean translated
   template source
 - translator-facing `translation.md` edits
@@ -88,7 +88,7 @@ branch-separated:
 | --- | --- |
 | operations branch, usually `master` | Repository-level config, workflows, and docs. |
 | `translation/v*` | Translator-facing workspaces and review PRs. |
-| `sync/v*` or configured publish branches | Clean translated template source for handoff. |
+| `sync/v*` or the configured handoff branch prefix | Clean translated template source for handoff. |
 | release assets | Package zip, preview PDF, checksums, and notes. |
 
 This layout is an organizational boundary, not a privacy boundary. If the

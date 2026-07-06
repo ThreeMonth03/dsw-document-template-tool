@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Publish a generated translated document template into a target repository.
+"""Stage a generated translated document template into a handoff branch.
 
-This is intentionally a manual helper.  Translation CI can build and validate
-artifacts, but publishing to a public downstream repository should be an
-explicit operator action.
+This is intentionally a manual helper. Translation CI can build and validate
+artifacts, but copying reviewed translated source into a downstream handoff
+branch should stay an explicit operator action.
 """
 
 from __future__ import annotations
@@ -35,8 +35,8 @@ PUBLIC_HANDOFF_EXCLUDED_ROOTS = frozenset({".transform", "UPSTREAM-README.md"})
 
 
 @dataclass(frozen=True)
-class PublishSource:
-    """Resolved translated template source and config-derived publish defaults."""
+class HandoffSource:
+    """Resolved translated template source and config-derived handoff defaults."""
 
     source_dir: Path
     target_repo: str | None = None
@@ -103,7 +103,7 @@ def checkout_branch(repo: Path, branch: str, base_branch: str, *, detach: bool =
     if has_origin:
         git(["fetch", "origin", "--prune"], cwd=repo)
 
-    start_ref = publish_start_ref(
+    start_ref = handoff_start_ref(
         repo=repo,
         branch=branch,
         base_branch=base_branch,
@@ -118,7 +118,7 @@ def checkout_branch(repo: Path, branch: str, base_branch: str, *, detach: bool =
     ensure_clean_worktree(repo)
 
 
-def publish_start_ref(
+def handoff_start_ref(
     *,
     repo: Path,
     branch: str,
@@ -126,9 +126,9 @@ def publish_start_ref(
     has_origin: bool,
     detach: bool,
 ) -> str | None:
-    """Return the safest start ref for publishing.
+    """Return the safest start ref for staging a handoff branch.
 
-    Local publishing should preserve an existing local branch. Push publishing
+    Local staging should preserve an existing local branch. Push staging
     starts from the remote branch when available because the resulting commit is
     pushed back to that remote ref.
     """
@@ -160,9 +160,9 @@ def publish_start_ref(
 
 
 def checkout_ref(repo: Path, branch: str, start_ref: str, *, detach: bool) -> None:
-    """Check out a publishing start point.
+    """Check out a handoff start point.
 
-    Push publishes the generated commit directly to ``refs/heads/<branch>``, so
+    Push staging writes the generated commit directly to ``refs/heads/<branch>``, so
     a detached checkout avoids local branch/worktree collisions. Local-only runs
     keep a named branch because it is easier for operators to inspect.
     """
@@ -202,8 +202,8 @@ def has_changes(repo: Path) -> bool:
 
 
 def commit_changes(repo: Path, message: str) -> None:
-    git(["config", "user.name", "document-template-publisher"], cwd=repo)
-    git(["config", "user.email", "document-template-publisher@example.invalid"], cwd=repo)
+    git(["config", "user.name", "document-template-handoff"], cwd=repo)
+    git(["config", "user.email", "document-template-handoff@example.invalid"], cwd=repo)
     git(["add", "-A"], cwd=repo)
     git(["commit", "-m", message], cwd=repo)
 
@@ -214,7 +214,7 @@ def clone_or_use_target_repo(target_repo: str, temp_root: Path) -> Path:
     if local_path.exists():
         return local_path.resolve()
 
-    checkout = temp_root / "publish-target"
+    checkout = temp_root / "handoff-target"
     run(["git", "clone", location, str(checkout)])
     return checkout
 
@@ -283,7 +283,7 @@ def parse_args() -> argparse.Namespace:
     source.add_argument(
         "--source-dir",
         type=Path,
-        help="Existing translated template source directory to publish.",
+        help="Existing translated template source directory to stage.",
     )
     source.add_argument(
         "--translation-repo",
@@ -302,13 +302,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--target-repo",
         help=(
-            "Target repository path, clone URL, or GitHub owner/name. Defaults "
-            "to translation-config.yml publish.target_repository."
+            "Target repository path, clone URL, or GitHub owner/name. Defaults to "
+            "the configured handoff target (translation-config.yml publish.target_repository)."
         ),
     )
     parser.add_argument(
         "--target-branch",
-        help="Target branch. Defaults to translation-config.yml publish.branch_prefix + version.",
+        help=(
+            "Target branch. Defaults to the configured handoff branch prefix "
+            "(translation-config.yml publish.branch_prefix) plus version."
+        ),
     )
     parser.add_argument("--base-branch", default="main")
     parser.add_argument("--message", help="Commit message.")
@@ -323,7 +326,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def resolve_publish_source(args: argparse.Namespace, temp_root: Path) -> PublishSource:
+def resolve_handoff_source(args: argparse.Namespace, temp_root: Path) -> HandoffSource:
     """Resolve the translated template source requested by CLI arguments."""
 
     if args.translation_repo:
@@ -335,60 +338,60 @@ def resolve_publish_source(args: argparse.Namespace, temp_root: Path) -> Publish
             temp_root,
             args.translation_config,
         )
-        return PublishSource(
+        return HandoffSource(
             source_dir=source_dir,
             target_repo=target_repo,
             target_branch=target_branch,
             translation_worktree=translation_worktree,
         )
-    return PublishSource(source_dir=args.source_dir.resolve())
+    return HandoffSource(source_dir=args.source_dir.resolve())
 
 
-def resolved_target_repo(args: argparse.Namespace, publish_source: PublishSource) -> str:
+def resolved_target_repo(args: argparse.Namespace, handoff_source: HandoffSource) -> str:
     """Return the explicit or config-derived target repository."""
 
-    target_repo = args.target_repo or publish_source.target_repo
+    target_repo = args.target_repo or handoff_source.target_repo
     if target_repo:
         return target_repo
-    raise SystemExit("--target-repo is required when no publish target exists in config")
+    raise SystemExit("--target-repo is required when no handoff target exists in config")
 
 
-def resolved_target_branch(args: argparse.Namespace, publish_source: PublishSource) -> str:
+def resolved_target_branch(args: argparse.Namespace, handoff_source: HandoffSource) -> str:
     """Return the explicit or config-derived target branch."""
 
-    target_branch = args.target_branch or publish_source.target_branch
+    target_branch = args.target_branch or handoff_source.target_branch
     if target_branch:
         return target_branch
     raise SystemExit("--target-branch is required when no version/config default is available")
 
 
-def publish_template_source(
+def stage_template_source(
     *,
     args: argparse.Namespace,
-    publish_source: PublishSource,
+    handoff_source: HandoffSource,
     temp_root: Path,
 ) -> int:
     """Copy, commit, and optionally push the translated template source."""
 
-    target_repo_arg = resolved_target_repo(args, publish_source)
-    target_branch = resolved_target_branch(args, publish_source)
+    target_repo_arg = resolved_target_repo(args, handoff_source)
+    target_branch = resolved_target_branch(args, handoff_source)
 
-    validate_source_dir(publish_source.source_dir)
+    validate_source_dir(handoff_source.source_dir)
     target_repo = clone_or_use_target_repo(target_repo_arg, temp_root)
     checkout_branch(target_repo, target_branch, args.base_branch, detach=args.push)
     clear_repository_content(target_repo)
-    copy_template_source(publish_source.source_dir, target_repo)
+    copy_template_source(handoff_source.source_dir, target_repo)
 
     if not has_changes(target_repo):
         print(f"{target_branch} is already up to date.")
         return 0
 
     version_suffix = f" {args.version}" if args.version else ""
-    message = args.message or f"chore: publish translated template{version_suffix}"
+    message = args.message or f"chore: stage translated handoff{version_suffix}"
     commit_changes(target_repo, message)
 
     if args.push:
-        push_publish_branch(
+        push_handoff_branch(
             target_repo=target_repo,
             target_repo_arg=target_repo_arg,
             target_branch=target_branch,
@@ -398,7 +401,7 @@ def publish_template_source(
     return 0
 
 
-def push_publish_branch(
+def push_handoff_branch(
     *,
     target_repo: Path,
     target_repo_arg: str,
@@ -409,28 +412,28 @@ def push_publish_branch(
     if not git_remote_exists(target_repo, "origin"):
         raise SystemExit("--push requires the target repository to have an origin remote")
     git(["push", "origin", f"HEAD:refs/heads/{target_branch}"], cwd=target_repo)
-    print(f"Pushed translated template to {target_repo_arg}#{target_branch}.")
+    print(f"Pushed translated handoff to {target_repo_arg}#{target_branch}.")
 
 
 def main() -> int:
     args = parse_args()
-    with tempfile.TemporaryDirectory(prefix="dsw-template-publish-") as temp_name:
+    with tempfile.TemporaryDirectory(prefix="dsw-template-handoff-") as temp_name:
         temp_root = Path(temp_name)
-        publish_source = resolve_publish_source(args, temp_root)
+        handoff_source = resolve_handoff_source(args, temp_root)
         try:
-            return publish_template_source(
+            return stage_template_source(
                 args=args,
-                publish_source=publish_source,
+                handoff_source=handoff_source,
                 temp_root=temp_root,
             )
         finally:
-            if publish_source.translation_worktree is not None:
+            if handoff_source.translation_worktree is not None:
                 git(
                     [
                         "worktree",
                         "remove",
                         "--force",
-                        str(publish_source.translation_worktree),
+                        str(handoff_source.translation_worktree),
                     ],
                     cwd=args.translation_repo.resolve(),
                     check=False,

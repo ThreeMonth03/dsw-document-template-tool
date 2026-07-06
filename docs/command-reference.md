@@ -264,16 +264,17 @@ make check-translation-migrations \
 Set `TRANSLATION_MIGRATION_FAIL_ON_PENDING=true` only when CI should fail on
 pending migration changes.
 
-Manually copy reviewed translated source to a target branch:
+Manually stage reviewed translated source to a target handoff branch:
 
 ```shell
-make publish-translated-template \
+make stage-translated-handoff \
   TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
-  PUBLISH_VERSION=v1.30.1
+  HANDOFF_VERSION=v1.30.1
 ```
 
-The publish target creates or updates a reviewable branch using the configured
-downstream `publish.branch_prefix`, currently `sync/v*`.
+The handoff target creates or updates a reviewable branch using the configured
+downstream handoff branch prefix (`publish.branch_prefix` in
+`translation-config.yml`), currently `sync/v*`.
 
 ## Release Helpers
 

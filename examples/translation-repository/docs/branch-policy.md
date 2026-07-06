@@ -9,11 +9,11 @@ repository, but the responsibilities must stay separated by branch.
 | --- | --- |
 | `master` or the configured operations branch | Repository-level docs, `translation-config.yml`, and workflows. |
 | `translation/v*` | Translator-facing Markdown workspaces and review PRs. |
-| `sync/v*` or the configured publish branch prefix | Clean translated template source for handoff or manual import. |
+| `sync/v*` or the configured handoff branch prefix | Clean translated template source for handoff or manual import. |
 | Release assets | Package zip, preview PDF, checksums, and release notes. |
 
 Do not publish translator-facing workspaces as final template source. Use the
-configured publish branch or release asset for reviewed handoff.
+configured handoff branch or release asset for reviewed handoff.
 
 ## Public Visibility
 

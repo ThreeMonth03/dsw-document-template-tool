@@ -59,7 +59,7 @@ The generated `README.md` in the expanded workspace is internal. During
 translated output sync, the tool copies the downstream translation repo's
 configured public README into the package when that file exists. If it is
 missing, the tool writes a short fallback README so the DSW package still has a
-displayable description. The public publish handoff intentionally excludes
+displayable description. The public handoff output intentionally excludes
 internal-only files such as `.transform/` and `UPSTREAM-README.md`; public
 README text should link to the upstream GitHub README instead of copying it into
 the public repository.
@@ -109,7 +109,7 @@ responsibility of `make audit-translation-tree` and `make sync-translation-tree`
 so the validation rules stay centralized.
 
 Do not point an external platform at generated compact, expanded, translated
-output, or public publish branches. It should only edit an explicit XLIFF
+output, or public handoff branches. It should only edit an explicit XLIFF
 exchange file. This tool ships import/export helpers, not a hosted translation
 service or branch-based review workflow.
 

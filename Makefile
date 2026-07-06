@@ -30,6 +30,8 @@ EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPL
 FRESH_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/fresh/$(WORKSPACE_TEMPLATE_NAME)
 GENERATED_CI_CONFIG ?= config/.generated-regression.ci.yml
 GENERATED_CI_CONFIG_DIR ?= config
+HANDOFF_BASE_BRANCH ?= main
+HANDOFF_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
 MERGED_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/merged/$(WORKSPACE_TEMPLATE_NAME)
 PACKAGE_OUT ?= template.zip
 PROJECT_REF ?= fixtures/projects/demo/test-project.json
@@ -37,8 +39,6 @@ PROJECT_RENDER_FORMAT_UUID ?= 68c26e34-5e77-4e15-9bf7-06ff92582257
 PROJECT_RENDER_OUTPUT ?= outputs/project-render/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/test-project.pdf
 PROJECT_RENDER_TEMPLATE_DIR ?= $(TRANSLATED_EXPANDED_TEMPLATE_DIR)
 PROJECT_UUID ?= $(DSW_PROJECT_UUID)
-PUBLISH_BASE_BRANCH ?= main
-PUBLISH_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
 PYTHON ?= $(VENV_PYTHON)
 PYTHON_LINT_PATHS ?= docs/conf.py scripts/ci/*.py src tests
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
@@ -99,7 +99,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases publish-translated-template render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews stage-translated-handoff start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -150,7 +150,7 @@ help:
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  publish-clean-scaffold-releases Stage or publish clean scaffold GitHub release assets' \
-	'  publish-translated-template Manually publish a translated version branch to its target repository' \
+	'  stage-translated-handoff Stage reviewed translated source into its target handoff branch' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
@@ -405,11 +405,11 @@ publish-clean-scaffold-releases: venv
 	fi; \
 	$(PYTHON) scripts/ci/publish_clean_scaffold_releases.py "$${args[@]}"
 
-publish-translated-template: venv
-	$(PYTHON) scripts/ci/publish_translated_template.py \
+stage-translated-handoff: venv
+	$(PYTHON) scripts/ci/stage_translated_handoff.py \
 		--translation-repo "$(TRANSLATION_REPO)" \
-		--version "$(PUBLISH_VERSION)" \
-		--base-branch "$(PUBLISH_BASE_BRANCH)" \
+		--version "$(HANDOFF_VERSION)" \
+		--base-branch "$(HANDOFF_BASE_BRANCH)" \
 		--push
 
 start-ci-dsw:

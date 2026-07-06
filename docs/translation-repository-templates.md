@@ -50,7 +50,7 @@ The supported integrated layout is branch-based separation:
 | --- | --- |
 | `master` or another operations branch | Repository-level config, workflows, and docs. |
 | `translation/v*` | Translator-facing workspaces and review PRs. |
-| `sync/v*` or configured publish branches | Clean translated template source for handoff. |
+| `sync/v*` or the configured handoff branch prefix | Clean translated template source for handoff. |
 | release assets | Package zip, preview PDF, checksums, and notes. |
 
 This layout reduces repository count, but it does not hide work-in-progress
