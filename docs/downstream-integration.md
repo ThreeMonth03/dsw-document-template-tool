@@ -106,10 +106,10 @@ Set repository paths once:
 
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
-TRANSLATION_GITHUB_REPO=owner/document-template-translation
+TRANSLATION_GITHUB_REPO=owner/template-translation-repo
 TRANSLATION_OPERATIONS_BRANCH=master
 TOOL_REPO_DIR=/path/to/document-template-tool
-TRANSLATION_REPO_DIR=/path/to/document-template-translation
+TRANSLATION_REPO_DIR=/path/to/template-translation-repo
 ```
 
 Download clean scaffold artifacts:

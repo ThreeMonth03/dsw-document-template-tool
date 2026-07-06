@@ -8,7 +8,7 @@ Repository paths should be variables so commands survive repository transfers:
 
 ```shell
 TOOL_REPO_DIR=/path/to/document-template-tool
-TRANSLATION_REPO_DIR=/path/to/document-template-translation
+TRANSLATION_REPO_DIR=/path/to/template-translation-repo
 TOOL_GITHUB_REPO=owner/document-template-tool
 ```
 

@@ -25,7 +25,7 @@ Set repository names once before copying GitHub commands:
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
 TOOL_OPERATIONS_BRANCH=master
-TRANSLATION_GITHUB_REPO=owner/document-template-translation
+TRANSLATION_GITHUB_REPO=owner/template-translation-repo
 TRANSLATION_OPERATIONS_BRANCH=master
 ```
 
@@ -177,7 +177,7 @@ Then run a downstream dry-run against the translation repository:
 
 ```shell
 TOOL_REPO_DIR=/path/to/document-template-tool
-TRANSLATION_REPO_DIR=/path/to/document-template-translation
+TRANSLATION_REPO_DIR=/path/to/template-translation-repo
 
 make download-clean-scaffold-artifacts \
   TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
