@@ -80,10 +80,11 @@ def merge_translation_tree(
 ) -> TranslationMergeReport:
     """Copy a regenerated tree and fill blank translations from an older tree.
 
-    Matching is intentionally conservative. Exact `(source_file, unit_key)` wins,
-    then unique source hash. Visible sentence matches are intentionally disabled
-    by default because they cannot prove that the underlying Jinja/HTML structure
-    is still equivalent.
+    Matching is intentionally conservative. Exact `(source_file, unit_key)` can
+    reuse a translation only when the unit source hash is unchanged, then unique
+    source hash can recover moved but byte-identical source units. Visible
+    sentence matches are intentionally disabled by default because they cannot
+    prove that the underlying Jinja/HTML structure is still equivalent.
     """
 
     old_tree_dir = Path(old_tree_dir).resolve()
@@ -235,7 +236,7 @@ def _find_reusable_match(
     allow_sentence_matches: bool,
 ) -> CandidateMatch | None:
     key_match = reuse_indexes.by_key.get((candidate.source_file, candidate.unit_key))
-    if key_match is not None:
+    if key_match is not None and key_match.unit_source_hash == candidate.unit_source_hash:
         return CandidateMatch(candidate=key_match, kind="exact-key")
 
     hash_match = reuse_indexes.by_hash.get(candidate.unit_source_hash)

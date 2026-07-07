@@ -410,6 +410,50 @@ def test_merge_translation_tree_reuses_exact_unit_key_matches(tmp_path: Path) ->
     assert "- [x] [unit]" in outline
 
 
+def test_merge_translation_tree_rejects_stale_exact_key_matches(
+    tmp_path: Path,
+) -> None:
+    """Same file/key is not enough if the source structure changed."""
+
+    old_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "old-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello <strong>{{ name }}</strong>.</p>\n",
+    )
+    new_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "new-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello {{ name }}.</p>\n",
+    )
+    old_expanded_dir = tmp_path / "old-expanded"
+    new_expanded_dir = tmp_path / "new-expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=old_compact_dir, output_dir=old_expanded_dir)
+    expand_template_dir(source_dir=new_compact_dir, output_dir=new_expanded_dir)
+    export_translation_tree(source_dir=old_expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=new_expanded_dir, output_dir=new_tree_dir)
+
+    _write_translation_block(_find_translation_doc(old_tree_dir, "Hello {name}."), "你好 {name}。")
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.migrated_units == 0
+    assert report.exact_key_matches == 0
+    assert report.untranslated_units == 1
+    assert "你好 {name}。" not in _find_translation_doc(
+        output_tree_dir,
+        "Hello {name}.",
+    ).read_text(encoding="utf-8")
+
+
 def test_merge_translation_tree_reuses_unique_source_hash_matches(tmp_path: Path) -> None:
     """Moved source files can still reuse translations when the unit text is identical."""
 

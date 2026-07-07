@@ -275,6 +275,8 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_fixture_km = translation_repo / "fixtures/knowledge-models/root-zh-hant-2.7.0.km"
     stale_workspace_km = translation_repo / "workspace/knowledge-models/root-zh-hant-2.7.0.km"
     stale_public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
+    stale_migration_report = translation_repo / "migration-reports/v1.30.1/report.json"
+    stale_root_file = translation_repo / "legacy-branch-note.txt"
     existing_workflow = (
         translation_repo / ".github/workflows/document_template_translation_sync.yml"
     )
@@ -284,6 +286,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_demo_fixture.parent.mkdir(parents=True, exist_ok=True)
     stale_fixture_km.parent.mkdir(parents=True, exist_ok=True)
     stale_workspace_km.parent.mkdir(parents=True, exist_ok=True)
+    stale_migration_report.parent.mkdir(parents=True, exist_ok=True)
     existing_workflow.parent.mkdir(parents=True, exist_ok=True)
     old_compact.write_text("old compact\n", encoding="utf-8")
     old_translation_marker.write_text("manual translation\n", encoding="utf-8")
@@ -292,6 +295,8 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     stale_fixture_km.write_text("stale branch-local fixture km\n", encoding="utf-8")
     stale_workspace_km.write_text("stale branch-local workspace km\n", encoding="utf-8")
     stale_public_readme.write_text("stale public README\n", encoding="utf-8")
+    stale_migration_report.write_text('{"stale": true}\n', encoding="utf-8")
+    stale_root_file.write_text("stale branch note\n", encoding="utf-8")
     existing_workflow.write_text("existing version workflow\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initialize v1.30.1")
@@ -416,6 +421,8 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         translation_repo,
         "sync/v1.30.1:workspace/knowledge-models/root-zh-hant-2.7.0.km",
     )
+    assert not _git_path_exists(translation_repo, "sync/v1.30.1:migration-reports")
+    assert not _git_path_exists(translation_repo, "sync/v1.30.1:legacy-branch-note.txt")
     assert (
         _git_show(
             translation_repo,

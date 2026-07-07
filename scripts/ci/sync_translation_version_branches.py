@@ -444,6 +444,10 @@ def refresh_version_branch(
         if had_existing_translation_tree:
             shutil.copytree(existing_translation_tree, preserved_tree)
 
+        prune_version_branch_workspace(
+            checkout=checkout,
+            keep_existing_workflows=not sync_workflows,
+        )
         restore_clean_workspace(
             checkout=checkout,
             config=config,
@@ -525,6 +529,10 @@ def create_version_branch(
         push=push,
     )
     try:
+        prune_version_branch_workspace(
+            checkout=checkout,
+            keep_existing_workflows=False,
+        )
         restore_clean_workspace(
             checkout=checkout,
             config=config,
@@ -604,6 +612,28 @@ def restore_clean_workspace(
     )
     replace_tree(artifact_paths.translation_tree_dir, checkout / target_paths.translation_tree_dir)
     remove_branch_local_demo_assets(checkout)
+
+
+def prune_version_branch_workspace(
+    *,
+    checkout: Path,
+    keep_existing_workflows: bool,
+) -> None:
+    """Remove stale branch content before restoring clean scaffold artifacts.
+
+    Refreshing a version branch must be artifact-first: the only content carried
+    from the old branch is translated text that is merged back into the fresh
+    translation tree. GitHub's default token cannot modify workflow files, so
+    routine CI runs may keep an existing `.github/` directory untouched until an
+    operator reruns sync with a workflow-scoped token and `--sync-workflows`.
+    """
+
+    for child in checkout.iterdir():
+        if child.name == ".git":
+            continue
+        if keep_existing_workflows and child.name == GITHUB_DIR.name:
+            continue
+        remove_path(child)
 
 
 def sync_public_readme_from_control_branch(
