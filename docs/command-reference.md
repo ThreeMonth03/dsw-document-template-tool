@@ -245,6 +245,14 @@ make validate-translation-config \
   TRANSLATION_REPO="$TRANSLATION_REPO_DIR"
 ```
 
+Check that downstream translation docs still cover the required operations
+topics:
+
+```shell
+make check-translation-repository-docs \
+  TRANSLATION_DOCS_REPO="$TRANSLATION_REPO_DIR"
+```
+
 Dry-run downstream branch refresh:
 
 ```shell

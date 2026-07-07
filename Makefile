@@ -63,6 +63,7 @@ TRANSLATED_TEMPLATE_VERSION ?= $(SOURCE_TEMPLATE_VERSION)
 TRANSLATED_WORKSPACE_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(TRANSLATED_TEMPLATE_ID)-$(TRANSLATED_TEMPLATE_VERSION)
 TRANSLATION_CLEAN_ARTIFACT_ROOT ?= $(CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR)
 TRANSLATION_CONFIG_PATH ?= $(TRANSLATION_REPO)/translation-config.yml
+TRANSLATION_DOCS_REPO ?= $(TRANSLATION_REPO)
 TRANSLATION_LOCALE ?= zh-Hant
 TRANSLATION_MIGRATION_FAIL_ON_PENDING ?= false
 TRANSLATION_REPO ?= ../dsw-document-template-translation
@@ -99,7 +100,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews stage-translated-handoff start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews stage-translated-handoff start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -146,6 +147,7 @@ help:
 	'  download-clean-scaffold-artifacts Download clean scaffold artifacts from a tool workflow run' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
 	'  check-translation-migrations Dry-run exact-only migration across active translation branches' \
+	'  check-translation-repository-docs Check downstream docs cover required operations topics' \
 	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
@@ -210,6 +212,10 @@ check-translation-migrations: venv
 	fi; \
 	TRANSLATION_CLEAN_ARTIFACT_ROOT="$(TRANSLATION_CLEAN_ARTIFACT_ROOT)" \
 		$(PYTHON) scripts/ci/check_translation_migration_status.py "$${args[@]}"
+
+check-translation-repository-docs: venv
+	$(PYTHON) scripts/ci/check_translation_repository_docs.py \
+		--repo "$(TRANSLATION_DOCS_REPO)"
 
 create-dsw-compat-pr: venv
 	@set -euo pipefail; \

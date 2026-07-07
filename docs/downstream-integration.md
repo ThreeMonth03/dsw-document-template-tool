@@ -151,6 +151,13 @@ make check-translation-migrations \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
+Check that downstream docs still cover the required operations topics:
+
+```shell
+make check-translation-repository-docs \
+  TRANSLATION_DOCS_REPO="$TRANSLATION_REPO_DIR"
+```
+
 Use `--dry-run` first when changing parser logic, supported versions, or branch
 automation. Scheduled workflows should keep the default `--policy-mode auto`;
 operator-triggered maintenance refreshes can pass `--policy-mode manual` if the
@@ -228,6 +235,10 @@ helper command, but it is not part of the default branch automation.
 If no migration PR appears, use `make check-translation-migrations` against the
 same clean scaffold artifacts to distinguish "nothing to migrate" from "the
 workflow did not run the migration step."
+
+If translation repository docs were copied or rewritten, run
+`make check-translation-repository-docs` before handing the repository back to
+operators.
 
 To choose the source branch used for migration fan-out, pass `source_version`:
 
