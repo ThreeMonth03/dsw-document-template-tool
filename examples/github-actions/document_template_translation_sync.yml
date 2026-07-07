@@ -45,6 +45,7 @@ env:
   UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"
   UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"
   PUBLISH_RELEASE_ASSETS: "true"
+  REFRESH_TRANSLATION_INPUTS: "true"
 
 jobs:
   translation-sync:
@@ -90,6 +91,7 @@ jobs:
           .venv/bin/dsw-tdk --version
 
       - name: Refresh expanded template and translation tree
+        if: ${{ env.REFRESH_TRANSLATION_INPUTS == 'true' }}
         run: |
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
@@ -122,7 +124,11 @@ jobs:
 
       - name: Auto-commit repaired translation inputs
         id: auto_commit
-        if: ${{ github.actor != 'github-actions[bot]' }}
+        if: >-
+          ${{
+            env.REFRESH_TRANSLATION_INPUTS == 'true' &&
+            github.actor != 'github-actions[bot]'
+          }}
         working-directory: template-repo
         env:
           TARGET_REF: >-

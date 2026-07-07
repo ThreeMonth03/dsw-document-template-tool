@@ -958,7 +958,7 @@ def _write_translation_config(
 version_policy:
   defaults:
     state: active
-    refresh: auto
+    refresh: artifact
     migrate_into: auto
     publish_release: true
 """
@@ -1020,7 +1020,7 @@ def _write_version_policy(
     payload["version_policy"] = {
         "defaults": {
             "state": "active",
-            "refresh": "auto",
+            "refresh": "artifact",
             "migrate_into": "auto",
             "publish_release": True,
         },
@@ -1028,7 +1028,7 @@ def _write_version_policy(
             {
                 "match": ">=v1.30.0",
                 "state": "active",
-                "refresh": "auto",
+                "refresh": "artifact",
                 "migrate_into": "auto",
                 "publish_release": True,
             },

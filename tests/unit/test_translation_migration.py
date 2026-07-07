@@ -46,7 +46,7 @@ template:
 version_policy:
   defaults:
     state: active
-    refresh: auto
+    refresh: artifact
     migrate_into: auto
     publish_release: true
 
@@ -362,7 +362,7 @@ def test_version_policy_rules_and_overrides_control_automation(tmp_path: Path) -
 version_policy:
   defaults:
     state: active
-    refresh: auto
+    refresh: artifact
     migrate_into: auto
     publish_release: true
   rules:
@@ -373,7 +373,7 @@ version_policy:
       publish_release: true
     - match: ">=v1.30.0"
       state: active
-      refresh: auto
+      refresh: artifact
       migrate_into: auto
       publish_release: true
   overrides:
@@ -402,11 +402,33 @@ translation:
     assert version_policy_allows_auto_refresh(config, "v1.29.1") is False
     assert version_policy_decision(config, "v1.30.0").state == "archived"
     assert version_policy_decision(config, "v1.30.0").publish_release is False
-    assert version_policy_decision(config, "v1.30.1").refresh == "auto"
+    assert version_policy_decision(config, "v1.30.1").refresh == "artifact"
     assert target_versions(config, "v1.30.1") == []
     assert target_versions(config, "v1.30.1", ["v1.29.1"]) == ["v1.29.1"]
     with pytest.raises(TranslationMigrationError, match="not allowed"):
         target_versions(config, "v1.30.1", ["v1.30.0"])
+
+
+@pytest.mark.parametrize("state", ["published", "archived"])
+@pytest.mark.parametrize("refresh", ["artifact", "manual"])
+def test_frozen_versions_cannot_refresh_from_artifacts(
+    tmp_path: Path,
+    state: str,
+    refresh: str,
+) -> None:
+    """Published and archived versions should never mutate during sync refreshes."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "state: active\n    refresh: artifact",
+            f"state: {state}\n    refresh: {refresh}",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="must use refresh=false"):
+        load_translation_repository_config(config_path)
 
 
 def test_version_policy_range_parser_supports_plus_and_comparators() -> None:

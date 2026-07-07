@@ -64,7 +64,7 @@ class MigrationConfig:
     auto_merge_when_clean: bool
 
 
-VersionRefreshPolicy = Literal["auto", "manual", "false"]
+VersionRefreshPolicy = Literal["artifact", "manual", "false"]
 VersionMigrationPolicy = Literal["auto", "manual", "false"]
 
 
@@ -399,7 +399,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
     if xliff_exchange.path.is_absolute() or ".." in xliff_exchange.path.parts:
         raise TranslationMigrationError("xliff_exchange.path must be a repo-relative path")
 
-    return TranslationRepositoryConfig(
+    config = TranslationRepositoryConfig(
         template=template,
         translation=translation,
         branches=branches,
@@ -410,6 +410,21 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         version_policy=version_policy,
         xliff_exchange=xliff_exchange,
     )
+    _validate_version_lifecycle_policy(config)
+    return config
+
+
+def _validate_version_lifecycle_policy(config: TranslationRepositoryConfig) -> None:
+    """Reject lifecycle policies that could mutate frozen versions."""
+
+    frozen_states = {"published", "archived"}
+    for version in config.template.supported_versions:
+        policy = version_policy_decision(config, version)
+        if policy.state in frozen_states and policy.refresh != "false":
+            raise TranslationMigrationError(
+                f"Version {version} is {policy.state!r} but has refresh={policy.refresh!r}; "
+                "published and archived versions must use refresh=false"
+            )
 
 
 def version_branch(config: TranslationRepositoryConfig, version: str) -> str:
@@ -477,9 +492,9 @@ def version_policy_allows_auto_refresh(
     config: TranslationRepositoryConfig,
     version: str,
 ) -> bool:
-    """Return whether automation may refresh a version branch workspace."""
+    """Return whether automation may rebuild a branch from clean artifacts."""
 
-    return version_policy_decision(config, version).refresh == "auto"
+    return version_policy_decision(config, version).refresh == "artifact"
 
 
 def version_policy_allows_manual_refresh(
@@ -488,7 +503,7 @@ def version_policy_allows_manual_refresh(
 ) -> bool:
     """Return whether an operator-triggered sync may refresh a version branch."""
 
-    return version_policy_decision(config, version).refresh in {"auto", "manual"}
+    return version_policy_decision(config, version).refresh in {"artifact", "manual"}
 
 
 def version_policy_allows_manual_migration(
@@ -779,11 +794,11 @@ def _optional_refresh_policy(
 ) -> VersionRefreshPolicy:
     value = _optional_string_or_bool(payload, key, default=default)
     if value is True:
-        return "auto"
+        return "artifact"
     if value is False:
         return "false"
-    if value not in {"auto", "manual", "false"}:
-        raise TranslationMigrationError(f"Expected {key!r} to be one of auto, manual, false")
+    if value not in {"artifact", "manual", "false"}:
+        raise TranslationMigrationError(f"Expected {key!r} to be one of artifact, manual, false")
     return value
 
 

@@ -65,7 +65,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=[],
         help=(
             "Source version tag to check. May be repeated. Defaults to versions "
-            "whose effective version_policy.refresh is auto."
+            "whose effective version_policy.refresh is artifact."
         ),
     )
     parser.add_argument(
@@ -149,7 +149,7 @@ def default_source_versions(config: TranslationRepositoryConfig) -> list[str]:
     return [
         version
         for version in config.template.supported_versions
-        if version_policy_decision(config, version).refresh == "auto"
+        if version_policy_decision(config, version).refresh == "artifact"
     ]
 
 

@@ -309,7 +309,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "releases: write" not in workflow_text
     assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "github.event.pull_request.head.repo.full_name == github.repository" in workflow_text
-    assert "if: ${{ github.actor != 'github-actions[bot]' }}" in workflow_text
+    assert "env.REFRESH_TRANSLATION_INPUTS == 'true'" in workflow_text
+    assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "skip-fork-pr" in workflow["jobs"]
     assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
     assert workflow["env"]["TOOLING_REF"] == "main"
@@ -342,6 +343,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
     assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
     assert workflow["env"]["PUBLISH_RELEASE_ASSETS"] == "true"
+    assert workflow["env"]["REFRESH_TRANSLATION_INPUTS"] == "true"
     assert workflow["env"]["PUBLIC_README_PATH"] == (
         "workspace/document-templates/public-readme/README.md"
     )

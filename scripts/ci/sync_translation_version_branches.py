@@ -775,6 +775,9 @@ def write_version_branch_workflow(
         'PUBLISH_RELEASE_ASSETS: "true"': (
             f"PUBLISH_RELEASE_ASSETS: {_yaml_scalar(str(policy.publish_release).lower())}"
         ),
+        'REFRESH_TRANSLATION_INPUTS: "true"': (
+            f"REFRESH_TRANSLATION_INPUTS: {_yaml_scalar(str(policy.refresh == 'artifact').lower())}"
+        ),
     }
     for old, new in replacements.items():
         if old not in workflow:

@@ -146,7 +146,7 @@ version_policy:
       reason: reviewed target
     v1.30.1:
       state: active
-      refresh: auto
+      refresh: artifact
       migrate_into: auto
       publish_release: true
       reason: active source

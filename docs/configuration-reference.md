@@ -54,7 +54,7 @@ Important fields:
 | `template.supported_versions` | Versions known to the translation control repo. A version can be known without being actively translated. |
 | `version_policy` | Per-version lifecycle policy: whether automation may refresh, migrate into, or publish release assets. |
 | `branches.control_branch` | Operations branch that owns repository-level config and docs. |
-| `branches.version_branch_prefix` | Prefix for translator-facing branches, usually `translation/`. |
+| `branches.version_branch_prefix` | Prefix for translator-facing branches, usually `sync/`. |
 | `public_readme.path` | Canonical user-facing template README copied into generated version branches. |
 | `publish.branch_prefix` | Branch prefix used when manually staging reviewed translated source for public handoff. |
 | `xliff_exchange` | Optional XLIFF export/import settings. The default workflow still treats `translation.md` as canonical. |
@@ -85,13 +85,13 @@ version_policy:
   overrides:
     vX.Y.Z:
       state: active
-      refresh: auto
+      refresh: artifact
       migrate_into: auto
       publish_release: true
       reason: actively translated
 ```
 
-Already published, still open for explicit maintenance:
+Maintenance branch that can be refreshed only by an operator:
 
 ```yaml
 version_policy:
@@ -101,7 +101,7 @@ version_policy:
       refresh: manual
       migrate_into: manual
       publish_release: true
-      reason: published; maintenance changes require operator action
+      reason: maintenance changes require operator action
 ```
 
 Published and frozen:
@@ -110,11 +110,11 @@ Published and frozen:
 version_policy:
   overrides:
     vX.Y.Z:
-      state: archived
+      state: published
       refresh: false
       migrate_into: false
-      publish_release: false
-      reason: archived; do not refresh or republish
+      publish_release: true
+      reason: published; do not rebuild from newer scaffold artifacts
 ```
 
 `refresh` controls whether `sync/v*` branches are created or refreshed.
@@ -122,6 +122,11 @@ version_policy:
 into this version. `publish_release` controls translated release asset
 generation. `state` and `reason` are maintainer-facing labels that make CI
 summaries and reviews easier to understand.
+
+Use `refresh: artifact` only for versions that should be rebuilt from the latest
+tooling clean scaffold artifact. Published and archived versions must use
+`refresh: false`; the loader rejects frozen versions that could still mutate
+from artifact refreshes.
 
 Use [Downstream Integration](downstream-integration.md) for the operational
 sequence and [Translation Workflow](translation-workflow.md) for translator-facing

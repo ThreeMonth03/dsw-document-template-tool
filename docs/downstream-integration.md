@@ -165,8 +165,8 @@ with `--sync-workflows` and a token that has GitHub Actions workflow scope.
 `template.supported_versions` is the downstream repository's known upstream
 version ledger. It may contain versions that have clean scaffold artifacts but
 are not actively translated. Branch creation and content refresh are controlled
-by `version_policy`: only versions whose effective `refresh` value is `auto`
-for scheduled runs, or `auto`/`manual` for operator-triggered runs, get
+by `version_policy`: only versions whose effective `refresh` value is `artifact`
+for scheduled runs, or `artifact`/`manual` for operator-triggered runs, get
 `sync/v*` workspaces. If `version_policy` is omitted, the tool treats
 newly discovered versions as scaffold-only records and does not create
 translation branches.
