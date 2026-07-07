@@ -683,7 +683,7 @@ artifacts or release assets; they are not committed to this branch.
 
 Repository operations, supported-version policy, and migration automation live
 on `{config.branches.control_branch}`. Keep translation edits on this version
-branch; do not use the control branch for translator-facing work.
+branch; do not use that operations branch for translator-facing work.
 """
     (checkout / "README.md").write_text(readme, encoding="utf-8")
 
@@ -1003,7 +1003,7 @@ def print_summary(result: SyncResult) -> None:
     print(f"INFO: created branches: {', '.join(result.created_branches) or '(none)'}")
     print(f"INFO: refreshed branches: {', '.join(result.refreshed_branches) or '(none)'}")
     print(
-        "INFO: updated control branches: "
+        "INFO: updated operations/version branch files: "
         + (", ".join(result.updated_control_branches) or "(none)")
     )
     print(f"INFO: config changed: {result.config_changed}")

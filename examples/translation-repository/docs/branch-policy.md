@@ -9,11 +9,12 @@ repository, but the responsibilities must stay separated by branch.
 | --- | --- |
 | `master` or the configured operations branch | Repository-level docs, `translation-config.yml`, and workflows. |
 | `sync/v*` | Translator-facing Markdown workspaces and review PRs. |
-| `publish/v*` or the configured handoff branch prefix | Clean translated template source for handoff or manual import. |
-| Release assets | Package zip, preview PDF, checksums, and release notes. |
+| Release assets | Default delivery path: package zip, preview PDF, checksums, and release notes. |
+| Optional `publish/v*` or configured handoff branch prefix | Clean translated source only when branch-based handoff is enabled. |
 
 Do not publish translator-facing workspaces as final template source. Use the
-configured handoff branch or release asset for reviewed handoff.
+release asset for reviewed handoff unless branch-based source handoff has been
+explicitly enabled.
 
 ## Public Visibility
 
@@ -22,8 +23,8 @@ too. That means draft translation wording, CI logs, preview artifacts, and
 review discussions may be visible.
 
 If draft translation work must stay private, keep `sync/v*` branches in a
-private repository or private fork and publish only reviewed `publish/v*` branches
-or release assets to the public repository.
+private repository or private fork and publish only reviewed release assets or
+explicitly enabled source handoff branches.
 
 ## Version Policy
 

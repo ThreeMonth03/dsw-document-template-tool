@@ -37,7 +37,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
     public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
     public_readme.parent.mkdir(parents=True)
-    public_readme.write_text("public README from control branch\n", encoding="utf-8")
+    public_readme.write_text("public README from operations branch\n", encoding="utf-8")
     (translation_repo / ".github" / "workflows").mkdir(parents=True)
     operations_workflow = (
         translation_repo / ".github" / "workflows" / "document_template_translation_sync.yml"
@@ -137,13 +137,13 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     version_readme = _git_show(translation_repo, "sync/v1.30.2:README.md")
     assert "The repository `master` branch is not" not in version_readme
     assert "Keep translation edits on this version" in version_readme
-    assert "do not use the control branch for translator-facing work." in version_readme
+    assert "do not use that operations branch for translator-facing work." in version_readme
     assert (
         _git_show(
             translation_repo,
             "sync/v1.30.2:workspace/document-templates/public-readme/README.md",
         )
-        == "public README from control branch\n"
+        == "public README from operations branch\n"
     )
     assert (
         _git_show(

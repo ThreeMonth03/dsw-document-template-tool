@@ -274,7 +274,9 @@ make stage-translated-handoff \
 
 The handoff target creates or updates a reviewable branch using the configured
 downstream handoff branch prefix (`publish.branch_prefix` in
-`translation-config.yml`), currently `publish/v*`.
+`translation-config.yml`, often `publish/v*`). This is optional. The default
+delivery path is the versioned release asset produced by the translation branch
+workflow.
 
 ## Release Helpers
 
