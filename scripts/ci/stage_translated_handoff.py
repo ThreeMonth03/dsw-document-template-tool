@@ -264,6 +264,7 @@ def synthesize_translated_template_source(
         template_organization_id=config.translation.translated_template_organization_id,
         template_id=config.translation.translated_template_id,
         template_name=config.translation.translated_template_name,
+        template_description=config.translation.translated_template_description,
         template_version=paths.version_number,
         public_readme_path=checkout / config.public_readme.path,
     )

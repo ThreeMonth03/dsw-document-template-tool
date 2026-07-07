@@ -12,12 +12,14 @@ def patch_template_metadata(
     organization_id: str | None,
     template_id: str | None,
     name: str | None,
+    description: str | None,
     version: str | None,
 ) -> None:
     updates = {
         "organizationId": organization_id,
         "templateId": template_id,
         "name": name,
+        "description": description,
         "version": version,
     }
     updates = {key: value for key, value in updates.items() if value is not None}

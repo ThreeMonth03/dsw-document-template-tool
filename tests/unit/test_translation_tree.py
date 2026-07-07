@@ -2553,6 +2553,7 @@ def test_sync_translation_tree_can_patch_output_template_metadata(tmp_path: Path
         template_organization_id="dsw",
         template_id="sample-zh-hant",
         template_name="Sample Template (zh-Hant)",
+        template_description="Sample Template 的繁體中文化版本",
         template_version="1.0.0-zh-hant",
     )
 
@@ -2560,6 +2561,7 @@ def test_sync_translation_tree_can_patch_output_template_metadata(tmp_path: Path
     assert payload["organizationId"] == "dsw"
     assert payload["templateId"] == "sample-zh-hant"
     assert payload["name"] == "Sample Template (zh-Hant)"
+    assert payload["description"] == "Sample Template 的繁體中文化版本"
     assert payload["version"] == "1.0.0-zh-hant"
 
     readme = (translated_expanded_dir / "README.md").read_text(encoding="utf-8")

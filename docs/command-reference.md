@@ -361,6 +361,7 @@ Run translation tree export/sync directly:
   --template-organization-id dsw \
   --template-id science-europe-zh-hant \
   --template-name "Science Europe DMP Template (zh-Hant)" \
+  --template-description "Science Europe DMP Template 的繁體中文化版本" \
   --template-version 1.30.1
 ```
 

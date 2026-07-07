@@ -93,6 +93,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="Optional name to write into the translated template.json.",
     )
     sync_parser.add_argument(
+        "--template-description",
+        help="Optional description to write into the translated template.json.",
+    )
+    sync_parser.add_argument(
         "--template-version",
         help="Optional version to write into the translated template.json.",
     )
@@ -258,6 +262,7 @@ def _run_sync(args: argparse.Namespace) -> None:
         template_organization_id=args.template_organization_id,
         template_id=args.template_id,
         template_name=args.template_name,
+        template_description=args.template_description,
         template_version=args.template_version,
         public_readme_path=args.public_readme,
     )

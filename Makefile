@@ -56,6 +56,7 @@ TEMPLATE_DIR ?=
 TOOL_GITHUB_REPO ?= $(if $(GITHUB_REPOSITORY),$(GITHUB_REPOSITORY),owner/document-template-tool)
 TRANSLATED_EXPANDED_TEMPLATE_DIR ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
 TRANSLATED_OUTPUT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
+TRANSLATED_TEMPLATE_DESCRIPTION ?= Science Europe DMP Template 的繁體中文化版本
 TRANSLATED_TEMPLATE_ID ?= science-europe-zh-hant
 TRANSLATED_TEMPLATE_NAME ?= Science Europe DMP Template (zh-Hant)
 TRANSLATED_TEMPLATE_ORGANIZATION_ID ?= dsw
@@ -287,6 +288,7 @@ sync-translation-tree: audit-translation-tree
 		--template-organization-id "$(TRANSLATED_TEMPLATE_ORGANIZATION_ID)" \
 		--template-id "$(TRANSLATED_TEMPLATE_ID)" \
 		--template-name "$(TRANSLATED_TEMPLATE_NAME)" \
+		--template-description "$(TRANSLATED_TEMPLATE_DESCRIPTION)" \
 		--template-version "$(TRANSLATED_TEMPLATE_VERSION)"
 	$(DSW_TEMPLATE_TREE) audit-output \
 		--source "$(EXPANDED_TEMPLATE_DIR)" \

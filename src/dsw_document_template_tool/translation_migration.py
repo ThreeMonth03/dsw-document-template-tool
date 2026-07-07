@@ -33,6 +33,7 @@ class TranslationConfig:
     target_language: str
     target_language_label: str
     translated_template_organization_id: str
+    translated_template_description: str | None
     translated_template_id: str
     translated_template_name: str
 
@@ -291,6 +292,11 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         translated_template_organization_id=_required_str(
             translation_payload,
             "translated_template_organization_id",
+        ),
+        translated_template_description=_optional_str(
+            translation_payload,
+            "translated_template_description",
+            default=None,
         ),
         translated_template_id=_required_str(
             translation_payload,

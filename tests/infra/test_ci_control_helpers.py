@@ -449,6 +449,7 @@ translation:
   target_language: zh_Hant
   target_language_label: zh-Hant
   translated_template_organization_id: dsw
+  translated_template_description: Science Europe DMP Template 的繁體中文化版本
   translated_template_id: science-europe-zh-hant
   translated_template_name: Science Europe DMP Template (zh-Hant)
 

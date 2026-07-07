@@ -774,6 +774,10 @@ def write_version_branch_workflow(
         "TRANSLATED_TEMPLATE_ID: science-europe-zh-hant": (
             f"TRANSLATED_TEMPLATE_ID: {_yaml_scalar(config.translation.translated_template_id)}"
         ),
+        "TRANSLATED_TEMPLATE_DESCRIPTION: Science Europe DMP Template 的繁體中文化版本": (
+            "TRANSLATED_TEMPLATE_DESCRIPTION: "
+            f"{_yaml_scalar(config.translation.translated_template_description or '')}"
+        ),
         "TRANSLATED_TEMPLATE_VERSION: 1.30.0": (
             f"TRANSLATED_TEMPLATE_VERSION: {_yaml_scalar(paths.version_number)}"
         ),
@@ -910,6 +914,8 @@ def sync_blank_translation_output(
         config.translation.translated_template_id,
         "--template-name",
         config.translation.translated_template_name,
+        "--template-description",
+        config.translation.translated_template_description or "",
         "--template-version",
         paths.version_number,
         "--public-readme",

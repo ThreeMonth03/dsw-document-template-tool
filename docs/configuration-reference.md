@@ -52,6 +52,7 @@ Important fields:
 | Field | Meaning |
 | --- | --- |
 | `template.supported_versions` | Upstream versions known to the public repository. A version can be known without being actively translated. |
+| `translation.translated_template_*` | Public DSW metadata written to `template.json`, including organization id, template id, name, and optional description. |
 | `version_policy` | Per-version lifecycle policy: whether automation may refresh, migrate into, or publish release assets. |
 | `branches.control_branch` | Operations branch that owns repository-level config and docs. |
 | `branches.version_branch_prefix` | Prefix for translator-facing branches, usually `sync/`. |

@@ -1002,6 +1002,7 @@ translation:
   target_language: zh_Hant
   target_language_label: zh-Hant
   translated_template_organization_id: dsw
+  translated_template_description: Science Europe DMP Template 的繁體中文化版本
   translated_template_id: {translated_template_id}
   translated_template_name: {json.dumps(translated_template_name, ensure_ascii=False)}
 

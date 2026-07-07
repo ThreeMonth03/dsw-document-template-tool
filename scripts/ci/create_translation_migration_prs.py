@@ -380,6 +380,8 @@ def refresh_target_with_source(
         config.translation.translated_template_id,
         "--template-name",
         config.translation.translated_template_name,
+        "--template-description",
+        config.translation.translated_template_description or "",
         "--template-version",
         target_paths.version_number,
     )

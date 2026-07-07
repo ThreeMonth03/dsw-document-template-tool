@@ -32,6 +32,7 @@ env:
   TRANSLATED_TEMPLATE_ID: science-europe-zh-hant
   TRANSLATED_TEMPLATE_VERSION: 1.30.0
   TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)
+  TRANSLATED_TEMPLATE_DESCRIPTION: Science Europe DMP Template 的繁體中文化版本
   TRANSLATION_SOURCE_LANG: en
   TRANSLATION_TARGET_LANG: zh_Hant
   PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md
@@ -231,6 +232,7 @@ jobs:
             --template-organization-id "$TRANSLATED_TEMPLATE_ORGANIZATION_ID" \
             --template-id "$TRANSLATED_TEMPLATE_ID" \
             --template-name "$TRANSLATED_TEMPLATE_NAME" \
+            --template-description "$TRANSLATED_TEMPLATE_DESCRIPTION" \
             --template-version "$TRANSLATED_TEMPLATE_VERSION" \
             --public-readme "$HOST_ROOT/$PUBLIC_README_PATH" 2>&1 | tee "$SYNC_LOG"; then
             {

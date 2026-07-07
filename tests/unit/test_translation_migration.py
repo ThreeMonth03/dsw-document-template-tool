@@ -55,6 +55,7 @@ translation:
   target_language: zh_Hant
   target_language_label: zh-Hant
   translated_template_organization_id: dsw
+  translated_template_description: Science Europe DMP Template 的繁體中文化版本
   translated_template_id: science-europe-zh-hant
   translated_template_name: Science Europe DMP Template (zh-Hant)
 
@@ -93,6 +94,10 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     assert version_branch(config, "v1.30.1") == "sync/v1.30.1"
     assert migration_branch(config, "v1.30.0", "v1.30.1") == (
         "automation/migrate-v1.30.0-to-v1.30.1"
+    )
+    assert (
+        config.translation.translated_template_description
+        == "Science Europe DMP Template 的繁體中文化版本"
     )
     assert config.branches.control_branch == "master"
     assert config.publish.target_repository == "depositar/science-europe-template-zh_Hant"

@@ -118,6 +118,8 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
         f"- Supported versions: `{versions}`",
         f"- Control branch: `{config.branches.control_branch}`",
         f"- Version branch prefix: `{config.branches.version_branch_prefix}`",
+        "- Translated template description: "
+        f"`{config.translation.translated_template_description or ''}`",
         f"- Public README path: `{config.public_readme.path.as_posix()}`",
         f"- Migration mode: `{config.migration.mode}`",
         f"- Publish branch prefix: `{config.publish.branch_prefix}`",

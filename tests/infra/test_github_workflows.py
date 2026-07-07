@@ -326,6 +326,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     )
     assert workflow["env"]["TRANSLATED_TEMPLATE_ORGANIZATION_ID"] == "dsw"
     assert workflow["env"]["TRANSLATED_TEMPLATE_ID"] == "science-europe-zh-hant"
+    assert (
+        workflow["env"]["TRANSLATED_TEMPLATE_DESCRIPTION"]
+        == "Science Europe DMP Template 的繁體中文化版本"
+    )
     assert workflow["env"]["TRANSLATED_TEMPLATE_VERSION"] == "1.30.0"
     assert workflow["env"]["TRANSLATION_SOURCE_LANG"] == "en"
     assert workflow["env"]["TRANSLATION_TARGET_LANG"] == "zh_Hant"
@@ -384,6 +388,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "--template-organization-id" in workflow_text
     assert "--template-id" in workflow_text
     assert "--template-name" in workflow_text
+    assert "--template-description" in workflow_text
     assert "--template-version" in workflow_text
     assert "--public-readme" in workflow_text
     assert "$HOST_ROOT/$PUBLIC_README_PATH" in workflow_text

@@ -186,6 +186,7 @@ def sync_translation_tree(
     template_organization_id: str | None = None,
     template_id: str | None = None,
     template_name: str | None = None,
+    template_description: str | None = None,
     template_version: str | None = None,
     public_readme_path: Path | None = None,
 ) -> Path:
@@ -226,6 +227,7 @@ def sync_translation_tree(
         organization_id=template_organization_id,
         template_id=template_id,
         name=template_name,
+        description=template_description,
         version=template_version,
     )
     polish_translated_output_dir(output_dir=output_dir, target_lang=target_lang)
