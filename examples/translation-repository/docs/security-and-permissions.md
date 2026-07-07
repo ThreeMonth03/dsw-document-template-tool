@@ -22,6 +22,29 @@ Use the built-in `GITHUB_TOKEN` where possible. Use a separate automation token
 only when the workflow must update workflow files or cross repository
 boundaries.
 
+## Workflow Synchronization Token
+
+Operations sync can refresh normal branch content with the built-in token. It
+needs a token with workflow permission only when it must update generated files
+under `.github/workflows/` on `sync/v*` branches.
+
+Use a repository-limited token when possible:
+
+- fine-grained PAT: `Contents: Read and write`, `Workflows: Read and write`
+- classic PAT: `repo`, `workflow`
+
+Set the token as `TRANSLATION_AUTOMATION_TOKEN` without printing it:
+
+```shell
+gh auth refresh -h github.com -s repo -s workflow
+gh auth token | gh secret set TRANSLATION_AUTOMATION_TOKEN \
+  --repo OWNER/REPOSITORY
+```
+
+Then rerun the operations workflow. With this secret present, operations sync
+may pass `--sync-workflows` and regenerate version-branch workflow files from
+the tool repository template.
+
 ## Sensitive Artifacts
 
 Do not commit or upload:

@@ -35,3 +35,60 @@ active translation branch.
 Use `version_policy` to decide whether a version is active, maintenance-only,
 or archived. Do not assume every upstream template tag needs an active
 translation branch.
+
+## Common Policy Snippets
+
+Scaffold exists, but translation has not started:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: available
+      refresh: false
+      migrate_into: false
+      publish_release: false
+      reason: scaffold available; translation not started
+```
+
+Actively translated and allowed to follow clean scaffold artifacts:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: active
+      refresh: artifact
+      migrate_into: auto
+      publish_release: true
+      reason: actively translated
+```
+
+Published and frozen, while keeping the reviewed release assets available:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: published
+      refresh: false
+      migrate_into: false
+      publish_release: true
+      reason: published; do not rebuild from newer scaffold artifacts
+```
+
+Archived and fully frozen:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: archived
+      refresh: false
+      migrate_into: false
+      publish_release: false
+      reason: archived; keep historical branch and release assets unchanged
+```
+
+Published and archived versions must use `refresh: false`; the tooling rejects
+frozen versions that could still be rebuilt from clean scaffold artifacts.

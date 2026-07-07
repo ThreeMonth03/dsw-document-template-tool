@@ -117,6 +117,19 @@ version_policy:
       reason: published; do not rebuild from newer scaffold artifacts
 ```
 
+Archived and fully frozen:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: archived
+      refresh: false
+      migrate_into: false
+      publish_release: false
+      reason: archived; keep historical branch and release assets unchanged
+```
+
 `refresh` controls whether `sync/v*` branches are created or refreshed.
 `migrate_into` controls whether translations from another version may be merged
 into this version. `publish_release` controls translated release asset
