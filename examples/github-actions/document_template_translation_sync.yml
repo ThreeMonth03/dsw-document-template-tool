@@ -401,6 +401,7 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --title "$release_title" \
               --notes-file "$release_dir/release-notes.md" \
+              --target "$release_target" \
               --prerelease
           }
 

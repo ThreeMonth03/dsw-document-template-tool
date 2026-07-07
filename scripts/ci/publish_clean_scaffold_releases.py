@@ -218,6 +218,8 @@ def publish_release(release: CleanScaffoldRelease) -> None:
                 release.release_title,
                 "--notes-file",
                 str(notes_file),
+                "--target",
+                release.commit_sha,
                 "--prerelease",
             ]
         )

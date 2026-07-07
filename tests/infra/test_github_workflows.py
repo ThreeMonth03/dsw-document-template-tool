@@ -450,6 +450,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "sync_release_tag()" in workflow_text
     assert '"repos/$GITHUB_REPOSITORY/git/refs/tags/$release_tag"' in workflow_text
     assert '-f sha="$release_target"' in workflow_text
+    assert '--target "$release_target"' in workflow_text
     assert "-F force=true" in workflow_text
     assert "elif ! create_release; then" in workflow_text
     assert (

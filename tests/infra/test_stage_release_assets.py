@@ -338,6 +338,8 @@ def test_publish_clean_scaffold_releases_moves_existing_tag_before_upload(
         "force=true",
     ]
     assert commands[1][:4] == ["gh", "release", "edit", release.release_tag]
+    assert "--target" in commands[1]
+    assert "abc123" in commands[1]
     assert commands[-1][:4] == ["gh", "release", "upload", release.release_tag]
 
 
