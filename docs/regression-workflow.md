@@ -192,5 +192,5 @@ workspace bundle, preview bundle, release notes, and `SHA256SUMS` under
 `outputs/release-assets/...`, then uploads them to a prerelease GitHub Release
 named like `clean-scaffold-dsw-science-europe-v1.30.1`.
 
-Those releases are convenience download buckets for downstream translation
+Those releases are convenience download buckets for public repository
 maintenance. They are not finished public translations.

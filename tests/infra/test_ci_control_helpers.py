@@ -1,4 +1,4 @@
-"""Tests for CI helper scripts used by downstream translation repositories."""
+"""Tests for CI helper scripts used by public translated-template repositories."""
 
 from __future__ import annotations
 

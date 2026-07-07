@@ -295,7 +295,7 @@ jobs:
       # repositories do not need to carry stale demo project or Knowledge Model
       # copies.
       # PROJECT_REF can also point at a JSON recipe or existing project UUID in
-      # the checked-out template repo if a downstream workflow overrides it.
+      # the checked-out template repo if a public-repository workflow overrides it.
       - name: Start local DSW stack for sample render
         if: ${{ env.PROJECT_REF != '' }}
         working-directory: tooling-repo

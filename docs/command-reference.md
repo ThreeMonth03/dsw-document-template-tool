@@ -8,7 +8,7 @@ Repository paths should be variables so commands survive repository transfers:
 
 ```shell
 TOOL_REPO_DIR=/path/to/document-template-tool
-TRANSLATION_REPO_DIR=/path/to/template-translation-repo
+PUBLIC_TEMPLATE_REPO_DIR=/path/to/science-europe-template-zh_Hant
 TOOL_GITHUB_REPO=owner/document-template-tool
 ```
 
@@ -21,7 +21,7 @@ For workflow context, read the matching runbook first:
 | CI/release operation | [CI and Release Runbook](ci-and-release-runbook.md) |
 | Config file ownership | [Configuration Reference](configuration-reference.md) |
 | Parser or tree behavior changes | [Parser and Translation Tree](parser-and-translation-tree.md) |
-| Translation repo handoff | [Downstream Integration](downstream-integration.md) |
+| Public repository handoff | [Public Template Repository Integration](downstream-integration.md) |
 
 ## Local Tooling
 
@@ -147,8 +147,8 @@ To push the probe PR branch, set `COMPAT_PROBE_DRY_RUN=false`.
 ## Clean Scaffold Artifacts
 
 Clean scaffold artifacts are generated from upstream tags before any human
-translation work. They are the input boundary for downstream translation
-repositories.
+translation work. They are the input boundary for the public
+translated-template repository.
 
 | Command | Purpose |
 | --- | --- |
@@ -230,10 +230,10 @@ Use `render-package` for `.zip` assets downloaded from GitHub Releases.
 Do not unzip a release package and pass it as `PROJECT_RENDER_TEMPLATE_DIR`;
 DSW package zips store template files inside `template.json`.
 
-## Downstream Handoff
+## Public Repository Handoff
 
-These commands help a translation repository consume clean scaffold artifacts.
-They do not publish to DSW and do not update public deployment repositories.
+These commands help the public translated-template repository consume clean
+scaffold artifacts. They do not publish to DSW.
 
 Download clean scaffold artifacts from a tool workflow run:
 
@@ -253,26 +253,25 @@ make download-clean-scaffold-artifacts \
   CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
 ```
 
-Validate a downstream translation config:
+Validate the public repository translation config:
 
 ```shell
 make validate-translation-config \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR"
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR"
 ```
 
-Check that downstream translation docs still cover the required operations
-topics:
+Check that public repository docs still cover the required operations topics:
 
 ```shell
 make check-translation-repository-docs \
-  TRANSLATION_DOCS_REPO="$TRANSLATION_REPO_DIR"
+  TRANSLATION_DOCS_REPO="$PUBLIC_TEMPLATE_REPO_DIR"
 ```
 
-Dry-run downstream branch refresh:
+Dry-run public repository branch refresh:
 
 ```shell
 make sync-translation-version-branches \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
@@ -280,7 +279,7 @@ Check whether exact-only migration would still create branch updates:
 
 ```shell
 make check-translation-migrations \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
@@ -291,12 +290,12 @@ Manually stage reviewed translated source to a target handoff branch:
 
 ```shell
 make stage-translated-handoff \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
   HANDOFF_VERSION=v1.30.1
 ```
 
 The handoff target creates or updates a reviewable branch using the configured
-downstream handoff branch prefix (`publish.branch_prefix` in
+public repository handoff branch prefix (`publish.branch_prefix` in
 `translation-config.yml`, often `publish/v*`). This is optional. The default
 delivery path is the versioned release asset produced by the translation branch
 workflow.

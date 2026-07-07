@@ -32,7 +32,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
     _run_git(translation_repo, "config", "user.email", "test@example.invalid")
     _run_git(translation_repo, "remote", "add", "origin", str(origin))
     _write_translation_config(translation_repo / "translation-config.yml")
-    (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
+    (translation_repo / "README.md").write_text("public template repo\n", encoding="utf-8")
     (translation_repo / "docs").mkdir()
     (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
     public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"
@@ -203,7 +203,7 @@ def test_sync_translation_versions_records_new_artifact_without_policy_opt_in(
         translation_repo / "translation-config.yml",
         include_version_policy=False,
     )
-    (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
+    (translation_repo / "README.md").write_text("public template repo\n", encoding="utf-8")
     _run_git(translation_repo, "add", ".")
     _run_git(translation_repo, "commit", "-m", "initial operations branch")
     _run_git(translation_repo, "push", "-u", "origin", "master")
@@ -251,7 +251,7 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     _run_git(translation_repo, "config", "user.email", "test@example.invalid")
     _run_git(translation_repo, "remote", "add", "origin", str(origin))
     _write_translation_config(translation_repo / "translation-config.yml")
-    (translation_repo / "README.md").write_text("translation control repo\n", encoding="utf-8")
+    (translation_repo / "README.md").write_text("public template repo\n", encoding="utf-8")
     (translation_repo / "docs").mkdir()
     (translation_repo / "docs" / "ops.md").write_text("operations docs\n", encoding="utf-8")
     public_readme = translation_repo / "workspace/document-templates/public-readme/README.md"

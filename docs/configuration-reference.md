@@ -2,7 +2,7 @@
 
 This page is the map for repository configuration files. Use it when a runbook
 mentions a config path and you need to know whether that file is source,
-generated output, workflow template, or downstream-only data.
+generated output, workflow template, or public-repository data.
 
 All paths below are repository-relative references.
 
@@ -24,8 +24,8 @@ All paths below are repository-relative references.
 | [`.github/workflows/headless_render_regression.yml`](../.github/workflows/headless_render_regression.yml) | Tool repo | Main CI workflow for checks, upstream discovery, clean scaffold artifacts, release assets, and DSW render regression. Its runtime matrix is generated from [`config/dsw-compat.yml`](../config/dsw-compat.yml). | `make check`, `make sync-dsw-runtime-matrix` |
 | [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) | Tool repo | GitHub Pages deployment for this documentation site. | `make docs` |
 | [`.github/dsw/docker-compose.yml`](../.github/dsw/docker-compose.yml) | Tool repo | Ephemeral DSW stack used by local and CI render tests. | `make start-ci-dsw`, `make stop-ci-dsw`, `make ci-dsw-logs` |
-| [`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml) | Tool repo example | Template workflow copied into downstream translation version branches. The sync script renders version-specific values from `translation-config.yml`. | `make sync-translation-version-branches` |
-| [`examples/translation-repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository) | Tool repo example | Copy-ready README and docs templates for downstream translation repositories. Active downstream copies are repository-owned. | Manual copy after `make docs` |
+| [`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml) | Tool repo example | Template workflow copied into public repository `sync/v*` branches. The sync script renders version-specific values from `translation-config.yml`. | `make sync-translation-version-branches` |
+| [`examples/translation-repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository) | Tool repo example | Copy-ready README and docs templates for the public translated-template repository. Active public-repository copies are repository-owned. | Manual copy after `make docs` |
 
 ## Generated Configs
 
@@ -37,21 +37,21 @@ All paths below are repository-relative references.
 Generated configs are ignored by git. If a generated config looks wrong, fix the
 source config or generator instead of committing the generated file.
 
-## Downstream Translation Config
+## Public Repository Translation Config
 
-The downstream translation repository owns `translation-config.yml`; this tool
-only validates and consumes it. The schema is implemented by
+The public translated-template repository owns `translation-config.yml`; this
+tool only validates and consumes it. The schema is implemented by
 `dsw_document_template_tool.translation_migration` and validated with:
 
 ```shell
-make validate-translation-config TRANSLATION_REPO=/path/to/translation-repo
+make validate-translation-config TRANSLATION_REPO=/path/to/science-europe-template-zh_Hant
 ```
 
 Important fields:
 
 | Field | Meaning |
 | --- | --- |
-| `template.supported_versions` | Versions known to the translation control repo. A version can be known without being actively translated. |
+| `template.supported_versions` | Upstream versions known to the public repository. A version can be known without being actively translated. |
 | `version_policy` | Per-version lifecycle policy: whether automation may refresh, migrate into, or publish release assets. |
 | `branches.control_branch` | Operations branch that owns repository-level config and docs. |
 | `branches.version_branch_prefix` | Prefix for translator-facing branches, usually `sync/`. |
@@ -141,6 +141,6 @@ tooling clean scaffold artifact. Published and archived versions must use
 `refresh: false`; the loader rejects frozen versions that could still mutate
 from artifact refreshes.
 
-Use [Downstream Integration](downstream-integration.md) for the operational
-sequence and [Translation Workflow](translation-workflow.md) for translator-facing
-behavior.
+Use [Public Template Repository Integration](downstream-integration.md) for the
+operational sequence and [Translation Workflow](translation-workflow.md) for
+translator-facing behavior.

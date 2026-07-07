@@ -41,8 +41,8 @@ clean-scaffold-dsw-science-europe-v1.30.0
 clean-scaffold-dsw-science-europe-v1.30.1
 ```
 
-These releases are not finished translations. They are inputs for downstream
-translation maintenance.
+These releases are not finished translations. They are inputs for public
+repository translation maintenance.
 
 ## Release Refresh Semantics
 
@@ -63,17 +63,18 @@ This means:
 If a repository enables immutable releases, `--clobber` will fail. See
 [Troubleshooting](troubleshooting.md).
 
-## Downstream Handoff
+## Public Repository Handoff
 
-Translation repositories consume these clean scaffold releases and publish their
-own translated package/PDF releases. The downstream repository should document
-its branch layout, translation QA, and manual import policy.
+The public translated-template repository consumes these clean scaffold releases
+and publishes its own translated package/PDF releases. That repository should
+document its branch layout, translation QA, and manual import policy.
 
-This repo provides the helper contract in [Downstream Integration](downstream-integration.md).
+This repo provides the helper contract in
+[Public Template Repository Integration](downstream-integration.md).
 
 ## Updating Existing Version Branch Workflows
 
 Changing `examples/github-actions/document_template_translation_sync.yml` only
-changes the template copied by downstream repositories. Existing downstream
+changes the template copied by the public repository. Existing `sync/v*`
 branches each carry their own workflow file. Apply important workflow fixes in
-the downstream repository and confirm that its release assets refresh there.
+the public repository and confirm that its release assets refresh there.

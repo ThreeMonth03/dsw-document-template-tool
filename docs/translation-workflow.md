@@ -2,8 +2,8 @@
 
 This document explains how the tooling turns an upstream DSW document template
 into a translator-facing tree, then syncs that tree back into a packageable
-template. Translator day-to-day instructions belong in the downstream
-translation repository.
+template. Translator day-to-day instructions belong in the public
+translated-template repository.
 
 ## Workspace Shapes
 
@@ -56,8 +56,8 @@ The generated expanded workspace includes:
 - `.transform/manifest.json` for machine checks
 
 The generated `README.md` in the expanded workspace is internal. During
-translated output sync, the tool copies the downstream translation repo's
-configured public README into the package when that file exists. If it is
+translated output sync, the tool copies the public repository's configured
+public README into the package when that file exists. If it is
 missing, the tool writes a short fallback README so the DSW package still has a
 displayable description. The public handoff output intentionally excludes
 internal-only files such as `.transform/` and `UPSTREAM-README.md`; public
@@ -134,13 +134,13 @@ make audit-translated-template
 
 ## Version Migration Helpers
 
-Downstream translation repos commonly use one branch per upstream template
-version. This repo provides helpers for that model, but the branch policy itself
-belongs downstream.
+The public translated-template repository commonly uses one `sync/v*` branch
+per upstream template version. This repo provides helpers for that model, but
+the branch policy itself belongs in the public repository.
 
 Clean scaffold discovery can record every compatible upstream tag in
 `template.supported_versions`. That does not mean every tag must be translated.
-Downstream repositories opt versions into translator-facing branches with
+The public repository opts versions into translator-facing branches with
 `version_policy.refresh`; omitted policy defaults to scaffold-only so new tags
 do not silently become translation work.
 
@@ -157,5 +157,5 @@ The helper scripts live under `scripts/ci/`:
 - `download_clean_scaffold_artifacts.py`
 - `resolve_migration_source.py`
 
-See [Downstream Integration](downstream-integration.md) for the artifact
-contract between this repo and downstream translation repositories.
+See [Public Template Repository Integration](downstream-integration.md) for the
+artifact contract between this repo and the public repository.

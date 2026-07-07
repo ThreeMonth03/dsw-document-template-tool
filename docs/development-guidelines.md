@@ -1,7 +1,7 @@
 # Development Guidelines
 
 These rules keep the infrastructure maintainable as parser logic, supported
-template versions, and downstream translation branches evolve.
+template versions, and public repository `sync/v*` branches evolve.
 
 ## Source and Generated Files
 
@@ -62,11 +62,11 @@ Use `make clean` when generated files make local review noisy.
   with `--clobber`.
 - Release tags are not the source of truth for generated asset provenance. The
   release notes, checksums, workflow run, and asset names are.
-- Downstream publication or DSW import policy belongs in the downstream
-  translation repository.
-- If a downstream repository combines translation work and public handoff in
-  one public repo, draft `sync/v*` branches, PRs, logs, and artifacts may
-  be visible. Use the copy-ready docs in
+- Public release, branch handoff, or DSW import policy belongs in the public
+  translated-template repository.
+- If the public repository combines translation work and release assets, draft
+  `sync/v*` branches, PRs, logs, and artifacts may be visible. Use the
+  copy-ready docs in
   [`examples/translation-repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository)
   to document that local policy.
 
@@ -80,5 +80,5 @@ make check
 git diff --check
 ```
 
-For parser, migration, release, or downstream workflow changes, also run the
+For parser, migration, release, or public-repository workflow changes, also run the
 targeted checks listed in the relevant runbook.

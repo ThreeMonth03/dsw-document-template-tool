@@ -75,7 +75,7 @@ def test_add_detached_remote_worktree_ignores_open_local_branch(
     _run_git(repo, "config", "user.name", "Test User")
     _run_git(repo, "config", "user.email", "test@example.invalid")
     _run_git(repo, "remote", "add", "origin", str(origin))
-    (repo / "README.md").write_text("translation repo\n", encoding="utf-8")
+    (repo / "README.md").write_text("public template repo\n", encoding="utf-8")
     _run_git(repo, "add", "README.md")
     _run_git(repo, "commit", "-m", "initial")
     _run_git(repo, "push", "-u", "origin", "master")
@@ -93,7 +93,7 @@ def test_add_detached_remote_worktree_ignores_open_local_branch(
         )
 
         assert _git_symbolic_ref(detached_worktree) is None
-        assert _git_show(detached_worktree, "HEAD:README.md") == "translation repo\n"
+        assert _git_show(detached_worktree, "HEAD:README.md") == "public template repo\n"
     finally:
         _run_git(repo, "worktree", "remove", "--force", str(open_worktree))
         if detached_worktree.exists():

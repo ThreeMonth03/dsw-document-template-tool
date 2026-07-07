@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check downstream translation repository docs cover required operations topics."""
+"""Check public translated-template repository docs cover required topics."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class TopicCheck:
-    """One required downstream documentation topic."""
+    """One required public-repository documentation topic."""
 
     name: str
     patterns: tuple[str, ...]
@@ -64,16 +64,16 @@ FORBIDDEN_PATTERNS: tuple[tuple[str, str], ...] = (
 
 
 def main() -> None:
-    """Run the downstream documentation coverage check."""
+    """Run the public-repository documentation coverage check."""
 
     parser = argparse.ArgumentParser(
-        description="check downstream translation repository docs cover required topics",
+        description="check public translated-template repository docs cover required topics",
     )
     parser.add_argument(
         "--repo",
         type=Path,
         required=True,
-        help="Path to the downstream translation repository checkout.",
+        help="Path to the public translated-template repository checkout.",
     )
     args = parser.parse_args()
 
@@ -92,7 +92,7 @@ def main() -> None:
 
 @dataclass(frozen=True)
 class CheckReport:
-    """Rendered downstream documentation check result."""
+    """Rendered public-repository documentation check result."""
 
     repo: Path
     checked_files: tuple[Path, ...]
@@ -109,12 +109,12 @@ class CheckReport:
             lines.append("Missing or stale documentation topics:")
             lines.extend(f"- {failure}" for failure in self.failures)
         else:
-            lines.append("SUCCESS: Downstream translation docs cover required operations topics.")
+            lines.append("SUCCESS: Public repository docs cover required operations topics.")
         return "\n".join(lines)
 
 
 def check_repository(repo: Path) -> CheckReport:
-    """Return a coverage report for a downstream translation repository."""
+    """Return a coverage report for a public translated-template repository."""
 
     repo = repo.resolve()
     if not repo.is_dir():

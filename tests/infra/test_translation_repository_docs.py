@@ -1,4 +1,4 @@
-"""Tests for downstream translation repository documentation checks."""
+"""Tests for public translated-template repository documentation checks."""
 
 from __future__ import annotations
 

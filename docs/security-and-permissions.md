@@ -8,13 +8,15 @@ repository.
 - Tool repo clean scaffold release assets use the built-in `GITHUB_TOKEN`.
 - Tool repo CI does not publish to public DSW instances or public translated
   template source repositories.
-- No downstream publication token is required by this repo's normal workflow.
-- Do not add tokens that let this repo push translated outputs to downstream
-  repositories or DSW instances. Downstream repositories own that handoff.
+- No public-repository publication token is required by this repo's normal
+  workflow.
+- Do not add tokens that let this repo push translated outputs to the public
+  repository or DSW instances. The public repository owns that handoff.
 
-Downstream translation repositories own their own publication, manual import,
-and branch visibility policy. See
-[Downstream Integration](downstream-integration.md) for the handoff boundary.
+The public translated-template repository owns its own publication, manual
+import, and branch visibility policy. See
+[Public Template Repository Integration](downstream-integration.md) for the
+handoff boundary.
 
 ## GitHub Actions Permissions
 

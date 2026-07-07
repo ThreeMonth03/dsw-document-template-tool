@@ -1,7 +1,8 @@
-# Downstream Integration
+# Public Template Repository Integration
 
 This document explains the boundary between this tooling repository and a
-downstream translation repository.
+public translated-template repository such as
+`depositar/science-europe-template-zh_Hant`.
 
 ## What This Repo Provides
 
@@ -15,25 +16,25 @@ The tool repo owns reusable infrastructure:
   [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci)
 - copy-paste workflow templates under
   [`examples/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples)
-- copy-ready downstream documentation templates under
+- copy-ready public-repository documentation templates under
   [`examples/translation-repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/translation-repository)
 
-The clean scaffold outputs are inputs for downstream repositories. They are not
-finished translations.
+The clean scaffold outputs are inputs for the public translated-template
+repository. They are not finished translations.
 
 This repo exposes those outputs in two places:
 
 - GitHub Actions artifacts from
   [`.github/workflows/headless_render_regression.yml`](../.github/workflows/headless_render_regression.yml),
-  which the downstream translation workflow downloads during automated sync.
+  which the public repository workflow downloads during automated sync.
 - GitHub Release assets named `clean-scaffold-dsw-science-europe-vX.Y.Z`, which
   are stable human-facing download buckets for review and handoff.
 
 If upstream publishes a tag with an unsupported metamodel, scheduled/manual tool
 repo CI may open a compatibility probe PR instead of producing clean scaffold
-outputs for that tag. Downstream repositories should wait for a successful
+outputs for that tag. The public repository should wait for a successful
 tool-repo run, and preferably the matching version-specific release, before
-recording the new version or refreshing a matching translation branch.
+recording the new version or refreshing a matching `sync/v*` branch.
 
 ## Clean Scaffold Outputs
 
@@ -57,31 +58,30 @@ These releases are download buckets. Assets may be overwritten by later CI runs
 for the same upstream tag; use release notes, checksums, and workflow metadata
 for provenance.
 
-## What the Translation Repo Owns
+## What the Public Repository Owns
 
-A downstream translation repository owns:
+The public translated-template repository owns:
 
 - a configured operations branch containing `translation-config.yml`, docs,
   fixtures, and repository workflows
 - version branches such as `sync/v1.30.1`
 - optional source handoff branches using the configured handoff prefix, such as
   `publish/v1.30.1`, only when branch-based handoff has been explicitly enabled
-- translator-facing `translation.md` edits
+- translator-facing `translation.md` edits on `sync/v*` branches
 - the user-facing public README copied into generated DSW template packages
 - glossary and i10n review
 - translated package/PDF release assets
 - manual import or publication policy
 
-Keep those operational details in the translation repository documentation. This
-repo should only document the artifact contract and helper commands.
-If the downstream repo also has a `master` branch, this tooling does not require
-automation to write to it.
+Keep those operational details in the public repository documentation. This
+repo documents the artifact contract and helper commands.
+The tool repo does not require automation to write to the public repository's
+`master` branch unless that repository chooses to run operations from `master`.
 
-## Integrated Translation Repository Layout
+## Integrated Public Repository Layout
 
-To reduce repository count, the same downstream repository may hold both
-translation work and clean public handoff branches. Keep the responsibilities
-branch-separated:
+The current project keeps translation work and public release assets in the
+same depositar repository, while keeping responsibilities branch-separated:
 
 | Branch or asset | Purpose |
 | --- | --- |
@@ -91,24 +91,24 @@ branch-separated:
 | optional `publish/v*` or the configured handoff branch prefix | Clean translated source only when branch-based handoff is enabled. |
 
 This layout is an organizational boundary, not a privacy boundary. If the
-downstream repository is public, draft translation branches, PRs, logs, and
+public repository is public, draft translation branches, PRs, logs, and
 artifacts may be public too. Keep `sync/v*` branches in a private repo or
 private fork if draft wording must stay private.
 
-Use [Translation Repository Templates](translation-repository-templates.md) for
-copy-ready README/runbook files. The copies in the downstream repo become
-downstream-owned; updating this tool repo does not rewrite them automatically.
+Use [Public Repository Templates](translation-repository-templates.md) for
+copy-ready README/runbook files. The copies in the public repository become
+repository-owned; updating this tool repo does not rewrite them automatically.
 
-## Helper Scripts Used By Downstream
+## Helper Scripts Used By The Public Repository
 
 Set repository paths once:
 
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
-TRANSLATION_GITHUB_REPO=owner/template-translation-repo
+PUBLIC_TEMPLATE_GITHUB_REPO=owner/science-europe-template-zh_Hant
 TRANSLATION_OPERATIONS_BRANCH=master
 TOOL_REPO_DIR=/path/to/document-template-tool
-TRANSLATION_REPO_DIR=/path/to/template-translation-repo
+PUBLIC_TEMPLATE_REPO_DIR=/path/to/science-europe-template-zh_Hant
 ```
 
 Download clean scaffold artifacts:
@@ -119,7 +119,7 @@ make download-clean-scaffold-artifacts \
   CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
 ```
 
-Downstream repositories normally cannot receive a cross-repository
+The public repository normally cannot receive a cross-repository
 `workflow_run` event from this tool repository. The operations workflow
 therefore downloads the latest successful tool-repo run by workflow name. If an
 operator passes an exact tool run id manually, prefer `--run-id` so the
@@ -138,7 +138,7 @@ Refresh version branches from downloaded artifacts:
 
 ```shell
 make sync-translation-version-branches \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds \
   TRANSLATION_SYNC_REFRESH_EXISTING=true
 ```
@@ -147,21 +147,21 @@ Check cross-version migration status after the refresh:
 
 ```shell
 make check-translation-migrations \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
-Check that downstream docs still cover the required operations topics:
+Check that public repository docs still cover the required operations topics:
 
 ```shell
 make check-translation-repository-docs \
-  TRANSLATION_DOCS_REPO="$TRANSLATION_REPO_DIR"
+  TRANSLATION_DOCS_REPO="$PUBLIC_TEMPLATE_REPO_DIR"
 ```
 
 Use `--dry-run` first when changing parser logic, supported versions, or branch
 automation. Scheduled workflows should keep the default `--policy-mode auto`;
 operator-triggered maintenance refreshes can pass `--policy-mode manual` if the
-downstream repository's `version_policy` allows it.
+public repository's `version_policy` allows it.
 
 By default, version-branch sync does not create, update, or delete files under
 `.github/workflows/`. This keeps routine scaffold refreshes usable with the
@@ -169,7 +169,7 @@ standard GitHub Actions token, which cannot modify workflow files. When you
 intentionally need to regenerate version-branch workflow files, rerun the helper
 with `--sync-workflows` and a token that has GitHub Actions workflow scope.
 
-`template.supported_versions` is the downstream repository's known upstream
+`template.supported_versions` is the public repository's known upstream
 version ledger. It may contain versions that have clean scaffold artifacts but
 are not actively translated. Branch creation and content refresh are controlled
 by `version_policy`: only versions whose effective `refresh` value is `artifact`
@@ -178,7 +178,7 @@ for scheduled runs, or `artifact`/`manual` for operator-triggered runs, get
 newly discovered versions as scaffold-only records and does not create
 translation branches.
 
-The branch sync workflow reads `public_readme.path` from the downstream
+The branch sync workflow reads `public_readme.path` from the public repository
 `translation-config.yml`. The default is:
 
 ```text
@@ -208,24 +208,24 @@ Public handoff branches should stay close to the upstream template repository
 shape. The publish helper copies generated template source while filtering
 tool-internal metadata such as `.transform/` and `UPSTREAM-README.md`.
 
-## Manual Downstream Sync
+## Manual Public Repository Sync
 
 The tool repo provides helper scripts and a version-branch workflow template,
-but the default-branch operations workflow belongs to the downstream
-translation repository. If that downstream repository has an operations workflow
-that calls `make download-clean-scaffold-artifacts` and
+but the default-branch operations workflow belongs to the public repository. If
+that repository has an operations workflow that calls
+`make download-clean-scaffold-artifacts` and
 `make sync-translation-version-branches`, operators can trigger a branch refresh
 without waiting for its daily schedule:
 
 ```shell
 gh workflow run document_template_translation_sync.yml \
-  --repo "$TRANSLATION_GITHUB_REPO" \
+  --repo "$PUBLIC_TEMPLATE_GITHUB_REPO" \
   --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
-In the current downstream design, that run downloads the latest successful
+In the current public-repository design, that run downloads the latest successful
 clean scaffold artifacts from the tool repo and updates `translation-config.yml`
-on the downstream operations branch. It creates or refreshes only
+on the public repository operations branch. It creates or refreshes only
 policy-enabled `sync/v*` branches and may create exact-only migration
 PRs. Routine version-branch sync preserves existing workflow files; use
 `--sync-workflows` only for explicit workflow maintenance. Version-branch sync
@@ -236,7 +236,7 @@ If no migration PR appears, use `make check-translation-migrations` against the
 same clean scaffold artifacts to distinguish "nothing to migrate" from "the
 workflow did not run the migration step."
 
-If translation repository docs were copied or rewritten, run
+If public repository docs were copied or rewritten, run
 `make check-translation-repository-docs` before handing the repository back to
 operators.
 
@@ -244,29 +244,30 @@ To choose the source branch used for migration fan-out, pass `source_version`:
 
 ```shell
 gh workflow run document_template_translation_sync.yml \
-  --repo "$TRANSLATION_GITHUB_REPO" \
+  --repo "$PUBLIC_TEMPLATE_GITHUB_REPO" \
   --ref "$TRANSLATION_OPERATIONS_BRANCH" \
   -f source_version=v1.30.1
 ```
 
 Use this after tool-repo workflow template changes, parser changes, fixture
-changes, or clean scaffold release refreshes. It is still downstream-owned:
-review the translation repo Actions run, migration PRs, and release assets
+changes, or clean scaffold release refreshes. It is still public-repository-owned:
+review the public repository Actions run, migration PRs, and release assets
 there.
 
 ## Workflow Template
 
 [`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml)
-is a template for downstream version branches. It is not the downstream
+is a template for public repository version branches. It is not the public
+repository
 default-branch operations workflow. Updating it here does not update existing
-downstream version branches. Routine branch refreshes preserve workflow files
+public repository version branches. Routine branch refreshes preserve workflow files
 to avoid requiring elevated token scopes. Apply important workflow fixes in the
-downstream repo by running `make sync-translation-version-branches` with
+public repository by running `make sync-translation-version-branches` with
 `TRANSLATION_SYNC_WORKFLOWS=true`, or by making an explicit workflow-only
 maintenance commit there.
 
 The template is intended for version-specific `sync/v*` branches. It is
 triggered by pull requests, pushes, and manual dispatch on those branches. Daily
-scheduled maintenance belongs in the downstream operations workflow on the
+scheduled maintenance belongs in the public repository operations workflow on the
 default branch; do not rely on `schedule` triggers in generated version-branch
 workflows.

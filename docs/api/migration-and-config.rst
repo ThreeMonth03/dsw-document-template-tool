@@ -1,10 +1,10 @@
 Migration and Config Reference
 ==============================
 
-Use this page for downstream translation repository policy, version-branch
+Use this page for public translated-template repository policy, version-branch
 paths, DSW runtime compatibility, and workflow configuration contracts. These
-objects are the stable boundary between the tool repository, translation
-branches, and GitHub Actions helper scripts.
+objects are the stable boundary between the tool repository, public repository
+`sync/v*` branches, and GitHub Actions helper scripts.
 
 Translation Repository Config
 -----------------------------

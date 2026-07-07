@@ -13,10 +13,11 @@ This repository produces:
 - metamodel-to-DSW runtime compatibility
 - clean scaffold release assets and preview PDFs
 - demo project fixtures and matching Knowledge Model bundles used by CI
-- helper scripts and workflow templates consumed by translation repositories
+- helper scripts and workflow templates consumed by the public
+  translated-template repository
 
-Clean scaffold assets are inputs for translation repositories. They are not
-finished translated templates.
+Clean scaffold assets are inputs for the public translated-template repository.
+They are not finished translated templates.
 
 ## Daily Health Check
 
@@ -25,7 +26,7 @@ Set repository names once before copying GitHub commands:
 ```shell
 TOOL_GITHUB_REPO=owner/document-template-tool
 TOOL_OPERATIONS_BRANCH=master
-TRANSLATION_GITHUB_REPO=owner/template-translation-repo
+PUBLIC_TEMPLATE_GITHUB_REPO=owner/science-europe-template-zh_Hant
 TRANSLATION_OPERATIONS_BRANCH=master
 ```
 
@@ -63,7 +64,7 @@ TRANSLATION_OPERATIONS_BRANCH=master
 
 If these checks pass, the tool repo has a healthy baseline for versions already
 covered by [`config/dsw-compat.yml`](../config/dsw-compat.yml). New upstream tags
-and downstream translation sync still need the upgrade and handoff flow below.
+and public repository sync still need the upgrade and handoff flow below.
 
 ## When Upstream Publishes a New Tag
 
@@ -98,35 +99,34 @@ CHECK_TAG=vX.Y.Z
    ```
 
 3. If the release exists, the tool repo part is complete for that tag. The
-   release contains the clean upstream scaffold inputs that translation
-   repositories can consume.
+   release contains the clean upstream scaffold inputs that the public
+   repository can consume.
 
-### Translation handoff
+### Public repository handoff
 
-If you also operate the downstream translation repository, trigger its sync
+If you also operate the public translated-template repository, trigger its sync
 workflow after the clean scaffold release exists:
 
 ```shell
 gh workflow run document_template_translation_sync.yml \
-  --repo "$TRANSLATION_GITHUB_REPO" \
+  --repo "$PUBLIC_TEMPLATE_GITHUB_REPO" \
   --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
-That downstream operations workflow is owned by the translation repository. In
-the current downstream design, it downloads the latest successful tool-repo
-clean scaffold artifacts, updates its own `translation-config.yml`, creates or
-refreshes only policy-enabled `sync/v*` branches, and opens migration
-PRs according to translation repository policy. Review the translation
-repository run there; do not treat the clean scaffold release as a finished
-translated template.
+That operations workflow is owned by the public repository. In the current
+public-repository design, it downloads the latest successful tool-repo clean
+scaffold artifacts, updates its own `translation-config.yml`, creates or
+refreshes only policy-enabled `sync/v*` branches, and opens migration PRs
+according to public repository policy. Review the public repository run there;
+do not treat the clean scaffold release as a finished translated template.
 
 Important: a green clean scaffold release only means the upstream template can
 be transformed, packaged, and previewed. It does not mean a translated branch or
-translated release exists downstream.
+translated release exists in the public repository.
 
 Use [Version Upgrade Runbook](version-upgrade-runbook.md) for the full upstream
-tag flow and [Downstream Integration](downstream-integration.md) for artifact
-handoff details.
+tag flow and [Public Template Repository Integration](downstream-integration.md)
+for artifact handoff details.
 
 ## When CI Finds an Unsupported Metamodel
 
@@ -149,9 +149,8 @@ handoff details.
 
 Then merge only after human review. A green probe means the tool repo has a
 tested runtime candidate; it is not an auto-merge signal. Only after that should
-the translation repository record the new scaffold version and decide, through
-its `version_policy`, whether to create or refresh a matching translation
-branch.
+the public repository record the new scaffold version and decide, through its
+`version_policy`, whether to create or refresh a matching `sync/v*` branch.
 
 ## When Parser or Translation-Tree Logic Changes
 
@@ -167,30 +166,30 @@ make generate-compat-ledger
 Review the generated compatibility summary at
 `outputs/compat-ledger/dsw-science-europe/summary.md` for unexpected
 cross-version changes in expanded blocks, translation units, placeholders, or
-missing scaffold packages before handing artifacts to the translation repo.
+missing scaffold packages before handing artifacts to the public repository.
 Then review the generated regression plan at
 `outputs/compat-ledger/dsw-science-europe/regression-plan.md` to see which
 versions deserve full DSW regression if you need deeper compatibility coverage
 than the automated plan-recommended matrix run.
 
-Then run a downstream dry-run against the translation repository:
+Then run a dry-run against the public repository:
 
 ```shell
 TOOL_REPO_DIR=/path/to/document-template-tool
-TRANSLATION_REPO_DIR=/path/to/template-translation-repo
+PUBLIC_TEMPLATE_REPO_DIR=/path/to/science-europe-template-zh_Hant
 
 make download-clean-scaffold-artifacts \
   TOOL_GITHUB_REPO="$TOOL_GITHUB_REPO" \
   CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR=/tmp/clean-scaffolds
 
 make sync-translation-version-branches \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds \
   TRANSLATION_SYNC_DRY_RUN=true \
   TRANSLATION_SYNC_REFRESH_EXISTING=true
 
 make check-translation-migrations \
-  TRANSLATION_REPO="$TRANSLATION_REPO_DIR" \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
@@ -212,5 +211,5 @@ parser-change checklist.
   [`config/dsw-compat.yml`](../config/dsw-compat.yml) and run
   `make sync-dsw-runtime-matrix`.
 - Do not treat clean scaffold releases as translated releases.
-- Do not add downstream publication tokens to this repo. Downstream publication
-  and manual import policy belong in the downstream repository.
+- Do not add public-repository publication tokens to this repo. Public release,
+  branch handoff, and manual import policy belong in the public repository.

@@ -137,7 +137,7 @@ public_readme:
 def test_load_translation_repository_config_rejects_unsafe_public_readme_path(
     tmp_path: Path,
 ) -> None:
-    """The public README path should stay inside the translation repository."""
+    """The public README path should stay inside the public repository."""
 
     config_path = _write_config(tmp_path)
     config_path.write_text(

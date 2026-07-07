@@ -67,7 +67,7 @@ TRANSLATION_CONFIG_PATH ?= $(TRANSLATION_REPO)/translation-config.yml
 TRANSLATION_DOCS_REPO ?= $(TRANSLATION_REPO)
 TRANSLATION_LOCALE ?= zh-Hant
 TRANSLATION_MIGRATION_FAIL_ON_PENDING ?= false
-TRANSLATION_REPO ?= ../dsw-document-template-translation
+TRANSLATION_REPO ?= ../science-europe-template-zh_Hant
 TRANSLATION_SOURCE_LOCALE ?= en
 TRANSLATION_SYNC_DRY_RUN ?= true
 TRANSLATION_SYNC_POLICY_MODE ?= auto
@@ -148,7 +148,7 @@ help:
 	'  download-clean-scaffold-artifacts Download clean scaffold artifacts from a tool workflow run' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
 	'  check-translation-migrations Dry-run exact-only migration across active translation branches' \
-	'  check-translation-repository-docs Check downstream docs cover required operations topics' \
+	'  check-translation-repository-docs Check public-repo docs cover required operations topics' \
 	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
@@ -163,8 +163,8 @@ help:
 	'  render-regression-ci Generate latest-version CI config and run local DSW regression' \
 	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions' \
 	'  render-regression-ci-plan-dry-run Validate the compatibility regression plan without DSW' \
-	'  sync-translation-version-branches Create/refresh downstream sync/v* branches' \
-	'  validate-translation-config Validate downstream translation-config.yml'
+	'  sync-translation-version-branches Create/refresh public-repo sync/v* branches' \
+	'  validate-translation-config Validate public-repo translation-config.yml'
 
 install-dev: venv
 	$(PIP) install -e ".[dev]"

@@ -2,7 +2,7 @@
 
 Use this before trusting tool-generated clean scaffold artifacts or parser
 changes. Translation wording, glossary review, and manual import into any public
-DSW instance belong in the downstream translation repository.
+DSW instance belong in the public translated-template repository.
 
 ## Structural Checks
 
@@ -48,7 +48,7 @@ Expected assets:
 - `release-notes.md`
 
 Download and verify the checksum before using a clean scaffold artifact for
-downstream migration.
+public repository migration.
 
 ## PDF Review
 
@@ -73,21 +73,21 @@ For all known scaffold versions:
 - scaffold package exists
 - preview PDF exists or a clear `failed.json` / `skipped.json` explains why
 
-For downstream translation repositories, review translated packages and PDFs
+For the public translated-template repository, review translated packages and PDFs
 only for versions enabled by that repository's `version_policy`. A version can
 be listed in `supported_versions` as a scaffold-only record without having an
 active translation branch.
 
-## Downstream Handoff
+## Public Repository Handoff
 
-Before handing artifacts to a translation repository:
+Before handing artifacts to the public repository:
 
 1. Download the clean scaffold release assets.
 2. Verify `SHA256SUMS`.
 3. Confirm the artifact version matches the upstream tag.
 4. Import the package zip with `make render-package` and render the demo project.
 5. Confirm the tree passes structure audits.
-6. Confirm the downstream repository documents translation QA and manual import.
+6. Confirm the public repository documents translation QA and manual import.
 
 Do not hand off local `outputs/` unless you intentionally built and reviewed
 that exact local output.

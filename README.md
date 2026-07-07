@@ -8,6 +8,18 @@ for the Science Europe DMP Template. This repository is infrastructure focused:
 it provides parser logic, CI helpers, compatibility checks, demo fixtures, and
 release automation for clean upstream scaffolds.
 
+## Current Repository Model
+
+The maintained workflow uses two repositories:
+
+| Repository | Role |
+| --- | --- |
+| `ThreeMonth03/dsw-document-template-tool` | Tooling, clean scaffold releases, render regression, docs, and helper scripts. |
+| `depositar/science-europe-template-zh_Hant` | Public translated-template repository: operations config, `sync/v*` branches, translated release assets, and optional source handoff branches. |
+
+Older standalone translation-control repos and Weblate demo repos are not part
+of the supported production workflow.
+
 ## What This Repository Produces
 
 | Output | Purpose |
@@ -15,7 +27,7 @@ release automation for clean upstream scaffolds.
 | Parser, transform, migration, render, and CI helper code | Shared infrastructure for document-template translation workflows. |
 | Clean scaffold release assets | Versioned upstream-derived workspaces, packages, checksums, and previews published from CI. |
 | Demo project fixtures and matching Knowledge Model bundles | Stable inputs for local and CI render previews. |
-| Example workflows and helper scripts | Reusable automation templates for repositories that consume the clean scaffold assets. |
+| Example workflows and helper scripts | Reusable automation templates for the public repository that consumes the clean scaffold assets. |
 
 Generated workspaces, generated packages, render outputs, and caches are build
 artifacts. Keep them out of `master` unless a file is explicitly a reusable
@@ -53,7 +65,7 @@ The DSW runtime matrix is declared in
 
 On non-PR CI runs, this repository publishes clean scaffold prerelease assets
 such as `clean-scaffold-dsw-science-europe-v1.30.1`. These are download buckets
-for downstream maintenance, not finished translations. Their assets are
+for public repository maintenance, not finished translations. Their assets are
 refreshed by CI, and the release tag is moved to the commit that produced the
 current assets.
 

@@ -7,8 +7,8 @@ or changes `metamodelVersion`.
 
 - Supported upstream versions start at `v1.29.1`.
 - Clean scaffold assets are built from upstream tags.
-- Downstream translation repositories consume those scaffolds and own their own
-  version branches and publication policy.
+- The public translated-template repository consumes those scaffolds and owns
+  its own `sync/v*` branches, release assets, and publication policy.
 
 `config/dsw-compat.yml` may split that support range across multiple runtime
 rows. For example, `v1.29.1` currently uses a DSW 4.26 runtime, while
@@ -28,9 +28,9 @@ The tool repo CI:
 6. renders preview PDFs when the matching DSW runtime supports the metamodel
 7. refreshes clean scaffold GitHub Release assets
 
-Downstream repositories do not become fully version-aware by magic. A clean
+The public repository does not become fully version-aware by magic. A clean
 scaffold release means this repo can transform and package the upstream tag; it
-does not mean any downstream translation branch exists yet.
+does not mean any public `sync/v*` translation branch exists yet.
 
 ## Known Metamodel
 
@@ -47,10 +47,10 @@ If CI finds that the new upstream tag uses an already configured metamodel:
      --repo "$TOOL_GITHUB_REPO"
    ```
 
-3. If you also operate the downstream translation repository, trigger its sync
-   workflow using [Downstream Integration](downstream-integration.md). Otherwise,
-   hand off the clean scaffold release link and checksum to that repository's
-   operator.
+3. If you also operate the public translated-template repository, trigger its
+   sync workflow using [Public Template Repository Integration](downstream-integration.md).
+   Otherwise, hand off the clean scaffold release link and checksum to that
+   repository's operator.
 
 Do not stop after the tool repo release is green. A green clean scaffold means
 the upstream template can be transformed and packaged; it does not mean the

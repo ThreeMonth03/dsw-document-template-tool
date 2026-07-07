@@ -13,7 +13,7 @@ when you are changing behavior.
 | Render one project preview or release package | `make render-project`, `make render-package` | `dsw-template-render-project` | [`render_project.py`](../src/dsw_document_template_tool/render_project.py) |
 | Run render regression | `make render-regression`, `make render-regression-ci-plan` | `dsw-template-render-regression` | [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py), [`workflow.py`](../src/dsw_document_template_tool/workflow.py) |
 | Build clean upstream scaffold artifacts | `make discover-upstream-compat`, `make build-upstream-artifacts`, `make render-upstream-artifact-previews` | CI helpers under [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci) | [`dsw_compat.py`](../src/dsw_document_template_tool/dsw_compat.py), [`compat_ledger.py`](../src/dsw_document_template_tool/compat_ledger.py) |
-| Refresh downstream translation version branches | `make sync-translation-version-branches`, `make check-translation-migrations` | [`sync_translation_version_branches.py`](../scripts/ci/sync_translation_version_branches.py) | [`translation_migration.py`](../src/dsw_document_template_tool/translation_migration.py) |
+| Refresh public repository `sync/v*` branches | `make sync-translation-version-branches`, `make check-translation-migrations` | [`sync_translation_version_branches.py`](../scripts/ci/sync_translation_version_branches.py) | [`translation_migration.py`](../src/dsw_document_template_tool/translation_migration.py) |
 | Stage reviewed translated source for handoff | `make stage-translated-handoff` | [`stage_translated_handoff.py`](../scripts/ci/stage_translated_handoff.py) | [`translation_migration.py`](../src/dsw_document_template_tool/translation_migration.py), [`translation_tree.py`](../src/dsw_document_template_tool/translation_tree.py) |
 | Publish clean scaffold release assets | `make publish-clean-scaffold-releases` | [`publish_clean_scaffold_releases.py`](../scripts/ci/publish_clean_scaffold_releases.py) | [`stage_release_assets.py`](../scripts/ci/stage_release_assets.py) |
 
@@ -33,9 +33,9 @@ where each operation fits in day-to-day maintenance, use
   dependency configuration.
 - [`fixtures/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/fixtures) contains checked-in demo and regression project
   fixtures plus matching Knowledge Model bundles.
-- [`examples/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples) contains downstream workflow and documentation
-  templates. Updating an example does not update existing downstream branches by
-  itself.
+- [`examples/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples) contains public repository workflow and documentation
+  templates. Updating an example does not update existing public repository
+  branches by itself.
 - `workspace/`, `outputs/`, and `.cache/` are generated operator workspaces,
   build outputs, and caches. They should stay out of `master` unless a file is a
   reusable fixture under [`fixtures/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/fixtures).

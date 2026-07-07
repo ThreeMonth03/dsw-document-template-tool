@@ -1,7 +1,7 @@
 # Security and Permissions
 
 Use this page when configuring GitHub Actions, secrets, and publication policy
-for this translation repository.
+for this public translated-template repository.
 
 ## Visibility
 
