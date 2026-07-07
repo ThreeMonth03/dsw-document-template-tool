@@ -204,7 +204,7 @@ make render-regression-ci-plan-dry-run
 
 ## Render Preview
 
-Render one project with one packaged or unpacked template:
+Render one project with an expanded source workspace:
 
 ```shell
 make render-project \
@@ -214,6 +214,21 @@ make render-project \
 ```
 
 Preview output should stay under `outputs/project-render/...`.
+
+Validate a published release package zip by importing it into local DSW and
+rendering the demo project:
+
+```shell
+make render-package \
+  PROJECT_REF=fixtures/projects/demo/test-project.json \
+  PROJECT_RENDER_TEMPLATE_PACKAGE=/tmp/dsw-science-europe-zh-hant-v1.30.1.zip \
+  PROJECT_RENDER_OUTPUT=outputs/project-render/dsw-science-europe/v1.30.1/zh-Hant/release-package-test-project.pdf
+```
+
+Use `render-project` for source workspaces that `dsw-tdk verify` can read.
+Use `render-package` for `.zip` assets downloaded from GitHub Releases.
+Do not unzip a release package and pass it as `PROJECT_RENDER_TEMPLATE_DIR`;
+DSW package zips store template files inside `template.json`.
 
 ## Downstream Handoff
 
@@ -321,6 +336,7 @@ Show help:
 ```shell
 "$TOOL_REPO_DIR/.venv/bin/dsw-template-transform" --help
 "$TOOL_REPO_DIR/.venv/bin/dsw-template-tree" --help
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-render-project" --help
 "$TOOL_REPO_DIR/.venv/bin/dsw-template-render-regression" --help
 ```
 

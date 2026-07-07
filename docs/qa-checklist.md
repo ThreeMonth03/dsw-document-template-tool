@@ -85,8 +85,9 @@ Before handing artifacts to a translation repository:
 1. Download the clean scaffold release assets.
 2. Verify `SHA256SUMS`.
 3. Confirm the artifact version matches the upstream tag.
-4. Confirm the tree passes structure audits.
-5. Confirm the downstream repository documents translation QA and manual import.
+4. Import the package zip with `make render-package` and render the demo project.
+5. Confirm the tree passes structure audits.
+6. Confirm the downstream repository documents translation QA and manual import.
 
 Do not hand off local `outputs/` unless you intentionally built and reviewed
 that exact local output.

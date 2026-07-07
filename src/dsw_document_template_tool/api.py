@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -337,6 +338,27 @@ class DSWApiClient:
                 return resolved_ref
         raise DSWAPIError(f"Could not upload KM bundle: {endpoint} response was not resolvable")
 
+    def upload_document_template_bundle(self, bundle_path: Path) -> dict[str, Any]:
+        """Upload one released document template package to the DSW API."""
+
+        endpoint = "/document-templates/bundle"
+        template_id = _read_document_template_id_from_bundle(bundle_path)
+        response = self._post_bundle(endpoint, bundle_path, content_type="application/zip")
+        if _is_document_template_uniqueness_error(response) and template_id is not None:
+            return {
+                "uuid": self.resolve_document_template_uuid(template_id),
+                "id": template_id,
+                "reused": True,
+            }
+        self._raise_for_status(response, expected_statuses={200, 201})
+        payload = _safe_json(response)
+        if not isinstance(payload, dict):
+            raise DSWAPIError(f"Expected JSON object from {endpoint}")
+        template_uuid = payload.get("uuid")
+        if not isinstance(template_uuid, str) or not template_uuid:
+            raise DSWAPIError("Document template upload response did not include a UUID")
+        return payload
+
     def put_draft_preview_settings(
         self,
         *,
@@ -516,7 +538,13 @@ class DSWApiClient:
             return None
         return payload
 
-    def _post_bundle(self, endpoint: str, bundle_path: Path) -> requests.Response:
+    def _post_bundle(
+        self,
+        endpoint: str,
+        bundle_path: Path,
+        *,
+        content_type: str = "application/json",
+    ) -> requests.Response:
         headers = {"User-Agent": "dsw-document-template-tool"}
         if self.token is not None:
             headers["Authorization"] = f"Bearer {self.token}"
@@ -524,7 +552,7 @@ class DSWApiClient:
             return self.session.post(
                 url=f"{self.api_url}{endpoint}",
                 headers=headers,
-                files={"file": (bundle_path.name, bundle_file, "application/json")},
+                files={"file": (bundle_path.name, bundle_file, content_type)},
                 verify=self.verify_ssl,
                 timeout=120,
             )
@@ -698,6 +726,60 @@ def _package_reference_from_upload_payload(
     if isinstance(payload, dict):
         return _package_reference_from_item(payload)
     return None
+
+
+def _read_document_template_id_from_bundle(bundle_path: Path) -> str | None:
+    if not zipfile.is_zipfile(bundle_path):
+        return None
+    try:
+        with zipfile.ZipFile(bundle_path) as archive:
+            template_json_name = _find_template_json_name(archive.namelist())
+            if template_json_name is None:
+                return None
+            payload = json.loads(archive.read(template_json_name).decode("utf-8"))
+    except (OSError, KeyError, json.JSONDecodeError, UnicodeDecodeError, zipfile.BadZipFile):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    template_id = payload.get("id")
+    if isinstance(template_id, str) and template_id:
+        return template_id
+    organization_id = payload.get("organizationId")
+    short_template_id = payload.get("templateId")
+    version = payload.get("version")
+    if (
+        isinstance(organization_id, str)
+        and organization_id
+        and isinstance(short_template_id, str)
+        and short_template_id
+        and isinstance(version, str)
+        and version
+    ):
+        return f"{organization_id}:{short_template_id}:{version}"
+    return None
+
+
+def _find_template_json_name(names: list[str]) -> str | None:
+    for name in names:
+        if name == "template.json":
+            return name
+    for name in names:
+        if name.endswith("/template.json"):
+            return name
+    return None
+
+
+def _is_document_template_uniqueness_error(response: requests.Response) -> bool:
+    if response.status_code not in {400, 409}:
+        return False
+    try:
+        payload = response.json()
+    except requests.JSONDecodeError:
+        return False
+    if not isinstance(payload, dict):
+        return False
+    error = payload.get("error")
+    return isinstance(error, dict) and error.get("code") == "error.validation.tml_id_uniqueness"
 
 
 def _package_reference_from_item(item: dict[str, Any]) -> KnowledgeModelPackageReference:

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+from zipfile import ZipFile
 
 from dsw_document_template_tool.api import (
     DSWApiClient,
     KnowledgeModelPackageReference,
     _apply_download_host_alias,
+    _read_document_template_id_from_bundle,
     _read_knowledge_model_package_id_from_bundle,
 )
 
@@ -88,6 +90,83 @@ class BundleUploadClient(DSWApiClient):
             201,
             [_package_payload()],
             method="POST",
+            url=f"{self.api_url}{endpoint}",
+        )
+
+
+class DocumentTemplateBundleUploadClient(DSWApiClient):
+    """Client that records document template package upload attempts."""
+
+    def __init__(self) -> None:
+        super().__init__(api_url="http://localhost:3000/wizard-api")
+        self.bundle_uploads: list[tuple[str, Path, str]] = []
+
+    def _post_bundle(
+        self,
+        endpoint: str,
+        bundle_path: Path,
+        *,
+        content_type: str = "application/json",
+    ) -> FakeResponse:
+        self.bundle_uploads.append((endpoint, bundle_path, content_type))
+        return FakeResponse(
+            201,
+            {
+                "name": "Science Europe DMP Template (zh-Hant)",
+                "uuid": "33333333-3333-4333-8333-333333333333",
+            },
+            method="POST",
+            url=f"{self.api_url}{endpoint}",
+        )
+
+
+class DuplicateDocumentTemplateUploadClient(DSWApiClient):
+    """Client with an already-imported document template package."""
+
+    def __init__(self) -> None:
+        super().__init__(api_url="http://localhost:3000/wizard-api")
+        self.bundle_uploads: list[tuple[str, Path, str]] = []
+
+    def _post_bundle(
+        self,
+        endpoint: str,
+        bundle_path: Path,
+        *,
+        content_type: str = "application/json",
+    ) -> FakeResponse:
+        self.bundle_uploads.append((endpoint, bundle_path, content_type))
+        return FakeResponse(
+            400,
+            {
+                "error": {
+                    "code": "error.validation.tml_id_uniqueness",
+                    "params": ["dsw:science-europe-zh-hant:1.30.1"],
+                },
+                "status": 400,
+            },
+            method="POST",
+            url=f"{self.api_url}{endpoint}",
+        )
+
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+    ) -> FakeResponse:
+        return FakeResponse(
+            200,
+            [
+                {
+                    "uuid": "44444444-4444-4444-8444-444444444444",
+                    "organizationId": "dsw",
+                    "templateId": "science-europe-zh-hant",
+                    "version": "1.30.1",
+                }
+            ],
+            method=method,
             url=f"{self.api_url}{endpoint}",
         )
 
@@ -278,6 +357,56 @@ def test_bundle_upload_accepts_list_payload(tmp_path: Path) -> None:
     assert client.bundle_endpoints == ["/knowledge-model-packages/bundle"]
     assert package_ref.package_id == "dsw:root-zh-hant:2.7.0"
     assert package_ref.uuid is None
+
+
+def test_document_template_package_upload_uses_bundle_endpoint(tmp_path: Path) -> None:
+    """Released document template packages should upload through the package endpoint."""
+
+    bundle_path = tmp_path / "template.zip"
+    bundle_path.write_bytes(b"zip")
+    client = DocumentTemplateBundleUploadClient()
+
+    payload = client.upload_document_template_bundle(bundle_path)
+
+    assert payload["uuid"] == "33333333-3333-4333-8333-333333333333"
+    assert client.bundle_uploads == [("/document-templates/bundle", bundle_path, "application/zip")]
+
+
+def test_read_document_template_id_from_package_zip(tmp_path: Path) -> None:
+    """Packaged document templates keep their coordinates in template.json."""
+
+    bundle_path = tmp_path / "template.zip"
+    with ZipFile(bundle_path, "w") as archive:
+        archive.writestr(
+            "template/template.json",
+            '{"id": "dsw:science-europe-zh-hant:1.30.1"}\n',
+        )
+
+    assert _read_document_template_id_from_bundle(bundle_path) == (
+        "dsw:science-europe-zh-hant:1.30.1"
+    )
+
+
+def test_duplicate_document_template_package_upload_reuses_existing_template(
+    tmp_path: Path,
+) -> None:
+    """Repeated local release checks should render with the existing template."""
+
+    bundle_path = tmp_path / "template.zip"
+    with ZipFile(bundle_path, "w") as archive:
+        archive.writestr(
+            "template/template.json",
+            '{"id": "dsw:science-europe-zh-hant:1.30.1"}\n',
+        )
+    client = DuplicateDocumentTemplateUploadClient()
+
+    payload = client.upload_document_template_bundle(bundle_path)
+
+    assert payload == {
+        "uuid": "44444444-4444-4444-8444-444444444444",
+        "id": "dsw:science-europe-zh-hant:1.30.1",
+        "reused": True,
+    }
 
 
 def test_project_create_falls_back_to_package_id_field() -> None:

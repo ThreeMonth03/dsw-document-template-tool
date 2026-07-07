@@ -38,6 +38,7 @@ PROJECT_REF ?= fixtures/projects/demo/test-project.json
 PROJECT_RENDER_FORMAT_UUID ?= 68c26e34-5e77-4e15-9bf7-06ff92582257
 PROJECT_RENDER_OUTPUT ?= outputs/project-render/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/test-project.pdf
 PROJECT_RENDER_TEMPLATE_DIR ?= $(TRANSLATED_EXPANDED_TEMPLATE_DIR)
+PROJECT_RENDER_TEMPLATE_PACKAGE ?=
 PROJECT_UUID ?= $(DSW_PROJECT_UUID)
 PYTHON ?= $(VENV_PYTHON)
 PYTHON_LINT_PATHS ?= docs/conf.py scripts/ci/*.py src tests
@@ -100,7 +101,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews stage-translated-handoff start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews stage-translated-handoff start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -156,6 +157,7 @@ help:
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
+	'  render-package    Import PROJECT_RENDER_TEMPLATE_PACKAGE, then render $(PROJECT_REF)' \
 	'  render-project    Render PROJECT_UUID or $(PROJECT_REF) with $(PROJECT_RENDER_TEMPLATE_DIR)' \
 	'  render-regression Run the DSW headless regression workflow using CONFIG=$(CONFIG)' \
 	'  render-regression-ci Generate latest-version CI config and run local DSW regression' \
@@ -427,7 +429,21 @@ stop-ci-dsw:
 ci-dsw-logs:
 	scripts/ci/collect_dsw_logs.sh
 
+render-package: venv
+	@test -n "$(PROJECT_RENDER_TEMPLATE_PACKAGE)" || { \
+		echo "PROJECT_RENDER_TEMPLATE_PACKAGE is required for render-package" >&2; \
+		exit 2; \
+	}
+	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
+	$(DSW_TEMPLATE_RENDER_PROJECT) \
+		--project-uuid "$(PROJECT_UUID)" \
+		--project-ref "$(PROJECT_REF)" \
+		--template-package "$(PROJECT_RENDER_TEMPLATE_PACKAGE)" \
+		--format-uuid "$(PROJECT_RENDER_FORMAT_UUID)" \
+		--output "$(PROJECT_RENDER_OUTPUT)"
+
 render-project: venv
+	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
 	$(DSW_TEMPLATE_RENDER_PROJECT) \
 		--project-uuid "$(PROJECT_UUID)" \
 		--project-ref "$(PROJECT_REF)" \

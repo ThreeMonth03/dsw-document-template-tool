@@ -40,6 +40,7 @@ def test_render_project_help(repo_root) -> None:
     assert result.returncode == 0
     assert "existing or fixture DSW project" in result.stdout
     assert "--project-uuid" in result.stdout
+    assert "--template-package" in result.stdout
     assert "--keep-created-project" in result.stdout
 
 
