@@ -319,6 +319,9 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
         preserved_marker = preserved_tree / "translator.txt"
         if preserved_marker.exists():
             shutil.copy2(preserved_marker, merged_tree / "translator.txt")
+        merge_report = merged_tree / ".translation-tree/merge-report.json"
+        merge_report.parent.mkdir(parents=True, exist_ok=True)
+        merge_report.write_text('{"diagnostic": true}\n', encoding="utf-8")
         sync_module.replace_tree(merged_tree, checkout / paths.translation_tree_dir)
 
     def fake_sync_blank_translation_output(
@@ -423,6 +426,14 @@ def test_sync_translation_versions_refreshes_existing_branch_from_clean_artifact
     )
     assert not _git_path_exists(translation_repo, "sync/v1.30.1:migration-reports")
     assert not _git_path_exists(translation_repo, "sync/v1.30.1:legacy-branch-note.txt")
+    assert not _git_path_exists(
+        translation_repo,
+        (
+            "sync/v1.30.1:"
+            "workspace/document-templates/translation/dsw-science-europe-1.30.1/"
+            ".translation-tree/merge-report.json"
+        ),
+    )
     assert (
         _git_show(
             translation_repo,
