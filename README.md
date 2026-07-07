@@ -54,8 +54,8 @@ The DSW runtime matrix is declared in
 On non-PR CI runs, this repository publishes clean scaffold prerelease assets
 such as `clean-scaffold-dsw-science-europe-v1.30.1`. These are download buckets
 for downstream maintenance, not finished translations. Their assets are
-refreshed by CI; the Git tag commit is not the source of truth for generated
-files.
+refreshed by CI, and the release tag is moved to the commit that produced the
+current assets.
 
 ## License
 

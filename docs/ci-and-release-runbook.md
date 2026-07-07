@@ -56,8 +56,9 @@ This means:
 
 - branch updates refresh same-version assets
 - GitHub Release tags act as version download buckets
-- the Git tag commit is not the generated asset source of truth
-- release notes and checksums should be used for provenance
+- the Git tag is moved to the commit that produced the refreshed assets
+- release notes, checksums, and workflow run metadata remain the provenance
+  source of truth
 
 If a repository enables immutable releases, `--clobber` will fail. See
 [Troubleshooting](troubleshooting.md).

@@ -396,11 +396,28 @@ jobs:
           release_target="$(git -C "$HOST_ROOT" rev-parse HEAD)"
 
           edit_release() {
+            sync_release_tag
             gh release edit "$release_tag" \
               --repo "$GITHUB_REPOSITORY" \
               --title "$release_title" \
               --notes-file "$release_dir/release-notes.md" \
               --prerelease
+          }
+
+          sync_release_tag() {
+            if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$release_tag" >/dev/null 2>&1; then
+              gh api \
+                --method PATCH \
+                "repos/$GITHUB_REPOSITORY/git/refs/tags/$release_tag" \
+                -f sha="$release_target" \
+                -F force=true
+            else
+              gh api \
+                --method POST \
+                "repos/$GITHUB_REPOSITORY/git/refs" \
+                -f ref="refs/tags/$release_tag" \
+                -f sha="$release_target"
+            fi
           }
 
           create_release() {

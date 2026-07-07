@@ -144,12 +144,14 @@ Remember:
 
 - release assets are refreshed only by successful scheduled runs, manual
   `workflow_dispatch` runs, and `master` pushes
-- release Git tags are version buckets and may still point at an older commit
-- provenance should be checked in release notes, checksums, and workflow run
-  metadata
+- release Git tags are mutable version buckets and should point at the commit
+  that produced the current assets
+- provenance should still be checked in release notes, checksums, and workflow
+  run metadata
 
 If the asset is stale:
 
 1. Confirm the branch CI ran after the change.
 2. Confirm the `Stage ... release assets` step used the expected output paths.
 3. Confirm the `Publish ... release assets` step used `--clobber`.
+4. Confirm the release tag points at the commit recorded in `release-notes.md`.

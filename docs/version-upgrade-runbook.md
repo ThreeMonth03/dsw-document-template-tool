@@ -117,5 +117,6 @@ clean-scaffold-dsw-science-europe-v1.30.1
 ```
 
 Assets refresh when CI runs successfully for the relevant upstream tag. The
-release Git tag is only a version download bucket; check release notes and
-checksums for generated asset provenance.
+release Git tag is a mutable version download bucket and should point at the
+commit that produced the current assets. Check release notes and checksums for
+generated asset provenance.

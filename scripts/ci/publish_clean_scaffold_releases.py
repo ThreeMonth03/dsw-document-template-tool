@@ -205,6 +205,7 @@ def publish_release(release: CleanScaffoldRelease) -> None:
 
     notes_file = release.release_dir / "release-notes.md"
     if release_exists(release):
+        sync_release_tag(release)
         run(
             [
                 "gh",
@@ -251,6 +252,59 @@ def publish_release(release: CleanScaffoldRelease) -> None:
             release.repository,
             "--clobber",
         ]
+    )
+
+
+def sync_release_tag(release: CleanScaffoldRelease) -> None:
+    """Point the mutable release tag at the commit that produced the assets."""
+
+    ref_name = f"tags/{release.release_tag}"
+    if tag_exists(release, ref_name):
+        run(
+            [
+                "gh",
+                "api",
+                "--method",
+                "PATCH",
+                f"repos/{release.repository}/git/refs/{ref_name}",
+                "-f",
+                f"sha={release.commit_sha}",
+                "-F",
+                "force=true",
+            ]
+        )
+        return
+
+    run(
+        [
+            "gh",
+            "api",
+            "--method",
+            "POST",
+            f"repos/{release.repository}/git/refs",
+            "-f",
+            f"ref=refs/{ref_name}",
+            "-f",
+            f"sha={release.commit_sha}",
+        ]
+    )
+
+
+def tag_exists(release: CleanScaffoldRelease, ref_name: str) -> bool:
+    """Return whether the release tag exists."""
+
+    return (
+        subprocess.run(
+            [
+                "gh",
+                "api",
+                f"repos/{release.repository}/git/ref/{ref_name}",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        ).returncode
+        == 0
     )
 
 
