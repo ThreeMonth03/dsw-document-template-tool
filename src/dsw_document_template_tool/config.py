@@ -6,8 +6,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 from .models import (
     ApiConfig,
     FixtureConfig,
@@ -18,15 +16,57 @@ from .models import (
     TdkConfig,
     WorkflowConfig,
 )
+from .yaml_config import YamlConfigError, load_yaml_file
 
 DEFAULT_TIMEOUT_SECONDS = 180
 DEFAULT_POLL_SECONDS = 1.0
 DEFAULT_WORKFLOW_CONFIG_PATH = Path("config/regression.preview.yml")
 UNEXPANDED_ENV_PATTERN = "${"
+API_KEYS = frozenset({"email", "password", "token", "url", "verify_ssl"})
+FIXTURE_KEYS = frozenset({"events_file", "name", "project", "project_event_uuid", "project_uuid"})
+GENERATED_FIXTURE_KEYS = frozenset(
+    {
+        "answer_probability",
+        "count",
+        "max_events",
+        "max_items_per_list",
+        "name_prefix",
+        "project",
+        "seed",
+    }
+)
+PROJECT_KEYS = frozenset(
+    {"knowledge_model_package_id", "name", "question_tag_uuids", "sharing", "visibility"}
+)
+REGRESSION_KEYS = frozenset(
+    {
+        "cleanup_projects",
+        "format_uuid",
+        "ignore_patterns",
+        "mode",
+        "output_dir",
+        "poll_seconds",
+        "timeout_seconds",
+    }
+)
+ROOT_KEYS = frozenset({"api", "fixtures", "generated_fixtures", "regression", "subjects", "tdk"})
+SUBJECT_KEYS = frozenset({"kind", "stage_id", "value", "verify"})
+SUBJECTS_KEYS = frozenset({"baseline", "candidate"})
+TDK_KEYS = frozenset({"executable"})
 
 
 class WorkflowConfigError(ValueError):
     """Raised when the YAML config is missing required workflow fields."""
+
+
+def _reject_unknown_keys(
+    payload: dict[object, object],
+    allowed: frozenset[str],
+    context: str,
+) -> None:
+    unknown = sorted(str(key) for key in payload if not isinstance(key, str) or key not in allowed)
+    if unknown:
+        raise WorkflowConfigError(f"Unknown field(s) in {context}: {', '.join(unknown)}")
 
 
 def _expand_env_vars(value: Any) -> Any:
@@ -136,6 +176,7 @@ def _load_project_seed_config(
     base_dir: Path,
     project_payload: dict[str, Any],
 ) -> ProjectSeedConfig:
+    _reject_unknown_keys(project_payload, PROJECT_KEYS, "fixture project")
     return ProjectSeedConfig(
         name=_require_str(project_payload, "name"),
         knowledge_model_package_id=_resolve_package_reference(
@@ -160,13 +201,18 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
     """Load one YAML workflow config from disk."""
 
     path = Path(config_path).resolve()
-    payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    try:
+        payload = load_yaml_file(path) or {}
+    except YamlConfigError as exc:
+        raise WorkflowConfigError(str(exc)) from exc
     if not isinstance(payload, dict):
         raise WorkflowConfigError("Workflow config root must be a mapping")
     payload = _expand_env_vars(payload)
+    _reject_unknown_keys(payload, ROOT_KEYS, "workflow config")
     base_dir = path.parent
 
     api_section = _require_dict(payload, "api")
+    _reject_unknown_keys(api_section, API_KEYS, "api")
     api = ApiConfig(
         url=_require_str(api_section, "url"),
         token=_optional_str(api_section, "token"),
@@ -184,6 +230,7 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
         tdk_section = {}
     if not isinstance(tdk_section, dict):
         raise WorkflowConfigError("Expected mapping at `tdk`")
+    _reject_unknown_keys(tdk_section, TDK_KEYS, "tdk")
     tdk = TdkConfig(
         executable=_resolve_executable_reference(
             base_dir, _optional_str(tdk_section, "executable")
@@ -191,8 +238,11 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
     )
 
     subjects_section = _require_dict(payload, "subjects")
+    _reject_unknown_keys(subjects_section, SUBJECTS_KEYS, "subjects")
     baseline_section = _require_dict(subjects_section, "baseline")
     candidate_section = _require_dict(subjects_section, "candidate")
+    _reject_unknown_keys(baseline_section, SUBJECT_KEYS, "subjects.baseline")
+    _reject_unknown_keys(candidate_section, SUBJECT_KEYS, "subjects.candidate")
 
     baseline = SubjectConfig(
         kind=_require_str(baseline_section, "kind"),
@@ -216,6 +266,7 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
     )
 
     regression_section = _require_dict(payload, "regression")
+    _reject_unknown_keys(regression_section, REGRESSION_KEYS, "regression")
     regression = RegressionConfig(
         mode=_require_str(regression_section, "mode"),
         format_uuid=_require_str(regression_section, "format_uuid"),
@@ -236,6 +287,7 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
     for index, fixture_payload in enumerate(fixtures_payload, start=1):
         if not isinstance(fixture_payload, dict):
             raise WorkflowConfigError(f"Fixture #{index} must be a mapping")
+        _reject_unknown_keys(fixture_payload, FIXTURE_KEYS, f"fixture #{index}")
         project_payload = fixture_payload.get("project")
         project = None
         if project_payload is not None:
@@ -269,6 +321,11 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
     for index, generated_payload in enumerate(generated_fixtures_payload, start=1):
         if not isinstance(generated_payload, dict):
             raise WorkflowConfigError(f"Generated fixture #{index} must be a mapping")
+        _reject_unknown_keys(
+            generated_payload,
+            GENERATED_FIXTURE_KEYS,
+            f"generated fixture #{index}",
+        )
         project_payload = generated_payload.get("project")
         if not isinstance(project_payload, dict):
             raise WorkflowConfigError(f"Generated fixture #{index} `project` must be a mapping")

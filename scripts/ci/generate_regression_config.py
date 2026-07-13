@@ -12,6 +12,8 @@ from pathlib import Path
 
 import yaml
 
+from dsw_document_template_tool.yaml_config import YamlConfigError, load_yaml_file
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
@@ -136,7 +138,10 @@ def write_regression_config(
 ) -> None:
     """Write a config whose subjects point at the selected workspace."""
 
-    payload = yaml.safe_load(base_config.read_text(encoding="utf-8")) or {}
+    try:
+        payload = load_yaml_file(base_config) or {}
+    except YamlConfigError as exc:
+        raise SystemExit(str(exc)) from exc
     if not isinstance(payload, dict):
         raise SystemExit(f"Expected mapping root in {base_config}")
     subjects = payload.setdefault("subjects", {})

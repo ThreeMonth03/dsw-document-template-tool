@@ -5,9 +5,9 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
-import yaml
+from .yaml_config import YamlConfigError, load_yaml_file
 
 
 class TranslationMigrationError(RuntimeError):
@@ -67,13 +67,21 @@ class MigrationConfig:
 
 VersionRefreshPolicy = Literal["artifact", "manual", "false"]
 VersionMigrationPolicy = Literal["auto", "manual", "false"]
+VersionLifecycleState = Literal["available", "active", "maintenance", "published", "archived"]
+VERSION_LIFECYCLE_STATES: tuple[VersionLifecycleState, ...] = (
+    "available",
+    "active",
+    "maintenance",
+    "published",
+    "archived",
+)
 
 
 @dataclass(frozen=True)
 class VersionPolicyValues:
     """Operational policy values applied to one template version."""
 
-    state: str
+    state: VersionLifecycleState
     refresh: VersionRefreshPolicy
     migrate_into: VersionMigrationPolicy
     publish_release: bool
@@ -81,11 +89,22 @@ class VersionPolicyValues:
 
 
 @dataclass(frozen=True)
+class VersionPolicyPatch:
+    """Fields explicitly supplied by one rule or exact override."""
+
+    state: VersionLifecycleState | None = None
+    refresh: VersionRefreshPolicy | None = None
+    migrate_into: VersionMigrationPolicy | None = None
+    publish_release: bool | None = None
+    reason: str | None = None
+
+
+@dataclass(frozen=True)
 class VersionPolicyRule:
     """Range-based version policy rule."""
 
     match: str
-    values: VersionPolicyValues
+    values: VersionPolicyPatch
 
 
 @dataclass(frozen=True)
@@ -94,7 +113,7 @@ class VersionPolicyConfig:
 
     defaults: VersionPolicyValues
     rules: tuple[VersionPolicyRule, ...]
-    overrides: dict[str, VersionPolicyValues]
+    overrides: dict[str, VersionPolicyPatch]
 
 
 @dataclass(frozen=True)
@@ -181,7 +200,10 @@ def load_preview_runtimes(
     """Load DSW preview runtimes from the checked-in compatibility table."""
 
     config_path = path or DEFAULT_DSW_COMPAT_PATH
-    payload = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+    try:
+        payload = load_yaml_file(config_path)
+    except YamlConfigError as exc:
+        raise TranslationMigrationError(str(exc)) from exc
     if not isinstance(payload, dict):
         raise TranslationMigrationError(
             f"DSW compatibility config {config_path} must contain a mapping"
@@ -275,7 +297,10 @@ def _validate_preview_runtimes(runtimes: tuple[DswPreviewRuntime, ...]) -> None:
 def load_translation_repository_config(path: Path) -> TranslationRepositoryConfig:
     """Load and validate ``translation-config.yml``."""
 
-    payload = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    try:
+        payload = load_yaml_file(path)
+    except YamlConfigError as exc:
+        raise TranslationMigrationError(str(exc)) from exc
     if not isinstance(payload, dict):
         raise TranslationMigrationError("translation-config.yml must contain a mapping")
 
@@ -722,16 +747,20 @@ def version_matches_range(version: str, expression: str) -> bool:
 
 def merge_version_policy_values(
     base: VersionPolicyValues,
-    overlay: VersionPolicyValues,
+    overlay: VersionPolicyPatch,
 ) -> VersionPolicyValues:
-    """Merge two policy value sets, treating empty overlay strings as absent."""
+    """Apply only fields explicitly present in a rule or exact override."""
 
     return VersionPolicyValues(
-        state=overlay.state or base.state,
-        refresh=overlay.refresh or base.refresh,
-        migrate_into=overlay.migrate_into or base.migrate_into,
-        publish_release=overlay.publish_release,
-        reason=overlay.reason or base.reason,
+        state=overlay.state if overlay.state is not None else base.state,
+        refresh=overlay.refresh if overlay.refresh is not None else base.refresh,
+        migrate_into=(
+            overlay.migrate_into if overlay.migrate_into is not None else base.migrate_into
+        ),
+        publish_release=(
+            overlay.publish_release if overlay.publish_release is not None else base.publish_release
+        ),
+        reason=overlay.reason if overlay.reason is not None else base.reason,
     )
 
 
@@ -783,27 +812,27 @@ def _load_version_policy(payload: object) -> VersionPolicyConfig:
         raise TranslationMigrationError("translation-config.yml version_policy must be a mapping")
     _reject_unknown_keys(payload, {"defaults", "overrides", "rules"}, "version_policy")
 
-    defaults = _load_version_policy_values(
-        payload.get("defaults", {}),
-        fallback=VersionPolicyValues(
+    defaults = merge_version_policy_values(
+        VersionPolicyValues(
             state="available",
             refresh="false",
             migrate_into="false",
             publish_release=False,
             reason="available scaffold only; opt in before translating",
         ),
+        _load_version_policy_patch(payload.get("defaults", {})),
     )
 
     rules_payload = payload.get("rules", [])
     if not isinstance(rules_payload, list):
         raise TranslationMigrationError("version_policy.rules must be a list")
-    rules = tuple(_load_version_policy_rule(item, defaults) for item in rules_payload)
+    rules = tuple(_load_version_policy_rule(item) for item in rules_payload)
 
     overrides_payload = payload.get("overrides", {})
     if not isinstance(overrides_payload, dict):
         raise TranslationMigrationError("version_policy.overrides must be a mapping")
     overrides = {
-        version: _load_version_policy_values(item, fallback=defaults)
+        version: _load_version_policy_patch(item)
         for version, item in overrides_payload.items()
         if _validate_policy_override_version(version)
     }
@@ -811,10 +840,7 @@ def _load_version_policy(payload: object) -> VersionPolicyConfig:
     return VersionPolicyConfig(defaults=defaults, rules=rules, overrides=overrides)
 
 
-def _load_version_policy_rule(
-    payload: object,
-    defaults: VersionPolicyValues,
-) -> VersionPolicyRule:
+def _load_version_policy_rule(payload: object) -> VersionPolicyRule:
     if not isinstance(payload, dict):
         raise TranslationMigrationError("Each version_policy rule must be a mapping")
     _reject_unknown_keys(
@@ -827,18 +853,13 @@ def _load_version_policy_rule(
     version_matches_range("v0.0.0", match)
     return VersionPolicyRule(
         match=match,
-        values=_load_version_policy_values(
-            {key: value for key, value in payload.items() if key != "match"},
-            fallback=defaults,
+        values=_load_version_policy_patch(
+            {key: value for key, value in payload.items() if key != "match"}
         ),
     )
 
 
-def _load_version_policy_values(
-    payload: object,
-    *,
-    fallback: VersionPolicyValues,
-) -> VersionPolicyValues:
+def _load_version_policy_patch(payload: object) -> VersionPolicyPatch:
     if payload is None:
         payload = {}
     if not isinstance(payload, dict):
@@ -848,67 +869,78 @@ def _load_version_policy_values(
         {"migrate_into", "publish_release", "reason", "refresh", "state"},
         "version policy values",
     )
-    return VersionPolicyValues(
-        state=_optional_str(payload, "state", default=fallback.state),
-        refresh=_optional_refresh_policy(payload, "refresh", default=fallback.refresh),
-        migrate_into=_optional_migration_policy(
-            payload,
-            "migrate_into",
-            default=fallback.migrate_into,
-        ),
-        publish_release=_optional_bool(
-            payload,
-            "publish_release",
-            default=fallback.publish_release,
-        ),
-        reason=_optional_str(payload, "reason", default=fallback.reason),
+    return VersionPolicyPatch(
+        state=_present_lifecycle_state(payload, "state"),
+        refresh=_present_refresh_policy(payload, "refresh"),
+        migrate_into=_present_migration_policy(payload, "migrate_into"),
+        publish_release=_present_bool(payload, "publish_release"),
+        reason=_present_str(payload, "reason"),
     )
 
 
-def _optional_refresh_policy(
-    payload: object,
-    key: str,
-    *,
-    default: VersionRefreshPolicy,
-) -> VersionRefreshPolicy:
-    value = _optional_string_or_bool(payload, key, default=default)
-    if value is True:
-        return "artifact"
+def _present_refresh_policy(payload: dict[object, object], key: str) -> VersionRefreshPolicy | None:
+    if key not in payload:
+        return None
+    value = payload[key]
     if value is False:
         return "false"
+    if value is True:
+        raise TranslationMigrationError(
+            f"Expected {key!r} to use explicit value 'artifact' instead of true"
+        )
     if value not in {"artifact", "manual", "false"}:
         raise TranslationMigrationError(f"Expected {key!r} to be one of artifact, manual, false")
     return value
 
 
-def _optional_migration_policy(
-    payload: object,
+def _present_migration_policy(
+    payload: dict[object, object],
     key: str,
-    *,
-    default: VersionMigrationPolicy,
-) -> VersionMigrationPolicy:
-    value = _optional_string_or_bool(payload, key, default=default)
-    if value is True:
-        return "auto"
+) -> VersionMigrationPolicy | None:
+    if key not in payload:
+        return None
+    value = payload[key]
     if value is False:
         return "false"
+    if value is True:
+        raise TranslationMigrationError(
+            f"Expected {key!r} to use explicit value 'auto' instead of true"
+        )
     if value not in {"auto", "manual", "false"}:
         raise TranslationMigrationError(f"Expected {key!r} to be one of auto, manual, false")
     return value
 
 
-def _optional_string_or_bool(
-    payload: object,
+def _present_bool(payload: dict[object, object], key: str) -> bool | None:
+    if key not in payload:
+        return None
+    value = payload[key]
+    if not isinstance(value, bool):
+        raise TranslationMigrationError(f"Expected boolean at {key!r}")
+    return value
+
+
+def _present_lifecycle_state(
+    payload: dict[object, object],
     key: str,
-    *,
-    default: str,
-) -> str | bool:
-    if not isinstance(payload, dict):
-        raise TranslationMigrationError(f"Expected mapping while reading {key!r}")
-    value = payload.get(key, default)
-    if isinstance(value, str) or isinstance(value, bool):
-        return value
-    raise TranslationMigrationError(f"Expected string or boolean at {key!r}")
+) -> VersionLifecycleState | None:
+    if key not in payload:
+        return None
+    value = payload[key]
+    if not isinstance(value, str) or value not in VERSION_LIFECYCLE_STATES:
+        raise TranslationMigrationError(
+            f"Expected {key!r} to be one of {', '.join(VERSION_LIFECYCLE_STATES)}"
+        )
+    return cast(VersionLifecycleState, value)
+
+
+def _present_str(payload: dict[object, object], key: str) -> str | None:
+    if key not in payload:
+        return None
+    value = payload[key]
+    if not isinstance(value, str) or not value:
+        raise TranslationMigrationError(f"Expected non-empty string at {key!r}")
+    return value
 
 
 def _validate_policy_override_version(version: object) -> bool:

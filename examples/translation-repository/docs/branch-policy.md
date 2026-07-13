@@ -61,6 +61,19 @@ version_policy:
       reason: actively translated
 ```
 
+Maintenance-only, requiring an operator-triggered refresh or migration:
+
+```yaml
+version_policy:
+  overrides:
+    vX.Y.Z:
+      state: maintenance
+      refresh: manual
+      migrate_into: manual
+      publish_release: true
+      reason: maintenance changes require operator review
+```
+
 Published and frozen, while keeping the reviewed release assets available:
 
 ```yaml
@@ -89,3 +102,12 @@ version_policy:
 
 Published and archived versions must use `refresh: false`; the tooling rejects
 frozen versions that could still be rebuilt from clean scaffold artifacts.
+
+`state` must be one of `available`, `active`, `maintenance`, `published`, or
+`archived`; spelling variants fail validation.
+
+Policy precedence is `defaults`, matching `rules` in file order, and finally an
+exact version `override`. A rule or override changes only the fields it contains,
+so a reason-only override does not reset refresh, migration, or release behavior.
+Use `artifact` and `auto` explicitly when enabling automation; do not use `true`
+as shorthand.

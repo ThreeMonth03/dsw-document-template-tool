@@ -8,7 +8,14 @@ repository.
 Check the operations workflow on the configured operations branch:
 
 ```shell
-gh run list --workflow document_template_translation_sync.yml --branch master --limit 5
+TRANSLATION_REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+TRANSLATION_OPERATIONS_BRANCH=$(awk '/control_branch:/ { print $2; exit }' translation-config.yml)
+
+gh run list \
+  --repo "$TRANSLATION_REPO" \
+  --workflow document_template_translation_sync.yml \
+  --branch "$TRANSLATION_OPERATIONS_BRANCH" \
+  --limit 5
 ```
 
 Healthy outcomes:
@@ -21,7 +28,11 @@ Healthy outcomes:
 Check version-branch validation after translation PRs:
 
 ```shell
-gh run list --workflow document_template_translation_sync.yml --branch sync/v1.30.1 --limit 5
+gh run list \
+  --repo "$TRANSLATION_REPO" \
+  --workflow document_template_translation_sync.yml \
+  --branch sync/vX.Y.Z \
+  --limit 5
 ```
 
 ## Manual Sync
@@ -29,16 +40,24 @@ gh run list --workflow document_template_translation_sync.yml --branch sync/v1.3
 Trigger operations sync after the tool repo publishes new clean scaffold assets:
 
 ```shell
-gh workflow run document_template_translation_sync.yml --ref master
+gh workflow run document_template_translation_sync.yml \
+  --repo "$TRANSLATION_REPO" \
+  --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
 Choose a migration source version when needed:
 
 ```shell
 gh workflow run document_template_translation_sync.yml \
-  --ref master \
-  -f source_version=v1.30.1
+  --repo "$TRANSLATION_REPO" \
+  --ref "$TRANSLATION_OPERATIONS_BRANCH" \
+  -f source_version=vX.Y.Z
 ```
+
+Keep `tooling.repository` and `tooling.ref` in `translation-config.yml` as
+ordinary one-line YAML scalars. The operations workflow uses those two values
+to bootstrap the tool checkout, then delegates complete config validation to
+the checked-out tool.
 
 ## Release Review
 

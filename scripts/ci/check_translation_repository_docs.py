@@ -40,12 +40,25 @@ REQUIRED_TOPICS: tuple[TopicCheck, ...] = (
         patterns=(
             r"state:\s*available",
             r"state:\s*active",
+            r"state:\s*maintenance",
             r"state:\s*published",
             r"state:\s*archived",
             r"publish_release:\s*true",
             r"publish_release:\s*false",
         ),
-        description="copy-ready available/active/published/archived version_policy examples",
+        description=(
+            "copy-ready available/active/maintenance/published/archived version_policy examples"
+        ),
+    ),
+    TopicCheck(
+        name="version policy precedence",
+        patterns=(r"matching rules", r"file order", r"explicitly"),
+        description="defaults/rules/overrides precedence and partial-layer behavior",
+    ),
+    TopicCheck(
+        name="tooling bootstrap contract",
+        patterns=(r"tooling\.repository", r"tooling\.ref", r"one-line", r"duplicate-key"),
+        description="one-line tooling checkout fields followed by strict config validation",
     ),
 )
 

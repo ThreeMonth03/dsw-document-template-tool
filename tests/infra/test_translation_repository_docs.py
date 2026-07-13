@@ -51,6 +51,13 @@ publish_release: true
 ```
 
 ```yaml
+state: maintenance
+refresh: manual
+migrate_into: manual
+publish_release: true
+```
+
+```yaml
 state: published
 refresh: false
 migrate_into: false
@@ -63,6 +70,12 @@ refresh: false
 migrate_into: false
 publish_release: false
 ```
+
+Policy precedence uses defaults, matching rules in file order, and exact
+overrides. Each layer changes only fields it explicitly declares.
+
+Keep tooling.repository and tooling.ref as one-line values. Bootstrap checkout
+is followed by strict duplicate-key validation.
 """,
         encoding="utf-8",
     )

@@ -148,8 +148,8 @@ It has two jobs:
 - `offline-checks`: install dependencies, smoke-test upstream refs, discover DSW
   compatibility, run format/lint/tests.
 - `render-regression`: run a metamodel-aware DSW matrix, build clean scaffold
-  artifacts, run full regression against the plan-recommended versions for each
-  matrix, render demo previews, and upload artifacts.
+  artifacts, run full regression where the runtime policy enables it, render
+  strict demo previews for every supported version, and upload artifacts.
 
 The runtime matrix comes from:
 
@@ -161,8 +161,14 @@ block by hand.
 
 Current policy:
 
-- `v1.29.1` uses the DSW 4.26 runtime.
-- `v1.30.0+` uses the DSW 4.30 runtime.
+| Template range | DSW runtime | Randomized baseline/candidate regression | Strict demo preview |
+| --- | --- | --- | --- |
+| `v1.29.1` | DSW 4.26 | Disabled for this historical runtime | Required |
+| `v1.30.0+` | DSW 4.30 | Required | Required |
+
+`run_preview_regression` controls the larger randomized baseline/candidate
+comparison. It does not control clean scaffold generation or the strict demo
+project preview, which remain required when `strict_project_preview` is true.
 
 If a future upstream tag introduces a new `metamodelVersion`, CI should fail
 clearly during compatibility discovery. The failure summary includes an

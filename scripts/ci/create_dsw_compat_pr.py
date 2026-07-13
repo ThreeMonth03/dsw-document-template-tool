@@ -11,7 +11,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-import yaml
+from dsw_document_template_tool.yaml_config import YamlConfigError, load_yaml_text
 
 DEFAULT_COMPAT_PATH = Path("config/dsw-compat.yml")
 DEFAULT_REPORT_PATH = Path("docs/compatibility/dsw-compatibility-probe.md")
@@ -253,7 +253,10 @@ def parse_discovery_rows(report: str) -> list[DiscoveryRow]:
 def load_runtime_rows(compat_text: str) -> list[RuntimeRow]:
     """Parse checked-in DSW runtime rows."""
 
-    payload = yaml.safe_load(compat_text)
+    try:
+        payload = load_yaml_text(compat_text, source="compatibility config")
+    except YamlConfigError as exc:
+        raise SystemExit(str(exc)) from exc
     if not isinstance(payload, dict):
         raise SystemExit("Compatibility config must contain a mapping")
     raw_runtimes = payload.get("runtimes")

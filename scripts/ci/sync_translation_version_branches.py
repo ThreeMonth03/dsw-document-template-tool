@@ -41,6 +41,10 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     version_policy_allows_manual_refresh,
     version_policy_decision,
 )
+from dsw_document_template_tool.yaml_config import (  # noqa: E402
+    YamlConfigError,
+    load_yaml_file,
+)
 
 VERSION_BRANCH_WORKFLOW_TEMPLATE = (
     REPO_ROOT / "examples" / "github-actions" / "document_template_translation_sync.yml"
@@ -983,7 +987,12 @@ def merge_preserved_translations(
 def write_supported_versions(config_path: Path, versions: tuple[str, ...]) -> None:
     """Update the configured known upstream version ledger."""
 
-    payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    try:
+        payload = load_yaml_file(config_path)
+    except YamlConfigError as exc:
+        raise SystemExit(str(exc)) from exc
+    if not isinstance(payload, dict):
+        raise SystemExit(f"Expected mapping root in {config_path}")
     payload["template"]["supported_versions"] = list(versions)
     config_path.write_text(
         yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),

@@ -79,6 +79,14 @@ migration:
     return config_path
 
 
+def _replace_version_policy(config_text: str, policy_text: str) -> str:
+    """Replace the complete policy section without creating duplicate YAML keys."""
+
+    start = config_text.index("version_policy:\n")
+    end = config_text.index("\ntranslation:\n", start)
+    return f"{config_text[:start]}{policy_text.strip()}\n{config_text[end + 1 :]}"
+
+
 def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
     """The migration config should derive stable version-specific paths."""
 
@@ -111,6 +119,46 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
         "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/"
         "dsw-science-europe-zh-hant-1.30.1.zip"
     )
+
+
+def test_translation_config_rejects_duplicate_keys(tmp_path: Path) -> None:
+    """A duplicate operations setting must not silently select one value."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "  ref: master",
+            "  ref: master\n  ref: unreviewed",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="duplicate key 'ref'"):
+        load_translation_repository_config(config_path)
+
+
+def test_preview_runtime_config_rejects_duplicate_keys(tmp_path: Path) -> None:
+    """A duplicate runtime field must fail before matrix generation."""
+
+    config_path = tmp_path / "dsw-compat.yml"
+    config_path.write_text(
+        """
+schema_version: 1
+runtimes:
+  - metamodel_key: 18-0
+    metamodel_version: "18.0"
+    dsw_version: "4.30"
+    dsw_version: "4.31"
+    tdk_version: "4.30.1"
+    min_version: v1.30.0
+    max_version: null
+    upstream_template_artifact_refs: v1.30.0+
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="duplicate key 'dsw_version'"):
+        load_preview_runtimes(config_path)
 
 
 def test_load_translation_repository_config_accepts_custom_public_readme_path(
@@ -402,9 +450,8 @@ def test_version_policy_rules_and_overrides_control_automation(tmp_path: Path) -
 
     config_path = _write_config(tmp_path)
     config_path.write_text(
-        config_path.read_text(encoding="utf-8")
-        .replace(
-            "translation:\n",
+        _replace_version_policy(
+            config_path.read_text(encoding="utf-8"),
             """
 version_policy:
   defaults:
@@ -431,10 +478,8 @@ version_policy:
       publish_release: false
       reason: frozen after depositar publication
 
-translation:
 """,
-        )
-        .replace(
+        ).replace(
             "    - v1.30.0\n    - v1.30.1",
             "    - v1.29.1\n    - v1.30.0\n    - v1.30.1",
         ),
@@ -454,6 +499,89 @@ translation:
     assert target_versions(config, "v1.30.1", ["v1.29.1"]) == ["v1.29.1"]
     with pytest.raises(TranslationMigrationError, match="not allowed"):
         target_versions(config, "v1.30.1", ["v1.30.0"])
+
+
+def test_version_policy_partial_layers_preserve_inherited_values(tmp_path: Path) -> None:
+    """Later policy layers should change only fields they explicitly declare."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        _replace_version_policy(
+            config_path.read_text(encoding="utf-8"),
+            """
+version_policy:
+  defaults:
+    state: available
+    refresh: false
+    migrate_into: false
+    publish_release: false
+    reason: not selected
+  rules:
+    - match: ">=v1.30.0"
+      state: active
+      refresh: artifact
+      migrate_into: auto
+      publish_release: true
+      reason: active range
+    - match: ">=v1.30.1"
+      reason: latest active range
+  overrides:
+    v1.30.1:
+      reason: preferred migration source
+
+""",
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_translation_repository_config(config_path)
+    decision = version_policy_decision(config, "v1.30.1")
+
+    assert decision.state == "active"
+    assert decision.refresh == "artifact"
+    assert decision.migrate_into == "auto"
+    assert decision.publish_release is True
+    assert decision.reason == "preferred migration source"
+
+
+@pytest.mark.parametrize(
+    ("field", "explicit_value"),
+    [("refresh", "artifact"), ("migrate_into", "auto")],
+)
+def test_version_policy_rejects_ambiguous_true_shorthand(
+    tmp_path: Path,
+    field: str,
+    explicit_value: str,
+) -> None:
+    """Enabling policy fields should use reviewable domain values, not true."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            f"    {field}: {explicit_value}",
+            f"    {field}: true",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match=f"explicit value '{explicit_value}'"):
+        load_translation_repository_config(config_path)
+
+
+def test_version_policy_rejects_unknown_lifecycle_state(tmp_path: Path) -> None:
+    """A state typo must not bypass published/archived mutation protection."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace(
+            "    state: active",
+            "    state: actvie",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="available, active, maintenance"):
+        load_translation_repository_config(config_path)
 
 
 @pytest.mark.parametrize("state", ["published", "archived"])

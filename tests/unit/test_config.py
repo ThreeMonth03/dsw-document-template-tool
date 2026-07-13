@@ -9,6 +9,51 @@ import pytest
 from dsw_document_template_tool.config import WorkflowConfigError, load_workflow_config
 
 
+def test_load_workflow_config_rejects_duplicate_keys(tmp_path: Path) -> None:
+    """Ambiguous workflow settings should fail before any DSW request runs."""
+
+    config_path = tmp_path / "workflow.yml"
+    config_path.write_text(
+        "api:\n  url: http://first.example\n  url: http://second.example\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(WorkflowConfigError, match="duplicate key 'url'"):
+        load_workflow_config(config_path)
+
+
+def test_load_workflow_config_rejects_unknown_keys(tmp_path: Path) -> None:
+    """A misspelled setting should fail instead of falling back to a default."""
+
+    config_path = tmp_path / "workflow.yml"
+    config_path.write_text(
+        """
+api:
+  url: http://localhost
+  token: secret
+subjects:
+  baseline:
+    kind: draft_id
+    value: example:baseline:1.0.0
+  candidate:
+    kind: draft_id
+    value: example:candidate:1.0.0
+regression:
+  mode: preview
+  format_uuid: format-id
+  output_dir: outputs
+  poll_second: 1
+fixtures:
+  - name: sample
+    project_uuid: 11111111-1111-4111-8111-111111111111
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(WorkflowConfigError, match="poll_second"):
+        load_workflow_config(config_path)
+
+
 def test_load_workflow_config_resolves_relative_event_path(tmp_path: Path, monkeypatch) -> None:
     """Relative paths and environment-variable placeholders should resolve safely."""
 
