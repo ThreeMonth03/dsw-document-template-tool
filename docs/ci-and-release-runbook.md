@@ -63,7 +63,7 @@ This means:
 If a repository enables immutable releases, `--clobber` will fail. See
 [Troubleshooting](troubleshooting.md).
 
-## Public Repository Handoff
+## Public Repository Integration
 
 The public translated-template repository consumes these clean scaffold releases
 and publishes its own translated package/PDF releases. That repository should

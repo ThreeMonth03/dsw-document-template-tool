@@ -32,7 +32,7 @@ Confirm:
 For each target version:
 
 ```shell
-TOOL_GITHUB_REPO=owner/document-template-tool
+TOOL_GITHUB_REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 CHECK_TAG=vX.Y.Z
 
 gh release view "clean-scaffold-dsw-science-europe-$CHECK_TAG" \
@@ -78,9 +78,9 @@ only for versions enabled by that repository's `version_policy`. A version can
 be listed in `supported_versions` as a scaffold-only record without having an
 active translation branch.
 
-## Public Repository Handoff
+## Public Repository Integration
 
-Before handing artifacts to the public repository:
+Before using artifacts in the public repository:
 
 1. Download the clean scaffold release assets.
 2. Verify `SHA256SUMS`.
@@ -89,5 +89,5 @@ Before handing artifacts to the public repository:
 5. Confirm the tree passes structure audits.
 6. Confirm the public repository documents translation QA and manual import.
 
-Do not hand off local `outputs/` unless you intentionally built and reviewed
+Do not use local `outputs/` unless you intentionally built and reviewed
 that exact local output.

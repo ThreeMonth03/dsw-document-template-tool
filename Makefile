@@ -30,8 +30,6 @@ EXPANDED_TEMPLATE_DIR ?= workspace/document-templates/expanded/$(WORKSPACE_TEMPL
 FRESH_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/fresh/$(WORKSPACE_TEMPLATE_NAME)
 GENERATED_CI_CONFIG ?= config/.generated-regression.ci.yml
 GENERATED_CI_CONFIG_DIR ?= config
-HANDOFF_BASE_BRANCH ?= main
-HANDOFF_VERSION ?= $(SOURCE_TEMPLATE_VERSION_TAG)
 MERGED_TRANSLATION_TREE_DIR ?= outputs/translation-trees/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)/merged/$(WORKSPACE_TEMPLATE_NAME)
 PACKAGE_OUT ?= template.zip
 PROJECT_REF ?= fixtures/projects/demo/test-project.json
@@ -53,7 +51,7 @@ SOURCE_TEMPLATE_VERSION ?= 1.30.0
 SOURCE_TEMPLATE_VERSION_TAG ?= v$(SOURCE_TEMPLATE_VERSION)
 SPHINXOPTS ?= -W --keep-going
 TEMPLATE_DIR ?=
-TOOL_GITHUB_REPO ?= $(if $(GITHUB_REPOSITORY),$(GITHUB_REPOSITORY),owner/document-template-tool)
+TOOL_GITHUB_REPO ?= $(if $(GITHUB_REPOSITORY),$(GITHUB_REPOSITORY),$(shell gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null))
 TRANSLATED_EXPANDED_TEMPLATE_DIR ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
 TRANSLATED_OUTPUT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
 TRANSLATED_TEMPLATE_DESCRIPTION ?= Science Europe DMP Template 的繁體中文化版本
@@ -102,7 +100,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews stage-translated-handoff start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -154,7 +152,6 @@ help:
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  publish-clean-scaffold-releases Stage or publish clean scaffold GitHub release assets' \
-	'  stage-translated-handoff Stage reviewed translated source into its target handoff branch' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
 	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
@@ -334,6 +331,10 @@ discover-upstream-compat: venv
 		$(UPSTREAM_TEMPLATE_DISCOVERY_REFS)
 
 download-clean-scaffold-artifacts: venv
+	@test -n "$(TOOL_GITHUB_REPO)" || { \
+		echo "TOOL_GITHUB_REPO is required outside a GitHub checkout" >&2; \
+		exit 2; \
+	}
 	@set -euo pipefail; \
 	args=( \
 		--repo "$(TOOL_GITHUB_REPO)" \
@@ -402,6 +403,10 @@ render-upstream-artifact-previews: venv
 		--preview-strict "$(UPSTREAM_TEMPLATE_PREVIEW_STRICT)"
 
 publish-clean-scaffold-releases: venv
+	@test -n "$(TOOL_GITHUB_REPO)" || { \
+		echo "TOOL_GITHUB_REPO is required outside a GitHub checkout" >&2; \
+		exit 2; \
+	}
 	@set -euo pipefail; \
 	args=( \
 		--repository "$(TOOL_GITHUB_REPO)" \
@@ -414,13 +419,6 @@ publish-clean-scaffold-releases: venv
 		args+=(--dry-run); \
 	fi; \
 	$(PYTHON) scripts/ci/publish_clean_scaffold_releases.py "$${args[@]}"
-
-stage-translated-handoff: venv
-	$(PYTHON) scripts/ci/stage_translated_handoff.py \
-		--translation-repo "$(TRANSLATION_REPO)" \
-		--version "$(HANDOFF_VERSION)" \
-		--base-branch "$(HANDOFF_BASE_BRANCH)" \
-		--push
 
 start-ci-dsw:
 	scripts/ci/start_dsw.sh

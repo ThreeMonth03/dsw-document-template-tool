@@ -121,7 +121,7 @@ def _write_translation_config(tmp_path: Path) -> Path:
     repo.mkdir()
     (repo / "translation-config.yml").write_text(
         """
-schema_version: 1
+schema_version: 2
 template:
   organization_id: dsw
   template_id: science-europe
@@ -170,10 +170,6 @@ migration:
   auto_pr_enabled: true
   auto_pr_branch_prefix: automation/migrate
   auto_merge_when_clean: true
-publish:
-  enabled: false
-  target_repository: owner/publish
-  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )

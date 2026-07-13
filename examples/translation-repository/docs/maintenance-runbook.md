@@ -42,12 +42,11 @@ gh workflow run document_template_translation_sync.yml \
 
 ## Release Review
 
-Before handing off a translated template:
+Before importing a translated template:
 
 1. Confirm the version branch workflow passed.
 2. Download the translated package, preview PDF, and `SHA256SUMS`.
 3. Review glossary/i10n terminology and representative PDF pages.
-4. Import reviewed release assets. Use a clean source handoff branch only when
-   branch-based handoff has been explicitly enabled.
+4. Import the reviewed release package into the target DSW environment.
 
 Do not treat tool-repo clean scaffold releases as translated outputs.

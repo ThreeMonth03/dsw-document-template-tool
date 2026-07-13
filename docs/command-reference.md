@@ -9,7 +9,7 @@ Repository paths should be variables so commands survive repository transfers:
 ```shell
 TOOL_REPO_DIR=/path/to/document-template-tool
 PUBLIC_TEMPLATE_REPO_DIR=/path/to/science-europe-template-zh_Hant
-TOOL_GITHUB_REPO=owner/document-template-tool
+TOOL_GITHUB_REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 ```
 
 For workflow context, read the matching runbook first:
@@ -21,7 +21,7 @@ For workflow context, read the matching runbook first:
 | CI/release operation | [CI and Release Runbook](ci-and-release-runbook.md) |
 | Config file ownership | [Configuration Reference](configuration-reference.md) |
 | Parser or tree behavior changes | [Parser and Translation Tree](parser-and-translation-tree.md) |
-| Public repository handoff | [Public Template Repository Integration](downstream-integration.md) |
+| Public repository integration | [Public Template Repository Integration](downstream-integration.md) |
 
 ## Local Tooling
 
@@ -230,7 +230,7 @@ Use `render-package` for `.zip` assets downloaded from GitHub Releases.
 Do not unzip a release package and pass it as `PROJECT_RENDER_TEMPLATE_DIR`;
 DSW package zips store template files inside `template.json`.
 
-## Public Repository Handoff
+## Public Repository Integration
 
 These commands help the public translated-template repository consume clean
 scaffold artifacts. They do not publish to DSW.
@@ -285,20 +285,6 @@ make check-translation-migrations \
 
 Set `TRANSLATION_MIGRATION_FAIL_ON_PENDING=true` only when CI should fail on
 pending migration changes.
-
-Manually stage reviewed translated source to a target handoff branch:
-
-```shell
-make stage-translated-handoff \
-  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
-  HANDOFF_VERSION=v1.30.1
-```
-
-The handoff target creates or updates a reviewable branch using the configured
-public repository handoff branch prefix (`publish.branch_prefix` in
-`translation-config.yml`, often `publish/v*`). This is optional. The default
-delivery path is the versioned release asset produced by the translation branch
-workflow.
 
 ## Release Helpers
 

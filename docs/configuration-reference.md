@@ -10,7 +10,7 @@ All paths below are repository-relative references.
 
 | File | Owner | Purpose | Main Commands |
 | --- | --- | --- | --- |
-| [`config/dsw-compat.yml`](../config/dsw-compat.yml) | Tool repo | Declares the proven DSW server, document worker, and `dsw-tdk` runtime for each supported template metamodel range. This is the source of truth for runtime matrix generation. | `make sync-dsw-runtime-matrix`, `make check-dsw-runtime-matrix`, `make discover-upstream-compat` |
+| [`config/dsw-compat.yml`](../config/dsw-compat.yml) | Tool repo | Declares the proven DSW server, document worker, and `dsw-tdk` runtime for each supported template metamodel range. Its schema is strict: unknown fields and unsupported `schema_version` values fail validation. This is the source of truth for runtime matrix generation. | `make sync-dsw-runtime-matrix`, `make check-dsw-runtime-matrix`, `make discover-upstream-compat` |
 | [`config/regression.ci.yml`](../config/regression.ci.yml) | Tool repo | Base CI regression template. Generated CI configs rewrite its baseline/candidate paths to the latest compatible built upstream workspace. | `make generate-regression-config`, `make render-regression-ci`, `make render-regression-ci-plan` |
 | [`config/regression.preview.yml`](../config/regression.preview.yml) | Tool repo | Local preview regression config for a manually controlled DSW instance. It expects API token auth. | `make render-regression CONFIG=config/regression.preview.yml` |
 | [`config/regression.document.yml`](../config/regression.document.yml) | Tool repo | Released-template document regression config. Use it when both baseline and candidate are already installed in DSW and referenced by released template id. | `make render-regression CONFIG=config/regression.document.yml` |
@@ -47,6 +47,9 @@ tool only validates and consumes it. The schema is implemented by
 make validate-translation-config TRANSLATION_REPO=/path/to/science-europe-template-zh_Hant
 ```
 
+The current schema is `schema_version: 2`. Validation rejects unknown fields so
+misspellings and retired settings cannot remain as inert configuration.
+
 Important fields:
 
 | Field | Meaning |
@@ -57,7 +60,6 @@ Important fields:
 | `branches.control_branch` | Operations branch that owns repository-level config and docs. |
 | `branches.version_branch_prefix` | Prefix for translator-facing branches, usually `sync/`. |
 | `public_readme.path` | Canonical user-facing template README copied into generated version branches. |
-| `publish.branch_prefix` | Branch prefix used when manually staging reviewed translated source for public handoff. |
 | `xliff_exchange` | Optional XLIFF export/import settings. The default workflow still treats `translation.md` as canonical. |
 
 ### Common Version Policy Snippets

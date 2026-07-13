@@ -62,7 +62,7 @@ Use `make clean` when generated files make local review noisy.
   with `--clobber`.
 - Release tags are not the source of truth for generated asset provenance. The
   release notes, checksums, workflow run, and asset names are.
-- Public release, branch handoff, or DSW import policy belongs in the public
+- Translated release and DSW import policy belongs in the public
   translated-template repository.
 - If the public repository combines translation work and release assets, draft
   `sync/v*` branches, PRs, logs, and artifacts may be visible. Use the

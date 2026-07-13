@@ -985,7 +985,7 @@ version_policy:
     )
     path.write_text(
         f"""
-schema_version: 1
+schema_version: 2
 
 template:
   organization_id: dsw
@@ -1021,10 +1021,6 @@ migration:
   auto_pr_branch_prefix: automation/migrate
   auto_merge_when_clean: false
 
-publish:
-  enabled: true
-  target_repository: depositar/science-europe-template-zh_Hant
-  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )

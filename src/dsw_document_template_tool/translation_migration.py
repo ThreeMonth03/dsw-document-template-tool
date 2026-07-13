@@ -98,15 +98,6 @@ class VersionPolicyConfig:
 
 
 @dataclass(frozen=True)
-class PublishConfig:
-    """Generated-template publishing policy."""
-
-    enabled: bool
-    target_repository: str
-    branch_prefix: str
-
-
-@dataclass(frozen=True)
 class PublicReadmeConfig:
     """User-facing README copied into generated translated templates."""
 
@@ -129,7 +120,6 @@ class TranslationRepositoryConfig:
     translation: TranslationConfig
     branches: BranchConfig
     migration: MigrationConfig
-    publish: PublishConfig
     public_readme: PublicReadmeConfig
     tooling: ToolingConfig
     version_policy: VersionPolicyConfig
@@ -180,7 +170,9 @@ class DswPreviewRuntime:
 
 
 DEFAULT_DSW_COMPAT_PATH = Path(__file__).resolve().parents[2] / "config" / "dsw-compat.yml"
+DSW_COMPAT_SCHEMA_VERSION = 1
 DSW_PREVIEW_RUNTIMES: tuple[DswPreviewRuntime, ...]
+TRANSLATION_CONFIG_SCHEMA_VERSION = 2
 
 
 def load_preview_runtimes(
@@ -193,6 +185,11 @@ def load_preview_runtimes(
     if not isinstance(payload, dict):
         raise TranslationMigrationError(
             f"DSW compatibility config {config_path} must contain a mapping"
+        )
+    _reject_unknown_keys(payload, {"runtimes", "schema_version"}, "DSW compatibility config")
+    if payload.get("schema_version") != DSW_COMPAT_SCHEMA_VERSION:
+        raise TranslationMigrationError(
+            f"DSW compatibility config schema_version must be {DSW_COMPAT_SCHEMA_VERSION}"
         )
 
     runtime_payloads = payload.get("runtimes")
@@ -209,6 +206,21 @@ def load_preview_runtimes(
 def _load_preview_runtime(payload: object) -> DswPreviewRuntime:
     if not isinstance(payload, dict):
         raise TranslationMigrationError("Each DSW preview runtime must be a mapping")
+    _reject_unknown_keys(
+        payload,
+        {
+            "dsw_version",
+            "max_version",
+            "metamodel_key",
+            "metamodel_version",
+            "min_version",
+            "run_preview_regression",
+            "strict_project_preview",
+            "tdk_version",
+            "upstream_template_artifact_refs",
+        },
+        "DSW preview runtime",
+    )
     max_version = payload.get("max_version")
     if max_version is not None and not isinstance(max_version, str):
         raise TranslationMigrationError("Expected string or null at max_version")
@@ -267,6 +279,26 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
     if not isinstance(payload, dict):
         raise TranslationMigrationError("translation-config.yml must contain a mapping")
 
+    _reject_unknown_keys(
+        payload,
+        {
+            "branches",
+            "migration",
+            "public_readme",
+            "schema_version",
+            "template",
+            "tooling",
+            "translation",
+            "version_policy",
+            "xliff_exchange",
+        },
+        "translation-config.yml",
+    )
+    if payload.get("schema_version") != TRANSLATION_CONFIG_SCHEMA_VERSION:
+        raise TranslationMigrationError(
+            f"translation-config.yml schema_version must be {TRANSLATION_CONFIG_SCHEMA_VERSION}"
+        )
+
     try:
         template_payload = payload["template"]
         translation_payload = payload["translation"]
@@ -277,6 +309,48 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         raise TranslationMigrationError(
             f"translation-config.yml is missing top-level key {exc.args[0]!r}"
         ) from exc
+
+    _reject_unknown_keys(
+        template_payload,
+        {
+            "organization_id",
+            "supported_ref_spec",
+            "supported_versions",
+            "template_id",
+            "upstream_repository",
+        },
+        "template",
+    )
+    _reject_unknown_keys(
+        translation_payload,
+        {
+            "source_language",
+            "target_language",
+            "target_language_label",
+            "translated_template_description",
+            "translated_template_id",
+            "translated_template_name",
+            "translated_template_organization_id",
+        },
+        "translation",
+    )
+    _reject_unknown_keys(
+        branch_payload,
+        {"control_branch", "version_branch_prefix"},
+        "branches",
+    )
+    _reject_unknown_keys(tooling_payload, {"ref", "repository"}, "tooling")
+    _reject_unknown_keys(
+        migration_payload,
+        {
+            "auto_merge_when_clean",
+            "auto_pr_branch_prefix",
+            "auto_pr_enabled",
+            "mode",
+            "non_exact_policy",
+        },
+        "migration",
+    )
 
     template = TemplateConfig(
         organization_id=_required_str(template_payload, "organization_id"),
@@ -330,21 +404,12 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
             default=False,
         ),
     )
-    publish_payload = payload.get("publish", {})
-    if publish_payload is None:
-        publish_payload = {}
-    if not isinstance(publish_payload, dict):
-        raise TranslationMigrationError("translation-config.yml publish must be a mapping")
-    publish = PublishConfig(
-        enabled=_optional_bool(publish_payload, "enabled", default=False),
-        target_repository=_optional_str(publish_payload, "target_repository"),
-        branch_prefix=_optional_str(publish_payload, "branch_prefix", default="publish/"),
-    )
     xliff_exchange_payload = payload.get("xliff_exchange", {})
     if xliff_exchange_payload is None:
         xliff_exchange_payload = {}
     if not isinstance(xliff_exchange_payload, dict):
         raise TranslationMigrationError("translation-config.yml xliff_exchange must be a mapping")
+    _reject_unknown_keys(xliff_exchange_payload, {"enabled", "path"}, "xliff_exchange")
     source_template_id = f"{template.organization_id}-{template.template_id}"
     xliff_exchange = XliffExchangeConfig(
         enabled=_optional_bool(xliff_exchange_payload, "enabled", default=False),
@@ -361,6 +426,7 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         public_readme_payload = {}
     if not isinstance(public_readme_payload, dict):
         raise TranslationMigrationError("translation-config.yml public_readme must be a mapping")
+    _reject_unknown_keys(public_readme_payload, {"path"}, "public_readme")
     public_readme = PublicReadmeConfig(
         path=Path(
             _optional_str(
@@ -394,12 +460,6 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         raise TranslationMigrationError("branches.control_branch must not be empty")
     if not branches.version_branch_prefix:
         raise TranslationMigrationError("branches.version_branch_prefix must not be empty")
-    if publish.enabled and not publish.target_repository:
-        raise TranslationMigrationError(
-            "publish.target_repository is required when publish.enabled is true"
-        )
-    if not publish.branch_prefix:
-        raise TranslationMigrationError("publish.branch_prefix must not be empty")
     if public_readme.path.is_absolute() or ".." in public_readme.path.parts:
         raise TranslationMigrationError("public_readme.path must be a repo-relative path")
     if xliff_exchange.path.is_absolute() or ".." in xliff_exchange.path.parts:
@@ -410,7 +470,6 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
         translation=translation,
         branches=branches,
         migration=migration,
-        publish=publish,
         public_readme=public_readme,
         tooling=tooling,
         version_policy=version_policy,
@@ -722,6 +781,7 @@ def _load_version_policy(payload: object) -> VersionPolicyConfig:
         payload = {}
     if not isinstance(payload, dict):
         raise TranslationMigrationError("translation-config.yml version_policy must be a mapping")
+    _reject_unknown_keys(payload, {"defaults", "overrides", "rules"}, "version_policy")
 
     defaults = _load_version_policy_values(
         payload.get("defaults", {}),
@@ -757,12 +817,20 @@ def _load_version_policy_rule(
 ) -> VersionPolicyRule:
     if not isinstance(payload, dict):
         raise TranslationMigrationError("Each version_policy rule must be a mapping")
+    _reject_unknown_keys(
+        payload,
+        {"match", "migrate_into", "publish_release", "reason", "refresh", "state"},
+        "version_policy rule",
+    )
     match = _required_str(payload, "match")
     # Validate early so bad operators fail during config load, not mid-workflow.
     version_matches_range("v0.0.0", match)
     return VersionPolicyRule(
         match=match,
-        values=_load_version_policy_values(payload, fallback=defaults),
+        values=_load_version_policy_values(
+            {key: value for key, value in payload.items() if key != "match"},
+            fallback=defaults,
+        ),
     )
 
 
@@ -775,6 +843,11 @@ def _load_version_policy_values(
         payload = {}
     if not isinstance(payload, dict):
         raise TranslationMigrationError("Version policy values must be a mapping")
+    _reject_unknown_keys(
+        payload,
+        {"migrate_into", "publish_release", "reason", "refresh", "state"},
+        "version policy values",
+    )
     return VersionPolicyValues(
         state=_optional_str(payload, "state", default=fallback.state),
         refresh=_optional_refresh_policy(payload, "refresh", default=fallback.refresh),
@@ -921,6 +994,16 @@ def _duplicate_items(items: tuple[str, ...]) -> list[str]:
             duplicates.append(item)
         seen.add(item)
     return duplicates
+
+
+def _reject_unknown_keys(payload: object, allowed: set[str], section: str) -> None:
+    """Reject misspelled or retired configuration fields."""
+
+    if not isinstance(payload, dict):
+        raise TranslationMigrationError(f"{section} must be a mapping")
+    unknown = sorted(str(key) for key in payload if key not in allowed)
+    if unknown:
+        raise TranslationMigrationError(f"Unknown {section} field(s): {', '.join(unknown)}")
 
 
 DSW_PREVIEW_RUNTIMES = load_preview_runtimes()

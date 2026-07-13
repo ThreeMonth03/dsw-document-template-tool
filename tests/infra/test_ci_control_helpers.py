@@ -434,7 +434,7 @@ def _write_translation_config(
     supported_versions_yaml = "\n".join(f"    - {version}" for version in supported_versions)
     path.write_text(
         f"""
-schema_version: 1
+schema_version: 2
 
 template:
   organization_id: dsw
@@ -468,10 +468,6 @@ migration:
   auto_pr_branch_prefix: automation/migrate
   auto_merge_when_clean: true
 
-publish:
-  enabled: false
-  target_repository: depositar/science-europe-template-zh_Hant
-  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )

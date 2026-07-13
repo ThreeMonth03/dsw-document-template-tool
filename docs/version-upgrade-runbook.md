@@ -40,7 +40,7 @@ If CI finds that the new upstream tag uses an already configured metamodel:
 2. Confirm a clean scaffold release exists. For a manual single-tag check, set:
 
    ```shell
-   TOOL_GITHUB_REPO=owner/document-template-tool
+   TOOL_GITHUB_REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
    CHECK_TAG=vX.Y.Z
 
    gh release view "clean-scaffold-dsw-science-europe-$CHECK_TAG" \

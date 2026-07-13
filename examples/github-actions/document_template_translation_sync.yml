@@ -2,9 +2,9 @@ name: DSW Document Template Translation Sync
 
 on:
   pull_request:
-    branches: ["master"]
+    branches: [__VERSION_BRANCH__]
   push:
-    branches: ["master"]
+    branches: [__VERSION_BRANCH__]
   workflow_dispatch:
 
 permissions:
@@ -15,38 +15,38 @@ permissions:
 concurrency:
   group: >-
     document-template-translation-sync-${{ github.event_name == 'pull_request' &&
-    github.event.pull_request.head.ref || 'master' }}
+    github.event.pull_request.head.ref || '__VERSION_BRANCH__' }}
   cancel-in-progress: false
 
 env:
-  # Pin this to a released branch/tag in production.
-  TOOLING_REPOSITORY: owner/document-template-tool
-  TOOLING_REF: main
-  OPERATIONS_BRANCH: master
+  TOOLING_REPOSITORY: __TOOLING_REPOSITORY__
+  TOOLING_REF: __TOOLING_REF__
+  OPERATIONS_BRANCH: __OPERATIONS_BRANCH__
 
-  # Change only these paths for the host repository.
-  COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0
-  EXPANDED_TEMPLATE_DIR: workspace/document-templates/expanded/dsw-science-europe-1.30.0
-  TRANSLATION_TREE_DIR: workspace/document-templates/translation/dsw-science-europe-1.30.0
-  TRANSLATED_TEMPLATE_ORGANIZATION_ID: dsw
-  TRANSLATED_TEMPLATE_ID: science-europe-zh-hant
-  TRANSLATED_TEMPLATE_VERSION: 1.30.0
-  TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)
-  TRANSLATED_TEMPLATE_DESCRIPTION: Science Europe DMP Template 的繁體中文化版本
-  TRANSLATION_SOURCE_LANG: en
-  TRANSLATION_TARGET_LANG: zh_Hant
-  PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md
-  TRANSLATED_TEMPLATE_DIR: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0
-  TRANSLATED_TEMPLATE_PACKAGE: outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/dsw-science-europe-zh-hant-1.30.0.zip
+  COMPACT_TEMPLATE_DIR: __COMPACT_TEMPLATE_DIR__
+  EXPANDED_TEMPLATE_DIR: __EXPANDED_TEMPLATE_DIR__
+  TRANSLATION_TREE_DIR: __TRANSLATION_TREE_DIR__
+  SOURCE_TEMPLATE_ID: __SOURCE_TEMPLATE_ID__
+  TRANSLATED_TEMPLATE_ORGANIZATION_ID: __TRANSLATED_TEMPLATE_ORGANIZATION_ID__
+  TRANSLATED_TEMPLATE_ID: __TRANSLATED_TEMPLATE_ID__
+  TRANSLATED_TEMPLATE_VERSION: __TRANSLATED_TEMPLATE_VERSION__
+  TRANSLATED_TEMPLATE_NAME: __TRANSLATED_TEMPLATE_NAME__
+  TRANSLATED_TEMPLATE_DESCRIPTION: __TRANSLATED_TEMPLATE_DESCRIPTION__
+  TRANSLATION_SOURCE_LANG: __TRANSLATION_SOURCE_LANG__
+  TRANSLATION_TARGET_LANG: __TRANSLATION_TARGET_LANG__
+  TRANSLATION_TARGET_LABEL: __TRANSLATION_TARGET_LABEL__
+  PUBLIC_README_PATH: __PUBLIC_README_PATH__
+  TRANSLATED_TEMPLATE_DIR: __TRANSLATED_TEMPLATE_DIR__
+  TRANSLATED_TEMPLATE_PACKAGE: __TRANSLATED_TEMPLATE_PACKAGE__
   PROJECT_REF: tooling-repo/fixtures/projects/demo/test-project.json
-  PROJECT_RENDER_OUTPUT: outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf
+  PROJECT_RENDER_OUTPUT: __PROJECT_RENDER_OUTPUT__
   PROJECT_RENDER_FORMAT_UUID: 68c26e34-5e77-4e15-9bf7-06ff92582257
-  DSW_VERSION: "4.30"
-  DSW_TDK_VERSION: "4.30.2"
-  UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"
-  UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"
-  PUBLISH_RELEASE_ASSETS: "true"
-  REFRESH_TRANSLATION_INPUTS: "true"
+  DSW_VERSION: __DSW_VERSION__
+  DSW_TDK_VERSION: __DSW_TDK_VERSION__
+  UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: __UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION__
+  UPSTREAM_TEMPLATE_PREVIEW_STRICT: __UPSTREAM_TEMPLATE_PREVIEW_STRICT__
+  PUBLISH_RELEASE_ASSETS: __PUBLISH_RELEASE_ASSETS__
+  REFRESH_TRANSLATION_INPUTS: __REFRESH_TRANSLATION_INPUTS__
 
 jobs:
   translation-sync:
@@ -65,7 +65,7 @@ jobs:
             github.event.pull_request.head.repo.full_name || github.repository }}
           ref: >-
             ${{ github.event_name == 'pull_request' &&
-            github.event.pull_request.head.ref || 'master' }}
+            github.event.pull_request.head.ref || '__VERSION_BRANCH__' }}
           path: template-repo
           fetch-depth: 0
 
@@ -134,7 +134,7 @@ jobs:
         env:
           TARGET_REF: >-
             ${{ github.event_name == 'pull_request' &&
-            github.event.pull_request.head.ref || 'master' }}
+            github.event.pull_request.head.ref || '__VERSION_BRANCH__' }}
         run: |
           set -euo pipefail
           required_paths=(
@@ -373,15 +373,15 @@ jobs:
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
           TOOL_ROOT="$GITHUB_WORKSPACE/tooling-repo"
-          release_dir="$HOST_ROOT/outputs/release-assets/dsw-science-europe/v$TRANSLATED_TEMPLATE_VERSION/zh-Hant"
+          release_dir="$HOST_ROOT/outputs/release-assets/$SOURCE_TEMPLATE_ID/v$TRANSLATED_TEMPLATE_VERSION/$TRANSLATION_TARGET_LABEL"
           preview_output="$HOST_ROOT/$PROJECT_RENDER_OUTPUT"
 
           "$TOOL_ROOT/.venv/bin/python" "$TOOL_ROOT/scripts/ci/stage_release_assets.py" \
             --output-dir "$release_dir" \
-            --notes-title "Science Europe DMP Template zh-Hant v$TRANSLATED_TEMPLATE_VERSION" \
+            --notes-title "$TRANSLATED_TEMPLATE_NAME v$TRANSLATED_TEMPLATE_VERSION" \
             --notes-body "Generated by $GITHUB_REPOSITORY run $GITHUB_RUN_ID from commit $(git -C "$HOST_ROOT" rev-parse HEAD)." \
-            --notes-body "depositar remains the formal publication channel; these assets are CI-built packages for manual import or review." \
-            --asset "$HOST_ROOT/$TRANSLATED_TEMPLATE_PACKAGE=dsw-science-europe-zh-hant-v$TRANSLATED_TEMPLATE_VERSION.zip" \
+            --notes-body "These CI-built assets are intended for review and manual DSW import." \
+            --asset "$HOST_ROOT/$TRANSLATED_TEMPLATE_PACKAGE=$TRANSLATED_TEMPLATE_ORGANIZATION_ID-$TRANSLATED_TEMPLATE_ID-v$TRANSLATED_TEMPLATE_VERSION.zip" \
             --optional-asset "$preview_output=test-project-v$TRANSLATED_TEMPLATE_VERSION.pdf" \
             --optional-asset "$preview_output.json=test-project-v$TRANSLATED_TEMPLATE_VERSION.pdf.json"
 
@@ -392,9 +392,9 @@ jobs:
         run: |
           set -euo pipefail
           HOST_ROOT="$GITHUB_WORKSPACE/template-repo"
-          release_dir="$HOST_ROOT/outputs/release-assets/dsw-science-europe/v$TRANSLATED_TEMPLATE_VERSION/zh-Hant"
-          release_tag="science-europe-zh-hant-v$TRANSLATED_TEMPLATE_VERSION"
-          release_title="Science Europe DMP Template zh-Hant v$TRANSLATED_TEMPLATE_VERSION"
+          release_dir="$HOST_ROOT/outputs/release-assets/$SOURCE_TEMPLATE_ID/v$TRANSLATED_TEMPLATE_VERSION/$TRANSLATION_TARGET_LABEL"
+          release_tag="$TRANSLATED_TEMPLATE_ID-v$TRANSLATED_TEMPLATE_VERSION"
+          release_title="$TRANSLATED_TEMPLATE_NAME v$TRANSLATED_TEMPLATE_VERSION"
           release_target="$(git -C "$HOST_ROOT" rev-parse HEAD)"
 
           edit_release() {

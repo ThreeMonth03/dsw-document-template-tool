@@ -28,7 +28,7 @@ This repo exposes those outputs in two places:
   [`.github/workflows/headless_render_regression.yml`](../.github/workflows/headless_render_regression.yml),
   which the public repository workflow downloads during automated sync.
 - GitHub Release assets named `clean-scaffold-dsw-science-europe-vX.Y.Z`, which
-  are stable human-facing download buckets for review and handoff.
+  are stable human-facing download buckets for review and integration.
 
 If upstream publishes a tag with an unsupported metamodel, scheduled/manual tool
 repo CI may open a compatibility probe PR instead of producing clean scaffold
@@ -65,8 +65,6 @@ The public translated-template repository owns:
 - a configured operations branch containing `translation-config.yml`, docs,
   fixtures, and repository workflows
 - version branches such as `sync/v1.30.1`
-- optional source handoff branches using the configured handoff prefix, such as
-  `publish/v1.30.1`, only when branch-based handoff has been explicitly enabled
 - translator-facing `translation.md` edits on `sync/v*` branches
 - the user-facing public README copied into generated DSW template packages
 - glossary and i10n review
@@ -88,7 +86,6 @@ same depositar repository, while keeping responsibilities branch-separated:
 | operations branch, usually `master` | Repository-level config, workflows, and docs. |
 | `sync/v*` | Translator-facing workspaces and review PRs. |
 | release assets | Default delivery path: package zip, preview PDF, checksums, and notes. |
-| optional `publish/v*` or the configured handoff branch prefix | Clean translated source only when branch-based handoff is enabled. |
 
 This layout is an organizational boundary, not a privacy boundary. If the
 public repository is public, draft translation branches, PRs, logs, and
@@ -104,7 +101,7 @@ repository-owned; updating this tool repo does not rewrite them automatically.
 Set repository paths once:
 
 ```shell
-TOOL_GITHUB_REPO=owner/document-template-tool
+TOOL_GITHUB_REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 PUBLIC_TEMPLATE_GITHUB_REPO=owner/science-europe-template-zh_Hant
 TRANSLATION_OPERATIONS_BRANCH=master
 TOOL_REPO_DIR=/path/to/document-template-tool
@@ -203,10 +200,6 @@ upstream tag, for example:
 ```text
 https://github.com/ds-wizard/science-europe-template/blob/v{template_version}/README.md
 ```
-
-Public handoff branches should stay close to the upstream template repository
-shape. The publish helper copies generated template source while filtering
-tool-internal metadata such as `.transform/` and `UPSTREAM-README.md`.
 
 ## Manual Public Repository Sync
 

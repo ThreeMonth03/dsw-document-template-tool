@@ -24,7 +24,7 @@ They are not finished translated templates.
 Set repository names once before copying GitHub commands:
 
 ```shell
-TOOL_GITHUB_REPO=owner/document-template-tool
+TOOL_GITHUB_REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 TOOL_OPERATIONS_BRANCH=master
 PUBLIC_TEMPLATE_GITHUB_REPO=owner/science-europe-template-zh_Hant
 TRANSLATION_OPERATIONS_BRANCH=master
@@ -64,7 +64,7 @@ TRANSLATION_OPERATIONS_BRANCH=master
 
 If these checks pass, the tool repo has a healthy baseline for versions already
 covered by [`config/dsw-compat.yml`](../config/dsw-compat.yml). New upstream tags
-and public repository sync still need the upgrade and handoff flow below.
+and public repository sync still need the upgrade and integration flow below.
 
 ## When Upstream Publishes a New Tag
 
@@ -102,7 +102,7 @@ CHECK_TAG=vX.Y.Z
    release contains the clean upstream scaffold inputs that the public
    repository can consume.
 
-### Public repository handoff
+### Public repository sync
 
 If you also operate the public translated-template repository, trigger its sync
 workflow after the clean scaffold release exists:
@@ -126,7 +126,7 @@ translated release exists in the public repository.
 
 Use [Version Upgrade Runbook](version-upgrade-runbook.md) for the full upstream
 tag flow and [Public Template Repository Integration](downstream-integration.md)
-for artifact handoff details.
+for artifact integration details.
 
 ## When CI Finds an Unsupported Metamodel
 
@@ -211,5 +211,5 @@ parser-change checklist.
   [`config/dsw-compat.yml`](../config/dsw-compat.yml) and run
   `make sync-dsw-runtime-matrix`.
 - Do not treat clean scaffold releases as translated releases.
-- Do not add public-repository publication tokens to this repo. Public release,
-  branch handoff, and manual import policy belong in the public repository.
+- Do not add public-repository publication tokens to this repo. Translated
+  release and manual import policy belong in the public repository.

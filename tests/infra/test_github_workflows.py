@@ -299,7 +299,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     workflow = load_workflow_yaml(workflow_path)
     workflow_text = workflow_path.read_text(encoding="utf-8")
 
-    assert workflow["on"]["pull_request"]["branches"] == ["master"]
+    assert workflow["on"]["pull_request"]["branches"] == ["__VERSION_BRANCH__"]
     assert "workflow_dispatch" in workflow["on"]
     assert "schedule" not in workflow["on"]
     assert "github.event_name == 'schedule'" not in workflow_text
@@ -312,45 +312,43 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "env.REFRESH_TRANSLATION_INPUTS == 'true'" in workflow_text
     assert "github.actor != 'github-actions[bot]'" in workflow_text
     assert "skip-fork-pr" in workflow["jobs"]
-    assert workflow["env"]["TOOLING_REPOSITORY"] == "owner/document-template-tool"
-    assert workflow["env"]["TOOLING_REF"] == "main"
-    assert workflow["env"]["OPERATIONS_BRANCH"] == "master"
-    assert workflow["env"]["COMPACT_TEMPLATE_DIR"].startswith(
-        "workspace/document-templates/compact/"
-    )
-    assert workflow["env"]["TRANSLATION_TREE_DIR"].startswith(
-        "workspace/document-templates/translation/"
-    )
-    assert workflow["env"]["TRANSLATED_TEMPLATE_DIR"].startswith(
-        "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
-    )
-    assert workflow["env"]["TRANSLATED_TEMPLATE_ORGANIZATION_ID"] == "dsw"
-    assert workflow["env"]["TRANSLATED_TEMPLATE_ID"] == "science-europe-zh-hant"
+    assert workflow["env"]["TOOLING_REPOSITORY"] == "__TOOLING_REPOSITORY__"
+    assert workflow["env"]["TOOLING_REF"] == "__TOOLING_REF__"
+    assert workflow["env"]["OPERATIONS_BRANCH"] == "__OPERATIONS_BRANCH__"
+    assert workflow["env"]["COMPACT_TEMPLATE_DIR"] == "__COMPACT_TEMPLATE_DIR__"
+    assert workflow["env"]["TRANSLATION_TREE_DIR"] == "__TRANSLATION_TREE_DIR__"
+    assert workflow["env"]["TRANSLATED_TEMPLATE_DIR"] == "__TRANSLATED_TEMPLATE_DIR__"
+    assert workflow["env"]["SOURCE_TEMPLATE_ID"] == "__SOURCE_TEMPLATE_ID__"
     assert (
-        workflow["env"]["TRANSLATED_TEMPLATE_DESCRIPTION"]
-        == "Science Europe DMP Template 的繁體中文化版本"
+        workflow["env"]["TRANSLATED_TEMPLATE_ORGANIZATION_ID"]
+        == "__TRANSLATED_TEMPLATE_ORGANIZATION_ID__"
     )
-    assert workflow["env"]["TRANSLATED_TEMPLATE_VERSION"] == "1.30.0"
-    assert workflow["env"]["TRANSLATION_SOURCE_LANG"] == "en"
-    assert workflow["env"]["TRANSLATION_TARGET_LANG"] == "zh_Hant"
-    assert "WEBLATE_BRANCH" not in workflow["env"]
-    assert "WEBLATE_XLIFF" not in workflow["env"]
-    assert "science-europe-zh-hant-1.30.0.zip" in workflow["env"]["TRANSLATED_TEMPLATE_PACKAGE"]
+    assert workflow["env"]["TRANSLATED_TEMPLATE_ID"] == "__TRANSLATED_TEMPLATE_ID__"
+    assert (
+        workflow["env"]["TRANSLATED_TEMPLATE_DESCRIPTION"] == "__TRANSLATED_TEMPLATE_DESCRIPTION__"
+    )
+    assert workflow["env"]["TRANSLATED_TEMPLATE_VERSION"] == "__TRANSLATED_TEMPLATE_VERSION__"
+    assert workflow["env"]["TRANSLATION_SOURCE_LANG"] == "__TRANSLATION_SOURCE_LANG__"
+    assert workflow["env"]["TRANSLATION_TARGET_LANG"] == "__TRANSLATION_TARGET_LANG__"
+    assert workflow["env"]["TRANSLATION_TARGET_LABEL"] == "__TRANSLATION_TARGET_LABEL__"
+    assert workflow["env"]["TRANSLATED_TEMPLATE_PACKAGE"] == "__TRANSLATED_TEMPLATE_PACKAGE__"
     assert workflow["env"]["PROJECT_REF"] == (
         "tooling-repo/fixtures/projects/demo/test-project.json"
     )
-    assert workflow["env"]["PROJECT_RENDER_OUTPUT"].startswith(
-        "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/"
+    assert workflow["env"]["PROJECT_RENDER_OUTPUT"] == "__PROJECT_RENDER_OUTPUT__"
+    assert workflow["env"]["DSW_VERSION"] == "__DSW_VERSION__"
+    assert workflow["env"]["DSW_TDK_VERSION"] == "__DSW_TDK_VERSION__"
+    assert (
+        workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"]
+        == "__UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION__"
     )
-    assert workflow["env"]["DSW_VERSION"] == "4.30"
-    assert workflow["env"]["DSW_TDK_VERSION"] == "4.30.2"
-    assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"] == "18.0"
-    assert workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"] == "true"
-    assert workflow["env"]["PUBLISH_RELEASE_ASSETS"] == "true"
-    assert workflow["env"]["REFRESH_TRANSLATION_INPUTS"] == "true"
-    assert workflow["env"]["PUBLIC_README_PATH"] == (
-        "workspace/document-templates/public-readme/README.md"
+    assert (
+        workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"]
+        == "__UPSTREAM_TEMPLATE_PREVIEW_STRICT__"
     )
+    assert workflow["env"]["PUBLISH_RELEASE_ASSETS"] == "__PUBLISH_RELEASE_ASSETS__"
+    assert workflow["env"]["REFRESH_TRANSLATION_INPUTS"] == "__REFRESH_TRANSLATION_INPUTS__"
+    assert workflow["env"]["PUBLIC_README_PATH"] == "__PUBLIC_README_PATH__"
     assert "PUBLISH_TARGET_REPOSITORY" not in workflow["env"]
     assert "PUBLISH_TARGET_BRANCH" not in workflow["env"]
     assert "DOCUMENT_TEMPLATE_PUBLISH_TOKEN" not in workflow_text
@@ -449,7 +447,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "Stage translated template release assets" in workflow_text
     assert "Publish translated template release assets" in workflow_text
     assert "env.PUBLISH_RELEASE_ASSETS == 'true'" in workflow_text
-    assert "science-europe-zh-hant-v$TRANSLATED_TEMPLATE_VERSION" in workflow_text
+    assert 'release_tag="$TRANSLATED_TEMPLATE_ID-v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
     assert 'gh release view "$release_tag" --repo "$GITHUB_REPOSITORY"' in workflow_text
     assert 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$release_tag"' in workflow_text
     assert "sync_release_tag()" in workflow_text

@@ -21,7 +21,7 @@ def test_check_translation_repository_docs_accepts_complete_docs(
 # Translation Repo
 
 The operations branch owns configuration. Work happens on sync/v* branches.
-Release assets are the reviewed package and preview PDF handoff path.
+Release assets are the reviewed package and preview PDF delivery path.
 Public DSW import is manual.
 """,
         encoding="utf-8",
@@ -34,13 +34,6 @@ Set TRANSLATION_AUTOMATION_TOKEN when workflow scope is needed:
 
 ```shell
 gh secret set TRANSLATION_AUTOMATION_TOKEN --repo OWNER/REPOSITORY
-```
-
-Source handoff is disabled:
-
-```yaml
-publish:
-  enabled: false
 ```
 
 ```yaml

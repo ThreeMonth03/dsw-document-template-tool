@@ -47,11 +47,6 @@ REQUIRED_TOPICS: tuple[TopicCheck, ...] = (
         ),
         description="copy-ready available/active/published/archived version_policy examples",
     ),
-    TopicCheck(
-        name="source handoff policy",
-        patterns=(r"source handoff", r"enabled:\s*false"),
-        description="disabled-by-default source handoff policy",
-    ),
 )
 
 FORBIDDEN_PATTERNS: tuple[tuple[str, str], ...] = (

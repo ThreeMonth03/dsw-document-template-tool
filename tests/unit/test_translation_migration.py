@@ -32,7 +32,7 @@ def _write_config(tmp_path: Path) -> Path:
     config_path = tmp_path / "translation-config.yml"
     config_path.write_text(
         """
-schema_version: 1
+schema_version: 2
 
 template:
   organization_id: dsw
@@ -73,10 +73,6 @@ migration:
   auto_pr_branch_prefix: automation/migrate
   auto_merge_when_clean: false
 
-publish:
-  enabled: true
-  target_repository: depositar/science-europe-template-zh_Hant
-  branch_prefix: publish/
 """.lstrip(),
         encoding="utf-8",
     )
@@ -100,8 +96,6 @@ def test_load_translation_repository_config_and_paths(tmp_path: Path) -> None:
         == "Science Europe DMP Template 的繁體中文化版本"
     )
     assert config.branches.control_branch == "master"
-    assert config.publish.target_repository == "depositar/science-europe-template-zh_Hant"
-    assert config.publish.branch_prefix == "publish/"
     assert config.xliff_exchange.enabled is False
     assert config.xliff_exchange.path == Path("xliff/dsw-science-europe.zh_Hant.xlf")
     assert config.public_readme.path == Path("workspace/document-templates/public-readme/README.md")
@@ -238,14 +232,14 @@ def test_translation_config_rejects_string_booleans(tmp_path: Path) -> None:
         load_translation_repository_config(config_path)
 
 
-def test_translation_config_rejects_publish_string_booleans(tmp_path: Path) -> None:
-    """Publish flags should also reject quoted booleans."""
+def test_translation_config_rejects_auto_pr_string_booleans(tmp_path: Path) -> None:
+    """Migration automation flags should also reject quoted booleans."""
 
     config_path = _write_config(tmp_path)
     config_path.write_text(
         config_path.read_text(encoding="utf-8").replace(
-            "enabled: true",
-            'enabled: "true"',
+            "auto_pr_enabled: true",
+            'auto_pr_enabled: "true"',
         ),
         encoding="utf-8",
     )
@@ -270,19 +264,32 @@ def test_translation_config_rejects_empty_bot_branch_prefix(tmp_path: Path) -> N
         load_translation_repository_config(config_path)
 
 
-def test_translation_config_rejects_empty_publish_branch_prefix(tmp_path: Path) -> None:
-    """Publish branches should remain namespaced even when auto-publish is disabled."""
+def test_translation_config_rejects_retired_or_misspelled_fields(tmp_path: Path) -> None:
+    """Unknown fields should fail instead of becoming inert configuration."""
+
+    config_path = _write_config(tmp_path)
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8") + "\npublish:\n  enabled: false\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="Unknown translation-config.yml"):
+        load_translation_repository_config(config_path)
+
+
+def test_translation_config_rejects_unsupported_schema_version(tmp_path: Path) -> None:
+    """Schema changes should be explicit instead of silently accepted."""
 
     config_path = _write_config(tmp_path)
     config_path.write_text(
         config_path.read_text(encoding="utf-8").replace(
-            "branch_prefix: publish/",
-            "branch_prefix: ''",
+            "schema_version: 2",
+            "schema_version: 1",
         ),
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="publish.branch_prefix"):
+    with pytest.raises(TranslationMigrationError, match="schema_version must be 2"):
         load_translation_repository_config(config_path)
 
 
@@ -308,6 +315,41 @@ runtimes:
     )
 
     with pytest.raises(TranslationMigrationError, match="Expected boolean"):
+        load_preview_runtimes(compat_path)
+
+
+def test_preview_runtime_config_rejects_unknown_fields(tmp_path: Path) -> None:
+    """Misspelled runtime fields should not silently select default behavior."""
+
+    compat_path = tmp_path / "dsw-compat.yml"
+    compat_path.write_text(
+        """
+schema_version: 1
+runtimes:
+  - metamodel_key: "18-0"
+    metamodel_version: "18.0"
+    dsw_version: "4.30"
+    tdk_version: "4.30.2"
+    min_version: "v1.30.0"
+    max_version: null
+    upstream_template_artifact_refs: "v1.30.0+"
+    run_preview_regresion: true
+    strict_project_preview: true
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TranslationMigrationError, match="run_preview_regresion"):
+        load_preview_runtimes(compat_path)
+
+
+def test_preview_runtime_config_rejects_unsupported_schema(tmp_path: Path) -> None:
+    """Compatibility config schema changes should require an explicit loader update."""
+
+    compat_path = tmp_path / "dsw-compat.yml"
+    compat_path.write_text("schema_version: 2\nruntimes: []\n", encoding="utf-8")
+
+    with pytest.raises(TranslationMigrationError, match="schema_version must be 1"):
         load_preview_runtimes(compat_path)
 
 

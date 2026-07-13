@@ -11,12 +11,12 @@ repository.
 - No public-repository publication token is required by this repo's normal
   workflow.
 - Do not add tokens that let this repo push translated outputs to the public
-  repository or DSW instances. The public repository owns that handoff.
+  repository or DSW instances. The public repository owns that responsibility.
 
 The public translated-template repository owns its own publication, manual
 import, and branch visibility policy. See
 [Public Template Repository Integration](downstream-integration.md) for the
-handoff boundary.
+repository boundary.
 
 ## GitHub Actions Permissions
 

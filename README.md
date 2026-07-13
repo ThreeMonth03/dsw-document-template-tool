@@ -15,10 +15,7 @@ The maintained workflow uses two repositories:
 | Repository | Role |
 | --- | --- |
 | `ThreeMonth03/dsw-document-template-tool` | Tooling, clean scaffold releases, render regression, docs, and helper scripts. |
-| `depositar/science-europe-template-zh_Hant` | Public translated-template repository: operations config, `sync/v*` branches, translated release assets, and optional source handoff branches. |
-
-Older standalone translation-control repos and Weblate demo repos are not part
-of the supported production workflow.
+| `depositar/science-europe-template-zh_Hant` | Public translated-template repository: operations config, `sync/v*` branches, and translated release assets. |
 
 ## What This Repository Produces
 

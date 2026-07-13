@@ -122,8 +122,6 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
         f"`{config.translation.translated_template_description or ''}`",
         f"- Public README path: `{config.public_readme.path.as_posix()}`",
         f"- Migration mode: `{config.migration.mode}`",
-        f"- Publish branch prefix: `{config.publish.branch_prefix}`",
-        f"- Publish automation: `{'enabled' if config.publish.enabled else 'manual'}`",
         f"- XLIFF exchange: `{'enabled' if config.xliff_exchange.enabled else 'disabled'}`",
         "",
         "## Version lifecycle",

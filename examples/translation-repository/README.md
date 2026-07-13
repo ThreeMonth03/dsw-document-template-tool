@@ -1,11 +1,9 @@
 # DSW Document Template Public Repository
 
-This repository maintains translated DSW document-template workspaces,
-reviewable release assets, and optional clean source handoff branches.
+This repository maintains translated DSW document-template workspaces and
+reviewable release assets.
 
-Translation work happens on version branches such as `sync/v1.30.1`.
-Clean handoff output normally uses versioned release assets. Configured source
-handoff branches such as `publish/v1.30.1` are optional and should exist only
-when branch-based handoff has been explicitly enabled.
+Translation work happens on version branches such as `sync/v1.30.1`. Versioned
+release assets are the reviewed packages used for download and manual import.
 
 For maintenance details, start with [docs/README.md](docs/README.md).

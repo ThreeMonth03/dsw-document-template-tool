@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -746,91 +747,48 @@ def write_version_branch_workflow(
     policy = version_policy_decision(config, version)
     workflow = VERSION_BRANCH_WORKFLOW_TEMPLATE.read_text(encoding="utf-8")
     replacements = {
-        'branches: ["master"]': f'branches: ["{branch}"]',
-        "github.event.pull_request.head.ref || 'master'": (
-            f"github.event.pull_request.head.ref || '{branch}'"
+        "__COMPACT_TEMPLATE_DIR__": paths.compact_template_dir.as_posix(),
+        "__DSW_TDK_VERSION__": runtime.tdk_version,
+        "__DSW_VERSION__": runtime.dsw_version,
+        "__EXPANDED_TEMPLATE_DIR__": paths.expanded_template_dir.as_posix(),
+        "__OPERATIONS_BRANCH__": config.branches.control_branch,
+        "__PROJECT_RENDER_OUTPUT__": paths.project_render_output.as_posix(),
+        "__PUBLIC_README_PATH__": config.public_readme.path.as_posix(),
+        "__PUBLISH_RELEASE_ASSETS__": str(policy.publish_release).lower(),
+        "__REFRESH_TRANSLATION_INPUTS__": str(policy.refresh == "artifact").lower(),
+        "__SOURCE_TEMPLATE_ID__": paths.source_template_id,
+        "__TOOLING_REF__": config.tooling.ref,
+        "__TOOLING_REPOSITORY__": config.tooling.repository,
+        "__TRANSLATED_TEMPLATE_DESCRIPTION__": (
+            config.translation.translated_template_description or ""
         ),
-        "TOOLING_REPOSITORY: owner/document-template-tool": (
-            f"TOOLING_REPOSITORY: {_yaml_scalar(config.tooling.repository)}"
+        "__TRANSLATED_TEMPLATE_DIR__": paths.translated_template_dir.as_posix(),
+        "__TRANSLATED_TEMPLATE_ID__": config.translation.translated_template_id,
+        "__TRANSLATED_TEMPLATE_NAME__": config.translation.translated_template_name,
+        "__TRANSLATED_TEMPLATE_ORGANIZATION_ID__": (
+            config.translation.translated_template_organization_id
         ),
-        "TOOLING_REF: main": f"TOOLING_REF: {_yaml_scalar(config.tooling.ref)}",
-        "OPERATIONS_BRANCH: master": (
-            f"OPERATIONS_BRANCH: {_yaml_scalar(config.branches.control_branch)}"
-        ),
-        "COMPACT_TEMPLATE_DIR: workspace/document-templates/compact/dsw-science-europe-1.30.0": (
-            f"COMPACT_TEMPLATE_DIR: {_yaml_scalar(paths.compact_template_dir.as_posix())}"
-        ),
-        "EXPANDED_TEMPLATE_DIR: workspace/document-templates/expanded/dsw-science-europe-1.30.0": (
-            f"EXPANDED_TEMPLATE_DIR: {_yaml_scalar(paths.expanded_template_dir.as_posix())}"
-        ),
-        (
-            "TRANSLATION_TREE_DIR: "
-            "workspace/document-templates/translation/dsw-science-europe-1.30.0"
-        ): (f"TRANSLATION_TREE_DIR: {_yaml_scalar(paths.translation_tree_dir.as_posix())}"),
-        "TRANSLATED_TEMPLATE_ORGANIZATION_ID: dsw": (
-            "TRANSLATED_TEMPLATE_ORGANIZATION_ID: "
-            f"{_yaml_scalar(config.translation.translated_template_organization_id)}"
-        ),
-        "TRANSLATED_TEMPLATE_ID: science-europe-zh-hant": (
-            f"TRANSLATED_TEMPLATE_ID: {_yaml_scalar(config.translation.translated_template_id)}"
-        ),
-        "TRANSLATED_TEMPLATE_DESCRIPTION: Science Europe DMP Template 的繁體中文化版本": (
-            "TRANSLATED_TEMPLATE_DESCRIPTION: "
-            f"{_yaml_scalar(config.translation.translated_template_description or '')}"
-        ),
-        "TRANSLATED_TEMPLATE_VERSION: 1.30.0": (
-            f"TRANSLATED_TEMPLATE_VERSION: {_yaml_scalar(paths.version_number)}"
-        ),
-        "TRANSLATED_TEMPLATE_NAME: Science Europe DMP Template (zh-Hant)": (
-            f"TRANSLATED_TEMPLATE_NAME: {_yaml_scalar(config.translation.translated_template_name)}"
-        ),
-        "TRANSLATION_SOURCE_LANG: en": (
-            f"TRANSLATION_SOURCE_LANG: {_yaml_scalar(config.translation.source_language)}"
-        ),
-        "TRANSLATION_TARGET_LANG: zh_Hant": (
-            f"TRANSLATION_TARGET_LANG: {_yaml_scalar(config.translation.target_language)}"
-        ),
-        "PUBLIC_README_PATH: workspace/document-templates/public-readme/README.md": (
-            f"PUBLIC_README_PATH: {_yaml_scalar(config.public_readme.path.as_posix())}"
-        ),
-        (
-            "TRANSLATED_TEMPLATE_DIR: "
-            "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
-            "dsw-science-europe-zh-hant-1.30.0"
-        ): (f"TRANSLATED_TEMPLATE_DIR: {_yaml_scalar(paths.translated_template_dir.as_posix())}"),
-        (
-            "TRANSLATED_TEMPLATE_PACKAGE: "
-            "outputs/document-templates/dsw-science-europe/v1.30.0/zh-Hant/"
-            "dsw-science-europe-zh-hant-1.30.0.zip"
-        ): (
-            "TRANSLATED_TEMPLATE_PACKAGE: "
-            f"{_yaml_scalar(paths.translated_template_package.as_posix())}"
-        ),
-        (
-            "PROJECT_RENDER_OUTPUT: "
-            "outputs/project-render/dsw-science-europe/v1.30.0/zh-Hant/test-project.pdf"
-        ): (f"PROJECT_RENDER_OUTPUT: {_yaml_scalar(paths.project_render_output.as_posix())}"),
-        'DSW_VERSION: "4.30"': f"DSW_VERSION: {_yaml_scalar(runtime.dsw_version)}",
-        'DSW_TDK_VERSION: "4.30.2"': f"DSW_TDK_VERSION: {_yaml_scalar(runtime.tdk_version)}",
-        'UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "18.0"': (
-            "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: "
-            f"{_yaml_scalar(runtime.metamodel_version)}"
-        ),
-        'UPSTREAM_TEMPLATE_PREVIEW_STRICT: "true"': (
-            "UPSTREAM_TEMPLATE_PREVIEW_STRICT: "
-            f"{_yaml_scalar(str(runtime.strict_project_preview).lower())}"
-        ),
-        'PUBLISH_RELEASE_ASSETS: "true"': (
-            f"PUBLISH_RELEASE_ASSETS: {_yaml_scalar(str(policy.publish_release).lower())}"
-        ),
-        'REFRESH_TRANSLATION_INPUTS: "true"': (
-            f"REFRESH_TRANSLATION_INPUTS: {_yaml_scalar(str(policy.refresh == 'artifact').lower())}"
-        ),
+        "__TRANSLATED_TEMPLATE_PACKAGE__": paths.translated_template_package.as_posix(),
+        "__TRANSLATED_TEMPLATE_VERSION__": paths.version_number,
+        "__TRANSLATION_SOURCE_LANG__": config.translation.source_language,
+        "__TRANSLATION_TARGET_LABEL__": config.translation.target_language_label,
+        "__TRANSLATION_TARGET_LANG__": config.translation.target_language,
+        "__TRANSLATION_TREE_DIR__": paths.translation_tree_dir.as_posix(),
+        "__UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION__": runtime.metamodel_version,
+        "__UPSTREAM_TEMPLATE_PREVIEW_STRICT__": (str(runtime.strict_project_preview).lower()),
+        "__VERSION_BRANCH__": branch,
     }
-    for old, new in replacements.items():
-        if old not in workflow:
-            raise SystemExit(f"Workflow template is missing expected text: {old}")
-        workflow = workflow.replace(old, new)
+    for token, value in replacements.items():
+        if token not in workflow:
+            raise SystemExit(f"Workflow template is missing expected token: {token}")
+        rendered = value if token == "__VERSION_BRANCH__" else _yaml_scalar(value)
+        workflow = workflow.replace(token, rendered)
+
+    unresolved_tokens = sorted(set(re.findall(r"__[A-Z0-9_]+__", workflow)))
+    if unresolved_tokens:
+        raise SystemExit(
+            "Workflow template contains unresolved tokens: " + ", ".join(unresolved_tokens)
+        )
 
     workflow_path = checkout / VERSION_BRANCH_WORKFLOW_PATH
     workflow_path.parent.mkdir(parents=True, exist_ok=True)

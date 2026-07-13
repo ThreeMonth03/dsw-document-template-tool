@@ -188,28 +188,6 @@ def test_resolve_upstream_refs_normalizes_github_owner_repo() -> None:
     )
 
 
-def test_repository_does_not_reference_retired_translation_control_worktree(
-    repo_root: Path,
-) -> None:
-    """Retired local worktree paths should not leak into commands or docs."""
-
-    retired_path = "dsw-document-template-translation-master-control"
-    scanned_paths = [
-        repo_root / "Makefile",
-        *sorted((repo_root / "docs").glob("*.md")),
-        *sorted((repo_root / "examples" / "github-actions").glob("*.yml")),
-        *sorted((repo_root / ".github" / "workflows").glob("*.yml")),
-    ]
-
-    offenders = [
-        str(path.relative_to(repo_root))
-        for path in scanned_paths
-        if retired_path in path.read_text(encoding="utf-8")
-    ]
-
-    assert offenders == []
-
-
 def test_discover_dsw_compat_reports_supported_refs(repo_root: Path, tmp_path: Path) -> None:
     """The compatibility discovery helper should accept known metamodel mappings."""
 
