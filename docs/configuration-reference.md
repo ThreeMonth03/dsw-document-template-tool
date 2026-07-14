@@ -46,7 +46,7 @@ source config or generator instead of committing the generated file.
 
 The public translated-template repository owns `translation-config.yml`; this
 tool only validates and consumes it. The schema is implemented by
-`dsw_document_template_tool.translation_migration` and validated with:
+`dsw_document_template_tool.translation_repository` and validated with:
 
 ```shell
 make validate-translation-config TRANSLATION_REPO=/path/to/science-europe-template-zh_Hant

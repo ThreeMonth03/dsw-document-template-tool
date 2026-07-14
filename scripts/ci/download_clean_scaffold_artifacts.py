@@ -15,7 +15,9 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from dsw_document_template_tool.translation_migration import load_preview_runtimes  # noqa: E402
+from dsw_document_template_tool.translation_repository import load_preview_runtimes  # noqa: E402
+
+DSW_COMPAT_PATH = REPO_ROOT / "config" / "dsw-compat.yml"
 
 
 def main() -> None:
@@ -94,7 +96,7 @@ def default_clean_artifact_names() -> list[str]:
 
     return [
         f"clean-upstream-version-artifacts-metamodel-{runtime.metamodel_key}"
-        for runtime in load_preview_runtimes()
+        for runtime in load_preview_runtimes(DSW_COMPAT_PATH)
     ]
 
 

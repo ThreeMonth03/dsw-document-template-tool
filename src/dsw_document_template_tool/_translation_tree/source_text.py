@@ -13,6 +13,7 @@ from .._template_transform.jinja_literals import (
 )
 from .ids import hash_text
 from .placeholders import jinja_expr_to_placeholder
+from .source_quality_rules import matching_source_fragment_rule, repair_sentence_text
 from .syntax import HTML_TAG_PATTERN, JINJA_COMMENT_OR_BLOCK_PATTERN, JINJA_EXPR_PATTERN
 
 HTML_BLOCK_END_PATTERN = re.compile(
@@ -35,40 +36,19 @@ CONNECTOR_ONLY_WORDS = {
     "to",
     "with",
 }
-HARD_FRAGMENT_SENTENCES = {
-    "available via:",
-    "available with",
-    "this data.",
-    "this data are",
-    "we will use.",
-}
-HARD_FRAGMENT_PREFIXES = (
-    '" of this dataset',
-    ", but decided ",
-    ", legally",
-    ", which",
-    "and we will ",
-    "but we won't ",
-    'in order to "',
-)
-SENTENCE_TEXT_REPLACEMENTS = (
-    (re.compile(r"\bbecauseit\b", re.IGNORECASE), "because it"),
-    (re.compile(r"\blegaly\b", re.IGNORECASE), "legally"),
-    (re.compile(r"\bdataare\b", re.IGNORECASE), "data are"),
-    (re.compile(r"\bdatamay\b", re.IGNORECASE), "data may"),
-    (re.compile(r"\busethe\b", re.IGNORECASE), "use the"),
-    (re.compile(r"\buseonly\b", re.IGNORECASE), "use only"),
-    (re.compile(r"\bwithfollowing\b", re.IGNORECASE), "with following"),
-)
 
 
 def build_wrapper_key(*, relative_path: str, source_text: str) -> str:
+    """Build a stable, readable key for one expanded translation wrapper."""
+
     visible_text = extract_visible_text(source_text)
     slug = slugify_text(visible_text)
     return f"{slug}-{hash_text(relative_path + '|' + source_text)[:10]}"
 
 
 def build_unit_key(*, relative_path: str, wrapper_name: str, source_text: str) -> str:
+    """Build a stable key for one source unit within an expanded wrapper."""
+
     visible_text = extract_visible_text(source_text)
     slug = slugify_text(visible_text)
     return f"{slug}-{hash_text(relative_path + '|' + wrapper_name + '|' + source_text)[:10]}"
@@ -79,6 +59,8 @@ def build_folder_name(*, index: int, slug: str) -> str:
 
 
 def extract_visible_text(source_text: str) -> str:
+    """Extract a short human-readable label while preserving visible Jinja literals."""
+
     stripped = JINJA_EXPR_PATTERN.sub(_replace_expr_with_visible_literals, source_text)
     stripped = JINJA_COMMENT_OR_BLOCK_PATTERN.sub(_replace_block_with_visible_literals, stripped)
     stripped = HTML_TAG_PATTERN.sub(" ", stripped)
@@ -95,6 +77,8 @@ def slugify_text(value: str) -> str:
 
 
 def contains_translatable_text(source_text: str) -> bool:
+    """Return whether source contains visible text rather than only markup/control code."""
+
     stripped = JINJA_EXPR_PATTERN.sub(_replace_expr_with_visible_literals, source_text)
     stripped = JINJA_COMMENT_OR_BLOCK_PATTERN.sub(_replace_block_with_visible_literals, stripped)
     stripped = HTML_TAG_PATTERN.sub(" ", stripped)
@@ -122,19 +106,21 @@ def is_connector_only_translation_unit(source_text: str) -> bool:
 
 
 def hard_fragment_sentence_message(source_text: str) -> str | None:
+    """Explain when a named source-quality rule detects a broken parser split."""
+
     sentence = extract_sentence_text(source_text).strip()
-    lowered_sentence = sentence.lower()
-    if lowered_sentence in HARD_FRAGMENT_SENTENCES or lowered_sentence.startswith(
-        HARD_FRAGMENT_PREFIXES
-    ):
+    rule = matching_source_fragment_rule(sentence)
+    if rule is not None:
         return (
-            f"`{sentence}` is only a sentence fragment. Expand/export should keep "
-            "the surrounding phrase and any placeholders in the same translation unit."
+            f"`{sentence}` is only a sentence fragment ({rule.rule_id}). Expand/export "
+            "should keep the surrounding phrase and placeholders in the same translation unit."
         )
     return None
 
 
 def extract_sentence_text(source_text: str) -> str:
+    """Render template source as the concise sentence shown to translators."""
+
     with_placeholders = JINJA_EXPR_PATTERN.sub(
         lambda match: jinja_expr_to_placeholder(match.group("expr")),
         source_text,
@@ -156,15 +142,8 @@ def extract_sentence_text(source_text: str) -> str:
     sentence = re.sub(r":\.$", ":", sentence)
     sentence = re.sub(r"^,\s+(available at\b)", r"\1", sentence, flags=re.IGNORECASE)
     sentence = sentence.strip()
-    sentence = repair_sentence_text_glue(sentence)
+    sentence = repair_sentence_text(sentence)
     return sentence or "(no visible sentence)"
-
-
-def repair_sentence_text_glue(sentence: str) -> str:
-    repaired = sentence
-    for pattern, replacement in SENTENCE_TEXT_REPLACEMENTS:
-        repaired = pattern.sub(replacement, repaired)
-    return repaired
 
 
 def _replace_expr_with_visible_literals(match: re.Match[str]) -> str:

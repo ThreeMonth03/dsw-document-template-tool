@@ -28,10 +28,11 @@ from cli_commands import (  # noqa: E402
     tool_command,
 )
 
-from dsw_document_template_tool.translation_migration import (  # noqa: E402
+from dsw_document_template_tool.translation_repository import (  # noqa: E402
     TranslationRepositoryConfig,
     clean_artifact_version_paths,
     clean_artifact_versions,
+    load_preview_runtimes,
     load_translation_repository_config,
     preview_runtime_for_version,
     sorted_versions,
@@ -49,6 +50,7 @@ from dsw_document_template_tool.yaml_config import (  # noqa: E402
 VERSION_BRANCH_WORKFLOW_TEMPLATE = (
     REPO_ROOT / "examples" / "github-actions" / "document_template_translation_sync.yml"
 )
+DSW_COMPAT_PATH = REPO_ROOT / "config" / "dsw-compat.yml"
 GITHUB_DIR = Path(".github")
 VERSION_BRANCH_WORKFLOW_PATH = GITHUB_DIR / "workflows" / "document_template_translation_sync.yml"
 TRANSLATION_TREE_MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
@@ -409,7 +411,11 @@ def update_version_branch_controls(
             _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
         return True
     finally:
-        _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
+        _run(
+            ["git", "worktree", "remove", "--force", str(checkout)],
+            cwd=repo,
+            check=False,
+        )
 
 
 def refresh_version_branch(
@@ -507,7 +513,11 @@ def refresh_version_branch(
             _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
         return True
     finally:
-        _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
+        _run(
+            ["git", "worktree", "remove", "--force", str(checkout)],
+            cwd=repo,
+            check=False,
+        )
 
 
 def create_version_branch(
@@ -575,13 +585,22 @@ def create_version_branch(
             print(f"INFO: [{branch}] no changes after initialization.")
             return
         _run(
-            ["git", "commit", "-m", f"chore: initialize {version} translation scaffold"],
+            [
+                "git",
+                "commit",
+                "-m",
+                f"chore: initialize {version} translation scaffold",
+            ],
             cwd=checkout,
         )
         if push:
             _run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=checkout)
     finally:
-        _run(["git", "worktree", "remove", "--force", str(checkout)], cwd=repo, check=False)
+        _run(
+            ["git", "worktree", "remove", "--force", str(checkout)],
+            cwd=repo,
+            check=False,
+        )
 
 
 def restore_clean_workspace(
@@ -611,12 +630,18 @@ def restore_clean_workspace(
             f"{version}:\n" + "\n".join(f"- {path}" for path in missing)
         )
 
-    replace_tree(artifact_paths.compact_template_dir, checkout / target_paths.compact_template_dir)
+    replace_tree(
+        artifact_paths.compact_template_dir,
+        checkout / target_paths.compact_template_dir,
+    )
     replace_tree(
         artifact_paths.expanded_template_dir,
         checkout / target_paths.expanded_template_dir,
     )
-    replace_tree(artifact_paths.translation_tree_dir, checkout / target_paths.translation_tree_dir)
+    replace_tree(
+        artifact_paths.translation_tree_dir,
+        checkout / target_paths.translation_tree_dir,
+    )
     remove_branch_local_demo_assets(checkout)
 
 
@@ -747,7 +772,10 @@ def write_version_branch_workflow(
 
     paths = version_paths(config, version)
     branch = version_branch(config, version)
-    runtime = preview_runtime_for_version(version)
+    runtime = preview_runtime_for_version(
+        version,
+        runtimes=load_preview_runtimes(DSW_COMPAT_PATH),
+    )
     policy = version_policy_decision(config, version)
     workflow = VERSION_BRANCH_WORKFLOW_TEMPLATE.read_text(encoding="utf-8")
     replacements = {
@@ -1058,7 +1086,10 @@ def add_existing_branch_worktree(
     """
 
     if push:
-        _run(["git", "worktree", "add", "--detach", str(checkout), f"origin/{branch}"], cwd=repo)
+        _run(
+            ["git", "worktree", "add", "--detach", str(checkout), f"origin/{branch}"],
+            cwd=repo,
+        )
         return True
     if branch_checked_out_in_worktree(repo, branch):
         raise SystemExit(
@@ -1068,7 +1099,10 @@ def add_existing_branch_worktree(
     if local_branch_exists(repo, branch):
         ensure_local_branch_matches_remote(repo, branch)
 
-    _run(["git", "worktree", "add", "-B", branch, str(checkout), f"origin/{branch}"], cwd=repo)
+    _run(
+        ["git", "worktree", "add", "-B", branch, str(checkout), f"origin/{branch}"],
+        cwd=repo,
+    )
     return False
 
 

@@ -39,3 +39,6 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["dsw_document_template_tool*"]
+
+[tool.setuptools.package-data]
+"dsw_document_template_tool.resources" = ["fonts/*.ttf", "fonts/*.txt"]

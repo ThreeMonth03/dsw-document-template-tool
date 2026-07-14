@@ -14,9 +14,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from dsw_document_template_tool.translation_migration import preview_runtime_matrix  # noqa: E402
+from dsw_document_template_tool.translation_repository import preview_runtime_matrix  # noqa: E402
 
 DEFAULT_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "headless_render_regression.yml"
+DSW_COMPAT_PATH = REPO_ROOT / "config" / "dsw-compat.yml"
 START_MARKER = "          # BEGIN GENERATED DSW RUNTIME MATRIX"
 END_MARKER = "          # END GENERATED DSW RUNTIME MATRIX"
 MATRIX_ITEM_INDENT = "          "
@@ -89,7 +90,7 @@ def render_runtime_matrix_block() -> str:
     """Render the runtime matrix rows using stable YAML formatting."""
 
     lines: list[str] = []
-    for row in preview_runtime_matrix():
+    for row in preview_runtime_matrix(DSW_COMPAT_PATH):
         for index, (key, value) in enumerate(row.items()):
             prefix = f"{MATRIX_ITEM_INDENT}- " if index == 0 else MATRIX_FIELD_INDENT
             lines.append(f"{prefix}{key}: {json.dumps(value)}")

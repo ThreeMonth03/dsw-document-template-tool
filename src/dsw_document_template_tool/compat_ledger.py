@@ -9,7 +9,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from dsw_document_template_tool._template_transform.markers import GENERATED_BLOCK_PATTERN
+from dsw_document_template_tool._template_transform.markers import (
+    GENERATED_BLOCK_PATTERN,
+)
 from dsw_document_template_tool._translation_tree.document import (
     parse_sentence_text,
     parse_translation_document,
@@ -18,7 +20,7 @@ from dsw_document_template_tool._translation_tree.manifest import load_tree_mani
 from dsw_document_template_tool._translation_tree.placeholders import (
     extract_translator_placeholder_names,
 )
-from dsw_document_template_tool.translation_migration import version_sort_key
+from dsw_document_template_tool.translation_repository import version_sort_key
 
 DEFAULT_SOURCE_LANG = "en"
 DEFAULT_TARGET_LANG = "zh_Hant"

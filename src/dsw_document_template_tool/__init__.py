@@ -10,6 +10,7 @@ from .template_transform import (
     TemplateTransformError,
     compact_template_dir,
     expand_template_dir,
+    explain_transform_workspace,
     snapshot_tree,
 )
 from .translation_tree import (
@@ -34,6 +35,7 @@ __all__ = [
     "audit_translated_template_structure",
     "audit_translation_tree",
     "compact_template_dir",
+    "explain_transform_workspace",
     "expand_template_dir",
     "export_translation_tree",
     "load_workflow_config",

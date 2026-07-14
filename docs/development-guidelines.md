@@ -15,7 +15,7 @@ Commit source and fixtures:
 - `tests/`
 - `docs/`
 - `fixtures/`
-- `assets/fonts/`
+- `src/dsw_document_template_tool/resources/`
 
 Do not commit generated outputs:
 

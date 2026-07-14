@@ -10,10 +10,10 @@ when you are changing behavior.
 | --- | --- | --- | --- |
 | Expand an upstream compact template | `make transform` | `dsw-template-transform` | [`template_transform.py`](../src/dsw_document_template_tool/template_transform.py), [`_template_transform/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_template_transform) |
 | Export, audit, merge, and sync translation trees | `make export-translation-tree`, `make audit-translation-tree`, `make merge-translation-tree`, `make sync-translation-tree` | `dsw-template-tree` | [`translation_tree.py`](../src/dsw_document_template_tool/translation_tree.py), [`_translation_tree/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_translation_tree) |
-| Render one project preview or release package | `make render-project`, `make render-package` | `dsw-template-render-project` | [`render_project.py`](../src/dsw_document_template_tool/render_project.py) |
+| Render one project preview or release package | `make render-project`, `make render-package` | `dsw-template-render-project` | [`cli/render_project.py`](../src/dsw_document_template_tool/cli/render_project.py), [`render_project.py`](../src/dsw_document_template_tool/render_project.py) |
 | Run render regression | `make render-regression`, `make render-regression-ci-plan` | `dsw-template-render-regression` | [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py), [`workflow.py`](../src/dsw_document_template_tool/workflow.py) |
 | Build clean upstream scaffold artifacts | `make discover-upstream-compat`, `make build-upstream-artifacts`, `make render-upstream-artifact-previews` | CI helpers under [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci) | [`dsw_compat.py`](../src/dsw_document_template_tool/dsw_compat.py), [`compat_ledger.py`](../src/dsw_document_template_tool/compat_ledger.py) |
-| Refresh public repository `sync/v*` branches | `make sync-translation-version-branches`, `make check-translation-migrations` | [`sync_translation_version_branches.py`](../scripts/ci/sync_translation_version_branches.py) | [`translation_migration.py`](../src/dsw_document_template_tool/translation_migration.py) |
+| Refresh public repository `sync/v*` branches | `make sync-translation-version-branches`, `make check-translation-migrations` | [`sync_translation_version_branches.py`](../scripts/ci/sync_translation_version_branches.py) | [`translation_repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/translation_repository) |
 | Publish clean scaffold release assets | `make publish-clean-scaffold-releases` | [`publish_clean_scaffold_releases.py`](../scripts/ci/publish_clean_scaffold_releases.py) | [`stage_release_assets.py`](../scripts/ci/stage_release_assets.py) |
 
 For exact command syntax, use [Command Reference](command-reference.md). For
@@ -57,6 +57,10 @@ Key files:
   writes and reads translation marker comments.
 - [`_template_transform/rewrite_rules.py`](../src/dsw_document_template_tool/_template_transform/rewrite_rules.py)
   provides shared rewrite rule primitives.
+- [`_template_transform/profile.py`](../src/dsw_document_template_tool/_template_transform/profile.py)
+  selects template-family behavior from `template.json` and records every named
+  rewrite group in `.transform/manifest.json`. `make explain-transform` prints
+  the same trace for maintainers.
 - [`_template_transform/branch_groups.py`](../src/dsw_document_template_tool/_template_transform/branch_groups.py),
   [`branch_sentences.py`](../src/dsw_document_template_tool/_template_transform/branch_sentences.py),
   [`inline_conditionals.py`](../src/dsw_document_template_tool/_template_transform/inline_conditionals.py),
@@ -84,6 +88,9 @@ Key files:
 
 - [`_translation_tree/extraction.py`](../src/dsw_document_template_tool/_translation_tree/extraction.py)
   extracts marked translatable units from expanded templates.
+- [`_translation_tree/source_quality_rules.py`](../src/dsw_document_template_tool/_translation_tree/source_quality_rules.py)
+  contains named, display-only guards for known upstream sentence fragments.
+  These guards detect parser regressions; they never rewrite executable source.
 - [`_translation_tree/document.py`](../src/dsw_document_template_tool/_translation_tree/document.py)
   reads and writes human-facing `translation.md` files.
 - [`_translation_tree/filesystem.py`](../src/dsw_document_template_tool/_translation_tree/filesystem.py),
@@ -123,8 +130,9 @@ behaves in DSW.
 Key files:
 
 - [`render_project.py`](../src/dsw_document_template_tool/render_project.py)
-  imports Knowledge Model, template, and project fixtures into DSW and renders a
-  PDF preview.
+  is the reusable service that imports fixtures and renders a PDF. Argument
+  parsing and environment variables live in
+  [`cli/render_project.py`](../src/dsw_document_template_tool/cli/render_project.py).
 - [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py)
   runs baseline/candidate render comparisons.
 - [`fixture_generator.py`](../src/dsw_document_template_tool/fixture_generator.py)
@@ -132,8 +140,10 @@ Key files:
   questionnaire models.
 - [`html_diff.py`](../src/dsw_document_template_tool/html_diff.py) normalizes
   rendered HTML and reports behavior differences.
-- [`workflow.py`](../src/dsw_document_template_tool/workflow.py) contains shared
-  workflow orchestration helpers.
+- [`workflow.py`](../src/dsw_document_template_tool/workflow.py) contains DSW
+  lifecycle and regression orchestration. Deterministic artifacts and isolated
+  parallel renders live under
+  [`_regression/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_regression).
 - [`tdk.py`](../src/dsw_document_template_tool/tdk.py) wraps `dsw-tdk` calls.
 
 Change this layer when previews, regression coverage, fixture handling, or DSW
@@ -146,8 +156,12 @@ versions, then feeds that mapping into CI and release automation.
 
 Key files:
 
-- [`dsw_compat.py`](../src/dsw_document_template_tool/dsw_compat.py) reads
+- [`translation_repository/runtime.py`](../src/dsw_document_template_tool/translation_repository/runtime.py)
+  strictly loads the proven runtime table in
   [`config/dsw-compat.yml`](../config/dsw-compat.yml).
+- [`dsw_compat.py`](../src/dsw_document_template_tool/dsw_compat.py) reads the
+  official DSW specification only to suggest candidates for unknown
+  metamodels. Candidates do not become trusted runtimes until smoke tests pass.
 - [`compat_ledger.py`](../src/dsw_document_template_tool/compat_ledger.py)
   writes compatibility fingerprints for clean scaffold artifacts.
 - [`discover_dsw_compat.py`](../scripts/ci/discover_dsw_compat.py) checks
@@ -160,6 +174,15 @@ Key files:
 
 Change this layer when upstream versions, DSW runtime support, GitHub Actions
 matrices, or release asset staging behavior changes.
+
+### Public Repository Policy
+
+The [`translation_repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/translation_repository)
+package is the typed boundary shared by tool and public-repository workflows.
+`config.py` validates `translation-config.yml`, `policy.py` decides lifecycle
+behavior, `paths.py` derives branch/workspace paths, `runtime.py` selects DSW
+runtimes, and `versions.py` owns semantic-version matching. Import the package
+facade from automation; edit the focused module that owns the behavior.
 
 ## Ownership Rules
 

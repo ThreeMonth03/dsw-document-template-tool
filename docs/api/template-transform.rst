@@ -10,7 +10,7 @@ Transform Facade
 ----------------
 
 .. automodule:: dsw_document_template_tool.template_transform
-   :members: expand_template_dir, compact_template_dir, snapshot_tree, TemplateTransformError
+   :members: expand_template_dir, compact_template_dir, explain_transform_workspace, snapshot_tree, TemplateTransformError
    :show-inheritance:
 
 CLI Entry Point
@@ -38,6 +38,10 @@ for maintainers changing parser or rewrite behavior.
    :show-inheritance:
 
 .. automodule:: dsw_document_template_tool._template_transform.rewrite_rules
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool._template_transform.profile
    :members:
    :show-inheritance:
 

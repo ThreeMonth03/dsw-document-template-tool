@@ -8,6 +8,7 @@ exact text matching is part of the reversible transform contract.
 
 from __future__ import annotations
 
+from .profile import TransformTrace
 from .rewrite_rules import (
     ReversibleReplacementGroup,
     ReversibleReplacements,
@@ -15,12 +16,19 @@ from .rewrite_rules import (
 )
 
 
-def rewrite_science_europe_balanced_source_fragments(source_text: str) -> str:
+def rewrite_science_europe_balanced_source_fragments(
+    source_text: str,
+    *,
+    source_file: str = "",
+    trace: TransformTrace | None = None,
+) -> str:
     """Rewrite exact upstream Science Europe fragments before generic expansion."""
 
     return apply_reversible_replacement_groups(
         source_text,
         _build_balanced_source_fragment_groups(),
+        source_file=source_file,
+        trace=trace,
     )
 
 
@@ -1296,18 +1304,35 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
         (published_data_fixed_period_original, published_data_fixed_period_replacement),
     )
 
-    replacements = (
-        condition_rewrites
-        + governance_rewrites
-        + computer_readable_rewrites
-        + reuse_identification_rewrites
-        + nonreuse_identification_rewrites
-        + sharing_and_publication_rewrites
-    )
-
     return (
         ReversibleReplacementGroup(
-            "balanced_science_europe_sentence_blocks",
-            replacements,
+            "science-europe.balanced.conditions",
+            condition_rewrites,
+            "Keep data-condition alternatives as complete translator-facing sentences.",
+        ),
+        ReversibleReplacementGroup(
+            "science-europe.balanced.governance",
+            governance_rewrites,
+            "Keep ownership and legal-basis branches structurally reversible.",
+        ),
+        ReversibleReplacementGroup(
+            "science-europe.balanced.computer-readable",
+            computer_readable_rewrites,
+            "Expose complete computer-readable format statements.",
+        ),
+        ReversibleReplacementGroup(
+            "science-europe.balanced.reuse",
+            reuse_identification_rewrites,
+            "Keep reused-data identification and availability sentences together.",
+        ),
+        ReversibleReplacementGroup(
+            "science-europe.balanced.nonreuse",
+            nonreuse_identification_rewrites,
+            "Keep non-reuse reasons as complete conditional sentences.",
+        ),
+        ReversibleReplacementGroup(
+            "science-europe.balanced.publication",
+            sharing_and_publication_rewrites,
+            "Keep sharing, volume, licensing, and publication statements complete.",
         ),
     )

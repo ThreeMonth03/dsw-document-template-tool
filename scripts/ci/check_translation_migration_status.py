@@ -16,7 +16,7 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from dsw_document_template_tool.translation_migration import (  # noqa: E402
+from dsw_document_template_tool.translation_repository import (  # noqa: E402
     TranslationRepositoryConfig,
     load_translation_repository_config,
     target_versions,

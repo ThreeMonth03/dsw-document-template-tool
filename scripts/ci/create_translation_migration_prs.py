@@ -32,7 +32,7 @@ from github_prs import (  # noqa: E402
     wait_for_pull_request_checks,
 )
 
-from dsw_document_template_tool.translation_migration import (  # noqa: E402
+from dsw_document_template_tool.translation_repository import (  # noqa: E402
     TranslationRepositoryConfig,
     clean_artifact_version_paths,
     load_translation_repository_config,

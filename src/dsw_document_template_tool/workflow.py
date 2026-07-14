@@ -5,22 +5,24 @@ from __future__ import annotations
 import json
 import shutil
 import uuid
-from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
+from ._regression.artifacts import (
+    compare_render_artifacts,
+    serialize_regression_report,
+    write_render_artifact,
+)
+from ._regression.parallel import render_subjects_in_parallel
 from .api import DSWApiClient, DSWAPIError
 from .config import load_workflow_config
 from .fixture_generator import generate_questionnaire_events
-from .html_diff import build_unified_diff, normalize_html
 from .models import (
     FixtureConfig,
     FixtureProject,
     FixtureRegressionResult,
     GeneratedFixtureConfig,
     RegressionReport,
-    RenderArtifact,
     ResolvedSubject,
     SubjectConfig,
     WorkflowConfig,
@@ -99,7 +101,8 @@ class DocumentTemplateWorkflowService:
                 report_path=report_path,
             )
             report_path.write_text(
-                json.dumps(self._serialize_report(report), indent=2, ensure_ascii=False) + "\n",
+                json.dumps(serialize_regression_report(report), indent=2, ensure_ascii=False)
+                + "\n",
                 encoding="utf-8",
             )
             return report
@@ -194,8 +197,10 @@ class DocumentTemplateWorkflowService:
         for staged_dir in staged_dirs:
             try:
                 shutil.rmtree(staged_dir.parent)
-            except Exception:
-                pass
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                print(f"WARNING: Failed to clean up staged template {staged_dir.parent}: {exc}")
 
     def _authenticate(self, client: DSWApiClient, config: WorkflowConfig) -> None:
         if config.api.token is not None:
@@ -455,7 +460,7 @@ class DocumentTemplateWorkflowService:
                 raise TemplateToolError(
                     "Preview mode requires both subjects to resolve to draft templates"
                 )
-            baseline_html, candidate_html = self._render_subjects_in_parallel(
+            baseline_html, candidate_html = render_subjects_in_parallel(
                 client=client,
                 baseline_render=lambda render_client: self._render_preview_html(
                     client=render_client,
@@ -479,7 +484,7 @@ class DocumentTemplateWorkflowService:
                 raise TemplateToolError(
                     "Document mode requires both subjects to be released template IDs"
                 )
-            baseline_html, candidate_html = self._render_subjects_in_parallel(
+            baseline_html, candidate_html = render_subjects_in_parallel(
                 client=client,
                 baseline_render=lambda render_client: self._render_document_html(
                     client=render_client,
@@ -505,35 +510,25 @@ class DocumentTemplateWorkflowService:
         else:
             raise TemplateToolError(f"Unsupported regression mode {config.regression.mode!r}")
 
-        baseline_artifact = self._write_artifact(
+        baseline_artifact = write_render_artifact(
             fixture_output_dir=fixture_output_dir,
             subject=baseline,
             raw_html=baseline_html,
             ignore_patterns=config.regression.ignore_patterns,
         )
-        candidate_artifact = self._write_artifact(
+        candidate_artifact = write_render_artifact(
             fixture_output_dir=fixture_output_dir,
             subject=candidate,
             raw_html=candidate_html,
             ignore_patterns=config.regression.ignore_patterns,
         )
 
-        baseline_normalized = baseline_artifact.normalized_path.read_text(encoding="utf-8")
-        candidate_normalized = candidate_artifact.normalized_path.read_text(encoding="utf-8")
-        equal = baseline_normalized == candidate_normalized
-        diff_path = None
+        equal, diff_path = compare_render_artifacts(
+            fixture_output_dir=fixture_output_dir,
+            baseline=baseline_artifact,
+            candidate=candidate_artifact,
+        )
         if not equal:
-            diff_path = fixture_output_dir / "diff.diff"
-            diff_path.write_text(
-                build_unified_diff(
-                    baseline_normalized,
-                    candidate_normalized,
-                    baseline_label=baseline.display_id,
-                    candidate_label=candidate.display_id,
-                )
-                + "\n",
-                encoding="utf-8",
-            )
             print(f"FAILURE: Mismatch detected for fixture {fixture.name}")
         else:
             print(f"SUCCESS: Fixture {fixture.name} matched after normalization")
@@ -598,58 +593,6 @@ class DocumentTemplateWorkflowService:
         url = client.get_document_download_url(document_uuid)
         return client.download_url_text(url)
 
-    def _write_artifact(
-        self,
-        *,
-        fixture_output_dir: Path,
-        subject: ResolvedSubject,
-        raw_html: str,
-        ignore_patterns: list[str],
-    ) -> RenderArtifact:
-        raw_path = fixture_output_dir / f"{subject.label}.raw.html"
-        normalized_path = fixture_output_dir / f"{subject.label}.normalized.html"
-        raw_path.write_text(raw_html, encoding="utf-8")
-        normalized_path.write_text(
-            normalize_html(raw_html, ignore_patterns=ignore_patterns) + "\n",
-            encoding="utf-8",
-        )
-        return RenderArtifact(
-            raw_path=raw_path,
-            normalized_path=normalized_path,
-            subject_label=subject.label,
-            template_reference=subject.display_id,
-        )
-
-    def _render_subjects_in_parallel(
-        self,
-        *,
-        client: DSWApiClient,
-        baseline_render: Callable[[DSWApiClient], str],
-        candidate_render: Callable[[DSWApiClient], str],
-    ) -> tuple[str, str]:
-        def run_isolated(render: Callable[[DSWApiClient], str]) -> str:
-            render_client = self._clone_authenticated_client(client)
-            try:
-                return render(render_client)
-            finally:
-                render_client.close()
-
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="dsw-render") as executor:
-            baseline_future = executor.submit(run_isolated, baseline_render)
-            candidate_future = executor.submit(run_isolated, candidate_render)
-            return baseline_future.result(), candidate_future.result()
-
-    @staticmethod
-    def _clone_authenticated_client(client: DSWApiClient) -> DSWApiClient:
-        if client.token is None:
-            raise TemplateToolError("Parallel render requires an authenticated DSW client")
-        render_client = DSWApiClient(
-            api_url=client.api_url,
-            verify_ssl=client.verify_ssl,
-        )
-        render_client.set_token(client.token)
-        return render_client
-
     @staticmethod
     def _load_events(path: Path) -> list[dict[str, Any]]:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -663,32 +606,3 @@ class DocumentTemplateWorkflowService:
                 raise TemplateToolError(f"Event #{index} in {path} must be a JSON object")
             events.append(item)
         return events
-
-    @staticmethod
-    def _serialize_report(report: RegressionReport) -> dict[str, Any]:
-        return {
-            "mode": report.mode,
-            "output_dir": str(report.output_dir),
-            "passed": report.passed,
-            "fixtures": [
-                {
-                    "fixture_name": result.fixture_name,
-                    "project_uuid": result.project_uuid,
-                    "equal": result.equal,
-                    "baseline": {
-                        "subject_label": result.baseline.subject_label,
-                        "template_reference": result.baseline.template_reference,
-                        "raw_path": str(result.baseline.raw_path),
-                        "normalized_path": str(result.baseline.normalized_path),
-                    },
-                    "candidate": {
-                        "subject_label": result.candidate.subject_label,
-                        "template_reference": result.candidate.template_reference,
-                        "raw_path": str(result.candidate.raw_path),
-                        "normalized_path": str(result.candidate.normalized_path),
-                    },
-                    "diff_path": None if result.diff_path is None else str(result.diff_path),
-                }
-                for result in report.fixture_results
-            ],
-        }

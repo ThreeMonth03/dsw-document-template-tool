@@ -100,7 +100,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts explain-transform export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews start-ci-dsw stop-ci-dsw sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -110,59 +110,61 @@ $(VENV_PYTHON):
 help:
 	@printf '%s\n' \
 	'Available targets:' \
-	'  venv              Create $(VENV_DIR) when it does not exist' \
-	'  install-dev       Install local package and development dependencies' \
-	'  install-hooks     Install local git pre-commit hooks' \
-	'  check             Run the standard local maintainer checks' \
-	'  compile           Run Python syntax compilation checks' \
-	'  create-dsw-compat-pr Create/update a DSW compatibility probe PR from $(COMPAT_PROBE_REPORT)' \
-	'  format            Auto-fix imports/style and format Python files' \
-	'  format-check      Check formatting without modifying files' \
-	'  lint              Run Ruff lint checks' \
-	'  docs              Build the Sphinx documentation site' \
-	'  docs-clean        Remove generated Sphinx documentation output' \
-	'  test              Run all pytest suites' \
-	'  test-infra        Run infrastructure/CLI pytest suites' \
-	'  test-unit         Run unit/regression helper pytest suites' \
-	'  sync-dsw-runtime-matrix Refresh workflow matrix from config/dsw-compat.yml' \
-	'  check-dsw-runtime-matrix Check workflow matrix matches config/dsw-compat.yml' \
-	'  clean             Remove generated outputs and local test/lint caches' \
-	'  verify-template   Run dsw-tdk verify for TEMPLATE_DIR=/path/to/template' \
-	'  verify-workspace  Run dsw-tdk verify for generated compact and expanded workspaces' \
-	'  package-template  Run dsw-tdk package for TEMPLATE_DIR=/path/to/template' \
-	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
-	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
-	'  export-fresh-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(FRESH_TRANSLATION_TREE_DIR)' \
-	'  merge-translation-tree Merge $(TRANSLATION_TREE_DIR) into $(MERGED_TRANSLATION_TREE_DIR)' \
-	'  export-xliff Export $(TRANSLATION_TREE_DIR) into $(XLIFF_FILE)' \
-	'  import-xliff Import $(XLIFF_FILE) back into $(TRANSLATION_TREE_DIR)' \
-	'  audit-translation-tree Check translation blocks for unsafe Jinja/control syntax' \
-	'  sync-translation-tree Apply translations and package $(TRANSLATED_TEMPLATE_PACKAGE)' \
 	'  audit-translated-template Check translated output kept expanded template structure' \
-	'  compact-template  Rebuild $(EXPANDED_TEMPLATE_DIR) into $(REBUILT_TEMPLATE_DIR)' \
-	'  list-upstream-template-tags Show available upstream Science Europe version tags' \
-	'  fetch-upstream-template Fetch upstream template into $(UPSTREAM_TEMPLATE_CACHE)' \
-	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
-	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
-	'  download-clean-scaffold-artifacts Download clean scaffold artifacts from a tool workflow run' \
+	'  audit-translation-tree Check translation blocks for unsafe Jinja/control syntax' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
+	'  check             Run the standard local maintainer checks' \
+	'  check-dsw-runtime-matrix Check workflow matrix matches config/dsw-compat.yml' \
 	'  check-translation-migrations Dry-run exact-source sync across active translation branches' \
 	'  check-translation-repository-docs Check public-repo docs cover required operations topics' \
+	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
+	'  clean             Remove generated outputs and local test/lint caches' \
+	'  compact-template  Rebuild $(EXPANDED_TEMPLATE_DIR) into $(REBUILT_TEMPLATE_DIR)' \
+	'  compile           Run Python syntax compilation checks' \
+	'  create-dsw-compat-pr Create/update a DSW compatibility probe PR from $(COMPAT_PROBE_REPORT)' \
+	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
+	'  docs              Build the Sphinx documentation site' \
+	'  docs-clean        Remove generated Sphinx documentation output' \
+	'  download-clean-scaffold-artifacts Download clean scaffold artifacts from a tool workflow run' \
+	'  explain-transform Show named profile rewrites recorded in the expanded workspace' \
+	'  export-fresh-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(FRESH_TRANSLATION_TREE_DIR)' \
+	'  export-translation-tree Export $(EXPANDED_TEMPLATE_DIR) into $(TRANSLATION_TREE_DIR)' \
+	'  export-xliff Export $(TRANSLATION_TREE_DIR) into $(XLIFF_FILE)' \
+	'  fetch-upstream-template Fetch upstream template into $(UPSTREAM_TEMPLATE_CACHE)' \
+	'  format            Auto-fix imports/style and format Python files' \
+	'  format-check      Check formatting without modifying files' \
 	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
-	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
+	'  help              Show this alphabetized target summary' \
+	'  import-xliff Import $(XLIFF_FILE) back into $(TRANSLATION_TREE_DIR)' \
+	'  install-dev       Install local package and development dependencies' \
+	'  install-hooks     Install local git pre-commit hooks' \
+	'  lint              Run Ruff lint checks' \
+	'  list-upstream-template-tags Show available upstream Science Europe version tags' \
+	'  merge-translation-tree Merge $(TRANSLATION_TREE_DIR) into $(MERGED_TRANSLATION_TREE_DIR)' \
+	'  package-template  Run dsw-tdk package for TEMPLATE_DIR=/path/to/template' \
 	'  publish-clean-scaffold-releases Stage or publish clean scaffold GitHub release assets' \
-	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
-	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
-	'  ci-dsw-logs       Collect local DSW stack logs under outputs/ci-dsw' \
 	'  render-package    Import PROJECT_RENDER_TEMPLATE_PACKAGE, then render $(PROJECT_REF)' \
 	'  render-project    Render PROJECT_UUID or $(PROJECT_REF) with $(PROJECT_RENDER_TEMPLATE_DIR)' \
 	'  render-regression Run the DSW headless regression workflow using CONFIG=$(CONFIG)' \
 	'  render-regression-ci Generate latest-version CI config and run local DSW regression' \
 	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions' \
 	'  render-regression-ci-plan-dry-run Validate the compatibility regression plan without DSW' \
+	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
+	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
+	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
+	'  sync-dsw-runtime-matrix Refresh workflow matrix from config/dsw-compat.yml' \
+	'  sync-translation-tree Apply translations and package $(TRANSLATED_TEMPLATE_PACKAGE)' \
 	'  sync-translation-version-branches Create/refresh public-repo sync/v* branches' \
-	'  validate-translation-config Validate public-repo translation-config.yml'
+	'  test              Run all pytest suites' \
+	'  test-infra        Run infrastructure/CLI pytest suites' \
+	'  test-unit         Run unit/regression helper pytest suites' \
+	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
+	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
+	'  validate-translation-config Validate public-repo translation-config.yml' \
+	'  venv              Create $(VENV_DIR) when it does not exist' \
+	'  verify-template   Run dsw-tdk verify for TEMPLATE_DIR=/path/to/template' \
+	'  verify-workspace  Run dsw-tdk verify for generated compact and expanded workspaces'
 
 install-dev: venv
 	$(PIP) install -e ".[dev]"
@@ -245,6 +247,9 @@ package-template: venv
 
 transform: venv
 	$(DSW_TEMPLATE_TRANSFORM) expand --source $(COMPACT_TEMPLATE_DIR) --output $(EXPANDED_TEMPLATE_DIR)
+
+explain-transform: transform venv
+	$(DSW_TEMPLATE_TRANSFORM) explain --source $(EXPANDED_TEMPLATE_DIR)
 
 export-translation-tree: transform venv
 	$(DSW_TEMPLATE_TREE) export --source $(EXPANDED_TEMPLATE_DIR) --output $(TRANSLATION_TREE_DIR)

@@ -26,11 +26,40 @@ the executable Jinja behavior of the original template.
 - XLIFF exchange belongs under `_translation_tree/xliff.py`; keep it as a thin
   adapter around the canonical Markdown tree.
 - Cross-version translation reuse belongs in `_translation_tree/merge.py` and
-  `translation_migration.py`.
+  `translation_repository/`.
 - Target-language output cleanup belongs in `_translation_tree/output_polish.py`.
+- Named source-preview regression guards belong in
+  `_translation_tree/source_quality_rules.py`; they must not mutate executable
+  template source.
 
 Do not fix broken sentence boundaries by hand-editing generated
 `translation.md` files. Fix the transform/export logic and regenerate.
+
+## Adding an Upstream Rewrite
+
+Use a profile rule only when generic Jinja/HTML parsing cannot preserve a
+complete translation unit.
+
+1. Confirm the template identity in `template.json`. Science Europe-only rules
+   belong in `science_europe_balanced_rules.py` or
+   `science_europe_unbalanced_rules.py`, not a generic parser module.
+2. Add the smallest reversible replacement to a named
+   `ReversibleReplacementGroup`. Give it a stable `group_id` and a rationale
+   that explains the upstream shape it handles.
+3. Use the balanced phase when every generated branch is syntactically valid;
+   use the unbalanced phase only when the original source crosses an HTML/Jinja
+   boundary.
+4. Add forward, reverse, and wrong-template-identity tests. A `demo:sample`
+   template must not receive a Science Europe rewrite.
+5. Run `make transform` followed by `make explain-transform`. Inspect the
+   profile, rule IDs, files, and match counts. The same evidence is stored in
+   `.transform/manifest.json` under `rewrite_trace`.
+6. Complete the parser-change checklist below and render regression before
+   accepting the rule.
+
+If executable source is correct but a sentence preview exposes a known broken
+fragment, add a named `SourceFragmentRule` instead. This is an audit guard, not
+a substitute for fixing extraction.
 
 ## Translation Unit Quality Rules
 
@@ -58,27 +87,34 @@ Bad units:
    make check
    ```
 
-3. Build clean upstream artifacts:
+3. Inspect which profile rules fired:
+
+   ```shell
+   make transform
+   make explain-transform
+   ```
+
+4. Build clean upstream artifacts:
 
    ```shell
    make build-upstream-artifacts
    ```
 
-4. Generate a fresh tree and merge existing translations exactly:
+5. Generate a fresh tree and merge existing translations exactly:
 
    ```shell
    make export-fresh-translation-tree
    make merge-translation-tree
    ```
 
-5. Inspect generated `outline.md`, `merge-report.json`, and representative
+6. Inspect generated `outline.md`, `merge-report.json`, and representative
    `translation.md` files. The outline is regenerated from the current
    translation blocks, so its checked counts should match the filled, updated,
    and preserved translations reported by the merge step.
-6. If the Markdown translation format changed, run an XLIFF export/import
+7. If the Markdown translation format changed, run an XLIFF export/import
    round trip and confirm it does not rewrite machine metadata unexpectedly.
-7. Sync translations and render a demo PDF.
-8. Confirm no translator-facing files contain raw Jinja or unnatural fragments.
+8. Sync translations and render a demo PDF.
+9. Confirm no translator-facing files contain raw Jinja or unnatural fragments.
 
 ## Synchronization After Parser Changes
 

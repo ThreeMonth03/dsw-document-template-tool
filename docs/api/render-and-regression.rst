@@ -16,7 +16,7 @@ Render Project
 --------------
 
 .. automodule:: dsw_document_template_tool.render_project
-   :members: ResolvedProject, render_project, build_argument_parser, main
+   :members: ResolvedProject, render_project
    :show-inheritance:
 
 Fixture Generation
@@ -32,6 +32,17 @@ HTML Comparison
 .. automodule:: dsw_document_template_tool.html_diff
    :members: normalize_html, build_unified_diff
 
+Regression Internals
+--------------------
+
+.. automodule:: dsw_document_template_tool._regression.artifacts
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool._regression.parallel
+   :members:
+   :show-inheritance:
+
 TDK Helpers
 -----------
 
@@ -43,7 +54,7 @@ CLI Entry Points
 ----------------
 
 .. automodule:: dsw_document_template_tool.cli.render_project
-   :members: main
+   :members: build_argument_parser, main
 
 .. automodule:: dsw_document_template_tool.cli.render_regression
    :members: build_argument_parser, main

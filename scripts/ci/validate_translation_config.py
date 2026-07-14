@@ -15,9 +15,9 @@ if str(SRC_ROOT) not in sys.path:
 
 from resolve_upstream_refs import normalize_git_remote  # noqa: E402
 
-from dsw_document_template_tool.translation_migration import (  # noqa: E402
-    TranslationMigrationError,
+from dsw_document_template_tool.translation_repository import (  # noqa: E402
     TranslationRepositoryConfig,
+    TranslationRepositoryError,
     load_translation_repository_config,
     version_policy_decision,
 )
@@ -46,7 +46,7 @@ def main() -> None:
         config = load_translation_repository_config(args.config)
         missing_tags = missing_upstream_tags(config)
         if missing_tags:
-            raise TranslationMigrationError(
+            raise TranslationRepositoryError(
                 "Missing upstream tags: " + ", ".join(missing_tags),
             )
 
@@ -54,7 +54,7 @@ def main() -> None:
         print(report)
         if args.summary is not None:
             append_summary(args.summary, report)
-    except (OSError, subprocess.CalledProcessError, TranslationMigrationError) as exc:
+    except (OSError, subprocess.CalledProcessError, TranslationRepositoryError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc
 

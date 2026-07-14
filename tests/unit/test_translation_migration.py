@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from dsw_document_template_tool.translation_migration import (
-    TranslationMigrationError,
+from dsw_document_template_tool.translation_repository import (
+    TranslationRepositoryError,
     clean_artifact_version_paths,
     clean_artifact_versions,
     load_preview_runtimes,
@@ -135,7 +135,7 @@ def test_translation_config_rejects_duplicate_keys(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="duplicate key 'ref'"):
+    with pytest.raises(TranslationRepositoryError, match="duplicate key 'ref'"):
         load_translation_repository_config(config_path)
 
 
@@ -159,7 +159,7 @@ runtimes:
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="duplicate key 'dsw_version'"):
+    with pytest.raises(TranslationRepositoryError, match="duplicate key 'dsw_version'"):
         load_preview_runtimes(config_path)
 
 
@@ -198,11 +198,13 @@ public_readme:
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="public_readme.path"):
+    with pytest.raises(TranslationRepositoryError, match="public_readme.path"):
         load_translation_repository_config(config_path)
 
 
-def test_translation_config_rejects_duplicate_supported_versions(tmp_path: Path) -> None:
+def test_translation_config_rejects_duplicate_supported_versions(
+    tmp_path: Path,
+) -> None:
     """Supported template versions should be unambiguous."""
 
     config_path = _write_config(tmp_path)
@@ -214,7 +216,7 @@ def test_translation_config_rejects_duplicate_supported_versions(tmp_path: Path)
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="duplicate"):
+    with pytest.raises(TranslationRepositoryError, match="duplicate"):
         load_translation_repository_config(config_path)
 
 
@@ -227,7 +229,7 @@ def test_translation_config_rejects_invalid_supported_versions(tmp_path: Path) -
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="Expected a version tag"):
+    with pytest.raises(TranslationRepositoryError, match="Expected a version tag"):
         load_translation_repository_config(config_path)
 
 
@@ -243,11 +245,13 @@ def test_translation_config_rejects_unknown_non_exact_policy(tmp_path: Path) -> 
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="non-exact migration policy"):
+    with pytest.raises(TranslationRepositoryError, match="non-exact migration policy"):
         load_translation_repository_config(config_path)
 
 
-def test_translation_config_without_version_policy_is_scaffold_only(tmp_path: Path) -> None:
+def test_translation_config_without_version_policy_is_scaffold_only(
+    tmp_path: Path,
+) -> None:
     """Missing policy should not accidentally opt every upstream tag into translation."""
 
     config_path = _write_config(tmp_path)
@@ -296,7 +300,7 @@ version_policy:
     )
 
     with pytest.raises(
-        TranslationMigrationError,
+        TranslationRepositoryError,
         match="refresh=false and migrate_into=false",
     ):
         load_translation_repository_config(config_path)
@@ -314,7 +318,7 @@ def test_translation_config_rejects_string_booleans(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="Expected boolean"):
+    with pytest.raises(TranslationRepositoryError, match="Expected boolean"):
         load_translation_repository_config(config_path)
 
 
@@ -330,7 +334,7 @@ def test_translation_config_rejects_auto_pr_string_booleans(tmp_path: Path) -> N
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="Expected boolean"):
+    with pytest.raises(TranslationRepositoryError, match="Expected boolean"):
         load_translation_repository_config(config_path)
 
 
@@ -346,11 +350,13 @@ def test_translation_config_rejects_empty_bot_branch_prefix(tmp_path: Path) -> N
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="auto_pr_branch_prefix"):
+    with pytest.raises(TranslationRepositoryError, match="auto_pr_branch_prefix"):
         load_translation_repository_config(config_path)
 
 
-def test_translation_config_rejects_retired_or_misspelled_fields(tmp_path: Path) -> None:
+def test_translation_config_rejects_retired_or_misspelled_fields(
+    tmp_path: Path,
+) -> None:
     """Unknown fields should fail instead of becoming inert configuration."""
 
     config_path = _write_config(tmp_path)
@@ -359,7 +365,7 @@ def test_translation_config_rejects_retired_or_misspelled_fields(tmp_path: Path)
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="Unknown translation-config.yml"):
+    with pytest.raises(TranslationRepositoryError, match="Unknown translation-config.yml"):
         load_translation_repository_config(config_path)
 
 
@@ -375,7 +381,7 @@ def test_translation_config_rejects_unsupported_schema_version(tmp_path: Path) -
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="schema_version must be 2"):
+    with pytest.raises(TranslationRepositoryError, match="schema_version must be 2"):
         load_translation_repository_config(config_path)
 
 
@@ -400,7 +406,7 @@ runtimes:
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="Expected boolean"):
+    with pytest.raises(TranslationRepositoryError, match="Expected boolean"):
         load_preview_runtimes(compat_path)
 
 
@@ -425,7 +431,7 @@ runtimes:
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="run_preview_regresion"):
+    with pytest.raises(TranslationRepositoryError, match="run_preview_regresion"):
         load_preview_runtimes(compat_path)
 
 
@@ -435,7 +441,7 @@ def test_preview_runtime_config_rejects_unsupported_schema(tmp_path: Path) -> No
     compat_path = tmp_path / "dsw-compat.yml"
     compat_path.write_text("schema_version: 2\nruntimes: []\n", encoding="utf-8")
 
-    with pytest.raises(TranslationMigrationError, match="schema_version must be 1"):
+    with pytest.raises(TranslationRepositoryError, match="schema_version must be 1"):
         load_preview_runtimes(compat_path)
 
 
@@ -479,7 +485,7 @@ def test_target_versions_excludes_source_and_validates_targets(tmp_path: Path) -
 
     assert target_versions(config, "v1.30.0") == ["v1.30.1"]
     assert target_versions(config, "v1.30.0", ["v1.30.0", "v1.30.1"]) == ["v1.30.1"]
-    with pytest.raises(TranslationMigrationError):
+    with pytest.raises(TranslationRepositoryError):
         target_versions(config, "v1.30.0", ["v9.99.9"])
 
 
@@ -539,11 +545,13 @@ version_policy:
     assert version_policy_allows_auto_migration(config, "v1.30.1") is True
     assert target_versions(config, "v1.30.1") == []
     assert target_versions(config, "v1.30.1", ["v1.29.1"]) == ["v1.29.1"]
-    with pytest.raises(TranslationMigrationError, match="not allowed"):
+    with pytest.raises(TranslationRepositoryError, match="not allowed"):
         target_versions(config, "v1.30.1", ["v1.30.0"])
 
 
-def test_version_policy_partial_layers_preserve_inherited_values(tmp_path: Path) -> None:
+def test_version_policy_partial_layers_preserve_inherited_values(
+    tmp_path: Path,
+) -> None:
     """Later policy layers should change only fields they explicitly declare."""
 
     config_path = _write_config(tmp_path)
@@ -606,7 +614,7 @@ def test_version_policy_rejects_ambiguous_true_shorthand(
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match=f"explicit value '{explicit_value}'"):
+    with pytest.raises(TranslationRepositoryError, match=f"explicit value '{explicit_value}'"):
         load_translation_repository_config(config_path)
 
 
@@ -622,7 +630,7 @@ def test_version_policy_rejects_unknown_lifecycle_state(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="available, active, maintenance"):
+    with pytest.raises(TranslationRepositoryError, match="available, active, maintenance"):
         load_translation_repository_config(config_path)
 
 
@@ -644,7 +652,7 @@ def test_frozen_versions_cannot_refresh_from_artifacts(
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationMigrationError, match="must use refresh=false"):
+    with pytest.raises(TranslationRepositoryError, match="must use refresh=false"):
         load_translation_repository_config(config_path)
 
 
@@ -666,7 +674,7 @@ def test_version_to_number_requires_v_prefix() -> None:
         "v1.30.2",
         "v1.30.10",
     ]
-    with pytest.raises(TranslationMigrationError):
+    with pytest.raises(TranslationRepositoryError):
         version_to_number("1.30.1")
 
 
@@ -686,7 +694,7 @@ def test_preview_runtime_for_version_matches_supported_metamodels() -> None:
     assert preview_runtime_matrix()[0]["strict_project_preview"] == "true"
     assert preview_runtime_matrix()[-1]["upstream_template_artifact_refs"] == "v1.30.0+"
     assert preview_runtime_matrix()[-1]["strict_project_preview"] == "true"
-    with pytest.raises(TranslationMigrationError):
+    with pytest.raises(TranslationRepositoryError):
         preview_runtime_for_version("v1.29.0")
-    with pytest.raises(TranslationMigrationError):
+    with pytest.raises(TranslationRepositoryError):
         preview_runtime_for_template("v1.30.0", "19.0")

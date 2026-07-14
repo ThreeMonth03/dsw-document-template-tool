@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import json
 import re
-import shutil
+from importlib.resources import files
 from pathlib import Path
 
 CJK_FONT_PATCH_NAME = "cjk_font_face"
 ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME = "zh_hant_allowed_package"
 ZH_HANT_GLOBALS_PATCH_NAME = "zh_hant_globals"
 ZH_HANT_HTML_LANG_PATCH_NAME = "zh_hant_html_lang"
-CJK_FONT_SOURCE_PATH = Path("assets/fonts/NotoSansTC-Variable.ttf")
+CJK_FONT_RESOURCE = "fonts/NotoSansTC-Variable.ttf"
 CJK_FONT_TEMPLATE_PATH = Path("src/fonts/NotoSansTC-Variable.ttf")
 CJK_FONT_PDF_FORMAT_UUID = "68c26e34-5e77-4e15-9bf7-06ff92582257"
 CJK_FONT_FAMILY_ORIGINAL = '"Open Sans", sans-serif'
@@ -334,15 +334,15 @@ def _patch_cjk_font_face(*, output_dir: Path) -> bool:
     if CJK_FONT_CSS_START in style_text:
         return False
 
-    font_source_path = _repo_root() / CJK_FONT_SOURCE_PATH
-    if not font_source_path.is_file():
+    font_source = files("dsw_document_template_tool.resources").joinpath(CJK_FONT_RESOURCE)
+    if not font_source.is_file():
         raise LocalizationPatchError(
-            f"Cannot apply CJK font patch because the font asset is missing: {font_source_path}"
+            f"Cannot apply CJK font patch because package resource {CJK_FONT_RESOURCE!r} is missing"
         )
 
     font_destination_path = output_dir / CJK_FONT_TEMPLATE_PATH
     font_destination_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(font_source_path, font_destination_path)
+    font_destination_path.write_bytes(font_source.read_bytes())
     style_text = style_text.replace(CJK_FONT_FAMILY_ORIGINAL, CJK_FONT_FAMILY_PATCHED)
     style_text = style_text.replace(
         SCIENCE_EUROPE_PDF_HEADER_TITLE_ORIGINAL,
@@ -418,7 +418,3 @@ def _insert_css_after_initial_imports(style_text: str, css_block: str) -> str:
         break
 
     return "".join([*lines[:insert_at], css_block, "\n", *lines[insert_at:]])
-
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]

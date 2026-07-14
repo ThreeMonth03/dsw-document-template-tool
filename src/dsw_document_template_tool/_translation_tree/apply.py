@@ -44,6 +44,8 @@ def apply_unit_translations(
     wrapper_units: list[dict[str, str | int]],
     translations: dict[tuple[str, str], TranslationEntry],
 ) -> str:
+    """Apply validated unit translations while preserving untouched source byte-for-byte."""
+
     rebuilt_parts: list[str] = []
     cursor = 0
     sorted_units = sorted(

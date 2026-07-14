@@ -8,6 +8,7 @@ import argparse
 from dsw_document_template_tool.template_transform import (
     compact_template_dir,
     expand_template_dir,
+    explain_transform_workspace,
 )
 
 COMPACT_TEMPLATE_HELP = "Compact template directory."
@@ -44,6 +45,12 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     compact_parser.add_argument("--source", required=True, help=EXPANDED_WORKSPACE_HELP)
     compact_parser.add_argument("--output", required=True, help=COMPACT_TEMPLATE_HELP)
+
+    explain_parser = subparsers.add_parser(
+        "explain",
+        help="Show the profile and exact rewrite groups applied during expansion.",
+    )
+    explain_parser.add_argument("--source", required=True, help=EXPANDED_WORKSPACE_HELP)
     return parser
 
 
@@ -62,8 +69,12 @@ def main() -> None:
         print(f"SUCCESS: Expanded template written to {output_dir}")
         return
 
-    output_dir = compact_template_dir(source_dir=args.source, output_dir=args.output)
-    print(f"SUCCESS: Compacted template written to {output_dir}")
+    if args.command == "compact":
+        output_dir = compact_template_dir(source_dir=args.source, output_dir=args.output)
+        print(f"SUCCESS: Compacted template written to {output_dir}")
+        return
+
+    print(explain_transform_workspace(args.source))
 
 
 if __name__ == "__main__":

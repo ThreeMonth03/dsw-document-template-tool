@@ -55,8 +55,9 @@ def test_fixture_assets_exist(repo_root: Path) -> None:
     wrapped_smoke_events_path = (
         repo_root / "fixtures" / "projects" / "regression" / "wrapped-empty-project.events.json"
     )
-    font_path = repo_root / "assets" / "fonts" / "NotoSansTC-Variable.ttf"
-    font_license_path = repo_root / "assets" / "fonts" / "OFL.txt"
+    font_root = repo_root / "src" / "dsw_document_template_tool" / "resources" / "fonts"
+    font_path = font_root / "NotoSansTC-Variable.ttf"
+    font_license_path = font_root / "OFL.txt"
 
     assert km_path.is_file()
     assert project_ref_path.is_file()

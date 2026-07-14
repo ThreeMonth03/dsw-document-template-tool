@@ -39,7 +39,10 @@ from .._template_transform.scanner import (
 from .._template_transform.scanner import (
     lex_source_tokens as _lex_source_tokens,
 )
-from .html_structure import INLINE_TRANSLATOR_TAGS, find_single_outer_element_inner_bounds
+from .html_structure import (
+    INLINE_TRANSLATOR_TAGS,
+    find_single_outer_element_inner_bounds,
+)
 from .ids import hash_text
 from .models import TranslationUnit
 from .placeholders import literal_expr_to_text
@@ -88,6 +91,8 @@ class JinjaBranchRegions:
 
 
 def extract_units(*, relative_path: str, source_text: str) -> list[TranslationUnit]:
+    """Extract safe, independently translatable units from one expanded source file."""
+
     units: list[TranslationUnit] = []
     key_counts: dict[str, int] = {}
 

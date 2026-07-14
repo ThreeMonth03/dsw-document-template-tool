@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dsw_document_template_tool.workflow import DocumentTemplateWorkflowService
+from dsw_document_template_tool._regression import parallel as regression_parallel
 
 
 class _FakeRenderClient:
@@ -17,7 +17,6 @@ class _FakeRenderClient:
 def test_render_subjects_in_parallel_uses_isolated_clients(monkeypatch) -> None:
     """Baseline and candidate renders should not share one requests session."""
 
-    service = DocumentTemplateWorkflowService()
     main_client = object()
     created_clients: list[_FakeRenderClient] = []
     seen_clients: list[tuple[str, _FakeRenderClient]] = []
@@ -35,9 +34,9 @@ def test_render_subjects_in_parallel_uses_isolated_clients(monkeypatch) -> None:
 
         return render_
 
-    monkeypatch.setattr(service, "_clone_authenticated_client", clone_client)
+    monkeypatch.setattr(regression_parallel, "clone_authenticated_client", clone_client)
 
-    baseline_html, candidate_html = service._render_subjects_in_parallel(
+    baseline_html, candidate_html = regression_parallel.render_subjects_in_parallel(
         client=main_client,
         baseline_render=render("baseline"),
         candidate_render=render("candidate"),

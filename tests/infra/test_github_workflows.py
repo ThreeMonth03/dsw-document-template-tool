@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from dsw_document_template_tool.translation_migration import preview_runtime_matrix
+from dsw_document_template_tool.translation_repository import preview_runtime_matrix
 
 
 def load_workflow_yaml(path: Path) -> dict[str, object]:
@@ -86,7 +86,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "make render-upstream-artifact-previews" in workflow_text
     render_job = workflow["jobs"]["render-regression"]
     matrix_include = render_job["strategy"]["matrix"]["include"]
-    assert matrix_include == preview_runtime_matrix()
+    assert matrix_include == preview_runtime_matrix(repo_root / "config" / "dsw-compat.yml")
     assert "# BEGIN GENERATED DSW RUNTIME MATRIX" in workflow_text
     assert "# END GENERATED DSW RUNTIME MATRIX" in workflow_text
     assert "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" in workflow_text

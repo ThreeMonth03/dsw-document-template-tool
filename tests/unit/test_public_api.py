@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import dsw_document_template_tool as toolkit
 from dsw_document_template_tool import translation_tree
-from dsw_document_template_tool.render_project import (
+from dsw_document_template_tool.cli.render_project import (
     build_argument_parser as build_render_project_parser,
 )
 from dsw_document_template_tool.render_project import render_project
@@ -49,8 +49,8 @@ def test_translation_tree_module_exports_merge_api() -> None:
     assert translation_tree.TranslationMergeReport is toolkit.TranslationMergeReport
 
 
-def test_render_project_logic_is_importable_from_package_module() -> None:
-    """The root CLI shim should not be the only import path for render-project logic."""
+def test_render_project_cli_and_service_have_explicit_import_paths() -> None:
+    """CLI parsing and reusable render logic should have separate import paths."""
 
     parser = build_render_project_parser()
 

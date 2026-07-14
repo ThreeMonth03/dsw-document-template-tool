@@ -42,6 +42,11 @@ from ._template_transform.markers import (
     generated_block_body,
 )
 from ._template_transform.models import TemplateTransformError
+from ._template_transform.profile import (
+    TransformContext,
+    TransformTrace,
+    read_template_identity,
+)
 from ._template_transform.scanner import (
     ANNOTATABLE_HTML_TAGS,
     AnnotationRegion,
@@ -54,8 +59,11 @@ from ._template_transform.scanner import (
     lex_source_tokens as _lex_source_tokens,
 )
 from ._template_transform.science_europe import (
-    rewrite_science_europe_balanced_source_fragments,
-    rewrite_science_europe_unbalanced_html_fragments,
+    PROFILE_ID as SCIENCE_EUROPE_PROFILE_ID,
+)
+from ._template_transform.science_europe import (
+    is_science_europe_template,
+    rewrite_science_europe_source,
 )
 from ._template_transform.text_visibility import (
     contains_translatable_text as _contains_translatable_text,
@@ -95,6 +103,9 @@ def expand_template_dir(
     source_dir = Path(source_dir).resolve()
     output_dir = Path(output_dir).resolve()
     _validate_template_dir(source_dir)
+    identity = read_template_identity(source_dir)
+    profile_id = SCIENCE_EUROPE_PROFILE_ID if is_science_europe_template(identity) else "generic"
+    trace = TransformTrace(profile_id=profile_id)
     _reset_dir(output_dir)
     shutil.copytree(source_dir, output_dir, dirs_exist_ok=True)
 
@@ -103,7 +114,12 @@ def expand_template_dir(
         relative_path = source_path.relative_to(source_dir)
         expanded_text = _expand_template_text(
             source_text=source_path.read_text(encoding="utf-8"),
-            apply_local_patches=apply_local_patches,
+            context=TransformContext(
+                identity=identity,
+                relative_path=relative_path.as_posix(),
+                apply_local_patches=apply_local_patches,
+            ),
+            trace=trace,
         )
         destination_path = output_dir / relative_path
         destination_path.parent.mkdir(parents=True, exist_ok=True)
@@ -113,7 +129,7 @@ def expand_template_dir(
     _rewrite_workspace_readme(source_dir=source_dir, output_dir=output_dir)
     post_expand_patch_state: dict[str, object] = {}
     post_expand_patches: list[str] = []
-    if apply_local_patches:
+    if apply_local_patches and is_science_europe_template(identity):
         post_expand_patch_state = _build_post_expand_patch_state(output_dir=output_dir)
         try:
             post_expand_patches = _apply_post_expand_patches(output_dir=output_dir)
@@ -128,6 +144,8 @@ def expand_template_dir(
         "upstream_readme": UPSTREAM_README_NAME if (source_dir / README_NAME).is_file() else None,
         "post_expand_patches": post_expand_patches,
         "post_expand_patch_state": post_expand_patch_state,
+        "template_id": identity.full_id,
+        "rewrite_trace": trace.to_manifest(),
     }
     manifest_path = output_dir / MANIFEST_PATH
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -194,15 +212,67 @@ def compact_template_dir(*, source_dir: Path, output_dir: Path) -> Path:
     return output_dir
 
 
-def _expand_template_text(*, source_text: str, apply_local_patches: bool = True) -> str:
+def explain_transform_workspace(source_dir: Path) -> str:
+    """Render a concise rule trace from an expanded workspace manifest."""
+
+    manifest_path = Path(source_dir).resolve() / MANIFEST_PATH
+    if not manifest_path.is_file():
+        raise TemplateTransformError(
+            f"Expanded template is missing transform manifest at {manifest_path}"
+        )
+    try:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise TemplateTransformError(
+            f"Invalid transform manifest at {manifest_path}: {exc}"
+        ) from exc
+    trace = payload.get("rewrite_trace")
+    if not isinstance(trace, dict):
+        raise TemplateTransformError(f"Transform manifest at {manifest_path} has no rewrite trace")
+    profile = trace.get("profile")
+    applications = trace.get("applications")
+    if not isinstance(profile, str) or not isinstance(applications, list):
+        raise TemplateTransformError(f"Invalid rewrite trace in {manifest_path}")
+
+    lines = [
+        f"Template: {payload.get('template_id', '(unknown)')}",
+        f"Profile: {profile}",
+        f"Applied rule locations: {len(applications)}",
+    ]
+    for item in applications:
+        if not isinstance(item, dict):
+            raise TemplateTransformError(f"Invalid rewrite trace application in {manifest_path}")
+        lines.append(
+            f"- {item.get('group_id', '(unknown)')} "
+            f"[{item.get('source_file', '(unknown)')}] x{item.get('match_count', 0)}\n"
+            f"  {item.get('rationale', '(no rationale)')}"
+        )
+    return "\n".join(lines)
+
+
+def _expand_template_text(
+    *,
+    source_text: str,
+    context: TransformContext,
+    trace: TransformTrace,
+) -> str:
     source_text = _rewrite_append_sentence_literals(source_text)
-    source_text = rewrite_science_europe_balanced_source_fragments(source_text)
+    if is_science_europe_template(context.identity):
+        source_text = rewrite_science_europe_source(
+            source_text,
+            context=context,
+            trace=trace,
+            phase="balanced",
+        )
     source_text = _rewrite_inline_conditional_expressions(source_text)
     source_text = _rewrite_common_prefix_branch_sentences(source_text)
-    source_text = rewrite_science_europe_unbalanced_html_fragments(
-        source_text,
-        apply_localization_rewrites=apply_local_patches,
-    )
+    if is_science_europe_template(context.identity):
+        source_text = rewrite_science_europe_source(
+            source_text,
+            context=context,
+            trace=trace,
+            phase="unbalanced",
+        )
     tokens = _lex_source_tokens(source_text)
     regions = _collect_annotation_regions(tokens=tokens, source_text=source_text)
 

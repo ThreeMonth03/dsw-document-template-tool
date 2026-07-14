@@ -76,6 +76,7 @@ workspace shapes used by translation and regression tooling.
 | `make fetch-upstream-template UPSTREAM_TEMPLATE_REF=v1.30.1` | Download one upstream template tag into the workspace. |
 | `make verify-template` | Verify the compact template with `dsw-tdk`. |
 | `make transform` | Expand compact template source into translation-friendly form. |
+| `make explain-transform` | Show the selected template profile and named rewrite groups applied by the latest transform. |
 | `make verify-workspace` | Verify the transformed workspace. |
 | `make compact-template` | Compact expanded source back into uploadable template source. |
 | `make package-template` | Package the compact template as a `.zip`. |
@@ -331,6 +332,13 @@ Run transform directly:
 "$TOOL_REPO_DIR/.venv/bin/dsw-template-transform" expand \
   --source workspace/document-templates/compact/dsw-science-europe-1.30.1 \
   --output workspace/document-templates/expanded/dsw-science-europe-1.30.1
+```
+
+Explain the selected profile and upstream-specific rewrites:
+
+```shell
+"$TOOL_REPO_DIR/.venv/bin/dsw-template-transform" explain \
+  --source workspace/document-templates/expanded/dsw-science-europe-1.30.1
 ```
 
 Run translation tree export/sync directly:

@@ -38,6 +38,10 @@ synchronization behavior, output polishing, XLIFF exchange, and structure audits
    :members:
    :show-inheritance:
 
+.. automodule:: dsw_document_template_tool._translation_tree.source_quality_rules
+   :members:
+   :show-inheritance:
+
 .. automodule:: dsw_document_template_tool._translation_tree.apply
    :members:
    :show-inheritance:

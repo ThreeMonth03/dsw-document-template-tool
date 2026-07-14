@@ -25,11 +25,12 @@ from dsw_document_template_tool.dsw_compat import (  # noqa: E402
     fetch_official_template_metamodel_support,
     runtime_candidate_message,
 )
-from dsw_document_template_tool.translation_migration import (  # noqa: E402
+from dsw_document_template_tool.translation_repository import (  # noqa: E402
     DswPreviewRuntime,
-    TranslationMigrationError,
+    TranslationRepositoryError,
     load_preview_runtimes,
     preview_runtime_for_template,
+    sorted_versions,
 )
 
 
@@ -130,7 +131,12 @@ def main() -> None:
 
         if failures:
             raise SystemExit(1)
-    except (OSError, subprocess.CalledProcessError, TranslationMigrationError, ValueError) as exc:
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        TranslationRepositoryError,
+        ValueError,
+    ) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc
 
@@ -174,8 +180,12 @@ def inspect_ref(
     version = f"v{payload['version']}"
     metamodel_version = str(payload.get("metamodelVersion", ""))
     try:
-        runtime = preview_runtime_for_template_from(runtimes, version, metamodel_version)
-    except TranslationMigrationError as exc:
+        runtime = preview_runtime_for_template(
+            version,
+            metamodel_version,
+            runtimes=runtimes,
+        )
+    except TranslationRepositoryError as exc:
         return TemplateRefMetadata(
             requested_ref=requested_ref,
             resolved_ref=resolved_ref,
@@ -193,43 +203,6 @@ def inspect_ref(
     )
 
 
-def preview_runtime_for_template_from(
-    runtimes: tuple[DswPreviewRuntime, ...],
-    version: str,
-    metamodel_version: str,
-) -> DswPreviewRuntime:
-    """Like preview_runtime_for_template, but scoped to a provided runtime set."""
-
-    # The public helper reads the default config. Keep this tiny adapter so tests
-    # can point discovery at a temporary compatibility table.
-    if runtimes == load_preview_runtimes():
-        return preview_runtime_for_template(version, metamodel_version)
-    for runtime in runtimes:
-        if version_in_runtime(version, runtime):
-            if runtime.metamodel_version != metamodel_version:
-                raise TranslationMigrationError(
-                    f"Template {version} uses metamodelVersion {metamodel_version!r}, "
-                    f"but configured runtime {runtime.metamodel_key!r} expects "
-                    f"{runtime.metamodel_version!r}"
-                )
-            return runtime
-    raise TranslationMigrationError(
-        f"No DSW preview runtime configured for template {version} "
-        f"with metamodelVersion {metamodel_version!r}"
-    )
-
-
-def version_in_runtime(version: str, runtime: DswPreviewRuntime) -> bool:
-    """Return whether a semantic version tag is covered by a runtime range."""
-
-    from dsw_document_template_tool.translation_migration import version_sort_key
-
-    version_key = version_sort_key(version)
-    if version_key < version_sort_key(runtime.min_version):
-        return False
-    return runtime.max_version is None or version_key <= version_sort_key(runtime.max_version)
-
-
 def resolve_checkout_ref(repo_dir: Path, requested_ref: str) -> str:
     """Resolve latest/tags/branches to a git object usable by git-show."""
 
@@ -242,8 +215,6 @@ def resolve_checkout_ref(repo_dir: Path, requested_ref: str) -> str:
         ]
         if not version_tags:
             raise ValueError("Could not resolve latest: upstream has no version tags")
-        from dsw_document_template_tool.translation_migration import sorted_versions
-
         return sorted_versions(version_tags)[-1]
     if git_check(repo_dir, "rev-parse", "--verify", "--quiet", requested_ref):
         return requested_ref

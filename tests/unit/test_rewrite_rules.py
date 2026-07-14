@@ -7,6 +7,7 @@ import base64
 from dsw_document_template_tool._template_transform.branch_sentences import (
     restore_branch_sentence_rewrites,
 )
+from dsw_document_template_tool._template_transform.profile import TransformTrace
 from dsw_document_template_tool._template_transform.rewrite_rules import (
     ReversibleReplacementGroup,
     apply_reversible_replacement_groups,
@@ -51,6 +52,37 @@ def test_reversible_replacement_groups_apply_in_order() -> None:
     assert "delta" in rewritten_text
 
 
+def test_reversible_replacement_groups_record_named_trace() -> None:
+    """Applied group IDs should make generated workspaces traceable to code."""
+
+    trace = TransformTrace(profile_id="test")
+    rewritten_text = apply_reversible_replacement_groups(
+        "alpha beta",
+        (
+            ReversibleReplacementGroup(
+                "test.alpha",
+                (("alpha", "translated alpha"),),
+                "Keep the test sentence complete.",
+            ),
+        ),
+        source_file="src/index.html.j2",
+        trace=trace,
+    )
+
+    assert "translated alpha" in rewritten_text
+    assert trace.to_manifest() == {
+        "profile": "test",
+        "applications": [
+            {
+                "group_id": "test.alpha",
+                "rationale": "Keep the test sentence complete.",
+                "source_file": "src/index.html.j2",
+                "match_count": 1,
+            }
+        ],
+    }
+
+
 def test_branch_sentence_restore_ignores_end_marker_as_payload() -> None:
     """Adjacent reversible markers should not treat the end marker as a new start."""
 
@@ -83,12 +115,21 @@ def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
     balanced_groups = _build_balanced_source_fragment_groups()
     unbalanced_groups = _build_unbalanced_html_fragment_groups()
 
-    assert [group.name for group in balanced_groups] == ["balanced_science_europe_sentence_blocks"]
-    assert [group.name for group in unbalanced_groups] == [
-        "unbalanced_science_europe_html_fragments"
+    assert [group.group_id for group in balanced_groups] == [
+        "science-europe.balanced.conditions",
+        "science-europe.balanced.governance",
+        "science-europe.balanced.computer-readable",
+        "science-europe.balanced.reuse",
+        "science-europe.balanced.nonreuse",
+        "science-europe.balanced.publication",
     ]
-    assert len(balanced_groups[0].replacements) == 26
-    assert len(unbalanced_groups[0].replacements) == 15
+    assert [group.group_id for group in unbalanced_groups] == [
+        "science-europe.unbalanced.structure",
+        "science-europe.unbalanced.localization",
+    ]
+    assert sum(len(group.replacements) for group in balanced_groups) == 26
+    assert sum(len(group.replacements) for group in unbalanced_groups) == 15
+    assert all(group.rationale for group in (*balanced_groups, *unbalanced_groups))
 
     for group in (*balanced_groups, *unbalanced_groups):
         originals = [original for original, _replacement in group.replacements]
@@ -100,9 +141,10 @@ def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
 def test_science_europe_pid_negative_sentence_is_conditional() -> None:
     """PID negative sentence should not render after a positive PID branch."""
 
-    group = _build_unbalanced_html_fragment_groups()[0]
+    groups = _build_unbalanced_html_fragment_groups()
     original, replacement = next(
         pair
+        for group in groups
         for pair in group.replacements
         if "unique and persistent identifiers will not be applied" in pair[0]
     )
@@ -121,9 +163,10 @@ def test_science_europe_pid_negative_sentence_is_conditional() -> None:
 def test_science_europe_pid_negative_rewrite_is_local_patch() -> None:
     """Compact-vs-expanded regression should not include local behavior patches."""
 
-    group = _build_unbalanced_html_fragment_groups(apply_localization_rewrites=False)[0]
+    groups = _build_unbalanced_html_fragment_groups(apply_localization_rewrites=False)
 
     assert not any(
         "unique and persistent identifiers will not be applied" in original
+        for group in groups
         for original, _replacement in group.replacements
     )

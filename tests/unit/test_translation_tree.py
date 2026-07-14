@@ -48,6 +48,13 @@ def _write_compact_template(tmp_path: Path, source_text: str) -> Path:
 
 def _write_compact_template_raw(tmp_path: Path, source_text: str) -> Path:
     compact_dir = _write_compact_template(tmp_path, "")
+    template_path = compact_dir / "template.json"
+    template = json.loads(template_path.read_text(encoding="utf-8"))
+    template.update({"organizationId": "dsw", "templateId": "science-europe"})
+    template_path.write_text(
+        json.dumps(template, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
     (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
     return compact_dir
 
@@ -478,7 +485,9 @@ def test_merge_translation_tree_replaces_exact_existing_translation(
     ).read_text(encoding="utf-8")
 
 
-def test_merge_translation_tree_replace_requires_exact_structure(tmp_path: Path) -> None:
+def test_merge_translation_tree_replace_requires_exact_structure(
+    tmp_path: Path,
+) -> None:
     """Replacement must not cross a changed source structure."""
 
     source_compact_dir = _write_compact_template_file(
@@ -586,7 +595,9 @@ def test_merge_translation_tree_rejects_stale_exact_key_matches(
     ).read_text(encoding="utf-8")
 
 
-def test_merge_translation_tree_reuses_unique_source_hash_matches(tmp_path: Path) -> None:
+def test_merge_translation_tree_reuses_unique_source_hash_matches(
+    tmp_path: Path,
+) -> None:
     """Moved source files can still reuse translations when the unit text is identical."""
 
     old_compact_dir = _write_compact_template_file(
@@ -794,7 +805,9 @@ def test_merge_translation_tree_skips_ambiguous_fuzzy_matches(tmp_path: Path) ->
     ).read_text(encoding="utf-8")
 
 
-def test_merge_translation_tree_recovers_from_broken_old_manifest(tmp_path: Path) -> None:
+def test_merge_translation_tree_recovers_from_broken_old_manifest(
+    tmp_path: Path,
+) -> None:
     """A corrupted old tree should not block regenerating a clean new tree."""
 
     compact_dir = _write_compact_template(
@@ -940,7 +953,9 @@ def test_export_translation_tree_skips_dynamic_contact_rows(tmp_path: Path) -> N
     assert "formatEmail" not in joined_docs
 
 
-def test_export_translation_tree_does_not_expose_raw_jinja_blocks(tmp_path: Path) -> None:
+def test_export_translation_tree_does_not_expose_raw_jinja_blocks(
+    tmp_path: Path,
+) -> None:
     """Translator-facing blocks should not ask translators to preserve Jinja code."""
 
     compact_dir = _write_compact_template(
@@ -1101,7 +1116,9 @@ def test_export_translation_tree_keeps_control_flow_sentence_parts_together(
     assert "on: {topic}" not in sentences
 
 
-def test_export_translation_tree_splits_branch_alternatives_into_units(tmp_path: Path) -> None:
+def test_export_translation_tree_splits_branch_alternatives_into_units(
+    tmp_path: Path,
+) -> None:
     """Mutually exclusive branches should be separate translator-facing units."""
 
     compact_dir = _write_compact_template(
@@ -1865,7 +1882,9 @@ def test_export_translation_tree_splits_complete_if_elif_else_sentences(
     assert not any(" / " in sentence for sentence in sentences)
 
 
-def test_export_translation_tree_ignores_machine_only_jinja_literals(tmp_path: Path) -> None:
+def test_export_translation_tree_ignores_machine_only_jinja_literals(
+    tmp_path: Path,
+) -> None:
     """Subscript keys and hidden Jinja block literals are not translator-facing text."""
 
     compact_dir = _write_compact_template(
@@ -1949,7 +1968,9 @@ def test_export_translation_tree_excludes_html_entity_punctuation_units(
     assert "ndash" not in joined_docs
 
 
-def test_export_translation_tree_preserves_url_like_sentence_text(tmp_path: Path) -> None:
+def test_export_translation_tree_preserves_url_like_sentence_text(
+    tmp_path: Path,
+) -> None:
     """Sentence normalization should not corrupt URL-like examples."""
 
     compact_dir = _write_compact_template(
@@ -1968,7 +1989,9 @@ def test_export_translation_tree_preserves_url_like_sentence_text(tmp_path: Path
     assert sentences == ["All project web services are accessible via secure HTTP (https://...)."]
 
 
-def test_sync_translation_tree_applies_translations_back_to_template(tmp_path: Path) -> None:
+def test_sync_translation_tree_applies_translations_back_to_template(
+    tmp_path: Path,
+) -> None:
     """Translator edits should rebuild a translated expanded template."""
 
     compact_dir = tmp_path / "compact"
@@ -2019,7 +2042,9 @@ def test_sync_translation_tree_applies_translations_back_to_template(tmp_path: P
     assert "你好，世界。" in translated_text
 
 
-def test_sync_translation_tree_keeps_source_text_when_translation_is_blank(tmp_path: Path) -> None:
+def test_sync_translation_tree_keeps_source_text_when_translation_is_blank(
+    tmp_path: Path,
+) -> None:
     """Blank translation fences should fall back to the exported English source unit."""
 
     compact_dir = tmp_path / "compact"
@@ -2614,7 +2639,9 @@ def test_audit_translated_template_structure_reports_protected_literal_change(
     assert "machineKey" in literal_issue.message
 
 
-def test_export_translation_tree_preserves_existing_translation_text(tmp_path: Path) -> None:
+def test_export_translation_tree_preserves_existing_translation_text(
+    tmp_path: Path,
+) -> None:
     """Re-export should keep prior translator edits for unchanged unit keys."""
 
     compact_dir = tmp_path / "compact"
@@ -2662,7 +2689,9 @@ def test_export_translation_tree_preserves_existing_translation_text(tmp_path: P
     assert "- [x] [unit]" in outline
 
 
-def test_sync_translation_tree_can_patch_output_template_metadata(tmp_path: Path) -> None:
+def test_sync_translation_tree_can_patch_output_template_metadata(
+    tmp_path: Path,
+) -> None:
     """Translated output bundles need distinct coordinates from upstream templates."""
 
     compact_dir = _write_compact_template(
@@ -2702,7 +2731,9 @@ def test_sync_translation_tree_can_patch_output_template_metadata(tmp_path: Path
     assert "Translation Workspace" not in readme
 
 
-def test_sync_translation_tree_uses_public_readme_when_available(tmp_path: Path) -> None:
+def test_sync_translation_tree_uses_public_readme_when_available(
+    tmp_path: Path,
+) -> None:
     """Translated outputs should use the user-facing README curated by translators."""
 
     compact_dir = _write_compact_template(

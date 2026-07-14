@@ -9,6 +9,7 @@ is part of the reversible transform contract.
 
 from __future__ import annotations
 
+from .profile import TransformTrace
 from .rewrite_rules import (
     ReversibleReplacementGroup,
     apply_reversible_replacement_groups,
@@ -19,6 +20,8 @@ def rewrite_science_europe_unbalanced_html_fragments(
     source_text: str,
     *,
     apply_localization_rewrites: bool = True,
+    source_file: str = "",
+    trace: TransformTrace | None = None,
 ) -> str:
     """Patch upstream Science Europe sentence fragments that generic HTML cannot see.
 
@@ -33,6 +36,8 @@ def rewrite_science_europe_unbalanced_html_fragments(
         _build_unbalanced_html_fragment_groups(
             apply_localization_rewrites=apply_localization_rewrites,
         ),
+        source_file=source_file,
+        trace=trace,
     )
 
 
@@ -521,17 +526,24 @@ def _build_unbalanced_html_fragment_groups(
         (information_risk_join_original, information_risk_join_replacement),
         (information_low_risk_join_original, information_low_risk_join_replacement),
         (information_will_risk_join_original, information_will_risk_join_replacement),
-        (information_risk_sentence_join_original, information_risk_sentence_join_replacement),
-    )
-    replacements = (
-        structural_replacements + localization_replacements
-        if apply_localization_rewrites
-        else structural_replacements
-    )
-
-    return (
-        ReversibleReplacementGroup(
-            "unbalanced_science_europe_html_fragments",
-            replacements,
+        (
+            information_risk_sentence_join_original,
+            information_risk_sentence_join_replacement,
         ),
     )
+    groups = [
+        ReversibleReplacementGroup(
+            "science-europe.unbalanced.structure",
+            structural_replacements,
+            "Repair sentence boundaries hidden inside unbalanced HTML/Jinja flows.",
+        ),
+    ]
+    if apply_localization_rewrites:
+        groups.append(
+            ReversibleReplacementGroup(
+                "science-europe.unbalanced.localization",
+                localization_replacements,
+                "Apply reversible zh-Hant output fixes that require branch restructuring.",
+            )
+        )
+    return tuple(groups)

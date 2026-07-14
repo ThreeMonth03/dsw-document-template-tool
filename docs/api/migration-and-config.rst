@@ -9,7 +9,35 @@ objects are the stable boundary between the tool repository, public repository
 Translation Repository Config
 -----------------------------
 
-.. automodule:: dsw_document_template_tool.translation_migration
+.. automodule:: dsw_document_template_tool.translation_repository.models
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.translation_repository.config
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.translation_repository.policy
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.translation_repository.paths
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.translation_repository.runtime
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.translation_repository.versions
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.translation_repository.validation
+   :members:
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.translation_repository.errors
    :members:
    :show-inheritance:
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+import json
 import os
 import random
 from concurrent.futures import ProcessPoolExecutor
@@ -17,6 +18,7 @@ from dsw_document_template_tool._template_transform.science_europe_balanced_rule
 from dsw_document_template_tool.template_transform import (
     compact_template_dir,
     expand_template_dir,
+    explain_transform_workspace,
     snapshot_tree,
 )
 
@@ -194,9 +196,43 @@ body {
     assert "text-underline-offset: 0.08em;" in expanded_style
     assert (expanded_dir / "src" / "fonts" / "NotoSansTC-Variable.ttf").is_file()
 
+    manifest = json.loads(
+        (expanded_dir / ".transform" / "manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["template_id"] == "dsw:science-europe:1.30.0"
+    assert manifest["rewrite_trace"]["profile"] == "science-europe"
+    explanation = explain_transform_workspace(expanded_dir)
+    assert "Template: dsw:science-europe:1.30.0" in explanation
+    assert "Profile: science-europe" in explanation
+
     compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
 
     assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+
+
+def test_generic_template_does_not_receive_science_europe_localization(
+    tmp_path: Path,
+) -> None:
+    """Local zh-Hant patches should be selected by template identity, not file shape."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    (compact_dir / "src" / "style.css").write_text(
+        'body { font-family: "Open Sans", sans-serif; }\n',
+        encoding="utf-8",
+    )
+    expanded_dir = tmp_path / "expanded"
+
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+
+    style = (expanded_dir / "src" / "style.css").read_text(encoding="utf-8")
+    manifest = json.loads(
+        (expanded_dir / ".transform" / "manifest.json").read_text(encoding="utf-8")
+    )
+    assert "DSW Noto Sans TC" not in style
+    assert manifest["post_expand_patches"] == []
+    assert manifest["rewrite_trace"] == {"profile": "generic", "applications": []}
 
 
 def test_expand_can_skip_science_europe_localization_patches(tmp_path: Path) -> None:
@@ -350,7 +386,9 @@ def test_expand_rewrites_appended_sentence_literals_reversibly(tmp_path: Path) -
     assert _render_template(expanded_text, context) == _render_template(source_text, context)
 
 
-def test_expand_rewrites_simple_common_prefix_branches_reversibly(tmp_path: Path) -> None:
+def test_expand_rewrites_simple_common_prefix_branches_reversibly(
+    tmp_path: Path,
+) -> None:
     """Simple suffix alternatives should become complete branch sentences."""
 
     compact_dir = tmp_path / "compact"
@@ -391,7 +429,9 @@ def test_expand_rewrites_simple_common_prefix_branches_reversibly(tmp_path: Path
         assert _render_template(expanded_text, context) == _render_template(source_text, context)
 
 
-def test_expand_hoists_setup_blocks_before_rewritten_branch_conditions(tmp_path: Path) -> None:
+def test_expand_hoists_setup_blocks_before_rewritten_branch_conditions(
+    tmp_path: Path,
+) -> None:
     """Setup variables inside a sentence must still exist before rewritten branch checks."""
 
     compact_dir = tmp_path / "compact"
@@ -433,7 +473,9 @@ def test_expand_hoists_setup_blocks_before_rewritten_branch_conditions(tmp_path:
         assert _render_template(expanded_text, context) == _render_template(source_text, context)
 
 
-def test_expand_rewrites_simple_common_suffix_branches_reversibly(tmp_path: Path) -> None:
+def test_expand_rewrites_simple_common_suffix_branches_reversibly(
+    tmp_path: Path,
+) -> None:
     """Simple prefix alternatives should duplicate a shared suffix."""
 
     compact_dir = tmp_path / "compact"
@@ -1029,7 +1071,9 @@ def _chunked(
     return [items[index : index + size] for index in range(0, len(items), size)]
 
 
-def test_expand_keeps_one_paragraph_with_inner_condition_as_one_block(tmp_path: Path) -> None:
+def test_expand_keeps_one_paragraph_with_inner_condition_as_one_block(
+    tmp_path: Path,
+) -> None:
     """Inner Jinja branches inside one paragraph should stay in one translatable block."""
 
     compact_dir = tmp_path / "compact"
@@ -1290,7 +1334,9 @@ def test_expand_keeps_branch_closed_sentence_group_as_one_block(tmp_path: Path) 
     assert "in order to fulfil contract." in expanded_text
 
 
-def test_expand_keeps_unclosed_paragraph_with_if_else_as_one_block(tmp_path: Path) -> None:
+def test_expand_keeps_unclosed_paragraph_with_if_else_as_one_block(
+    tmp_path: Path,
+) -> None:
     """Malformed-but-renderable paragraph flows should still become one wrapper block."""
 
     compact_dir = tmp_path / "compact"
