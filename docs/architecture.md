@@ -93,7 +93,8 @@ Key files:
   [`outline.py`](../src/dsw_document_template_tool/_translation_tree/outline.py)
   generate review metadata and progress views.
 - [`_translation_tree/merge.py`](../src/dsw_document_template_tool/_translation_tree/merge.py)
-  performs exact-safe migration between old and new trees.
+  preserves translations during refresh and performs explicit exact-source
+  replacement during cross-version synchronization.
 - [`_translation_tree/apply.py`](../src/dsw_document_template_tool/_translation_tree/apply.py)
   applies translations back into expanded templates.
 - [`_translation_tree/placeholders.py`](../src/dsw_document_template_tool/_translation_tree/placeholders.py),

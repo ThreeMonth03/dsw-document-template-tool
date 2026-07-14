@@ -21,7 +21,9 @@ from dsw_document_template_tool.translation_migration import (
     version_branch,
     version_matches_range,
     version_paths,
+    version_policy_allows_auto_migration,
     version_policy_allows_auto_refresh,
+    version_policy_allows_manual_migration,
     version_policy_allows_manual_refresh,
     version_policy_decision,
     version_to_number,
@@ -261,7 +263,43 @@ def test_translation_config_without_version_policy_is_scaffold_only(tmp_path: Pa
     assert version_policy_allows_manual_refresh(config, "v1.30.1") is False
     assert version_policy_decision(config, "v1.30.1").migrate_into == "false"
     assert version_policy_decision(config, "v1.30.1").publish_release is False
+    assert version_policy_allows_auto_migration(config, "v1.30.1") is False
+    assert version_policy_allows_manual_migration(config, "v1.30.1") is False
     assert target_versions(config, "v1.30.0") == []
+
+
+@pytest.mark.parametrize("state", ["published", "archived"])
+def test_frozen_versions_reject_automatic_migration(
+    tmp_path: Path,
+    state: str,
+) -> None:
+    """Frozen branches must not remain cross-version synchronization targets."""
+
+    config_path = _write_config(tmp_path)
+    config_text = config_path.read_text(encoding="utf-8")
+    policy = f"""
+version_policy:
+  defaults:
+    state: active
+    refresh: artifact
+    migrate_into: auto
+    publish_release: true
+  overrides:
+    v1.30.0:
+      state: {state}
+      refresh: false
+      migrate_into: auto
+"""
+    config_path.write_text(
+        _replace_version_policy(config_text, policy),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        TranslationMigrationError,
+        match="refresh=false and migrate_into=false",
+    ):
+        load_translation_repository_config(config_path)
 
 
 def test_translation_config_rejects_string_booleans(tmp_path: Path) -> None:
@@ -492,9 +530,13 @@ version_policy:
     assert version_policy_decision(config, "v1.29.1").refresh == "manual"
     assert version_policy_allows_manual_refresh(config, "v1.29.1") is True
     assert version_policy_allows_auto_refresh(config, "v1.29.1") is False
+    assert version_policy_allows_auto_migration(config, "v1.29.1") is False
+    assert version_policy_allows_manual_migration(config, "v1.29.1") is True
     assert version_policy_decision(config, "v1.30.0").state == "archived"
     assert version_policy_decision(config, "v1.30.0").publish_release is False
+    assert version_policy_allows_manual_migration(config, "v1.30.0") is False
     assert version_policy_decision(config, "v1.30.1").refresh == "artifact"
+    assert version_policy_allows_auto_migration(config, "v1.30.1") is True
     assert target_versions(config, "v1.30.1") == []
     assert target_versions(config, "v1.30.1", ["v1.29.1"]) == ["v1.29.1"]
     with pytest.raises(TranslationMigrationError, match="not allowed"):

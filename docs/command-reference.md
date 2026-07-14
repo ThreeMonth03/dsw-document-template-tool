@@ -275,7 +275,7 @@ make sync-translation-version-branches \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
-Check whether exact-only migration would still create branch updates:
+Check whether exact-source synchronization would still create branch updates:
 
 ```shell
 make check-translation-migrations \
@@ -284,7 +284,7 @@ make check-translation-migrations \
 ```
 
 Set `TRANSLATION_MIGRATION_FAIL_ON_PENDING=true` only when CI should fail on
-pending migration changes.
+pending cross-version synchronization changes.
 
 ## Release Helpers
 

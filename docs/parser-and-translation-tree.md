@@ -73,20 +73,20 @@ Bad units:
 
 5. Inspect generated `outline.md`, `merge-report.json`, and representative
    `translation.md` files. The outline is regenerated from the current
-   translation blocks, so its checked counts should match the migrated and
-   preserved translations reported by the merge step.
+   translation blocks, so its checked counts should match the filled, updated,
+   and preserved translations reported by the merge step.
 6. If the Markdown translation format changed, run an XLIFF export/import
    round trip and confirm it does not rewrite machine metadata unexpectedly.
 7. Sync translations and render a demo PDF.
 8. Confirm no translator-facing files contain raw Jinja or unnatural fragments.
 
-## Migration After Parser Changes
+## Synchronization After Parser Changes
 
-Parser changes can invalidate old translation paths and hashes. The migration
+Parser changes can invalidate old translation paths and hashes. The synchronization
 policy is intentionally conservative:
 
-- exact source hash and executable-placeholder matches may reuse translations
-- non-exact matches stay empty and require review
+- exact source hash and executable-placeholder matches may fill or update translations
+- non-exact matches keep their target state and require version-specific review
 - sentence-match suggestions should be treated as review hints, not automatic
   truth
 

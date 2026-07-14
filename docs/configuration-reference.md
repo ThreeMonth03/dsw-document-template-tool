@@ -141,10 +141,14 @@ version_policy:
 ```
 
 `refresh` controls whether `sync/v*` branches are created or refreshed.
-`migrate_into` controls whether translations from another version may be merged
-into this version. `publish_release` controls translated release asset
-generation. `state` and `reason` are maintainer-facing labels that make CI
-summaries and reviews easier to understand.
+`migrate_into` controls cross-version synchronization membership. `auto`
+versions may act as source and target during normal fan-out, `manual` versions
+participate only when explicitly selected by an operator, and `false` versions
+do not participate. For an allowed target, blank units are filled and existing
+translations are updated only when the source structure is identical.
+`publish_release` controls translated release asset generation. `state` and
+`reason` are maintainer-facing labels that make CI summaries and reviews easier
+to understand.
 
 `state` must be one of `available`, `active`, `maintenance`, `published`, or
 `archived`. Validation rejects spelling variants rather than treating them as a
@@ -157,9 +161,9 @@ the domain values `artifact` and `auto` when enabling automation. The ambiguous
 shortcuts `refresh: true` and `migrate_into: true` are rejected.
 
 Use `refresh: artifact` only for versions that should be rebuilt from the latest
-tooling clean scaffold artifact. Published and archived versions must use
-`refresh: false`; the loader rejects frozen versions that could still mutate
-from artifact refreshes.
+tooling clean scaffold artifact. Published and archived versions must use both
+`refresh: false` and `migrate_into: false`; the loader rejects frozen versions
+that could still mutate from artifact refreshes or cross-version sync.
 
 Use [Public Template Repository Integration](downstream-integration.md) for the
 operational sequence and [Translation Workflow](translation-workflow.md) for

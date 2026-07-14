@@ -167,6 +167,15 @@ def build_argument_parser() -> argparse.ArgumentParser:
             "same text does not prove the same Jinja/HTML structure."
         ),
     )
+    merge_parser.add_argument(
+        "--existing-translation-policy",
+        choices=("preserve", "replace"),
+        default="preserve",
+        help=(
+            "Keep existing target translations, or replace them when an older-tree "
+            "unit has the same source structure. Defaults to preserve."
+        ),
+    )
     return parser
 
 
@@ -245,10 +254,12 @@ def _run_merge(args: argparse.Namespace) -> None:
         source_lang=args.source_lang,
         target_lang=args.target_lang,
         allow_sentence_matches=args.allow_sentence_matches,
+        existing_translation_policy=args.existing_translation_policy,
     )
     print(
         "SUCCESS: Merged translation tree "
         f"({report.migrated_units} migrated, "
+        f"{report.updated_units} updated, "
         f"{report.preserved_units} preserved, "
         f"{report.untranslated_units} untranslated)"
     )

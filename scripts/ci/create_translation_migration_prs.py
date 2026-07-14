@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create pull requests that migrate translations between version branches."""
+"""Create pull requests that synchronize translations between version branches."""
 
 from __future__ import annotations
 
@@ -36,6 +36,8 @@ from dsw_document_template_tool.translation_migration import (  # noqa: E402
     target_versions,
     version_branch,
     version_paths,
+    version_policy_allows_auto_migration,
+    version_policy_allows_manual_migration,
 )
 
 MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
@@ -53,7 +55,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     """Build CLI arguments."""
 
     parser = argparse.ArgumentParser(
-        description="Open conservative cross-version translation migration PRs.",
+        description="Open exact-source cross-version translation synchronization PRs.",
     )
     parser.add_argument(
         "--repo",
@@ -74,6 +76,15 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--source-version",
         required=True,
         help="Source version tag, for example v1.30.1.",
+    )
+    parser.add_argument(
+        "--policy-mode",
+        choices=("auto", "manual"),
+        default="auto",
+        help=(
+            "Use only automatic synchronization members, or allow explicitly "
+            "configured manual members. Defaults to auto."
+        ),
     )
     parser.add_argument(
         "--target-version",
@@ -129,6 +140,22 @@ def main() -> None:
     repo = Path(args.repo).resolve()
     tooling_root = Path(args.tooling_root).resolve()
     config = load_translation_repository_config(repo / args.config)
+    if args.policy_mode == "auto" and not version_policy_allows_auto_migration(
+        config,
+        args.source_version,
+    ):
+        print(
+            f"INFO: Source {args.source_version} is not enabled for automatic "
+            "cross-version synchronization."
+        )
+        return
+    if args.policy_mode == "manual" and not version_policy_allows_manual_migration(
+        config,
+        args.source_version,
+    ):
+        raise SystemExit(
+            f"Source {args.source_version} is disabled by version_policy.migrate_into."
+        )
     tdk_executable = (
         Path(args.tdk_executable).resolve()
         if args.tdk_executable
@@ -181,7 +208,7 @@ def migrate_one_target(
     push: bool,
     create_pr: bool,
 ) -> None:
-    """Migrate translations from one source version into one target branch."""
+    """Synchronize translations from one source version into one target branch."""
 
     source_branch = version_branch(config, source_version)
     target_branch = version_branch(config, target_version)
@@ -216,11 +243,11 @@ def migrate_one_target(
             temp_root=case_root,
             clean_artifact_root=clean_artifact_root,
         )
-        migrated_units = int(migration_result.source_merge_report.get("migrated_units", 0))
-        if migrated_units == 0:
+        changed_units = synchronized_unit_count(migration_result.source_merge_report)
+        if changed_units == 0:
             print(
                 f"INFO: [{source_version} -> {target_version}] no source translations "
-                "were migrated; skipping PR."
+                "were synchronized; skipping PR."
             )
             return
 
@@ -256,7 +283,7 @@ def migrate_one_target(
                 "git",
                 "commit",
                 "-m",
-                f"chore(migrate): carry {source_version} translations to {target_version}",
+                f"chore(sync): carry {source_version} translations to {target_version}",
             ],
             cwd=target_checkout,
         )
@@ -298,7 +325,7 @@ def refresh_target_with_source(
     temp_root: Path,
     clean_artifact_root: Path | None,
 ) -> MigrationResult:
-    """Refresh target workspace and fill blanks from the source tree."""
+    """Refresh a target workspace and synchronize exact source translations."""
 
     source_paths = version_paths(config, source_version)
     target_paths = version_paths(config, target_version)
@@ -348,6 +375,7 @@ def refresh_target_with_source(
         new_tree=preserved_tree,
         output_tree=merged_tree,
         config=config,
+        replace_existing=True,
     )
 
     if target_tree.exists():
@@ -492,11 +520,10 @@ def _merge_or_copy(
     new_tree: Path,
     output_tree: Path,
     config: TranslationRepositoryConfig,
+    replace_existing: bool = False,
 ) -> None:
     if old_tree.joinpath(MERGE_REPORT_PATH.parent, "manifest.json").is_file():
-        _run_tool(
-            tooling_root,
-            TRANSLATION_TREE_COMMAND,
+        command: list[object] = [
             "merge",
             "--old-tree",
             old_tree,
@@ -508,6 +535,13 @@ def _merge_or_copy(
             config.translation.source_language,
             "--target-lang",
             config.translation.target_language,
+        ]
+        if replace_existing:
+            command.extend(["--existing-translation-policy", "replace"])
+        _run_tool(
+            tooling_root,
+            TRANSLATION_TREE_COMMAND,
+            *command,
         )
         return
     if output_tree.exists():
@@ -523,20 +557,24 @@ def render_summary(
     target_branch: str,
     report: dict[str, object],
 ) -> str:
-    """Render a stable markdown migration report."""
+    """Render a stable Markdown cross-version synchronization report."""
 
     lines = [
-        f"# Translation Migration: {source_version} -> {target_version}",
+        f"# Translation Sync: {source_version} -> {target_version}",
         "",
         f"- Source branch: `{source_branch}`",
         f"- Target branch: `{target_branch}`",
-        "- Policy: exact key/source hash only; unsafe or non-exact units stay empty.",
+        (
+            "- Policy: exact key/source hash units synchronize; unsafe or non-exact "
+            "units keep their target state."
+        ),
         "",
         "## Merge Report",
         "",
         f"- Total units: {report.get('total_units', 0)}",
         f"- Preserved target translations: {report.get('preserved_units', 0)}",
-        f"- Migrated source translations: {report.get('migrated_units', 0)}",
+        f"- Filled blank translations: {report.get('migrated_units', 0)}",
+        f"- Updated existing translations: {report.get('updated_units', 0)}",
         f"- Untranslated units: {report.get('untranslated_units', 0)}",
         f"- Skipped unsafe old translations: {report.get('skipped_unsafe_old_units', 0)}",
         f"- Exact key matches: {report.get('exact_key_matches', 0)}",
@@ -558,9 +596,9 @@ def create_or_update_pull_request(
     head_sha: str,
     auto_merge: bool,
 ) -> None:
-    """Create or update one migration pull request."""
+    """Create or update one cross-version synchronization pull request."""
 
-    title = f"chore: migrate {source_version} translations to {target_version}"
+    title = f"chore: sync {source_version} translations to {target_version}"
     existing_number = find_pull_request_number(
         checkout=checkout,
         bot_branch=bot_branch,
@@ -687,9 +725,15 @@ def is_auto_merge_safe(
         return False
     if config.migration.non_exact_policy != "leave_empty_needs_translation":
         return False
-    if int(report.get("migrated_units", 0)) <= 0:
+    if synchronized_unit_count(report) <= 0:
         return False
     return int(report.get("sentence_matches", 0)) == 0
+
+
+def synchronized_unit_count(report: dict[str, object]) -> int:
+    """Return translations filled or updated by one cross-version sync."""
+
+    return int(report.get("migrated_units", 0)) + int(report.get("updated_units", 0))
 
 
 def enable_auto_merge(
@@ -751,8 +795,8 @@ def enable_auto_merge(
                 "## Migration PR merged",
                 "",
                 "GitHub did not accept an auto-merge request, so the workflow "
-                "merged the exact-only migration PR directly after local "
-                "migration audits passed.",
+                "merged the exact-source synchronization PR directly after "
+                "local audits passed.",
                 "",
                 f"- Pull request: `#{pull_request_number}`",
                 f"- Base branch: `{target_branch}`",

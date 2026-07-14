@@ -100,8 +100,15 @@ version_policy:
       reason: archived; keep historical branch and release assets unchanged
 ```
 
-Published and archived versions must use `refresh: false`; the tooling rejects
-frozen versions that could still be rebuilt from clean scaffold artifacts.
+Published and archived versions must use `refresh: false` and
+`migrate_into: false`; the tooling rejects frozen versions that could still be
+changed by scaffold refresh or cross-version synchronization.
+
+`migrate_into: auto` joins a version to the automatic synchronization group as
+both a source and target. A successful translation change fills blank units and
+updates existing translations in other group members when the source hash and
+placeholders are identical. Structurally different units keep their current
+target state.
 
 `state` must be one of `available`, `active`, `maintenance`, `published`, or
 `archived`; spelling variants fail validation.

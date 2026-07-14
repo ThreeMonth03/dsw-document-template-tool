@@ -19,7 +19,7 @@ def test_status_output_detects_pending_migrations(repo_root: Path) -> None:
         "INFO: [v1.30.1 -> v1.30.0] dry run; not committing.\n"
     )
     assert not module.is_pending_output(
-        "INFO: [v1.30.1 -> v1.30.0] no source translations were migrated; skipping PR.\n"
+        "INFO: [v1.30.1 -> v1.30.0] no source translations were synchronized; skipping PR.\n"
     )
 
 

@@ -208,9 +208,13 @@ def test_auto_merge_requires_enabled_exact_only_safe_report(repo_root: Path) -> 
         config=config,
         report={"migrated_units": 4, "sentence_matches": 0},
     )
+    assert module.is_auto_merge_safe(
+        config=config,
+        report={"migrated_units": 0, "updated_units": 4, "sentence_matches": 0},
+    )
     assert not module.is_auto_merge_safe(
         config=config,
-        report={"migrated_units": 0, "sentence_matches": 0},
+        report={"migrated_units": 0, "updated_units": 0, "sentence_matches": 0},
     )
     assert not module.is_auto_merge_safe(
         config=config,
@@ -279,7 +283,7 @@ def test_enable_auto_merge_falls_back_to_guarded_immediate_merge(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    """If GitHub rejects auto-merge, safe migration PRs can still be merged directly."""
+    """If GitHub rejects auto-merge, safe synchronization PRs can merge directly."""
 
     module = _load_migration_pr_module(repo_root)
     commands: list[list[str]] = []

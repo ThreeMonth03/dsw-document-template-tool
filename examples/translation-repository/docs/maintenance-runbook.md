@@ -23,7 +23,8 @@ Healthy outcomes:
 - the workflow found no new clean scaffold artifacts;
 - the workflow updated `translation-config.yml`;
 - the workflow refreshed policy-enabled `sync/v*` branches;
-- the workflow opened exact-only migration PRs for safe carry-over changes.
+- the workflow opened exact-source synchronization PRs for translation changes
+  shared by active versions.
 
 Check version-branch validation after translation PRs:
 
@@ -45,7 +46,7 @@ gh workflow run document_template_translation_sync.yml \
   --ref "$TRANSLATION_OPERATIONS_BRANCH"
 ```
 
-Choose a migration source version when needed:
+Choose a synchronization source version when needed:
 
 ```shell
 gh workflow run document_template_translation_sync.yml \

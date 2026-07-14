@@ -48,7 +48,7 @@ Expected assets:
 - `release-notes.md`
 
 Download and verify the checksum before using a clean scaffold artifact for
-public repository migration.
+public repository refresh or cross-version synchronization.
 
 ## PDF Review
 

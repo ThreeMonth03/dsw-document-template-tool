@@ -146,7 +146,7 @@ help:
 	'  discover-upstream-compat Check upstream template tags have configured DSW runtimes' \
 	'  download-clean-scaffold-artifacts Download clean scaffold artifacts from a tool workflow run' \
 	'  build-upstream-artifacts Build clean multi-version workspaces and scaffold packages' \
-	'  check-translation-migrations Dry-run exact-only migration across active translation branches' \
+	'  check-translation-migrations Dry-run exact-source sync across active translation branches' \
 	'  check-translation-repository-docs Check public-repo docs cover required operations topics' \
 	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \

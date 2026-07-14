@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report whether translation version branches have pending migrations."""
+"""Report whether translation version branches have pending synchronization."""
 
 from __future__ import annotations
 
@@ -40,8 +40,8 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         description=(
-            "Run exact-only migration dry-runs for active translation version "
-            "branches and summarize whether any migration PRs are pending."
+            "Run exact-source synchronization dry-runs for active translation "
+            "version branches and summarize whether any PRs are pending."
         ),
     )
     parser.add_argument(
@@ -96,7 +96,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--fail-on-pending",
         action="store_true",
-        help="Exit with status 1 when dry-run migrations would create changes.",
+        help="Exit with status 1 when dry-run synchronization would create changes.",
     )
     parser.add_argument(
         "--verbose",
@@ -107,7 +107,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    """Run migration status checks."""
+    """Run cross-version synchronization status checks."""
 
     args = build_argument_parser().parse_args()
     repo = Path(args.repo).resolve()
@@ -163,7 +163,7 @@ def check_source_version(
     tdk_executable: str | None,
     verbose: bool,
 ) -> SourceMigrationStatus:
-    """Run the existing migration helper in dry-run mode for one source version."""
+    """Run the cross-version helper in dry-run mode for one source version."""
 
     config = load_translation_repository_config(repo / "translation-config.yml")
     targets = target_versions(
@@ -198,7 +198,7 @@ def check_source_version(
     )
     output = "\n".join(part for part in (result.stdout, result.stderr) if part)
     if verbose or result.returncode != 0:
-        print(f"===== migration dry-run: {source_version} =====")
+        print(f"===== translation sync dry-run: {source_version} =====")
         print(output.rstrip())
 
     summary_lines = summarize_output(output)
@@ -248,7 +248,7 @@ def write_report(statuses: list[SourceMigrationStatus], report_path: Path | None
 def print_human_summary(statuses: list[SourceMigrationStatus]) -> None:
     """Print a short status summary suitable for operator logs."""
 
-    print("Translation migration status:")
+    print("Cross-version translation sync status:")
     if not statuses:
         print("- No source versions are enabled for migration checks.")
         return

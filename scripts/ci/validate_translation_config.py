@@ -121,7 +121,7 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
         "- Translated template description: "
         f"`{config.translation.translated_template_description or ''}`",
         f"- Public README path: `{config.public_readme.path.as_posix()}`",
-        f"- Migration mode: `{config.migration.mode}`",
+        f"- Cross-version sync mode: `{config.migration.mode}`",
         f"- XLIFF exchange: `{'enabled' if config.xliff_exchange.enabled else 'disabled'}`",
         "",
         "## Version lifecycle",
@@ -129,7 +129,8 @@ def render_summary(config: TranslationRepositoryConfig) -> str:
         *policy_rows,
         "",
         "All configured upstream tags exist.",
-        "The migration job creates or refreshes only versions whose policy allows refresh.",
+        "Branch refresh creates or updates only versions whose policy allows refresh.",
+        "Automatic cross-version sync uses only versions with `migrate_into: auto`.",
         "Versions with `refresh: false` remain scaffold-only records until maintainers opt in.",
         "",
     ]

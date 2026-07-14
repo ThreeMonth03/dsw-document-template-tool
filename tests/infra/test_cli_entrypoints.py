@@ -108,6 +108,7 @@ def test_translation_tree_help(repo_root) -> None:
     assert "--source-lang" in result.stdout
     assert "--target-lang" in result.stdout
     assert "--allow-sentence-matches" in result.stdout
+    assert "--existing-translation-policy" in result.stdout
 
 
 def test_resolve_upstream_refs_expands_version_ranges(repo_root: Path, tmp_path: Path) -> None:
@@ -686,9 +687,10 @@ def test_create_translation_migration_prs_help(repo_root: Path) -> None:
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "cross-version translation migration PRs" in result.stdout
+    assert "cross-version translation synchronization PRs" in result.stdout
     assert "--source-version" in result.stdout
     assert "--target-version" in result.stdout
+    assert "--policy-mode" in result.stdout
     assert "--create-pr" in result.stdout
     assert "--clean-artifact-root" in result.stdout
 

@@ -219,15 +219,17 @@ gh workflow run document_template_translation_sync.yml \
 In the current public-repository design, that run downloads the latest successful
 clean scaffold artifacts from the tool repo and updates `translation-config.yml`
 on the public repository operations branch. It creates or refreshes only
-policy-enabled `sync/v*` branches and may create exact-only migration
-PRs. Routine version-branch sync preserves existing workflow files; use
+policy-enabled `sync/v*` branches and may create exact-source synchronization
+PRs. These PRs fill blank units and update existing translations only for
+structurally identical source units. Routine version-branch sync preserves existing workflow files; use
 `--sync-workflows` only for explicit workflow maintenance. Version-branch sync
 treats `translation.md` as canonical. Optional XLIFF exchange is available as a
 helper command, but it is not part of the default branch automation.
 
-If no migration PR appears, use `make check-translation-migrations` against the
-same clean scaffold artifacts to distinguish "nothing to migrate" from "the
-workflow did not run the migration step."
+If no synchronization PR appears, use `make check-translation-migrations`
+against the same clean scaffold artifacts to distinguish "all exact-source
+translations are aligned" from "the workflow did not run the synchronization
+step."
 
 If public repository docs were copied or rewritten, run
 `make check-translation-repository-docs` before handing the repository back to
@@ -244,7 +246,7 @@ gh workflow run document_template_translation_sync.yml \
 
 Use this after tool-repo workflow template changes, parser changes, fixture
 changes, or clean scaffold release refreshes. It is still public-repository-owned:
-review the public repository Actions run, migration PRs, and release assets
+review the public repository Actions run, synchronization PRs, and release assets
 there.
 
 ## Workflow Template

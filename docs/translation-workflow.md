@@ -132,7 +132,7 @@ make sync-translation-tree
 make audit-translated-template
 ```
 
-## Version Migration Helpers
+## Cross-Version Translation Sync
 
 The public translated-template repository commonly uses one `sync/v*` branch
 per upstream template version. This repo provides helpers for that model, but
@@ -144,10 +144,19 @@ The public repository opts versions into translator-facing branches with
 `version_policy.refresh`; omitted policy defaults to scaffold-only so new tags
 do not silently become translation work.
 
-Cross-version migration is exact-only by default. A translation is copied only
-when the source hash and executable placeholders match. If the source sentence,
-Jinja shape, or HTML structure changed, the target translation block stays empty
-and needs human review.
+Versions with `migrate_into: auto` form the automatic synchronization group and
+may act as both source and target. After a translated `sync/v*` branch passes
+CI, its exact-source translations fan out to the other group members. Blank
+target units are filled and existing target translations are updated; the
+source branch is authoritative for that run. Versions set to `manual`
+participate only in an operator-dispatched run, while `false` versions do not
+participate.
+
+Synchronization remains structural rather than fuzzy. It applies only when the
+source hash and executable placeholders match. If the source sentence, Jinja
+shape, or HTML structure changed, the target unit keeps its current state and
+requires version-specific translation. Normal artifact refresh is separate and
+always preserves that branch's translator edits before cross-version sync runs.
 
 The helper scripts live under `scripts/ci/`:
 

@@ -103,7 +103,7 @@ If the upstream tag forces transform or translation tree changes:
 
 1. Follow [Parser and Translation Tree](parser-and-translation-tree.md).
 2. Refresh clean scaffold artifacts.
-3. Run exact-only migration into the new branch.
+3. Run exact-source synchronization into the new branch.
 4. Inspect untranslated or changed units.
 5. Render the demo PDF.
 6. Do not carry fuzzy translations into the new version without review.

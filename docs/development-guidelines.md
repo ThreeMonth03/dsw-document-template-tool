@@ -49,9 +49,9 @@ Use `make clean` when generated files make local review noisy.
 - Prefer complete translator-facing sentences over small Jinja fragments.
 - Do not expose raw `{% ... %}` or `{{ ... }}` as editable translation text.
 - Keep placeholders such as `{name}` visible and audited.
-- Make migration conservative. Exact source hash and executable-placeholder
-  matches can be copied automatically; changed source should stay empty for
-  human review.
+- Keep cross-version sync exact. Identical source hash and executable-placeholder
+  matches may fill or update translations automatically; structurally changed
+  units must keep their target state for version-specific review.
 - If a fix requires target-language word order, first check whether the expanded
   transform should produce a better translation unit.
 

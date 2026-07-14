@@ -474,7 +474,9 @@ def load_translation_repository_config(path: Path) -> TranslationRepositoryConfi
     for version in template.supported_versions:
         version_sort_key(version)
     if migration.mode != "exact-only":
-        raise TranslationMigrationError("Only exact-only migration is currently supported")
+        raise TranslationMigrationError(
+            "Only exact-only cross-version synchronization is currently supported"
+        )
     if migration.non_exact_policy != "leave_empty_needs_translation":
         raise TranslationMigrationError(
             "Only leave_empty_needs_translation non-exact migration policy is currently supported"
@@ -510,10 +512,18 @@ def _validate_version_lifecycle_policy(config: TranslationRepositoryConfig) -> N
     frozen_states = {"published", "archived"}
     for version in config.template.supported_versions:
         policy = version_policy_decision(config, version)
-        if policy.state in frozen_states and policy.refresh != "false":
+        if policy.state not in frozen_states:
+            continue
+        mutable_fields = []
+        if policy.refresh != "false":
+            mutable_fields.append(f"refresh={policy.refresh!r}")
+        if policy.migrate_into != "false":
+            mutable_fields.append(f"migrate_into={policy.migrate_into!r}")
+        if mutable_fields:
             raise TranslationMigrationError(
-                f"Version {version} is {policy.state!r} but has refresh={policy.refresh!r}; "
-                "published and archived versions must use refresh=false"
+                f"Version {version} is {policy.state!r} but has "
+                f"{', '.join(mutable_fields)}; published and archived versions must "
+                "use refresh=false and migrate_into=false"
             )
 
 
@@ -549,7 +559,7 @@ def target_versions(
         for version in versions:
             if not version_policy_allows_manual_migration(config, version):
                 raise TranslationMigrationError(
-                    f"Version {version!r} is not allowed as a migration target "
+                    f"Version {version!r} is not allowed as a synchronization target "
                     "by version_policy.migrate_into"
                 )
     else:
@@ -600,9 +610,18 @@ def version_policy_allows_manual_migration(
     config: TranslationRepositoryConfig,
     version: str,
 ) -> bool:
-    """Return whether an explicitly requested migration may target a version."""
+    """Return whether an explicitly requested sync may use a version."""
 
     return version_policy_decision(config, version).migrate_into in {"auto", "manual"}
+
+
+def version_policy_allows_auto_migration(
+    config: TranslationRepositoryConfig,
+    version: str,
+) -> bool:
+    """Return whether automatic cross-version sync may use a version."""
+
+    return version_policy_decision(config, version).migrate_into == "auto"
 
 
 def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionWorkspacePaths:

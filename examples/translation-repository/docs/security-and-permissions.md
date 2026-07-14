@@ -15,7 +15,7 @@ Typical permissions:
 
 | Workflow | Permission | Writes |
 | --- | --- | --- |
-| Operations sync | `contents: write`, `pull-requests: write`, `actions: read` | config updates, version branches, migration PRs |
+| Operations sync | `contents: write`, `pull-requests: write`, `actions: read` | config updates, version branches, synchronization PRs |
 | Version branch validation | `contents: write`, `actions: write`, `statuses: write` | generated repair commits, release assets, status marker |
 
 Use the built-in `GITHUB_TOKEN` where possible. Use a separate automation token

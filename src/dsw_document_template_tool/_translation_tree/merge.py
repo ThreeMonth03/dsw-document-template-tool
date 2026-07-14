@@ -7,6 +7,7 @@ import shutil
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Literal
 
 from .document import (
     parse_sentence_text,
@@ -24,6 +25,7 @@ from .placeholders import (
 )
 
 MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
+ExistingTranslationPolicy = Literal["preserve", "replace"]
 
 
 @dataclass(frozen=True)
@@ -62,6 +64,7 @@ class TranslationMergeReport:
     total_units: int
     preserved_units: int
     migrated_units: int
+    updated_units: int
     untranslated_units: int
     skipped_unsafe_old_units: int
     exact_key_matches: int
@@ -77,14 +80,17 @@ def merge_translation_tree(
     source_lang: str,
     target_lang: str,
     allow_sentence_matches: bool = False,
+    existing_translation_policy: ExistingTranslationPolicy = "preserve",
 ) -> TranslationMergeReport:
-    """Copy a regenerated tree and fill blank translations from an older tree.
+    """Copy a regenerated tree and reuse safe translations from an older tree.
 
     Matching is intentionally conservative. Exact `(source_file, unit_key)` can
     reuse a translation only when the unit source hash is unchanged, then unique
     source hash can recover moved but byte-identical source units. Visible
     sentence matches are intentionally disabled by default because they cannot
-    prove that the underlying Jinja/HTML structure is still equivalent.
+    prove that the underlying Jinja/HTML structure is still equivalent. Existing
+    translations are preserved by default; cross-version synchronization may
+    explicitly replace them when the source unit is an exact structural match.
     """
 
     old_tree_dir = Path(old_tree_dir).resolve()
@@ -92,6 +98,10 @@ def merge_translation_tree(
     output_dir = Path(output_dir).resolve()
     if old_tree_dir == output_dir:
         raise TranslationTreeError("--output must differ from --old-tree")
+    if existing_translation_policy not in {"preserve", "replace"}:
+        raise TranslationTreeError("existing_translation_policy must be 'preserve' or 'replace'")
+    if existing_translation_policy == "replace" and allow_sentence_matches:
+        raise TranslationTreeError("replace policy cannot be combined with sentence matches")
 
     if new_tree_dir != output_dir:
         reset_dir(output_dir)
@@ -125,10 +135,13 @@ def merge_translation_tree(
 
     preserved = 0
     migrated = 0
+    updated = 0
+    untranslated = 0
     match_counts: Counter[str] = Counter()
 
     for candidate in new_candidates:
-        if candidate.translation_text.strip():
+        has_translation = bool(candidate.translation_text.strip())
+        if has_translation and existing_translation_policy == "preserve":
             preserved += 1
             continue
 
@@ -138,21 +151,34 @@ def merge_translation_tree(
             allow_sentence_matches=allow_sentence_matches,
         )
         if match is None:
+            if has_translation:
+                preserved += 1
+            else:
+                untranslated += 1
+            continue
+
+        replacement = match.candidate.translation_text
+        if has_translation and candidate.translation_text == replacement:
+            preserved += 1
             continue
 
         replace_translation_text(
             document_path=output_dir / candidate.document_path,
             target_lang=target_lang,
-            translation_text=match.candidate.translation_text,
+            translation_text=replacement,
         )
-        migrated += 1
+        if has_translation:
+            updated += 1
+        else:
+            migrated += 1
         match_counts[match.kind] += 1
 
     report = TranslationMergeReport(
         total_units=len(new_candidates),
         preserved_units=preserved,
         migrated_units=migrated,
-        untranslated_units=len(new_candidates) - preserved - migrated,
+        updated_units=updated,
+        untranslated_units=untranslated,
         skipped_unsafe_old_units=skipped_unsafe_old_units,
         exact_key_matches=match_counts["exact-key"],
         source_hash_matches=match_counts["source-hash"],

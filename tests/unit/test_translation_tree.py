@@ -410,6 +410,138 @@ def test_merge_translation_tree_reuses_exact_unit_key_matches(tmp_path: Path) ->
     assert "- [x] [unit]" in outline
 
 
+def test_merge_translation_tree_preserves_existing_translation_by_default(
+    tmp_path: Path,
+) -> None:
+    """A normal scaffold refresh must not overwrite translator edits."""
+
+    compact_dir = _write_compact_template(tmp_path, "<p>Hello.</p>\n")
+    expanded_dir = tmp_path / "expanded"
+    old_tree_dir = tmp_path / "old-tree"
+    new_tree_dir = tmp_path / "new-tree"
+    output_tree_dir = tmp_path / "merged-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=old_tree_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=new_tree_dir)
+    _write_translation_block(_find_translation_doc(old_tree_dir, "Hello."), "來源譯文。")
+    _write_translation_block(_find_translation_doc(new_tree_dir, "Hello."), "目標譯文。")
+
+    report = merge_translation_tree(
+        old_tree_dir=old_tree_dir,
+        new_tree_dir=new_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+    )
+
+    assert report.preserved_units == 1
+    assert report.migrated_units == 0
+    assert report.updated_units == 0
+    assert "目標譯文。" in _find_translation_doc(
+        output_tree_dir,
+        "Hello.",
+    ).read_text(encoding="utf-8")
+
+
+def test_merge_translation_tree_replaces_exact_existing_translation(
+    tmp_path: Path,
+) -> None:
+    """Cross-version sync may update an existing exact-source translation."""
+
+    compact_dir = _write_compact_template(tmp_path, "<p>Hello.</p>\n")
+    expanded_dir = tmp_path / "expanded"
+    source_tree_dir = tmp_path / "source-tree"
+    target_tree_dir = tmp_path / "target-tree"
+    output_tree_dir = tmp_path / "synchronized-tree"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=source_tree_dir)
+    export_translation_tree(source_dir=expanded_dir, output_dir=target_tree_dir)
+    _write_translation_block(_find_translation_doc(source_tree_dir, "Hello."), "新譯文。")
+    _write_translation_block(_find_translation_doc(target_tree_dir, "Hello."), "舊譯文。")
+
+    report = merge_translation_tree(
+        old_tree_dir=source_tree_dir,
+        new_tree_dir=target_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+        existing_translation_policy="replace",
+    )
+
+    assert report.preserved_units == 0
+    assert report.migrated_units == 0
+    assert report.updated_units == 1
+    assert report.exact_key_matches == 1
+    assert "新譯文。" in _find_translation_doc(
+        output_tree_dir,
+        "Hello.",
+    ).read_text(encoding="utf-8")
+
+
+def test_merge_translation_tree_replace_requires_exact_structure(tmp_path: Path) -> None:
+    """Replacement must not cross a changed source structure."""
+
+    source_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "source-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello <strong>{{ name }}</strong>.</p>\n",
+    )
+    target_compact_dir = _write_compact_template_file(
+        root_dir=tmp_path / "target-compact",
+        relative_path="index.html.j2",
+        source_text="<p>Hello {{ name }}.</p>\n",
+    )
+    source_expanded_dir = tmp_path / "source-expanded"
+    target_expanded_dir = tmp_path / "target-expanded"
+    source_tree_dir = tmp_path / "source-tree"
+    target_tree_dir = tmp_path / "target-tree"
+    output_tree_dir = tmp_path / "synchronized-tree"
+    expand_template_dir(source_dir=source_compact_dir, output_dir=source_expanded_dir)
+    expand_template_dir(source_dir=target_compact_dir, output_dir=target_expanded_dir)
+    export_translation_tree(source_dir=source_expanded_dir, output_dir=source_tree_dir)
+    export_translation_tree(source_dir=target_expanded_dir, output_dir=target_tree_dir)
+    _write_translation_block(
+        _find_translation_doc(source_tree_dir, "Hello {name}."), "新譯文 {name}。"
+    )
+    _write_translation_block(
+        _find_translation_doc(target_tree_dir, "Hello {name}."), "舊譯文 {name}。"
+    )
+
+    report = merge_translation_tree(
+        old_tree_dir=source_tree_dir,
+        new_tree_dir=target_tree_dir,
+        output_dir=output_tree_dir,
+        source_lang="en",
+        target_lang="zh_Hant",
+        existing_translation_policy="replace",
+    )
+
+    assert report.preserved_units == 1
+    assert report.updated_units == 0
+    assert "舊譯文 {name}。" in _find_translation_doc(
+        output_tree_dir,
+        "Hello {name}.",
+    ).read_text(encoding="utf-8")
+
+
+def test_merge_translation_tree_rejects_fuzzy_replacement(tmp_path: Path) -> None:
+    """Existing translations cannot be replaced using visible-sentence matching."""
+
+    tree_dir = tmp_path / "tree"
+    tree_dir.mkdir()
+
+    with pytest.raises(TranslationTreeError, match="cannot be combined"):
+        merge_translation_tree(
+            old_tree_dir=tree_dir,
+            new_tree_dir=tree_dir,
+            output_dir=tmp_path / "output",
+            source_lang="en",
+            target_lang="zh_Hant",
+            allow_sentence_matches=True,
+            existing_translation_policy="replace",
+        )
+
+
 def test_merge_translation_tree_rejects_stale_exact_key_matches(
     tmp_path: Path,
 ) -> None:
