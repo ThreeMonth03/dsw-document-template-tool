@@ -278,12 +278,12 @@ def test_enable_auto_merge_requests_guarded_squash_merge(
     ]
 
 
-def test_enable_auto_merge_falls_back_to_guarded_immediate_merge(
+def test_enable_auto_merge_waits_for_checks_before_guarded_fallback_merge(
     repo_root: Path,
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    """If GitHub rejects auto-merge, safe synchronization PRs can merge directly."""
+    """A direct fallback merge must happen only after remote checks pass."""
 
     module = _load_migration_pr_module(repo_root)
     commands: list[list[str]] = []
@@ -299,6 +299,11 @@ def test_enable_auto_merge_falls_back_to_guarded_immediate_merge(
         return subprocess.CompletedProcess(args=args, returncode=returncode)
 
     monkeypatch.setattr(module, "_run", fake_run)
+    monkeypatch.setattr(
+        module,
+        "wait_for_pull_request_checks",
+        lambda **_kwargs: module.PullRequestCheckOutcome.PASSED,
+    )
 
     module.enable_auto_merge(
         checkout=tmp_path,
@@ -331,6 +336,44 @@ def test_enable_auto_merge_falls_back_to_guarded_immediate_merge(
             "abc123",
         ],
     ]
+
+
+def test_enable_auto_merge_leaves_failed_check_pr_open(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """A rejected auto-merge request must not bypass failed remote checks."""
+
+    module = _load_migration_pr_module(repo_root)
+    commands: list[list[str]] = []
+
+    def fake_run(
+        args: list[str],
+        *,
+        cwd: Path | None = None,
+        check: bool = True,
+    ) -> subprocess.CompletedProcess[str]:
+        commands.append(args)
+        return subprocess.CompletedProcess(args=args, returncode=1)
+
+    monkeypatch.setattr(module, "_run", fake_run)
+    monkeypatch.setattr(
+        module,
+        "wait_for_pull_request_checks",
+        lambda **_kwargs: module.PullRequestCheckOutcome.FAILED,
+    )
+
+    module.enable_auto_merge(
+        checkout=tmp_path,
+        pull_request_number="42",
+        head_sha="abc123",
+        bot_branch="automation/migrate-v1.30.1-to-v1.30.0",
+        target_branch="sync/v1.30.0",
+    )
+
+    assert len(commands) == 1
+    assert "--auto" in commands[0]
 
 
 def _load_migration_pr_module(repo_root: Path) -> ModuleType:

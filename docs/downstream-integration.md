@@ -226,6 +226,12 @@ structurally identical source units. Routine version-branch sync preserves exist
 treats `translation.md` as canonical. Optional XLIFF exchange is available as a
 helper command, but it is not part of the default branch automation.
 
+Synchronization PRs merge only after their version-branch `translation-sync`
+check and every other reported check pass. If repository-native auto-merge is
+unavailable, the operations job waits and performs a head-SHA-guarded fallback
+merge. Failed or timed-out checks leave the PR open without changing the target
+branch.
+
 If no synchronization PR appears, use `make check-translation-migrations`
 against the same clean scaffold artifacts to distinguish "all exact-source
 translations are aligned" from "the workflow did not run the synchronization

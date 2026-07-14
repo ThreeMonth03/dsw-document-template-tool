@@ -22,6 +22,11 @@ Use the built-in `GITHUB_TOKEN` where possible. Use a separate automation token
 only when the workflow must update workflow files or cross repository
 boundaries.
 
+Exact-source synchronization never treats local tree audits as a substitute for
+pull-request CI. If GitHub-native auto-merge is disabled, the operations job
+waits for the remote `translation-sync` check and all other reported checks.
+Failed or timed-out checks leave the PR open instead of bypassing validation.
+
 ## Workflow Synchronization Token
 
 Operations sync can refresh normal branch content with the built-in token. It

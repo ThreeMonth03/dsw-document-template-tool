@@ -26,6 +26,11 @@ Healthy outcomes:
 - the workflow opened exact-source synchronization PRs for translation changes
   shared by active versions.
 
+When repository-native auto-merge is unavailable, operations waits for the
+version branch's `translation-sync` PR check and every reported check to pass
+before performing a head-SHA-guarded merge. A failed or timed-out check leaves
+the synchronization PR open and does not change the target `sync/v*` branch.
+
 Check version-branch validation after translation PRs:
 
 ```shell

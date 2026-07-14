@@ -27,6 +27,10 @@ from cli_commands import (  # noqa: E402
     TRANSLATION_TREE_COMMAND,
     tool_command,
 )
+from github_prs import (  # noqa: E402
+    PullRequestCheckOutcome,
+    wait_for_pull_request_checks,
+)
 
 from dsw_document_template_tool.translation_migration import (  # noqa: E402
     TranslationRepositoryConfig,
@@ -290,7 +294,13 @@ def migrate_one_target(
 
         if push:
             _run(
-                ["git", "push", "--force-with-lease", "origin", f"HEAD:refs/heads/{bot_branch}"],
+                [
+                    "git",
+                    "push",
+                    "--force-with-lease",
+                    "origin",
+                    f"HEAD:refs/heads/{bot_branch}",
+                ],
                 cwd=target_checkout,
             )
         if create_pr:
@@ -309,8 +319,16 @@ def migrate_one_target(
                 ),
             )
     finally:
-        _run(["git", "worktree", "remove", "--force", str(source_checkout)], cwd=repo, check=False)
-        _run(["git", "worktree", "remove", "--force", str(target_checkout)], cwd=repo, check=False)
+        _run(
+            ["git", "worktree", "remove", "--force", str(source_checkout)],
+            cwd=repo,
+            check=False,
+        )
+        _run(
+            ["git", "worktree", "remove", "--force", str(target_checkout)],
+            cwd=repo,
+            check=False,
+        )
 
 
 def refresh_target_with_source(
@@ -696,7 +714,10 @@ def add_detached_remote_worktree(*, repo: Path, checkout: Path, branch: str) -> 
 
     if not remote_branch_exists(repo=repo, branch=branch):
         raise SystemExit(f"Remote branch does not exist: origin/{branch}")
-    _run(["git", "worktree", "add", "--detach", str(checkout), f"origin/{branch}"], cwd=repo)
+    _run(
+        ["git", "worktree", "add", "--detach", str(checkout), f"origin/{branch}"],
+        cwd=repo,
+    )
 
 
 def remote_branch_exists(*, repo: Path, branch: str) -> bool:
@@ -775,6 +796,33 @@ def enable_auto_merge(
         )
         return
 
+    check_outcome = wait_for_pull_request_checks(
+        checkout=checkout,
+        pull_request_number=pull_request_number,
+    )
+    if check_outcome is not PullRequestCheckOutcome.PASSED:
+        manual_url = manual_pull_request_url(base_branch=target_branch, head_branch=bot_branch)
+        append_github_summary(
+            [
+                "## Migration PR was not merged",
+                "",
+                "GitHub did not accept an auto-merge request, and the remote "
+                f"pull-request checks {check_outcome.value}. The branch was left "
+                "open for diagnosis; no target translation branch was changed.",
+                "",
+                f"- Pull request: `#{pull_request_number}`",
+                f"- Base branch: `{target_branch}`",
+                f"- Head branch: `{bot_branch}`",
+                f"- Manual PR URL: {manual_url}",
+                "",
+            ]
+        )
+        print(
+            f"WARNING: Migration PR checks did not pass; leaving the PR open: {manual_url}",
+            file=sys.stderr,
+        )
+        return
+
     immediate_merge_result = _run(
         [
             "gh",
@@ -795,8 +843,8 @@ def enable_auto_merge(
                 "## Migration PR merged",
                 "",
                 "GitHub did not accept an auto-merge request, so the workflow "
-                "merged the exact-source synchronization PR directly after "
-                "local audits passed.",
+                "waited for the remote pull-request checks and then merged the "
+                "exact-source synchronization PR.",
                 "",
                 f"- Pull request: `#{pull_request_number}`",
                 f"- Base branch: `{target_branch}`",
