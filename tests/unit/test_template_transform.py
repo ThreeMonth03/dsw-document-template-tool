@@ -154,7 +154,12 @@ body {
         encoding="utf-8",
     )
     (compact_dir / "src" / "index.html.j2").write_text(
-        "<p>Hello world.</p>\n",
+        '<html lang="en"><p>Hello world.</p></html>\n',
+        encoding="utf-8",
+    )
+    (compact_dir / "src" / "word").mkdir()
+    (compact_dir / "src" / "word" / "index.html.j2").write_text(
+        '<html lang="en"><p>Hello Word export.</p></html>\n',
         encoding="utf-8",
     )
 
@@ -165,10 +170,16 @@ body {
     expanded_template_json = (expanded_dir / "template.json").read_text(encoding="utf-8")
     expanded_style = (expanded_dir / "src" / "style.css").read_text(encoding="utf-8")
     expanded_globals = (expanded_dir / "src" / "globals.j2").read_text(encoding="utf-8")
+    expanded_html = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    expanded_word_html = (expanded_dir / "src" / "word" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
 
     assert '"kmId": "root-zh-hant"' in expanded_template_json
     assert '{%- set projects = "專案" -%}' in expanded_globals
     assert '{%- set projectsIsAre = "為" -%}' in expanded_globals
+    assert '<html lang="zh-Hant">' in expanded_html
+    assert '<html lang="zh-Hant">' in expanded_word_html
     assert "DSW Document Template Tool CJK font fallback:start" in expanded_style
     assert "68c26e34-5e77-4e15-9bf7-06ff92582257" in expanded_style
     assert 'assets("src/fonts/NotoSansTC-Variable.ttf")' in expanded_style
@@ -232,7 +243,12 @@ body {
         encoding="utf-8",
     )
     (compact_dir / "src" / "index.html.j2").write_text(
-        "<p>Hello world.</p>\n",
+        '<html lang="en"><p>Hello world.</p></html>\n',
+        encoding="utf-8",
+    )
+    (compact_dir / "src" / "word").mkdir()
+    (compact_dir / "src" / "word" / "index.html.j2").write_text(
+        '<html lang="en"><p>Hello Word export.</p></html>\n',
         encoding="utf-8",
     )
 
@@ -247,10 +263,16 @@ body {
     expanded_template_json = (expanded_dir / "template.json").read_text(encoding="utf-8")
     expanded_style = (expanded_dir / "src" / "style.css").read_text(encoding="utf-8")
     expanded_globals = (expanded_dir / "src" / "globals.j2").read_text(encoding="utf-8")
+    expanded_html = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    expanded_word_html = (expanded_dir / "src" / "word" / "index.html.j2").read_text(
+        encoding="utf-8"
+    )
     manifest = (expanded_dir / ".transform" / "manifest.json").read_text(encoding="utf-8")
 
     assert '"kmId": "root-zh-hant"' not in expanded_template_json
     assert '{%- set projects = "專案" -%}' not in expanded_globals
+    assert '<html lang="en">' in expanded_html
+    assert '<html lang="en">' in expanded_word_html
     assert "DSW Document Template Tool CJK font fallback:start" not in expanded_style
     assert "/* zh-Hant PDF typography:start */" not in expanded_style
     assert "content: '資料管理方案';" not in expanded_style

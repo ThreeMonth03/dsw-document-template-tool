@@ -8,8 +8,9 @@ import shutil
 from pathlib import Path
 
 CJK_FONT_PATCH_NAME = "cjk_font_face"
-ZH_HANT_GLOBALS_PATCH_NAME = "zh_hant_globals"
 ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME = "zh_hant_allowed_package"
+ZH_HANT_GLOBALS_PATCH_NAME = "zh_hant_globals"
+ZH_HANT_HTML_LANG_PATCH_NAME = "zh_hant_html_lang"
 CJK_FONT_SOURCE_PATH = Path("assets/fonts/NotoSansTC-Variable.ttf")
 CJK_FONT_TEMPLATE_PATH = Path("src/fonts/NotoSansTC-Variable.ttf")
 CJK_FONT_PDF_FORMAT_UUID = "68c26e34-5e77-4e15-9bf7-06ff92582257"
@@ -151,6 +152,12 @@ ZH_HANT_ALLOWED_PACKAGE_RULE = {
     "minVersion": "2.7.0",
     "maxVersion": None,
 }
+ZH_HANT_HTML_LANG_ORIGINAL = '<html lang="en">'
+ZH_HANT_HTML_LANG_PATCHED = '<html lang="zh-Hant">'
+ZH_HANT_HTML_PATHS = (
+    Path("src/index.html.j2"),
+    Path("src/word/index.html.j2"),
+)
 TEMPLATE_JSON_NAME = "template.json"
 TEMPLATE_JSON_TRAILING_NEWLINE_KEY = "template_json_trailing_newline"
 
@@ -180,6 +187,8 @@ def apply_post_expand_patches(*, output_dir: Path) -> list[str]:
         patches.append(ZH_HANT_ALLOWED_PACKAGE_PATCH_NAME)
     if _patch_zh_hant_globals(output_dir=output_dir):
         patches.append(ZH_HANT_GLOBALS_PATCH_NAME)
+    if _patch_zh_hant_html_lang(output_dir=output_dir):
+        patches.append(ZH_HANT_HTML_LANG_PATCH_NAME)
     if _patch_cjk_font_face(output_dir=output_dir):
         patches.append(CJK_FONT_PATCH_NAME)
     return patches
@@ -204,6 +213,8 @@ def revert_post_expand_patches(
         )
     if ZH_HANT_GLOBALS_PATCH_NAME in patch_names:
         _remove_zh_hant_globals(output_dir=output_dir)
+    if ZH_HANT_HTML_LANG_PATCH_NAME in patch_names:
+        _remove_zh_hant_html_lang(output_dir=output_dir)
     if CJK_FONT_PATCH_NAME in patch_names:
         _remove_cjk_font_face(output_dir=output_dir)
 
@@ -284,6 +295,35 @@ def _remove_zh_hant_globals(*, output_dir: Path) -> None:
         globals_text.replace(SCIENCE_EUROPE_GLOBALS_PATCHED, SCIENCE_EUROPE_GLOBALS_ORIGINAL),
         encoding="utf-8",
     )
+
+
+def _patch_zh_hant_html_lang(*, output_dir: Path) -> bool:
+    changed = False
+    for relative_path in ZH_HANT_HTML_PATHS:
+        html_path = output_dir / relative_path
+        if not html_path.is_file():
+            continue
+        html_text = html_path.read_text(encoding="utf-8")
+        patched_text = html_text.replace(ZH_HANT_HTML_LANG_ORIGINAL, ZH_HANT_HTML_LANG_PATCHED)
+        if patched_text == html_text:
+            continue
+        html_path.write_text(patched_text, encoding="utf-8")
+        changed = True
+    return changed
+
+
+def _remove_zh_hant_html_lang(*, output_dir: Path) -> None:
+    for relative_path in ZH_HANT_HTML_PATHS:
+        html_path = output_dir / relative_path
+        if not html_path.is_file():
+            continue
+        html_text = html_path.read_text(encoding="utf-8")
+        if ZH_HANT_HTML_LANG_PATCHED not in html_text:
+            continue
+        html_path.write_text(
+            html_text.replace(ZH_HANT_HTML_LANG_PATCHED, ZH_HANT_HTML_LANG_ORIGINAL),
+            encoding="utf-8",
+        )
 
 
 def _patch_cjk_font_face(*, output_dir: Path) -> bool:

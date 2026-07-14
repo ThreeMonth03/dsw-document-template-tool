@@ -67,7 +67,9 @@ Key files:
   and [`science_europe_unbalanced_rules.py`](../src/dsw_document_template_tool/_template_transform/science_europe_unbalanced_rules.py)
   isolate Science Europe-specific rewrite behavior.
 - [`_template_transform/localization.py`](../src/dsw_document_template_tool/_template_transform/localization.py)
-  applies target-language output adjustments during transform.
+  applies reversible zh-Hant package metadata, HTML language, and PDF typography
+  adjustments during transform. Compaction removes these adjustments before
+  comparing with upstream source.
 
 Change this layer when upstream Jinja or HTML structure needs to be split,
 joined, or marked differently before translators see it.
