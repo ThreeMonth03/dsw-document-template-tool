@@ -65,11 +65,12 @@ jobs:
             github.event.pull_request.head.repo.full_name || github.repository }}
           ref: >-
             ${{ github.event_name == 'pull_request' &&
-            github.event.pull_request.head.ref || '__VERSION_BRANCH__' }}
+            github.event.pull_request.head.sha || '__VERSION_BRANCH__' }}
           path: template-repo
           fetch-depth: 0
 
       - name: Checkout DSW document-template tooling
+        id: tooling_checkout
         uses: actions/checkout@v7
         with:
           repository: ${{ env.TOOLING_REPOSITORY }}
@@ -348,12 +349,20 @@ jobs:
           fi
 
       - name: Collect local DSW logs
-        if: ${{ always() && env.PROJECT_REF != '' }}
+        if: >-
+          ${{
+            always() && env.PROJECT_REF != '' &&
+            steps.tooling_checkout.outcome == 'success'
+          }}
         working-directory: tooling-repo
         run: make ci-dsw-logs
 
       - name: Stop local DSW stack
-        if: ${{ always() && env.PROJECT_REF != '' }}
+        if: >-
+          ${{
+            always() && env.PROJECT_REF != '' &&
+            steps.tooling_checkout.outcome == 'success'
+          }}
         working-directory: tooling-repo
         run: make stop-ci-dsw
 

@@ -356,7 +356,30 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "dsw-tdk==$DSW_TDK_VERSION" in workflow_text
     assert "tooling-repo" in workflow_text
     assert "fetch-depth: 0" in workflow_text
+    checkout_step = next(
+        step
+        for step in workflow["jobs"]["translation-sync"]["steps"]
+        if step["name"] == "Checkout template repository"
+    )
+    assert checkout_step["with"]["ref"] == (
+        "${{ github.event_name == 'pull_request' && "
+        "github.event.pull_request.head.sha || '__VERSION_BRANCH__' }}"
+    )
     assert "github.event.pull_request.head.ref" in workflow_text
+    assert "github.event.pull_request.head.sha" in workflow_text
+    tooling_checkout_step = next(
+        step
+        for step in workflow["jobs"]["translation-sync"]["steps"]
+        if step["name"] == "Checkout DSW document-template tooling"
+    )
+    assert tooling_checkout_step["id"] == "tooling_checkout"
+    for step_name in ("Collect local DSW logs", "Stop local DSW stack"):
+        cleanup_step = next(
+            step
+            for step in workflow["jobs"]["translation-sync"]["steps"]
+            if step["name"] == step_name
+        )
+        assert "steps.tooling_checkout.outcome == 'success'" in cleanup_step["if"]
     assert '.venv/bin/dsw-template-transform" expand' in workflow_text
     assert '.venv/bin/dsw-template-tree" export' in workflow_text
     assert '.venv/bin/dsw-template-tree" import-xliff' not in workflow_text

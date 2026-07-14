@@ -639,7 +639,7 @@ def create_or_update_pull_request(
             target_branch=target_branch,
         )
         if auto_merge:
-            enable_auto_merge(
+            merge_after_checks(
                 checkout=checkout,
                 pull_request_number=existing_number,
                 head_sha=head_sha,
@@ -672,7 +672,7 @@ def create_or_update_pull_request(
         target_branch=target_branch,
     )
     if auto_merge and new_number:
-        enable_auto_merge(
+        merge_after_checks(
             checkout=checkout,
             pull_request_number=new_number,
             head_sha=head_sha,
@@ -757,7 +757,7 @@ def synchronized_unit_count(report: dict[str, object]) -> int:
     return int(report.get("migrated_units", 0)) + int(report.get("updated_units", 0))
 
 
-def enable_auto_merge(
+def merge_after_checks(
     *,
     checkout: Path,
     pull_request_number: str,
@@ -765,36 +765,7 @@ def enable_auto_merge(
     bot_branch: str,
     target_branch: str,
 ) -> None:
-    """Ask GitHub to merge the migration PR once repository requirements pass."""
-
-    result = _run(
-        [
-            "gh",
-            "pr",
-            "merge",
-            pull_request_number,
-            "--squash",
-            "--auto",
-            "--delete-branch",
-            "--match-head-commit",
-            head_sha,
-        ],
-        cwd=checkout,
-        check=False,
-    )
-    if result.returncode == 0:
-        append_github_summary(
-            [
-                "## Migration PR auto-merge requested",
-                "",
-                f"- Pull request: `#{pull_request_number}`",
-                f"- Base branch: `{target_branch}`",
-                f"- Head branch: `{bot_branch}`",
-                f"- Head SHA: `{head_sha}`",
-                "",
-            ]
-        )
-        return
+    """Merge a migration PR only after its remote checks pass."""
 
     check_outcome = wait_for_pull_request_checks(
         checkout=checkout,
@@ -806,9 +777,8 @@ def enable_auto_merge(
             [
                 "## Migration PR was not merged",
                 "",
-                "GitHub did not accept an auto-merge request, and the remote "
-                f"pull-request checks {check_outcome.value}. The branch was left "
-                "open for diagnosis; no target translation branch was changed.",
+                f"The remote pull-request checks {check_outcome.value}. The branch "
+                "was left open for diagnosis; no target translation branch was changed.",
                 "",
                 f"- Pull request: `#{pull_request_number}`",
                 f"- Base branch: `{target_branch}`",
@@ -823,7 +793,7 @@ def enable_auto_merge(
         )
         return
 
-    immediate_merge_result = _run(
+    merge_result = _run(
         [
             "gh",
             "pr",
@@ -837,14 +807,13 @@ def enable_auto_merge(
         cwd=checkout,
         check=False,
     )
-    if immediate_merge_result.returncode == 0:
+    if merge_result.returncode == 0:
         append_github_summary(
             [
                 "## Migration PR merged",
                 "",
-                "GitHub did not accept an auto-merge request, so the workflow "
-                "waited for the remote pull-request checks and then merged the "
-                "exact-source synchronization PR.",
+                "The workflow waited for the remote pull-request checks and then "
+                "merged the exact-source synchronization PR.",
                 "",
                 f"- Pull request: `#{pull_request_number}`",
                 f"- Base branch: `{target_branch}`",
@@ -860,8 +829,8 @@ def enable_auto_merge(
         [
             "## Migration PR was not merged",
             "",
-            "GitHub rejected both the auto-merge request and the immediate merge. "
-            "The migration PR still exists and can be reviewed or merged manually.",
+            "The remote checks passed, but GitHub rejected the guarded merge. The "
+            "migration PR still exists and can be reviewed or merged manually.",
             "",
             f"- Pull request: `#{pull_request_number}`",
             f"- Base branch: `{target_branch}`",

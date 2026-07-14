@@ -125,6 +125,7 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         "sync/v1.30.2:.github/workflows/document_template_translation_sync.yml",
     )
     assert "-m dsw_document_template_tool.cli.translation_tree import-xliff" not in workflow_text
+    assert "github.event.pull_request.head.sha" in workflow_text
     assert (
         'PROJECT_RENDER_OUTPUT: "outputs/project-render/dsw-science-europe/v1.30.2/'
         'zh-Hant/test-project.pdf"'

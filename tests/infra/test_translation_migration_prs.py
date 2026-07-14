@@ -234,12 +234,12 @@ def test_auto_merge_requires_enabled_exact_only_safe_report(repo_root: Path) -> 
     )
 
 
-def test_enable_auto_merge_requests_guarded_squash_merge(
+def test_merge_after_checks_uses_guarded_squash_merge(
     repo_root: Path,
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    """Auto-merge requests should be pinned to the generated migration head SHA."""
+    """Passing checks should lead to a merge pinned to the migration head SHA."""
 
     module = _load_migration_pr_module(repo_root)
     commands: list[list[str]] = []
@@ -254,8 +254,13 @@ def test_enable_auto_merge_requests_guarded_squash_merge(
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr(module, "_run", fake_run)
+    monkeypatch.setattr(
+        module,
+        "wait_for_pull_request_checks",
+        lambda **_kwargs: module.PullRequestCheckOutcome.PASSED,
+    )
 
-    module.enable_auto_merge(
+    module.merge_after_checks(
         checkout=tmp_path,
         pull_request_number="42",
         head_sha="abc123",
@@ -270,7 +275,6 @@ def test_enable_auto_merge_requests_guarded_squash_merge(
             "merge",
             "42",
             "--squash",
-            "--auto",
             "--delete-branch",
             "--match-head-commit",
             "abc123",
@@ -278,12 +282,12 @@ def test_enable_auto_merge_requests_guarded_squash_merge(
     ]
 
 
-def test_enable_auto_merge_waits_for_checks_before_guarded_fallback_merge(
+def test_merge_after_checks_does_not_merge_failed_check_pr(
     repo_root: Path,
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    """A direct fallback merge must happen only after remote checks pass."""
+    """Failed remote checks must leave the synchronization PR open."""
 
     module = _load_migration_pr_module(repo_root)
     commands: list[list[str]] = []
@@ -295,17 +299,16 @@ def test_enable_auto_merge_waits_for_checks_before_guarded_fallback_merge(
         check: bool = True,
     ) -> subprocess.CompletedProcess[str]:
         commands.append(args)
-        returncode = 1 if "--auto" in args else 0
-        return subprocess.CompletedProcess(args=args, returncode=returncode)
+        return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr(module, "_run", fake_run)
     monkeypatch.setattr(
         module,
         "wait_for_pull_request_checks",
-        lambda **_kwargs: module.PullRequestCheckOutcome.PASSED,
+        lambda **_kwargs: module.PullRequestCheckOutcome.FAILED,
     )
 
-    module.enable_auto_merge(
+    module.merge_after_checks(
         checkout=tmp_path,
         pull_request_number="42",
         head_sha="abc123",
@@ -313,37 +316,15 @@ def test_enable_auto_merge_waits_for_checks_before_guarded_fallback_merge(
         target_branch="sync/v1.30.0",
     )
 
-    assert commands == [
-        [
-            "gh",
-            "pr",
-            "merge",
-            "42",
-            "--squash",
-            "--auto",
-            "--delete-branch",
-            "--match-head-commit",
-            "abc123",
-        ],
-        [
-            "gh",
-            "pr",
-            "merge",
-            "42",
-            "--squash",
-            "--delete-branch",
-            "--match-head-commit",
-            "abc123",
-        ],
-    ]
+    assert commands == []
 
 
-def test_enable_auto_merge_leaves_failed_check_pr_open(
+def test_merge_after_checks_leaves_rejected_merge_pr_open(
     repo_root: Path,
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    """A rejected auto-merge request must not bypass failed remote checks."""
+    """A rejected guarded merge should leave the checked PR open."""
 
     module = _load_migration_pr_module(repo_root)
     commands: list[list[str]] = []
@@ -361,10 +342,10 @@ def test_enable_auto_merge_leaves_failed_check_pr_open(
     monkeypatch.setattr(
         module,
         "wait_for_pull_request_checks",
-        lambda **_kwargs: module.PullRequestCheckOutcome.FAILED,
+        lambda **_kwargs: module.PullRequestCheckOutcome.PASSED,
     )
 
-    module.enable_auto_merge(
+    module.merge_after_checks(
         checkout=tmp_path,
         pull_request_number="42",
         head_sha="abc123",
@@ -373,7 +354,7 @@ def test_enable_auto_merge_leaves_failed_check_pr_open(
     )
 
     assert len(commands) == 1
-    assert "--auto" in commands[0]
+    assert "--auto" not in commands[0]
 
 
 def _load_migration_pr_module(repo_root: Path) -> ModuleType:
