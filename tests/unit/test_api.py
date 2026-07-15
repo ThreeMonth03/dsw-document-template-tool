@@ -6,8 +6,11 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZipFile
 
+import pytest
+
 from dsw_document_template_tool.api import (
     DSWApiClient,
+    DSWAPIError,
     KnowledgeModelPackageReference,
     _apply_download_host_alias,
     _read_document_template_id_from_bundle,
@@ -36,12 +39,16 @@ class FakeResponse:
         return self._payload
 
 
-def _package_payload(*, uuid: str | None = None) -> dict[str, Any]:
+def _package_payload(
+    *,
+    uuid: str | None = None,
+    version: str = "2.7.0",
+) -> dict[str, Any]:
     payload: dict[str, Any] = {
-        "pId": "dsw:root-zh-hant:2.7.0",
+        "pId": f"dsw:root-zh-hant:{version}",
         "organizationId": "dsw",
         "kmId": "root-zh-hant",
-        "version": "2.7.0",
+        "version": version,
     }
     if uuid is not None:
         payload["uuid"] = uuid
@@ -88,8 +95,36 @@ class BundleUploadClient(DSWApiClient):
         self.bundle_endpoints.append(endpoint)
         return FakeResponse(
             201,
-            [_package_payload()],
+            [_package_payload(version="1.0.0"), _package_payload()],
             method="POST",
+            url=f"{self.api_url}{endpoint}",
+        )
+
+
+class MismatchedBundleUploadClient(BundleUploadClient):
+    """Client whose bundle upload omits the requested package version."""
+
+    def _post_bundle(self, endpoint: str, bundle_path: Path) -> FakeResponse:
+        self.bundle_endpoints.append(endpoint)
+        return FakeResponse(
+            201,
+            [_package_payload(version="1.0.0")],
+            method="POST",
+            url=f"{self.api_url}{endpoint}",
+        )
+
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+    ) -> FakeResponse:
+        return FakeResponse(
+            200,
+            [],
+            method=method,
             url=f"{self.api_url}{endpoint}",
         )
 
@@ -346,7 +381,7 @@ def test_local_knowledge_model_bundle_uploads_when_listing_is_missing(
 
 
 def test_bundle_upload_accepts_list_payload(tmp_path: Path) -> None:
-    """DSW 4.26 returns KM bundle upload results as a list."""
+    """DSW 4.26 history lists should resolve the exact requested package."""
 
     bundle_path = tmp_path / "root-zh-hant-2.7.0.km"
     bundle_path.write_text('{"id": "dsw:root-zh-hant:2.7.0"}\n', encoding="utf-8")
@@ -357,6 +392,17 @@ def test_bundle_upload_accepts_list_payload(tmp_path: Path) -> None:
     assert client.bundle_endpoints == ["/knowledge-model-packages/bundle"]
     assert package_ref.package_id == "dsw:root-zh-hant:2.7.0"
     assert package_ref.uuid is None
+
+
+def test_bundle_upload_rejects_history_without_requested_package(tmp_path: Path) -> None:
+    """A partial history import must not silently select an older KM package."""
+
+    bundle_path = tmp_path / "root-zh-hant-2.7.0.km"
+    bundle_path.write_text('{"id": "dsw:root-zh-hant:2.7.0"}\n', encoding="utf-8")
+    client = MismatchedBundleUploadClient()
+
+    with pytest.raises(DSWAPIError, match="dsw:root-zh-hant:2.7.0"):
+        client.upload_knowledge_model_package_bundle_reference(bundle_path)
 
 
 def test_document_template_package_upload_uses_bundle_endpoint(tmp_path: Path) -> None:

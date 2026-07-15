@@ -39,6 +39,12 @@ Fixtures use the same logical shape as DSW projects:
 - a stable list of project events
 - a render request using a document template
 
+When a local `.km` bundle contains package history, the render client resolves
+the exact top-level package ID declared by the bundle. It must not fall back to
+an older package merely because an older DSW API returns that package first. A
+strict preview fails if the requested package cannot be imported by the
+selected runtime.
+
 The repo keeps project fixtures under `fixtures/projects/` and the matching
 Knowledge Model bundle under `fixtures/knowledge-models/`. CI can recreate
 those projects in an ephemeral local DSW stack, render PDFs, and upload

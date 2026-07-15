@@ -329,13 +329,20 @@ class DSWApiClient:
         endpoint = "/knowledge-model-packages/bundle"
         response = self._post_bundle(endpoint, bundle_path)
         self._raise_for_status(response, expected_statuses={200, 201})
-        package_ref = _package_reference_from_upload_payload(_safe_json(response))
+        package_ref = _package_reference_from_upload_payload(
+            _safe_json(response),
+            expected_package_id=package_id,
+        )
         if package_ref is not None:
             return package_ref
         if package_id is not None:
             resolved_ref = self.find_knowledge_model_package_reference_by_id(package_id)
             if resolved_ref is not None:
                 return resolved_ref
+            raise DSWAPIError(
+                f"Could not upload KM bundle: {endpoint} did not expose the requested "
+                f"package {package_id!r}"
+            )
         raise DSWAPIError(f"Could not upload KM bundle: {endpoint} response was not resolvable")
 
     def upload_document_template_bundle(self, bundle_path: Path) -> dict[str, Any]:
@@ -719,12 +726,24 @@ def _extract_collection_items(payload: Any) -> list[dict[str, Any]]:
 
 def _package_reference_from_upload_payload(
     payload: Any,
+    *,
+    expected_package_id: str | None = None,
 ) -> KnowledgeModelPackageReference | None:
+    """Resolve an upload response, optionally requiring exact package coordinates."""
+
     items = _extract_collection_items(payload)
     if items:
+        if expected_package_id is not None:
+            for item in items:
+                package_ref = _package_reference_from_item(item)
+                if package_ref.package_id == expected_package_id:
+                    return package_ref
+            return None
         return _package_reference_from_item(items[0])
     if isinstance(payload, dict):
-        return _package_reference_from_item(payload)
+        package_ref = _package_reference_from_item(payload)
+        if expected_package_id is None or package_ref.package_id == expected_package_id:
+            return package_ref
     return None
 
 
