@@ -296,10 +296,10 @@ def test_publish_clean_scaffold_releases_succeeds_without_packages(tmp_path: Pat
     assert "No clean scaffold packages were produced" in result.stdout
 
 
-def test_publish_clean_scaffold_releases_moves_existing_tag_before_upload(
+def test_publish_clean_scaffold_releases_refreshes_assets_without_moving_tag(
     tmp_path: Path, monkeypatch
 ) -> None:
-    """Mutable scaffold releases should point their tag at the generated commit."""
+    """Refreshing release assets must not rewrite the existing Git tag."""
 
     module = load_publish_module()
     release_dir = tmp_path / "release-assets" / "v1.30.1"
@@ -321,25 +321,43 @@ def test_publish_clean_scaffold_releases_moves_existing_tag_before_upload(
 
     commands: list[list[str]] = []
     monkeypatch.setattr(module, "release_exists", lambda _release: True)
-    monkeypatch.setattr(module, "tag_exists", lambda _release, _ref_name: True)
     monkeypatch.setattr(module, "run", commands.append)
 
     module.publish_release(release)
 
-    assert commands[0] == [
-        "gh",
-        "api",
-        "--method",
-        "PATCH",
-        "repos/owner/repo/git/refs/tags/clean-scaffold-dsw-science-europe-v1.30.1",
-        "-f",
-        "sha=abc123",
-        "-F",
-        "force=true",
-    ]
-    assert commands[1][:4] == ["gh", "release", "edit", release.release_tag]
-    assert "--target" in commands[1]
-    assert "abc123" in commands[1]
+    assert commands[0][:4] == ["gh", "release", "edit", release.release_tag]
+    assert "--target" not in commands[0]
+    assert all("api" not in command for command in commands)
+    assert commands[-1][:4] == ["gh", "release", "upload", release.release_tag]
+
+
+def test_publish_clean_scaffold_releases_targets_new_release(tmp_path: Path, monkeypatch) -> None:
+    """A new release should create its tag at the producing commit."""
+
+    module = load_publish_module()
+    release_dir = tmp_path / "release-assets" / "v1.30.1"
+    release_dir.mkdir(parents=True)
+    (release_dir / "release-notes.md").write_text("# notes\n", encoding="utf-8")
+    (release_dir / "SHA256SUMS").write_text("checksum\n", encoding="utf-8")
+    release = module.CleanScaffoldRelease(
+        version_tag="v1.30.1",
+        package=tmp_path / "outputs" / "package.zip",
+        outputs_root=tmp_path / "outputs",
+        release_root=tmp_path / "release-assets",
+        repository="owner/repo",
+        run_id="123",
+        commit_sha="abc123",
+        source_template_id="dsw-science-europe",
+        translation_locale="zh-Hant",
+    )
+    commands: list[list[str]] = []
+    monkeypatch.setattr(module, "release_exists", lambda _release: False)
+    monkeypatch.setattr(module, "run", commands.append)
+
+    module.publish_release(release)
+
+    assert commands[0][:4] == ["gh", "release", "create", release.release_tag]
+    assert commands[0][commands[0].index("--target") + 1] == "abc123"
     assert commands[-1][:4] == ["gh", "release", "upload", release.release_tag]
 
 

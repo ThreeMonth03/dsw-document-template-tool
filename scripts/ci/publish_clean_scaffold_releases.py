@@ -68,7 +68,10 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--commit-sha", help="Commit SHA used in release notes and target.")
+    parser.add_argument(
+        "--commit-sha",
+        help="Commit SHA recorded in release notes and used when creating a release.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Stage assets without using gh.")
     parser.add_argument("--outputs-root", type=Path, default=Path("outputs"))
     parser.add_argument(
@@ -205,7 +208,6 @@ def publish_release(release: CleanScaffoldRelease) -> None:
 
     notes_file = release.release_dir / "release-notes.md"
     if release_exists(release):
-        sync_release_tag(release)
         run(
             [
                 "gh",
@@ -218,8 +220,6 @@ def publish_release(release: CleanScaffoldRelease) -> None:
                 release.release_title,
                 "--notes-file",
                 str(notes_file),
-                "--target",
-                release.commit_sha,
                 "--prerelease",
             ]
         )
@@ -254,59 +254,6 @@ def publish_release(release: CleanScaffoldRelease) -> None:
             release.repository,
             "--clobber",
         ]
-    )
-
-
-def sync_release_tag(release: CleanScaffoldRelease) -> None:
-    """Point the mutable release tag at the commit that produced the assets."""
-
-    ref_name = f"tags/{release.release_tag}"
-    if tag_exists(release, ref_name):
-        run(
-            [
-                "gh",
-                "api",
-                "--method",
-                "PATCH",
-                f"repos/{release.repository}/git/refs/{ref_name}",
-                "-f",
-                f"sha={release.commit_sha}",
-                "-F",
-                "force=true",
-            ]
-        )
-        return
-
-    run(
-        [
-            "gh",
-            "api",
-            "--method",
-            "POST",
-            f"repos/{release.repository}/git/refs",
-            "-f",
-            f"ref=refs/{ref_name}",
-            "-f",
-            f"sha={release.commit_sha}",
-        ]
-    )
-
-
-def tag_exists(release: CleanScaffoldRelease, ref_name: str) -> bool:
-    """Return whether the release tag exists."""
-
-    return (
-        subprocess.run(
-            [
-                "gh",
-                "api",
-                f"repos/{release.repository}/git/ref/{ref_name}",
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        ).returncode
-        == 0
     )
 
 

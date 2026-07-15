@@ -55,8 +55,8 @@ gh release upload "$release_tag" "$release_dir"/* --repo "$GITHUB_REPOSITORY" --
 This means:
 
 - branch updates refresh same-version assets
-- GitHub Release tags act as version download buckets
-- the Git tag is moved to the commit that produced the refreshed assets
+- GitHub Release tags are stable version labels and are created only once
+- refreshing a release does not force-move its Git tag
 - release notes, checksums, and workflow run metadata remain the provenance
   source of truth
 

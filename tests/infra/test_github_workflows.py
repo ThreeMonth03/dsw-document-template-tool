@@ -480,12 +480,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert "env.PUBLISH_RELEASE_ASSETS == 'true'" in workflow_text
     assert 'release_tag="$TRANSLATED_TEMPLATE_ID-v$TRANSLATED_TEMPLATE_VERSION"' in workflow_text
     assert 'gh release view "$release_tag" --repo "$GITHUB_REPOSITORY"' in workflow_text
-    assert 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$release_tag"' in workflow_text
-    assert "sync_release_tag()" in workflow_text
-    assert '"repos/$GITHUB_REPOSITORY/git/refs/tags/$release_tag"' in workflow_text
-    assert '-f sha="$release_target"' in workflow_text
+    assert "sync_release_tag" not in workflow_text
+    assert "git/refs/tags/$release_tag" not in workflow_text
+    assert "--method PATCH" not in workflow_text
     assert '--target "$release_target"' in workflow_text
-    assert "-F force=true" in workflow_text
     assert "elif ! create_release; then" in workflow_text
     assert (
         'gh release upload "$release_tag" "$release_dir"/* --repo "$GITHUB_REPOSITORY"'
