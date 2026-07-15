@@ -180,6 +180,7 @@ template. Build upstream artifacts first when the regression config points at
 | `make render-regression-ci` | Run the single-version CI regression path. |
 | `make render-regression-ci-plan` | Run the compatibility-ledger recommended version plan. |
 | `make render-regression` | Run the local configured regression path. |
+| `make summarize-regression-coverage` | Summarize existing versioned regression and generated branch-coverage reports. |
 
 Run the CI-style path locally:
 
@@ -202,6 +203,15 @@ Validate a regression plan without a DSW server:
 ```shell
 make render-regression-ci-plan-dry-run
 ```
+
+Summarize reports already written below `outputs/preview/`:
+
+```shell
+make summarize-regression-coverage
+```
+
+The command prints Markdown locally. In GitHub Actions it also appends the same
+table to `GITHUB_STEP_SUMMARY`.
 
 ## Render Preview
 

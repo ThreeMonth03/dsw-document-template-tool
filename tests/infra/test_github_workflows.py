@@ -104,6 +104,13 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "make verify-workspace" not in workflow_text
     assert "make start-ci-dsw" in workflow_text
     assert "run: make render-regression-ci-plan" in workflow_text
+    render_steps = render_job["steps"]
+    summary_step = next(
+        step for step in render_steps if step["name"] == "Summarize preview regression coverage"
+    )
+    assert summary_step["if"] == "always() && matrix.run_preview_regression == 'true'"
+    assert "make summarize-regression-coverage" in summary_step["run"]
+    assert "matrix.metamodel_version" in summary_step["run"]
     assert "make render-project" not in workflow_text
     assert "make ci-dsw-logs" in workflow_text
     assert "make stop-ci-dsw" in workflow_text
@@ -112,7 +119,6 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "actions/upload-artifact@v7" in workflow_text
     assert workflow_text.count("include-hidden-files: true") == 2
     assert "Publish clean scaffold release assets" in workflow_text
-    render_steps = render_job["steps"]
     publish_step = next(
         step for step in render_steps if step["name"] == "Publish clean scaffold release assets"
     )

@@ -151,6 +151,12 @@ jobs:
         if: matrix.run_preview_regression == 'true'
         run: make render-regression-ci-plan
 
+      - name: Summarize preview regression coverage
+        if: always() && matrix.run_preview_regression == 'true'
+        run: |
+          make summarize-regression-coverage \
+            REGRESSION_SUMMARY_LABEL="Metamodel ${{ matrix.metamodel_version }} Render Regression"
+
       - name: Render clean upstream version previews
         env:
           DSW_API_URL: http://localhost:3000/wizard-api

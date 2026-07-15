@@ -42,6 +42,7 @@ def test_command_reference_keeps_make_as_primary_interface(repo_root: Path) -> N
     assert "make build-upstream-artifacts" in command_reference
     assert "make render-regression-ci-plan" in command_reference
     assert "make render-regression-ci-plan-dry-run" in command_reference
+    assert "make summarize-regression-coverage" in command_reference
     assert "make download-clean-scaffold-artifacts" in command_reference
     assert "make sync-translation-version-branches" in command_reference
     assert "make check-translation-repository-docs" in command_reference
@@ -49,6 +50,7 @@ def test_command_reference_keeps_make_as_primary_interface(repo_root: Path) -> N
     assert "check-translation-repository-docs" in make_targets
     assert "download-clean-scaffold-artifacts" in make_targets
     assert "render-regression-ci-plan-dry-run" in make_targets
+    assert "summarize-regression-coverage" in make_targets
     assert "sync-translation-version-branches" in make_targets
     assert "validate-translation-config" in make_targets
     assert "If a direct command becomes common in daily work, wrap it in `make`" in (

@@ -28,6 +28,8 @@ Confirm:
 - package generation succeeds
 - full regression has `complete: true` in each
   `outputs/preview/**/random-project-coverage.json`
+- the Actions run summary lists every planned version and does not report an
+  unreadable or missing regression report
 
 ## Release Asset Checks
 

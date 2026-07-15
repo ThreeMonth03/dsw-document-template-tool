@@ -63,6 +63,13 @@ report. It records selected case indexes, coverage totals by category, and any
 missing branches. Candidate generation is local and cheap; only selected cases
 become DSW projects and render comparisons.
 
+GitHub Actions runs
+[`summarize_regression_coverage.py`](../scripts/ci/summarize_regression_coverage.py)
+after regression even when the regression step fails. The run summary shows
+each version/profile, comparison result, rendered fixture count, selected
+generated cases, and covered/expected branch count. The summary is diagnostic;
+the regression command remains the pass/fail gate.
+
 ## Local Commands
 
 Run the same local sequence that CI uses for preview regression:
@@ -72,6 +79,7 @@ make build-upstream-artifacts
 make generate-compat-ledger
 make start-ci-dsw
 make render-regression-ci-plan
+make summarize-regression-coverage
 make ci-dsw-logs
 make stop-ci-dsw
 ```
