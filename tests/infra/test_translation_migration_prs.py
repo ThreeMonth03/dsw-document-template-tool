@@ -234,6 +234,52 @@ def test_auto_merge_requires_enabled_exact_only_safe_report(repo_root: Path) -> 
     )
 
 
+def test_migration_commit_paths_accept_only_translation_content(
+    repo_root: Path,
+) -> None:
+    """Migration commits may contain translated units and their progress outline."""
+
+    module = _load_migration_pr_module(repo_root)
+    tree_dir = Path("workspace/document-templates/translation/example-1.0.0")
+    changed_paths = [
+        f"{tree_dir.as_posix()}/outline.md",
+        f"{tree_dir.as_posix()}/tree/src/example/translation.md",
+    ]
+
+    assert (
+        module.migration_commit_paths(
+            changed_paths=changed_paths,
+            translation_tree_dir=tree_dir,
+        )
+        == changed_paths
+    )
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        ".translation-tree/manifest.json",
+        ".translation-tree/merge-report.json",
+        "README.md",
+        "tree/src/example/source.md",
+    ],
+)
+def test_migration_commit_paths_reject_structural_or_diagnostic_changes(
+    repo_root: Path,
+    relative_path: str,
+) -> None:
+    """Migration PRs must not hide scaffold or diagnostic changes."""
+
+    module = _load_migration_pr_module(repo_root)
+    tree_dir = Path("workspace/document-templates/translation/example-1.0.0")
+
+    with pytest.raises(SystemExit, match="outside translation content"):
+        module.migration_commit_paths(
+            changed_paths=[f"{tree_dir.as_posix()}/{relative_path}"],
+            translation_tree_dir=tree_dir,
+        )
+
+
 def test_merge_after_checks_uses_guarded_squash_merge(
     repo_root: Path,
     tmp_path: Path,

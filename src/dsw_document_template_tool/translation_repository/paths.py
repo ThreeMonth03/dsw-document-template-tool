@@ -78,7 +78,6 @@ def version_paths(config: TranslationRepositoryConfig, version: str) -> VersionW
         project_render_output=project_render_output,
         translated_template_dir=output_root / translated_workspace_name,
         translated_template_package=output_root / f"{translated_workspace_name}.zip",
-        migration_report_dir=Path("migration-reports"),
     )
 
 

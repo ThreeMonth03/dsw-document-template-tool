@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.parse import quote
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -45,6 +45,7 @@ from dsw_document_template_tool.translation_repository import (  # noqa: E402
 )
 
 MERGE_REPORT_PATH = Path(".translation-tree") / "merge-report.json"
+MIGRATION_COMMIT_PREFIX = "chore(sync): carry "
 
 
 @dataclass(frozen=True)
@@ -216,6 +217,7 @@ def migrate_one_target(
 
     source_branch = version_branch(config, source_version)
     target_branch = version_branch(config, target_version)
+    target_paths = version_paths(config, target_version)
     bot_branch = migration_branch(config, source_version, target_version)
     case_root = temp_root / f"{source_version}-to-{target_version}"
     if case_root.exists():
@@ -247,6 +249,9 @@ def migrate_one_target(
             temp_root=case_root,
             clean_artifact_root=clean_artifact_root,
         )
+        append_github_summary(
+            migration_result.summary_path.read_text(encoding="utf-8").splitlines()
+        )
         changed_units = synchronized_unit_count(migration_result.source_merge_report)
         if changed_units == 0:
             print(
@@ -255,7 +260,10 @@ def migrate_one_target(
             )
             return
 
-        changed_paths = _changed_paths(target_checkout)
+        changed_paths = migration_commit_paths(
+            changed_paths=_changed_paths(target_checkout),
+            translation_tree_dir=target_paths.translation_tree_dir,
+        )
         if not changed_paths:
             print(f"INFO: [{source_version} -> {target_version}] no changes.")
             return
@@ -287,7 +295,7 @@ def migrate_one_target(
                 "git",
                 "commit",
                 "-m",
-                f"chore(sync): carry {source_version} translations to {target_version}",
+                f"{MIGRATION_COMMIT_PREFIX}{source_version} translations to {target_version}",
             ],
             cwd=target_checkout,
         )
@@ -396,6 +404,9 @@ def refresh_target_with_source(
         replace_existing=True,
     )
 
+    source_merge_report = _read_json(merged_tree / MERGE_REPORT_PATH)
+    (merged_tree / MERGE_REPORT_PATH).unlink()
+
     if target_tree.exists():
         shutil.rmtree(target_tree)
     target_tree.parent.mkdir(parents=True, exist_ok=True)
@@ -462,13 +473,7 @@ def refresh_target_with_source(
         ]
     )
 
-    source_merge_report = _read_json(merged_tree / MERGE_REPORT_PATH)
-    summary_path = (
-        target_checkout
-        / target_paths.migration_report_dir
-        / (f"{source_version}-to-{target_version}.md")
-    )
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path = temp_root / "migration-summary.md"
     summary_path.write_text(
         render_summary(
             source_version=source_version,
@@ -755,6 +760,39 @@ def synchronized_unit_count(report: dict[str, object]) -> int:
     """Return translations filled or updated by one cross-version sync."""
 
     return int(report.get("migrated_units", 0)) + int(report.get("updated_units", 0))
+
+
+def migration_commit_paths(
+    *,
+    changed_paths: list[str],
+    translation_tree_dir: Path,
+) -> list[str]:
+    """Validate and return files allowed in a cross-version migration commit.
+
+    Migration PRs carry translated text and the generated progress outline only.
+    Structural workspace, manifest, README, package, and diagnostic changes must
+    be handled by the version refresh workflow instead of being hidden in a
+    translation migration.
+    """
+
+    tree_root = PurePosixPath(translation_tree_dir.as_posix())
+    unit_root = tree_root / "tree"
+    outline_path = tree_root / "outline.md"
+    unexpected: list[str] = []
+    for raw_path in changed_paths:
+        path = PurePosixPath(raw_path)
+        is_translation_unit = path.is_relative_to(unit_root) and path.name == "translation.md"
+        if path != outline_path and not is_translation_unit:
+            unexpected.append(raw_path)
+
+    if unexpected:
+        formatted = "\n".join(f"- {path}" for path in unexpected)
+        raise SystemExit(
+            "Migration produced changes outside translation content. Refresh the "
+            "target scaffold separately before retrying:\n"
+            f"{formatted}"
+        )
+    return changed_paths
 
 
 def merge_after_checks(

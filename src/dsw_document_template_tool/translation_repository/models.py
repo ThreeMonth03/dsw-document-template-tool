@@ -153,7 +153,6 @@ class VersionWorkspacePaths:
     project_render_output: Path
     translated_template_dir: Path
     translated_template_package: Path
-    migration_report_dir: Path
 
 
 @dataclass(frozen=True)

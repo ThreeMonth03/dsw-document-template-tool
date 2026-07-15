@@ -298,6 +298,9 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     )
     workflow = load_workflow_yaml(workflow_path)
     workflow_text = workflow_path.read_text(encoding="utf-8")
+    migration_script_text = (
+        repo_root / "scripts" / "ci" / "create_translation_migration_prs.py"
+    ).read_text(encoding="utf-8")
 
     assert workflow["on"]["pull_request"]["branches"] == ["__VERSION_BRANCH__"]
     assert "workflow_dispatch" in workflow["on"]
@@ -429,10 +432,15 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert dispatch_step["if"] == (
         "github.event_name == 'push' && "
         "!startsWith(github.event.head_commit.message, 'chore: refresh ') && "
+        "!startsWith(github.event.head_commit.message, 'chore(sync): carry ') && "
         "!startsWith(github.event.head_commit.message, "
         "'chore(sync): refresh document template translations')"
     )
     assert "!startsWith(github.event.head_commit.message, 'chore: refresh ') &&" in workflow_text
+    assert (
+        "!startsWith(github.event.head_commit.message, 'chore(sync): carry ') &&"
+    ) in workflow_text
+    assert 'MIGRATION_COMMIT_PREFIX = "chore(sync): carry "' in migration_script_text
     assert (
         "!startsWith(github.event.head_commit.message, "
         "'chore(sync): refresh document template translations')"

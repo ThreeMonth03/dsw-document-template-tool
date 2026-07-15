@@ -56,7 +56,9 @@ def test_command_reference_keeps_make_as_primary_interface(repo_root: Path) -> N
     )
 
 
-def test_configuration_reference_covers_maintained_config_files(repo_root: Path) -> None:
+def test_configuration_reference_covers_maintained_config_files(
+    repo_root: Path,
+) -> None:
     """The config guide should explain source configs and generated boundaries."""
 
     config_reference = (repo_root / "docs" / "configuration-reference.md").read_text(
@@ -117,4 +119,5 @@ def test_translation_repository_templates_are_copy_ready(repo_root: Path) -> Non
     assert "public" in branch_policy
     assert "private" in branch_policy
     assert "gh workflow run document_template_translation_sync.yml" in (maintenance_runbook)
+    assert "reports are not committed to version branches" in maintenance_runbook
     assert "GITHUB_TOKEN" in security_policy

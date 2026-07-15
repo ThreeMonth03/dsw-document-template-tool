@@ -158,6 +158,15 @@ shape, or HTML structure changed, the target unit keeps its current state and
 requires version-specific translation. Normal artifact refresh is separate and
 always preserves that branch's translator edits before cross-version sync runs.
 
+Each synchronization PR commits only matching `translation.md` files and, when
+its checkbox state changes, the generated `outline.md`. The merge report is kept
+in the PR body and Actions job summary rather than committed to a version branch.
+After such a PR merges, version validation still refreshes the package, preview,
+and release assets, but it does not start another migration fan-out. A normal
+translator PR merge remains the source of a new fan-out. The controlled
+`chore(sync): carry ` commit prefix is the protocol between the migration script
+and version workflow; update both together if that prefix ever changes.
+
 The helper scripts live under `scripts/ci/`:
 
 - `sync_translation_version_branches.py`

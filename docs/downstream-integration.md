@@ -232,6 +232,13 @@ checks and then performs a head-SHA-guarded merge; it does not depend on
 repository-native auto-merge settings. Failed or timed-out checks leave the PR
 open without changing the target branch.
 
+The PR diff is deliberately narrow: matching `translation.md` files and an
+updated `outline.md` are allowed, while template structure, manifests, README
+files, packages, and diagnostic reports are rejected. The detailed merge report
+is available in the PR body and Actions summary. Merging an automation-generated
+synchronization PR validates and republishes the target version without starting
+a redundant reverse fan-out.
+
 If no synchronization PR appears, use `make check-translation-migrations`
 against the same clean scaffold artifacts to distinguish "all exact-source
 translations are aligned" from "the workflow did not run the synchronization

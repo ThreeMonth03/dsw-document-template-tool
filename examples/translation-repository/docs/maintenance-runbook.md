@@ -32,6 +32,12 @@ depend on repository-native auto-merge settings. A failed or timed-out check
 leaves the synchronization PR open and does not change the target `sync/v*`
 branch.
 
+Synchronization PRs contain only exact-source `translation.md` updates and an
+updated `outline.md` when progress changes. Review the merge report in the PR
+body or Actions summary; reports are not committed to version branches. Merging
+one of these automation PRs refreshes that version's package, preview, and
+release assets without launching another reverse synchronization run.
+
 Check version-branch validation after translation PRs:
 
 ```shell
