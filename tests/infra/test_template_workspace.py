@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import subprocess
 from pathlib import Path
 
@@ -47,7 +49,8 @@ def test_document_template_workspace_is_generated_and_ignored(repo_root: Path) -
 def test_fixture_assets_exist(repo_root: Path) -> None:
     """The repository should keep non-template fixtures that are needed for generation."""
 
-    km_path = repo_root / "fixtures" / "knowledge-models" / "root-zh-hant-2.7.0.km"
+    regression_km_path = repo_root / "fixtures" / "knowledge-models" / "root-2.7.0.km"
+    demo_km_path = repo_root / "fixtures" / "knowledge-models" / "root-zh-hant-2.7.0.km"
     project_ref_path = repo_root / "fixtures" / "projects" / "demo" / "test-project.json"
     smoke_events_path = (
         repo_root / "fixtures" / "projects" / "regression" / "empty-project.events.json"
@@ -59,12 +62,21 @@ def test_fixture_assets_exist(repo_root: Path) -> None:
     font_path = font_root / "NotoSansTC-Variable.ttf"
     font_license_path = font_root / "OFL.txt"
 
-    assert km_path.is_file()
+    assert regression_km_path.is_file()
+    assert demo_km_path.is_file()
     assert project_ref_path.is_file()
     assert smoke_events_path.is_file()
     assert wrapped_smoke_events_path.is_file()
     assert font_path.is_file()
     assert font_license_path.is_file()
+
+    regression_bundle = json.loads(regression_km_path.read_text(encoding="utf-8"))
+    demo_bundle = json.loads(demo_km_path.read_text(encoding="utf-8"))
+    assert regression_bundle["id"] == "dsw:root:2.7.0"
+    assert demo_bundle["id"] == "dsw:root-zh-hant:2.7.0"
+    assert hashlib.sha256(regression_km_path.read_bytes()).hexdigest() == (
+        "aabca6f7de8ad41cf9989afd25d4827f3de134fb8f0d965fcc6c336cfeb3e965"
+    )
 
 
 def test_shipped_preview_config_targets_generated_upstream_workspace(

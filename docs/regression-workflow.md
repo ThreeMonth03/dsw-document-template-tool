@@ -14,6 +14,23 @@ The workflow does not use the DSW web client. It talks directly to the DSW API,
 uploads draft templates, creates fixture projects, renders documents, and
 compares normalized HTML.
 
+## Two Independent Metamodels
+
+DSW stores Knowledge Models and document templates as different package types.
+Each type has its own `metamodelVersion`; equal-looking version numbers are not
+required and must not be compared with each other.
+
+- `config/dsw-compat.yml` maps the upstream **document-template** metamodel to a
+  proven DSW server and TDK runtime. The current template ranges use `17.1` and
+  `18.0`.
+- The checked-in `dsw:root:2.7.0` and `dsw:root-zh-hant:2.7.0` Knowledge Model
+  bundles both use KM metamodel `19`.
+
+One immutable official KM can therefore exercise templates from more than one
+document-template metamodel, provided each configured DSW runtime can import
+both package types. CI proves that contract by importing the KM and rendering
+the template; this repository does not derive historical KMs from PO files.
+
 ## Supported Modes
 
 Preview mode compares local draft templates through:
@@ -45,10 +62,13 @@ an older package merely because an older DSW API returns that package first. A
 strict preview fails if the requested package cannot be imported by the
 selected runtime.
 
-The repo keeps project fixtures under `fixtures/projects/` and the matching
-Knowledge Model bundle under `fixtures/knowledge-models/`. CI can recreate
-those projects in an ephemeral local DSW stack, render PDFs, and upload
-previews as artifacts.
+The repo keeps project fixtures under `fixtures/projects/` and immutable
+Knowledge Model bundles under `fixtures/knowledge-models/`. Baseline/candidate
+regression uses the official `dsw:root:2.7.0` bundle because that is a package
+family declared by the upstream Science Europe template. The zh-Hant bundle is
+reserved for translated demo/PDF review. CI can recreate both kinds of project
+in an ephemeral local DSW stack without rebuilding a KM from PO files or
+depending on a live Registry download.
 
 For broad regression coverage, generated fixtures ask the DSW API for the
 compiled questionnaire model and produce deterministic event payloads. Before
@@ -89,8 +109,10 @@ refs and creates versioned baseline and candidate directories under
 `outputs/upstream-workspaces/...`. `generate-compat-ledger` writes the
 regression candidate plan. `render-regression-ci-plan` reads that plan,
 generates one versioned config per recommended version, and runs DSW regression
-without overwriting preview artifacts from other versions. The regression
-command is therefore intentionally not standalone on a clean checkout.
+without overwriting preview artifacts from other versions. It fails if the plan
+does not recommend a candidate for the selected metamodel; it never substitutes
+an unrelated `latest` version. The regression command is therefore
+intentionally not standalone on a clean checkout.
 
 ## Compatibility Ledger
 
@@ -166,8 +188,8 @@ It has two jobs:
 - `offline-checks`: install dependencies, smoke-test upstream refs, discover DSW
   compatibility, run format/lint/tests.
 - `render-regression`: run a metamodel-aware DSW matrix, build clean scaffold
-  artifacts, run full regression where the runtime policy enables it, render
-  strict demo previews for every supported version, and upload artifacts.
+  artifacts, run full regression and strict demo previews for every supported
+  runtime, and upload artifacts.
 
 The runtime matrix comes from:
 
@@ -179,14 +201,14 @@ block by hand.
 
 Current policy:
 
-| Template range | DSW runtime | Randomized baseline/candidate regression | Strict demo preview |
+| Template range | DSW runtime | Full baseline/candidate regression | Strict demo preview |
 | --- | --- | --- | --- |
-| `v1.29.1` | DSW 4.26 | Disabled for this historical runtime | Required |
+| `v1.29.1` | DSW 4.26 | Required | Required |
 | `v1.30.0+` | DSW 4.30 | Required | Required |
 
-`run_preview_regression` controls the larger randomized baseline/candidate
-comparison. It does not control clean scaffold generation or the strict demo
-project preview, which remain required when `strict_project_preview` is true.
+A row in `config/dsw-compat.yml` means that both checks are required. Do not add
+per-runtime skip flags: a runtime that cannot pass the common contract is not a
+supported runtime yet.
 
 If a future upstream tag introduces a new `metamodelVersion`, CI should fail
 clearly during compatibility discovery. The failure summary includes an

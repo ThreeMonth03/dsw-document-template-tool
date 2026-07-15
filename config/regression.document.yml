@@ -22,7 +22,7 @@ fixtures:
   - name: empty-project
     project:
       name: science-europe empty project
-      knowledge_model_package_id: ../fixtures/knowledge-models/root-zh-hant-2.7.0.km
+      knowledge_model_package_id: ../fixtures/knowledge-models/root-2.7.0.km
       question_tag_uuids: []
       visibility: PrivateProjectVisibility
       sharing: RestrictedProjectSharing
@@ -30,7 +30,7 @@ fixtures:
   - name: wrapped-empty-project
     project:
       name: science-europe wrapped empty project
-      knowledge_model_package_id: ../fixtures/knowledge-models/root-zh-hant-2.7.0.km
+      knowledge_model_package_id: ../fixtures/knowledge-models/root-2.7.0.km
       question_tag_uuids: []
       visibility: PrivateProjectVisibility
       sharing: RestrictedProjectSharing
@@ -38,7 +38,7 @@ fixtures:
   - name: filled-demo-project
     project:
       name: science-europe filled demo project
-      knowledge_model_package_id: ../fixtures/knowledge-models/root-zh-hant-2.7.0.km
+      knowledge_model_package_id: ../fixtures/knowledge-models/root-2.7.0.km
       question_tag_uuids: []
       visibility: PrivateProjectVisibility
       sharing: RestrictedProjectSharing
