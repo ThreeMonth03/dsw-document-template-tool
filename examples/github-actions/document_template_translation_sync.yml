@@ -44,7 +44,6 @@ env:
   DSW_VERSION: __DSW_VERSION__
   DSW_TDK_VERSION: __DSW_TDK_VERSION__
   UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: __UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION__
-  UPSTREAM_TEMPLATE_PREVIEW_STRICT: __UPSTREAM_TEMPLATE_PREVIEW_STRICT__
   PUBLISH_RELEASE_ASSETS: __PUBLISH_RELEASE_ASSETS__
   REFRESH_TRANSLATION_INPUTS: __REFRESH_TRANSLATION_INPUTS__
 
@@ -343,9 +342,7 @@ jobs:
               --preview-metamodel-version "$UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" \
               --exit-code "$render_status"
             echo "WARNING: Sample project preview failed; wrote $failure_path"
-            if [ "$UPSTREAM_TEMPLATE_PREVIEW_STRICT" = "true" ]; then
-              exit "$render_status"
-            fi
+            exit "$render_status"
           fi
 
       - name: Collect local DSW logs

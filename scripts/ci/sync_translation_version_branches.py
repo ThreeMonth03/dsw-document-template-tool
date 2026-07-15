@@ -807,7 +807,6 @@ def write_version_branch_workflow(
         "__TRANSLATION_TARGET_LANG__": config.translation.target_language,
         "__TRANSLATION_TREE_DIR__": paths.translation_tree_dir.as_posix(),
         "__UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION__": runtime.metamodel_version,
-        "__UPSTREAM_TEMPLATE_PREVIEW_STRICT__": (str(runtime.strict_project_preview).lower()),
         "__VERSION_BRANCH__": branch,
     }
     for token, value in replacements.items():

@@ -62,7 +62,6 @@ def main() -> None:
     previews.add_argument("--format-uuid", required=True)
     previews.add_argument("--project-ref", required=True)
     previews.add_argument("--preview-metamodel-version", required=True)
-    previews.add_argument("--preview-strict", choices=("true", "false"), required=True)
     previews.add_argument("--python", default=sys.executable)
     previews.add_argument("--source-template-id", required=True)
     previews.add_argument("--tdk-executable", required=True)
@@ -352,8 +351,7 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
             exit_code=render_status,
         )
         print(f"WARNING: Scaffold demo failed for {version_tag}; wrote {failure_path}")
-        if args.preview_strict == "true":
-            raise SystemExit(render_status)
+        raise SystemExit(render_status)
 
 
 def resolve_single_ref(repo: Path, requested_ref: str) -> str:

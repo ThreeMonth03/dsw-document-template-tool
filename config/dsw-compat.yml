@@ -12,10 +12,6 @@ runtimes:
     min_version: "v1.29.1"
     max_version: "v1.29.1"
     upstream_template_artifact_refs: "v1.29.1"
-    # Strict demo preview is proven; randomized two-template regression is not
-    # enabled for this historical runtime.
-    run_preview_regression: false
-    strict_project_preview: true
 
   - metamodel_key: "18-0"
     metamodel_version: "18.0"
@@ -24,5 +20,3 @@ runtimes:
     min_version: "v1.30.0"
     max_version: null
     upstream_template_artifact_refs: "v1.30.0+"
-    run_preview_regression: true
-    strict_project_preview: true

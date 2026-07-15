@@ -90,10 +90,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "# BEGIN GENERATED DSW RUNTIME MATRIX" in workflow_text
     assert "# END GENERATED DSW RUNTIME MATRIX" in workflow_text
     assert "UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION" in workflow_text
-    assert (
-        render_job["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"]
-        == "${{ matrix.strict_project_preview }}"
-    )
+    assert "UPSTREAM_TEMPLATE_PREVIEW_STRICT" not in render_job["env"]
     assert "dsw-tdk==${{ matrix.tdk_version }}" in workflow_text
     assert "regression-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
     assert "clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}" in workflow_text
@@ -108,7 +105,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     summary_step = next(
         step for step in render_steps if step["name"] == "Summarize preview regression coverage"
     )
-    assert summary_step["if"] == "always() && matrix.run_preview_regression == 'true'"
+    assert summary_step["if"] == "always()"
     assert "make summarize-regression-coverage" in summary_step["run"]
     assert "matrix.metamodel_version" in summary_step["run"]
     assert "make render-project" not in workflow_text
@@ -351,10 +348,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
         workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"]
         == "__UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION__"
     )
-    assert (
-        workflow["env"]["UPSTREAM_TEMPLATE_PREVIEW_STRICT"]
-        == "__UPSTREAM_TEMPLATE_PREVIEW_STRICT__"
-    )
+    assert "UPSTREAM_TEMPLATE_PREVIEW_STRICT" not in workflow["env"]
     assert workflow["env"]["PUBLISH_RELEASE_ASSETS"] == "__PUBLISH_RELEASE_ASSETS__"
     assert workflow["env"]["REFRESH_TRANSLATION_INPUTS"] == "__REFRESH_TRANSLATION_INPUTS__"
     assert workflow["env"]["PUBLIC_README_PATH"] == "__PUBLIC_README_PATH__"
@@ -467,7 +461,7 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert '--project-ref "$project_ref_path"' in workflow_text
     assert "scripts/ci/write_preview_status.py" in workflow_text
     assert "--reason render_failed" in workflow_text
-    assert 'if [ "$UPSTREAM_TEMPLATE_PREVIEW_STRICT" = "true" ]; then' in workflow_text
+    assert 'exit "$render_status"' in workflow_text
     assert "make ci-dsw-logs" in workflow_text
     assert "make stop-ci-dsw" in workflow_text
     assert "Auto-commit generated outputs" not in workflow_text

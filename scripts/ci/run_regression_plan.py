@@ -35,7 +35,6 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-config", type=Path, required=True)
     parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--fallback-version", default="latest")
     parser.add_argument("--generated-config-dir", type=Path, required=True)
     parser.add_argument("--metamodel-version", required=True)
     parser.add_argument("--plan", type=Path, required=True)
@@ -48,7 +47,6 @@ def main() -> None:
     planned_regressions = select_planned_regressions(
         plan=plan,
         metamodel_version=args.metamodel_version,
-        fallback_version=args.fallback_version,
     )
     for planned in planned_regressions:
         run_planned_regression(
@@ -67,7 +65,6 @@ def select_planned_regressions(
     *,
     plan: dict[str, Any],
     metamodel_version: str,
-    fallback_version: str,
 ) -> list[PlannedRegression]:
     """Return recommended regression runs for one metamodel."""
 
@@ -86,12 +83,9 @@ def select_planned_regressions(
     ]
     if planned:
         return planned
-    return [
-        PlannedRegression(
-            version=fallback_version,
-            reasons=("fallback",),
-        )
-    ]
+    raise SystemExit(
+        f"Regression plan has no recommended candidate for metamodelVersion {metamodel_version!r}"
+    )
 
 
 def run_planned_regression(
@@ -124,7 +118,7 @@ def run_planned_regression(
         workspace=workspace,
     )
     reasons = ", ".join(planned.reasons) if planned.reasons else "planned"
-    print(f"INFO: Running regression for {workspace.version_tag} ({reasons})")
+    print(f"INFO: Running regression for {workspace.version_tag} ({reasons})", flush=True)
     if dry_run:
         print(f"INFO: Dry run; generated {config_path} and skipped DSW regression")
         return

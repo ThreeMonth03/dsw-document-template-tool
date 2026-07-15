@@ -108,11 +108,6 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="Seconds between preview status polls.",
     )
     parser.add_argument(
-        "--skip-verify",
-        action="store_true",
-        help="Skip dsw-tdk verify before uploading the staged draft.",
-    )
-    parser.add_argument(
         "--verify-ssl",
         action="store_true",
         default=_env_bool("DSW_VERIFY_SSL", default=False),
@@ -147,7 +142,6 @@ def main() -> None:
             tdk_executable=args.tdk_executable,
             timeout_seconds=args.timeout_seconds,
             poll_seconds=args.poll_seconds,
-            skip_verify=args.skip_verify,
             verify_ssl=args.verify_ssl,
             keep_created_project=args.keep_created_project,
         )

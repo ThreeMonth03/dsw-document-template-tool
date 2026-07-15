@@ -176,5 +176,3 @@ class DswPreviewRuntime:
     min_version: str
     max_version: str | None
     upstream_template_artifact_refs: str
-    run_preview_regression: bool
-    strict_project_preview: bool

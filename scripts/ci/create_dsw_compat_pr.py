@@ -45,8 +45,6 @@ class RuntimeRow:
     min_version: str
     max_version: str | None
     upstream_template_artifact_refs: str
-    run_preview_regression: bool
-    strict_project_preview: bool
 
 
 @dataclass(frozen=True)
@@ -206,8 +204,6 @@ def build_probe_plan(*, report: str, compat_text: str) -> ProbePlan:
                 min_version=first_unsupported.version,
                 max_version=None,
                 upstream_template_artifact_refs=f"{first_unsupported.version}+",
-                run_preview_regression=previous.run_preview_regression,
-                strict_project_preview=previous.strict_project_preview,
             ),
         )
         existing_metamodels.add(metamodel_version)
@@ -281,8 +277,6 @@ def runtime_from_payload(payload: object) -> RuntimeRow:
         min_version=required_str(payload, "min_version"),
         max_version=max_version,
         upstream_template_artifact_refs=required_str(payload, "upstream_template_artifact_refs"),
-        run_preview_regression=bool(payload.get("run_preview_regression", False)),
-        strict_project_preview=bool(payload.get("strict_project_preview", False)),
     )
 
 
@@ -368,8 +362,6 @@ def close_previous_runtime(
         min_version=runtime.min_version,
         max_version=max_version,
         upstream_template_artifact_refs=artifact_refs or runtime.upstream_template_artifact_refs,
-        run_preview_regression=runtime.run_preview_regression,
-        strict_project_preview=runtime.strict_project_preview,
     )
 
 
@@ -411,8 +403,6 @@ def render_compat_config(runtimes: tuple[RuntimeRow, ...]) -> str:
                 f'    min_version: "{runtime.min_version}"',
                 f"    max_version: {render_yaml_nullable_string(runtime.max_version)}",
                 f'    upstream_template_artifact_refs: "{runtime.upstream_template_artifact_refs}"',
-                f"    run_preview_regression: {render_yaml_bool(runtime.run_preview_regression)}",
-                f"    strict_project_preview: {render_yaml_bool(runtime.strict_project_preview)}",
                 "",
             ]
         )
@@ -423,12 +413,6 @@ def render_yaml_nullable_string(value: str | None) -> str:
     """Render a nullable string value."""
 
     return "null" if value is None else f'"{value}"'
-
-
-def render_yaml_bool(value: bool) -> str:
-    """Render a YAML boolean."""
-
-    return "true" if value else "false"
 
 
 def render_probe_report(report: str, *, plan: ProbePlan) -> str:

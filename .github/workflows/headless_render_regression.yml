@@ -100,15 +100,11 @@ jobs:
             dsw_version: "4.26"
             tdk_version: "4.26.1"
             upstream_template_artifact_refs: "v1.29.1"
-            run_preview_regression: "false"
-            strict_project_preview: "true"
           - metamodel_key: "18-0"
             metamodel_version: "18.0"
             dsw_version: "4.30"
             tdk_version: "4.30.2"
             upstream_template_artifact_refs: "v1.30.0+"
-            run_preview_regression: "true"
-            strict_project_preview: "true"
           # END GENERATED DSW RUNTIME MATRIX
     env:
       DSW_API_URL: http://localhost:3000/wizard-api
@@ -116,7 +112,6 @@ jobs:
       DSW_PASSWORD: password
       DSW_VERSION: ${{ matrix.dsw_version }}
       UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION: ${{ matrix.metamodel_version }}
-      UPSTREAM_TEMPLATE_PREVIEW_STRICT: ${{ matrix.strict_project_preview }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -148,11 +143,10 @@ jobs:
         run: make start-ci-dsw
 
       - name: Run preview regression
-        if: matrix.run_preview_regression == 'true'
         run: make render-regression-ci-plan
 
       - name: Summarize preview regression coverage
-        if: always() && matrix.run_preview_regression == 'true'
+        if: always()
         run: |
           make summarize-regression-coverage \
             REGRESSION_SUMMARY_LABEL="Metamodel ${{ matrix.metamodel_version }} Render Regression"

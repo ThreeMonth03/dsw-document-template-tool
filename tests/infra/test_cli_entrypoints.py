@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
+import pytest
 import yaml
 
 
@@ -449,8 +450,6 @@ runtimes:
     min_version: "v1.30.0"
     max_version: null
     upstream_template_artifact_refs: "v1.30.0+"
-    run_preview_regression: true
-    strict_project_preview: true
 """
 
     plan = module.build_probe_plan(report=report, compat_text=compat)
@@ -1119,11 +1118,25 @@ def test_run_regression_plan_selects_recommended_versions_for_metamodel(
     selected = module.select_planned_regressions(
         plan=plan,
         metamodel_version="18.0",
-        fallback_version="latest",
     )
 
     assert [item.version for item in selected] == ["v1.30.0"]
     assert selected[0].reasons == ("first_for_metamodel",)
+
+
+def test_run_regression_plan_rejects_missing_metamodel_candidate(repo_root: Path) -> None:
+    """A broken plan must not silently test an unrelated latest version."""
+
+    module = _load_script_module(
+        repo_root / "scripts" / "ci" / "run_regression_plan.py",
+        "run_regression_plan_missing_candidate_test",
+    )
+
+    with pytest.raises(SystemExit, match="no recommended candidate"):
+        module.select_planned_regressions(
+            plan={"candidates": []},
+            metamodel_version="19.0",
+        )
 
 
 def test_run_regression_plan_dry_run_writes_versioned_configs(
@@ -1413,8 +1426,6 @@ runtimes:
     min_version: "v1.29.1"
     max_version: "v1.29.1"
     upstream_template_artifact_refs: "v1.29.1"
-    run_preview_regression: false
-    strict_project_preview: true
   - metamodel_key: "18-0"
     metamodel_version: "18.0"
     dsw_version: "4.30"
@@ -1422,8 +1433,6 @@ runtimes:
     min_version: "v1.30.0"
     max_version: "v1.30.0"
     upstream_template_artifact_refs: "v1.30.0+"
-    run_preview_regression: true
-    strict_project_preview: true
 """.lstrip(),
         encoding="utf-8",
     )

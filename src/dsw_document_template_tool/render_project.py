@@ -42,7 +42,6 @@ def render_project(
     tdk_executable: str,
     timeout_seconds: int,
     poll_seconds: float,
-    skip_verify: bool,
     verify_ssl: bool,
     keep_created_project: bool = False,
 ) -> Path:
@@ -95,7 +94,6 @@ def render_project(
                 tdk_executable=tdk_executable,
                 timeout_seconds=timeout_seconds,
                 poll_seconds=poll_seconds,
-                skip_verify=skip_verify,
             )
 
         _write_rendered_document(
@@ -141,7 +139,6 @@ def _render_draft_template_dir(
     tdk_executable: str,
     timeout_seconds: int,
     poll_seconds: float,
-    skip_verify: bool,
 ) -> tuple[bytes, dict[str, object], Path]:
     staged_dir: Path | None = None
     try:
@@ -151,9 +148,8 @@ def _render_draft_template_dir(
             subject_label="project-render",
             stage_id=stage_id,
         )
-        if not skip_verify:
-            print(f"INFO: Verifying staged template {staged_coordinates.full_id}")
-            verify_template_dir(executable=tdk_executable, template_dir=staged_dir)
+        print(f"INFO: Verifying staged template {staged_coordinates.full_id}")
+        verify_template_dir(executable=tdk_executable, template_dir=staged_dir)
 
         print(f"INFO: Uploading staged draft {staged_coordinates.full_id}")
         put_template_dir(

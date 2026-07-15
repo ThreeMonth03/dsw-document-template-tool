@@ -85,7 +85,6 @@ UPSTREAM_TEMPLATE_CACHE ?= .cache/upstream/science-europe-template
 UPSTREAM_TEMPLATE_DISCOVERY_REFS ?= $(UPSTREAM_TEMPLATE_ARTIFACT_REFS)
 UPSTREAM_TEMPLATE_DISCOVERY_REPORT ?=
 UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION ?= 18.0
-UPSTREAM_TEMPLATE_PREVIEW_STRICT ?= true
 UPSTREAM_TEMPLATE_REF ?= latest
 UPSTREAM_TEMPLATE_REGRESSION_VERSION ?= latest
 UPSTREAM_TEMPLATE_REMOTE ?= $(if $(filter http% git@% ssh://% git://% file://%,$(UPSTREAM_TEMPLATE_REPOSITORY)),$(UPSTREAM_TEMPLATE_REPOSITORY),https://github.com/$(UPSTREAM_TEMPLATE_REPOSITORY).git)
@@ -406,8 +405,7 @@ render-upstream-artifact-previews: venv
 		--project-ref "$(PROJECT_REF)" \
 		--format-uuid "$(PROJECT_RENDER_FORMAT_UUID)" \
 		--tdk-executable "$(DSW_TDK)" \
-		--preview-metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
-		--preview-strict "$(UPSTREAM_TEMPLATE_PREVIEW_STRICT)"
+		--preview-metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)"
 
 publish-clean-scaffold-releases: venv
 	@test -n "$(TOOL_GITHUB_REPO)" || { \
@@ -471,7 +469,6 @@ render-regression-ci: generate-regression-config
 render-regression-ci-plan: venv
 	$(PYTHON) scripts/ci/run_regression_plan.py \
 		--base-config "$(CI_CONFIG)" \
-		--fallback-version "$(UPSTREAM_TEMPLATE_REGRESSION_VERSION)" \
 		--generated-config-dir "$(GENERATED_CI_CONFIG_DIR)" \
 		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
 		--plan "$(REGRESSION_PLAN_PATH)" \
@@ -483,7 +480,6 @@ render-regression-ci-plan-dry-run: venv
 	$(PYTHON) scripts/ci/run_regression_plan.py \
 		--base-config "$(CI_CONFIG)" \
 		--dry-run \
-		--fallback-version "$(UPSTREAM_TEMPLATE_REGRESSION_VERSION)" \
 		--generated-config-dir "$(GENERATED_CI_CONFIG_DIR)" \
 		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
 		--plan "$(REGRESSION_PLAN_PATH)" \

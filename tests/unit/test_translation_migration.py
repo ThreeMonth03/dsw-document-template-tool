@@ -385,8 +385,8 @@ def test_translation_config_rejects_unsupported_schema_version(tmp_path: Path) -
         load_translation_repository_config(config_path)
 
 
-def test_preview_runtime_config_rejects_string_booleans(tmp_path: Path) -> None:
-    """DSW runtime flags should fail loudly when YAML values are quoted."""
+def test_preview_runtime_config_rejects_removed_policy_flags(tmp_path: Path) -> None:
+    """All supported runtimes should use the same mandatory CI contract."""
 
     compat_path = tmp_path / "dsw-compat.yml"
     compat_path.write_text(
@@ -400,13 +400,12 @@ runtimes:
     min_version: "v1.30.0"
     max_version: null
     upstream_template_artifact_refs: "v1.30.0+"
-    run_preview_regression: "false"
-    strict_project_preview: true
+    run_preview_regression: false
 """.lstrip(),
         encoding="utf-8",
     )
 
-    with pytest.raises(TranslationRepositoryError, match="Expected boolean"):
+    with pytest.raises(TranslationRepositoryError, match="run_preview_regression"):
         load_preview_runtimes(compat_path)
 
 
@@ -426,7 +425,6 @@ runtimes:
     max_version: null
     upstream_template_artifact_refs: "v1.30.0+"
     run_preview_regresion: true
-    strict_project_preview: true
 """.lstrip(),
         encoding="utf-8",
     )
@@ -686,14 +684,11 @@ def test_preview_runtime_for_version_matches_supported_metamodels() -> None:
     assert loaded_runtimes[0].metamodel_key == "17-1"
     assert preview_runtime_for_version("v1.29.1").dsw_version == "4.26"
     assert preview_runtime_for_version("v1.29.1").tdk_version == "4.26.1"
-    assert preview_runtime_for_version("v1.29.1").strict_project_preview is True
     assert preview_runtime_for_version("v1.30.0").metamodel_version == "18.0"
     assert preview_runtime_for_template("v1.30.0", "18.0").metamodel_key == "18-0"
     assert preview_runtime_for_version("v1.30.9").dsw_version == "4.30"
     assert preview_runtime_matrix()[0]["upstream_template_artifact_refs"] == "v1.29.1"
-    assert preview_runtime_matrix()[0]["strict_project_preview"] == "true"
     assert preview_runtime_matrix()[-1]["upstream_template_artifact_refs"] == "v1.30.0+"
-    assert preview_runtime_matrix()[-1]["strict_project_preview"] == "true"
     with pytest.raises(TranslationRepositoryError):
         preview_runtime_for_version("v1.29.0")
     with pytest.raises(TranslationRepositoryError):

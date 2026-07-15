@@ -7,7 +7,7 @@ from pathlib import Path
 from ..yaml_config import YamlConfigError, load_yaml_file
 from .errors import TranslationRepositoryError
 from .models import DswPreviewRuntime
-from .validation import optional_bool, reject_unknown_keys, required_str
+from .validation import reject_unknown_keys, required_str
 from .versions import version_sort_key
 
 DEFAULT_DSW_COMPAT_PATH = Path("config/dsw-compat.yml")
@@ -86,8 +86,6 @@ def preview_runtime_matrix(
             "dsw_version": runtime.dsw_version,
             "tdk_version": runtime.tdk_version,
             "upstream_template_artifact_refs": runtime.upstream_template_artifact_refs,
-            "run_preview_regression": str(runtime.run_preview_regression).lower(),
-            "strict_project_preview": str(runtime.strict_project_preview).lower(),
         }
         for runtime in load_preview_runtimes(path)
     ]
@@ -104,8 +102,6 @@ def _load_preview_runtime(payload: object) -> DswPreviewRuntime:
             "metamodel_key",
             "metamodel_version",
             "min_version",
-            "run_preview_regression",
-            "strict_project_preview",
             "tdk_version",
             "upstream_template_artifact_refs",
         },
@@ -124,16 +120,6 @@ def _load_preview_runtime(payload: object) -> DswPreviewRuntime:
         upstream_template_artifact_refs=required_str(
             payload,
             "upstream_template_artifact_refs",
-        ),
-        run_preview_regression=optional_bool(
-            payload,
-            "run_preview_regression",
-            default=False,
-        ),
-        strict_project_preview=optional_bool(
-            payload,
-            "strict_project_preview",
-            default=False,
         ),
     )
 
