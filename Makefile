@@ -520,5 +520,6 @@ validate-translation-config: venv
 
 clean:
 	rm -rf outputs dist build docs/_build .pytest_cache .ruff_cache
+	rm -f config/.generated-*.yml
 	find . -path './.venv' -prune -o -type d -name '__pycache__' -exec rm -rf {} +
 	find . -type f -name '*.pyc' ! -path './.venv/*' -delete

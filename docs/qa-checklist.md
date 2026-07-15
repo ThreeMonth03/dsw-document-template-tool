@@ -26,6 +26,8 @@ Confirm:
 - placeholders are preserved
 - translated output keeps executable Jinja and HTML structure
 - package generation succeeds
+- full regression has `complete: true` in each
+  `outputs/preview/**/random-project-coverage.json`
 
 ## Release Asset Checks
 

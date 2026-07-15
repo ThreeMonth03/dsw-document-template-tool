@@ -32,7 +32,9 @@ GENERATED_FIXTURE_KEYS = frozenset(
         "max_items_per_list",
         "name_prefix",
         "project",
+        "require_complete_coverage",
         "seed",
+        "selection_pool_size",
     }
 )
 PROJECT_KEYS = frozenset(
@@ -329,9 +331,10 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
         project_payload = generated_payload.get("project")
         if not isinstance(project_payload, dict):
             raise WorkflowConfigError(f"Generated fixture #{index} `project` must be a mapping")
+        fixture_count = _require_int(generated_payload, "count")
         generated_fixture = GeneratedFixtureConfig(
             name_prefix=_require_str(generated_payload, "name_prefix"),
-            count=_require_int(generated_payload, "count"),
+            count=fixture_count,
             seed=_require_int(generated_payload, "seed"),
             project=_load_project_seed_config(
                 base_dir=base_dir,
@@ -340,6 +343,16 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
             max_events=_optional_int(generated_payload, "max_events", 260),
             max_items_per_list=_optional_int(generated_payload, "max_items_per_list", 2),
             answer_probability=_optional_float(generated_payload, "answer_probability", 1.0),
+            selection_pool_size=_optional_int(
+                generated_payload,
+                "selection_pool_size",
+                fixture_count,
+            ),
+            require_complete_coverage=_optional_bool(
+                generated_payload,
+                "require_complete_coverage",
+                False,
+            ),
         )
         if generated_fixture.count < 1:
             raise WorkflowConfigError(
@@ -353,6 +366,11 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
             raise WorkflowConfigError(
                 "Generated fixture "
                 f"`{generated_fixture.name_prefix}` must have max_items_per_list >= 0"
+            )
+        if generated_fixture.selection_pool_size < generated_fixture.count:
+            raise WorkflowConfigError(
+                "Generated fixture "
+                f"`{generated_fixture.name_prefix}` must have selection_pool_size >= count"
             )
         if not 0 <= generated_fixture.answer_probability <= 1:
             raise WorkflowConfigError(

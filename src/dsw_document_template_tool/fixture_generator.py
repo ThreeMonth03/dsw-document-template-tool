@@ -68,10 +68,10 @@ def generate_questionnaire_events(
     The generator intentionally consumes the DSW API's compiled `knowledgeModel`
     instead of replaying KM package history. That keeps the fixture robust when a
     KM package is upgraded: if DSW can create the project, this generator follows
-    the same final chapter/question/answer graph DSW renders. The case index is
-    converted into a local branch index at each nesting level so follow-up
-    questions continue cycling through their own answers even when parent
-    answers gate their reachability.
+    the same final chapter/question/answer graph DSW renders. Each question
+    derives an independent deterministic permutation from the case index. This
+    avoids coupling nested branches to the same remainder as their parents while
+    keeping every generated case reproducible.
     """
 
     knowledge_model = _require_dict(questionnaire, "knowledgeModel")
@@ -110,7 +110,6 @@ def generate_questionnaire_events(
                 question_uuid=question_uuid,
                 path=[chapter_uuid],
                 depth=0,
-                stride=1,
             )
             if not state.budget_remaining:
                 break
@@ -130,7 +129,6 @@ def _visit_question(
     question_uuid: str,
     path: list[str],
     depth: int,
-    stride: int,
 ) -> None:
     if depth > 48 or not state.budget_remaining:
         return
@@ -153,7 +151,6 @@ def _visit_question(
             question_path=question_path,
             question_path_string=question_path_string,
             depth=depth,
-            stride=stride,
         )
     elif question_type == "ListQuestion":
         _answer_list_question(
@@ -164,7 +161,6 @@ def _visit_question(
             question_path=question_path,
             question_path_string=question_path_string,
             depth=depth,
-            stride=stride,
         )
     elif question_type == "ValueQuestion":
         state.add_event(
@@ -188,13 +184,14 @@ def _visit_question(
             question_type=question_type,
         )
     elif question_type == "MultiChoiceQuestion":
-        selected_choice_uuids = _select_choice_uuids(state, question, question_path_string, stride)
+        selected_choice_uuids = _select_choice_uuids(state, question, question_path_string)
         state.add_branch_stat(
             "multi_choice_shapes",
             {
                 "path": question_path_string,
                 "question_uuid": question_uuid,
                 "choice_count": len(_string_list(question.get("choiceUuids"))),
+                "shape": _choice_shape(state, question_path_string),
                 "selected_count": len(selected_choice_uuids),
             },
         )
@@ -205,7 +202,7 @@ def _visit_question(
                 question_type=question_type,
             )
     elif question_type == "ItemSelectQuestion":
-        item_uuid = _select_item_uuid(state, question, stride)
+        item_uuid = _select_item_uuid(state, question)
         state.add_branch_stat(
             "item_selects",
             {
@@ -231,14 +228,12 @@ def _answer_options_question(
     question_path: list[str],
     question_path_string: str,
     depth: int,
-    stride: int,
 ) -> None:
     answers = _require_dict(entities, "answers")
     answer_uuids = _string_list(question.get("answerUuids"))
     if not answer_uuids:
         return
-    local_case_index = _local_case_index(state, stride)
-    answer_index = (_stable_int(question_path_string) + local_case_index) % len(answer_uuids)
+    answer_index = _cycled_index(state, question_path_string, len(answer_uuids))
     answer_uuid = answer_uuids[answer_index]
     answer = answers.get(answer_uuid)
     if not isinstance(answer, dict):
@@ -259,7 +254,6 @@ def _answer_options_question(
         },
     )
     follow_up_path = [*question_path, answer_uuid]
-    child_stride = stride * len(answer_uuids)
     for follow_up_question_uuid in _string_list(answer.get("followUpUuids")):
         _visit_question(
             state=state,
@@ -268,7 +262,6 @@ def _answer_options_question(
             question_uuid=follow_up_question_uuid,
             path=follow_up_path,
             depth=depth + 1,
-            stride=child_stride,
         )
 
 
@@ -281,13 +274,9 @@ def _answer_list_question(
     question_path: list[str],
     question_path_string: str,
     depth: int,
-    stride: int,
 ) -> None:
-    if state.max_items_per_list == 0:
-        return
     cardinality_period = state.max_items_per_list + 1
-    local_case_index = _local_case_index(state, stride)
-    item_count = (_stable_int(question_path_string) + local_case_index) % cardinality_period
+    item_count = _cycled_index(state, question_path_string, cardinality_period)
     state.add_branch_stat(
         "list_cardinalities",
         {
@@ -313,7 +302,6 @@ def _answer_list_question(
     )
 
     item_template_question_uuids = _string_list(question.get("itemTemplateQuestionUuids"))
-    child_stride = stride * cardinality_period
     for item_uuid in item_uuids:
         item_path = [*question_path, item_uuid]
         for item_question_uuid in item_template_question_uuids:
@@ -324,7 +312,6 @@ def _answer_list_question(
                 question_uuid=item_question_uuid,
                 path=item_path,
                 depth=depth + 1,
-                stride=child_stride,
             )
             if not state.budget_remaining:
                 return
@@ -334,31 +321,34 @@ def _select_choice_uuids(
     state: _GeneratorState,
     question: dict[str, Any],
     question_path_string: str,
-    stride: int,
 ) -> list[str]:
     choice_uuids = _string_list(question.get("choiceUuids"))
     if not choice_uuids:
         return []
-    local_case_index = _local_case_index(state, stride)
-    shape = (_stable_int(question_path_string) + local_case_index) % 4
+    shape = _choice_shape(state, question_path_string)
     if shape == 0:
         return []
     if shape == 1:
-        return [choice_uuids[local_case_index % len(choice_uuids)]]
+        choice_index = _cycled_index(state, f"{question_path_string}:single", len(choice_uuids))
+        return [choice_uuids[choice_index]]
     if shape == 2:
         selected = [
             choice_uuid
             for index, choice_uuid in enumerate(choice_uuids)
-            if (index + local_case_index) % 3 == 0
+            if (index + state.case_index) % 3 == 0
         ]
-        return selected or [choice_uuids[local_case_index % len(choice_uuids)]]
+        fallback_index = _cycled_index(
+            state,
+            f"{question_path_string}:subset-fallback",
+            len(choice_uuids),
+        )
+        return selected or [choice_uuids[fallback_index]]
     return choice_uuids
 
 
 def _select_item_uuid(
     state: _GeneratorState,
     question: dict[str, Any],
-    stride: int,
 ) -> str | None:
     list_question_uuid = question.get("listQuestionUuid")
     if not isinstance(list_question_uuid, str):
@@ -366,8 +356,8 @@ def _select_item_uuid(
     item_uuids = state.item_uuids_by_list_question_uuid.get(list_question_uuid, [])
     if not item_uuids:
         return None
-    local_case_index = _local_case_index(state, stride)
-    return item_uuids[(_stable_int(str(question.get("uuid"))) + local_case_index) % len(item_uuids)]
+    question_uuid = str(question.get("uuid"))
+    return item_uuids[_cycled_index(state, question_uuid, len(item_uuids))]
 
 
 def _generated_text(state: _GeneratorState, question: dict[str, Any], path: str) -> str:
@@ -389,9 +379,16 @@ def _string_list(value: Any) -> list[str]:
     return [item for item in value if isinstance(item, str)]
 
 
-def _stable_int(value: str) -> int:
-    return int(hashlib.sha256(value.encode("utf-8")).hexdigest()[:12], 16)
+def _choice_shape(state: _GeneratorState, question_path_string: str) -> int:
+    return _cycled_index(state, question_path_string, 4)
 
 
-def _local_case_index(state: _GeneratorState, stride: int) -> int:
-    return state.case_index // max(1, stride)
+def _cycled_index(state: _GeneratorState, key: str, period: int) -> int:
+    """Return a reproducible, independently permuted index for one case block."""
+
+    if period < 1:
+        raise ValueError("period must be positive")
+    block_index, offset = divmod(state.case_index, period)
+    indexes = list(range(period))
+    random.Random(f"{state.seed}:{key}:{block_index}").shuffle(indexes)
+    return indexes[offset]

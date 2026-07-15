@@ -16,6 +16,7 @@ from ._regression.artifacts import (
 from ._regression.parallel import render_subjects_in_parallel
 from .api import DSWApiClient, DSWAPIError
 from .config import load_workflow_config
+from .fixture_coverage import plan_generated_fixture_cases
 from .fixture_generator import generate_questionnaire_events
 from .models import (
     FixtureConfig,
@@ -156,12 +157,45 @@ class DocumentTemplateWorkflowService:
     ) -> list[FixtureRegressionResult]:
         fixture_results: list[FixtureRegressionResult] = []
         for generated_fixture in config.generated_fixtures:
-            for case_index in range(generated_fixture.count):
+            questionnaire = self._load_generated_fixture_questionnaire(
+                client=client,
+                generated_fixture=generated_fixture,
+            )
+            plan = plan_generated_fixture_cases(
+                questionnaire,
+                seed=generated_fixture.seed,
+                case_limit=generated_fixture.count,
+                candidate_count=generated_fixture.selection_pool_size,
+                max_events=generated_fixture.max_events,
+                max_items_per_list=generated_fixture.max_items_per_list,
+                answer_probability=generated_fixture.answer_probability,
+            )
+            coverage_path = (
+                config.regression.output_dir / f"{generated_fixture.name_prefix}-coverage.json"
+            )
+            coverage_path.write_text(
+                json.dumps(plan.as_dict(), indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            print(
+                "INFO: Selected "
+                f"{len(plan.case_indexes)} of {generated_fixture.selection_pool_size} "
+                f"candidate fixtures; branch coverage "
+                f"{len(plan.covered)}/{len(plan.expected)}"
+            )
+            if generated_fixture.require_complete_coverage and not plan.complete:
+                raise TemplateToolError(
+                    "Generated fixture coverage is incomplete: "
+                    f"{len(plan.missing)} branches are missing; see {coverage_path}"
+                )
+
+            for case_index in plan.case_indexes:
                 fixture, resolved_fixture = self._prepare_generated_fixture(
                     client=client,
                     config=config,
                     generated_fixture=generated_fixture,
                     case_index=case_index,
+                    questionnaire=questionnaire,
                 )
                 if resolved_fixture.created_by_tool:
                     created_projects.append(resolved_fixture)
@@ -176,6 +210,33 @@ class DocumentTemplateWorkflowService:
                     )
                 )
         return fixture_results
+
+    def _load_generated_fixture_questionnaire(
+        self,
+        *,
+        client: DSWApiClient,
+        generated_fixture: GeneratedFixtureConfig,
+    ) -> dict[str, Any]:
+        """Create one disposable project and return its compiled questionnaire."""
+
+        project_name = f"{generated_fixture.project.name} coverage discovery"
+        unique_name = f"{project_name} [{uuid.uuid4().hex[:8]}]"
+        print(f"INFO: Creating generated fixture discovery project {unique_name}")
+        payload = client.create_project_from_package(
+            name=unique_name,
+            knowledge_model_package_id=generated_fixture.project.knowledge_model_package_id,
+            question_tag_uuids=generated_fixture.project.question_tag_uuids,
+            visibility=generated_fixture.project.visibility,
+            sharing=generated_fixture.project.sharing,
+        )
+        project_uuid = str(payload["uuid"])
+        try:
+            return client.get_project_questionnaire(project_uuid)
+        finally:
+            try:
+                client.delete_project(project_uuid)
+            except Exception as exc:
+                print(f"WARNING: Failed to clean up discovery project {project_uuid}: {exc}")
 
     def _cleanup_projects(
         self,
@@ -383,6 +444,7 @@ class DocumentTemplateWorkflowService:
         config: WorkflowConfig,
         generated_fixture: GeneratedFixtureConfig,
         case_index: int,
+        questionnaire: dict[str, Any],
     ) -> tuple[FixtureConfig, FixtureProject]:
         fixture_name = f"{generated_fixture.name_prefix}-{case_index:03d}"
         fixture = FixtureConfig(
@@ -401,7 +463,6 @@ class DocumentTemplateWorkflowService:
         )
         project_uuid = str(payload["uuid"])
         try:
-            questionnaire = client.get_project_questionnaire(project_uuid)
             generated = generate_questionnaire_events(
                 questionnaire,
                 seed=generated_fixture.seed,

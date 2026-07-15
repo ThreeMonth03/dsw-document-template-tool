@@ -71,9 +71,11 @@ class GeneratedFixtureConfig:
     count: int
     seed: int
     project: ProjectSeedConfig
+    selection_pool_size: int
     max_events: int = 260
     max_items_per_list: int = 2
     answer_probability: float = 1.0
+    require_complete_coverage: bool = False
 
 
 @dataclass(frozen=True)

@@ -72,3 +72,5 @@ generated_fixtures:
       question_tag_uuids: []
       visibility: PrivateProjectVisibility
       sharing: RestrictedProjectSharing
+    require_complete_coverage: true
+    selection_pool_size: 640

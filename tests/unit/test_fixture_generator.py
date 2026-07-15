@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dsw_document_template_tool.fixture_coverage import plan_generated_fixture_cases
 from dsw_document_template_tool.fixture_generator import generate_questionnaire_events
 
 
@@ -13,14 +14,14 @@ def test_generate_questionnaire_events_is_deterministic_and_path_aware() -> None
     first = generate_questionnaire_events(
         questionnaire,
         seed=20260522,
-        case_index=2,
+        case_index=0,
         max_events=50,
         max_items_per_list=2,
     )
     second = generate_questionnaire_events(
         questionnaire,
         seed=20260522,
-        case_index=2,
+        case_index=0,
         max_events=50,
         max_items_per_list=2,
     )
@@ -102,6 +103,44 @@ def test_generate_questionnaire_events_cycles_list_cardinalities() -> None:
     }
 
     assert item_counts == {0, 1, 2}
+
+
+def test_plan_generated_fixture_cases_covers_branches_with_compact_selection() -> None:
+    """The planner should cover every reachable branch without rendering its full pool."""
+
+    plan = plan_generated_fixture_cases(
+        _synthetic_questionnaire(),
+        seed=20260522,
+        case_limit=4,
+        candidate_count=24,
+        max_events=50,
+        max_items_per_list=2,
+        answer_probability=1.0,
+    )
+
+    assert plan.complete
+    assert plan.case_indexes == (0, 1, 2, 7)
+    assert len(plan.covered) == len(plan.expected)
+    assert plan.as_dict()["missing_branches"] == []
+
+
+def test_plan_generated_fixture_cases_reports_insufficient_case_limit() -> None:
+    """A deliberately small limit should produce a reviewable incomplete report."""
+
+    plan = plan_generated_fixture_cases(
+        _synthetic_questionnaire(),
+        seed=20260522,
+        case_limit=1,
+        candidate_count=24,
+        max_events=50,
+        max_items_per_list=2,
+        answer_probability=1.0,
+    )
+
+    report = plan.as_dict()
+    assert not plan.complete
+    assert report["missing_branch_count"] > 0
+    assert report["categories"]["option_answer"]["missing"] > 0
 
 
 def _synthetic_questionnaire() -> dict[str, object]:

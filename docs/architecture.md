@@ -138,6 +138,9 @@ Key files:
 - [`fixture_generator.py`](../src/dsw_document_template_tool/fixture_generator.py)
   creates deterministic generated project fixtures from compiled DSW
   questionnaire models.
+- [`fixture_coverage.py`](../src/dsw_document_template_tool/fixture_coverage.py)
+  inventories reachable questionnaire branches and selects a compact fixture
+  set before DSW rendering.
 - [`html_diff.py`](../src/dsw_document_template_tool/html_diff.py) normalizes
   rendered HTML and reports behavior differences.
 - [`workflow.py`](../src/dsw_document_template_tool/workflow.py) contains DSW

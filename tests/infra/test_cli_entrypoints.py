@@ -1082,6 +1082,7 @@ generated_fixtures:
     payload = yaml.safe_load(generated_config.read_text(encoding="utf-8"))
     assert payload["regression"]["output_dir"] == "../outputs/preview/v1.30.1"
     assert payload["generated_fixtures"][0]["count"] == 20
+    assert payload["generated_fixtures"][0]["require_complete_coverage"] is False
 
 
 def test_run_regression_plan_selects_recommended_versions_for_metamodel(
@@ -1250,6 +1251,7 @@ generated_fixtures:
     )
     assert first_config["regression"]["output_dir"] == "../outputs/preview/v1.30.0-smoke"
     assert first_config["generated_fixtures"][0]["count"] == 7
+    assert first_config["generated_fixtures"][0]["require_complete_coverage"] is False
     assert latest_config["regression"]["output_dir"] == "../outputs/preview/v1.30.1"
     assert latest_config["generated_fixtures"][0]["count"] == 80
     assert "Dry run" in result.stdout

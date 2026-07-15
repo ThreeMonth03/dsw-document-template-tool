@@ -22,6 +22,18 @@ The three regression configs use the strict loader in
 or unknown fields fail before a DSW request runs, so a misspelled option cannot
 silently fall back to its default.
 
+`generated_fixtures` in [`config/regression.ci.yml`](../config/regression.ci.yml)
+uses these coverage controls:
+
+| Field | Meaning |
+| --- | --- |
+| `count` | Maximum number of selected cases that may become DSW projects and render comparisons. |
+| `selection_pool_size` | Number of deterministic candidates evaluated locally before selecting cases. It must be at least `count`. |
+| `require_complete_coverage` | Fail when the selected cases do not cover every reachable answer and supported collection shape. Smoke config generation sets this to `false`. |
+
+Increase `selection_pool_size` before increasing `count`: searching more local
+candidates is much cheaper than rendering more DSW projects.
+
 ## Workflow and Stack Configs
 
 | File | Owner | Purpose | Main Commands |

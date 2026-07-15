@@ -122,6 +122,8 @@ def test_shipped_ci_config_includes_random_render_fixtures(repo_root: Path, monk
     assert generated.seed == 20260522
     assert generated.max_events >= 300
     assert generated.max_items_per_list == 3
+    assert generated.selection_pool_size > generated.count
+    assert generated.require_complete_coverage
     assert Path(generated.project.knowledge_model_package_id).is_file()
 
 

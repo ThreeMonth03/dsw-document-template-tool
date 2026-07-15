@@ -181,7 +181,7 @@ def append_regression_output_dir_suffix(payload: dict[str, object], *, suffix: s
 
 
 def limit_generated_fixture_count(payload: dict[str, object], *, count: int) -> None:
-    """Cap generated fixture groups to keep smoke regression cheap."""
+    """Cap generated fixtures and make reduced smoke coverage report-only."""
 
     if count < 0:
         raise SystemExit("--generated-fixture-count must not be negative")
@@ -197,6 +197,7 @@ def limit_generated_fixture_count(payload: dict[str, object], *, count: int) -> 
         if not isinstance(current_count, int):
             raise SystemExit("Expected generated fixture `count` to be an integer")
         fixture_group["count"] = min(current_count, count)
+        fixture_group["require_complete_coverage"] = False
 
 
 def _relative_posix_path(path: Path, base_dir: Path) -> str:

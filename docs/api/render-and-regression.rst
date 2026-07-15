@@ -22,6 +22,10 @@ Render Project
 Fixture Generation
 ------------------
 
+.. automodule:: dsw_document_template_tool.fixture_coverage
+   :members: BranchToken, GeneratedFixturePlan, plan_generated_fixture_cases
+   :show-inheritance:
+
 .. automodule:: dsw_document_template_tool.fixture_generator
    :members: GeneratedQuestionnaireEvents, generate_questionnaire_events
    :show-inheritance:

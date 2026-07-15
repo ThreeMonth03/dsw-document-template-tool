@@ -51,9 +51,17 @@ those projects in an ephemeral local DSW stack, render PDFs, and upload
 previews as artifacts.
 
 For broad regression coverage, generated fixtures ask the DSW API for the
-compiled questionnaire model and produce deterministic event payloads. The
-checked-in CI config uses an empty smoke fixture, the filled demo fixture, and
-fixed-seed generated fixtures.
+compiled questionnaire model and produce deterministic event payloads. Before
+creating projects, the planner generates a larger in-memory candidate pool and
+greedily selects the smallest useful subset within the configured case limit.
+Coverage includes every reachable option answer, list cardinality, and
+multi-choice shape. The checked-in full profile requires complete coverage;
+reduced smoke profiles write a report without enforcing completeness.
+
+Each generated group writes `<name-prefix>-coverage.json` beside its regression
+report. It records selected case indexes, coverage totals by category, and any
+missing branches. Candidate generation is local and cheap; only selected cases
+become DSW projects and render comparisons.
 
 ## Local Commands
 
@@ -99,11 +107,12 @@ structure signature changed within the same metamodel. The plan runner maps
 those candidates to fixture profiles:
 
 - `full`: latest versions, fallback runs, and versions with structure-signature
-  changes. This keeps the generated fixture count from the base config.
+  changes. This keeps the branch-coverage gate and case limit from the base
+  config.
 - `smoke`: boundary versions that are useful for compatibility coverage but do
-  not otherwise show structure drift. This keeps all fixed fixtures and caps
-  generated random fixtures to `REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT`
-  (default: `20`).
+  not otherwise show structure drift. This keeps all fixed fixtures, caps
+  selected generated fixtures to `REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT`
+  (default: `20`), and makes generated coverage report-only.
 
 This gives maintainers a reviewable path toward testing fewer redundant
 versions without blindly trusting tag numbers.
@@ -197,7 +206,7 @@ Important output families:
 - `outputs/project-render/...`: demo PDFs or `skipped.json` / `failed.json`
   preview status files.
 - `outputs/preview/...`: raw and normalized HTML, diffs, fixture events, and
-  regression reports.
+  regression reports, including generated branch-coverage reports.
 
 On non-PR runs, CI also stages the clean scaffold package, clean upstream
 workspace bundle, preview bundle, release notes, and `SHA256SUMS` under

@@ -33,8 +33,10 @@ protect.
   not only cover the empty questionnaire.
 - `generated_fixtures` in
   [`config/regression.ci.yml`](../config/regression.ci.yml)
-  creates deterministic branch-sweeping projects during CI. These generated
-  fixtures are not committed because they are large and mechanically derived.
+  plans deterministic branch-sweeping projects during CI. It searches a large
+  local candidate pool, renders only a compact selected set, and writes a
+  coverage report under `outputs/preview/`. Generated events are not committed
+  because they are mechanically derived.
 
 When adding fixtures, prefer several focused payloads over one huge payload,
 especially for list cardinalities (`0`, `1`, `2`, `3+`) and mutually exclusive

@@ -145,6 +145,8 @@ generated_fixtures:
     max_events: 320
     max_items_per_list: 3
     answer_probability: 1.0
+    selection_pool_size: 640
+    require_complete_coverage: true
     project:
       name: random path
       knowledge_model_package_id: myorg:km:1.0.0
@@ -161,6 +163,8 @@ generated_fixtures:
     assert generated.seed == 20260522
     assert generated.max_events == 320
     assert generated.max_items_per_list == 3
+    assert generated.selection_pool_size == 640
+    assert generated.require_complete_coverage
     assert generated.project.name == "random path"
 
 
