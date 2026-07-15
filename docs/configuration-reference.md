@@ -49,7 +49,7 @@ candidates is much cheaper than rendering more DSW projects.
 | Path | Created By | Purpose | Commit? |
 | --- | --- | --- | --- |
 | `config/.generated-regression.ci.yml` | `make generate-regression-config` or `make render-regression-ci` | Active single-version CI regression config. | No |
-| `config/.generated-regression.ci.<metamodel>.<version>.<profile>.yml` | `make render-regression-ci-plan` | Per-version regression config generated from the compatibility ledger plan. | No |
+| `config/.generated-regression.ci.<metamodel>.<version>.yml` | `make render-regression-ci-plan` | Per-version regression config generated from the compatibility ledger plan. | No |
 
 Generated configs are ignored by git. If a generated config looks wrong, fix the
 source config or generator instead of committing the generated file.

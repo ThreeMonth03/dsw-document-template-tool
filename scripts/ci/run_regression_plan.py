@@ -20,26 +20,13 @@ from generate_regression_config import (  # noqa: E402
     write_regression_config,
 )
 
-FULL_PROFILE = "full"
-SMOKE_PROFILE = "smoke"
-DEFAULT_SMOKE_GENERATED_FIXTURE_COUNT = 20
-
 
 @dataclass(frozen=True)
 class PlannedRegression:
     """One regression run selected from the compatibility plan."""
 
     version: str
-    metamodel_version: str
     reasons: tuple[str, ...]
-
-    @property
-    def profile(self) -> str:
-        """Return the CI profile used for this planned run."""
-
-        if {"fallback", "latest_for_metamodel", "structure_signature_changed"} & set(self.reasons):
-            return FULL_PROFILE
-        return SMOKE_PROFILE
 
 
 def main() -> None:
@@ -53,15 +40,6 @@ def main() -> None:
     parser.add_argument("--metamodel-version", required=True)
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--render-command", default=DEFAULT_RENDER_COMMAND)
-    parser.add_argument(
-        "--smoke-generated-fixture-count",
-        type=int,
-        default=DEFAULT_SMOKE_GENERATED_FIXTURE_COUNT,
-        help=(
-            "generated fixture count for smoke-profile planned runs "
-            f"(default: {DEFAULT_SMOKE_GENERATED_FIXTURE_COUNT})"
-        ),
-    )
     parser.add_argument("--source-template-id", required=True)
     parser.add_argument("--workspace-root", type=Path, required=True)
     args = parser.parse_args()
@@ -80,7 +58,6 @@ def main() -> None:
             metamodel_version=args.metamodel_version,
             planned=planned,
             render_command=args.render_command,
-            smoke_generated_fixture_count=args.smoke_generated_fixture_count,
             source_template_id=args.source_template_id,
             workspace_root=args.workspace_root,
         )
@@ -100,7 +77,6 @@ def select_planned_regressions(
     planned = [
         PlannedRegression(
             version=_required_str(candidate, "version"),
-            metamodel_version=_required_str(candidate, "metamodel_version"),
             reasons=tuple(_optional_str_list(candidate, "reasons")),
         )
         for candidate in candidates
@@ -113,7 +89,6 @@ def select_planned_regressions(
     return [
         PlannedRegression(
             version=fallback_version,
-            metamodel_version=metamodel_version,
             reasons=("fallback",),
         )
     ]
@@ -127,7 +102,6 @@ def run_planned_regression(
     metamodel_version: str,
     planned: PlannedRegression,
     render_command: str,
-    smoke_generated_fixture_count: int,
     source_template_id: str,
     workspace_root: Path,
 ) -> None:
@@ -140,24 +114,17 @@ def run_planned_regression(
         metamodel_version=metamodel_version,
     )
     config_path = generated_config_dir / (
-        ".generated-regression.ci."
-        f"{_safe_path_part(metamodel_version)}.{workspace.version_tag}.{planned.profile}.yml"
+        f".generated-regression.ci.{_safe_path_part(metamodel_version)}.{workspace.version_tag}.yml"
     )
-    output_suffix = workspace.version_tag
-    generated_fixture_count = None
-    if planned.profile == SMOKE_PROFILE:
-        output_suffix = f"{workspace.version_tag}-{SMOKE_PROFILE}"
-        generated_fixture_count = smoke_generated_fixture_count
     write_regression_config(
         base_config=base_config,
-        generated_fixture_count=generated_fixture_count,
         output=config_path,
-        output_dir_suffix=output_suffix,
+        output_dir_suffix=workspace.version_tag,
         source_template_id=source_template_id,
         workspace=workspace,
     )
     reasons = ", ".join(planned.reasons) if planned.reasons else "planned"
-    print(f"INFO: Running {planned.profile} regression for {workspace.version_tag} ({reasons})")
+    print(f"INFO: Running regression for {workspace.version_tag} ({reasons})")
     if dry_run:
         print(f"INFO: Dry run; generated {config_path} and skipped DSW regression")
         return

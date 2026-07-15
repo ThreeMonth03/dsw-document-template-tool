@@ -13,20 +13,20 @@ def test_summary_reports_versioned_results_and_branch_coverage(
     repo_root: Path,
     tmp_path: Path,
 ) -> None:
-    """Actions should expose full and smoke regression evidence without artifacts."""
+    """Actions should expose complete regression evidence without artifacts."""
 
     output_dir = tmp_path / "preview"
     _write_regression_report(
-        output_dir / "v1.30.0-smoke",
+        output_dir / "v1.30.0",
         version="1.30.0",
         equal=(True, False),
     )
     _write_coverage_report(
-        output_dir / "v1.30.0-smoke",
-        selected=20,
-        covered=1102,
+        output_dir / "v1.30.0",
+        selected=35,
+        covered=1136,
         expected=1136,
-        complete=False,
+        complete=True,
     )
     _write_regression_report(
         output_dir / "v1.30.1",
@@ -62,9 +62,9 @@ def test_summary_reports_versioned_results_and_branch_coverage(
     assert result.returncode == 0, result.stdout + result.stderr
     assert result.stdout == summary_path.read_text(encoding="utf-8")
     assert "## Metamodel 18.0 Render Regression" in result.stdout
-    assert "| v1.30.0-smoke | Failed (1 different) | 2 |" in result.stdout
-    assert "random-project: 20" in result.stdout
-    assert "random-project: 1102/1136 (partial)" in result.stdout
+    assert "| v1.30.0 | Failed (1 different) | 2 |" in result.stdout
+    assert "random-project: 35" in result.stdout
+    assert "random-project: 1136/1136 (complete)" in result.stdout
     assert "| v1.30.1 | Passed | 3 |" in result.stdout
     assert "random-project: 35" in result.stdout
     assert "random-project: 1136/1136 (complete)" in result.stdout

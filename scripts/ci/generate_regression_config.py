@@ -36,7 +36,6 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-config", type=Path, required=True)
-    parser.add_argument("--generated-fixture-count", type=int)
     parser.add_argument("--metamodel-version", default="")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--output-dir-suffix", default="")
@@ -53,7 +52,6 @@ def main() -> None:
     )
     write_regression_config(
         base_config=args.base_config,
-        generated_fixture_count=args.generated_fixture_count,
         output=args.output,
         output_dir_suffix=args.output_dir_suffix,
         source_template_id=args.source_template_id,
@@ -130,7 +128,6 @@ def discover_regression_workspaces(
 def write_regression_config(
     *,
     base_config: Path,
-    generated_fixture_count: int | None = None,
     output: Path,
     output_dir_suffix: str = "",
     source_template_id: str,
@@ -161,9 +158,6 @@ def write_regression_config(
     }
     if output_dir_suffix:
         append_regression_output_dir_suffix(payload, suffix=output_dir_suffix)
-    if generated_fixture_count is not None:
-        limit_generated_fixture_count(payload, count=generated_fixture_count)
-
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
@@ -178,26 +172,6 @@ def append_regression_output_dir_suffix(payload: dict[str, object], *, suffix: s
     if not isinstance(output_dir, str) or not output_dir:
         raise SystemExit("Expected `regression.output_dir` string in base config")
     regression["output_dir"] = f"{output_dir.rstrip('/')}/{suffix.strip('/')}"
-
-
-def limit_generated_fixture_count(payload: dict[str, object], *, count: int) -> None:
-    """Cap generated fixtures and make reduced smoke coverage report-only."""
-
-    if count < 0:
-        raise SystemExit("--generated-fixture-count must not be negative")
-    generated_fixtures = payload.get("generated_fixtures", [])
-    if not isinstance(generated_fixtures, list):
-        raise SystemExit("Expected `generated_fixtures` list in base config")
-    for fixture_group in generated_fixtures:
-        if not isinstance(fixture_group, dict):
-            raise SystemExit("Expected each generated fixture group to be a mapping")
-        current_count = fixture_group.get("count")
-        if current_count is None:
-            continue
-        if not isinstance(current_count, int):
-            raise SystemExit("Expected generated fixture `count` to be an integer")
-        fixture_group["count"] = min(current_count, count)
-        fixture_group["require_complete_coverage"] = False
 
 
 def _relative_posix_path(path: Path, base_dir: Path) -> str:

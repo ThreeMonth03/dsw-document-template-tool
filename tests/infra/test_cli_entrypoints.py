@@ -1044,6 +1044,7 @@ regression:
 generated_fixtures:
   - name_prefix: random-project
     count: 80
+    require_complete_coverage: true
 """.strip()
         + "\n",
         encoding="utf-8",
@@ -1070,8 +1071,6 @@ generated_fixtures:
             "v1.30.1",
             "--output-dir-suffix",
             "v1.30.1",
-            "--generated-fixture-count",
-            "20",
         ],
         capture_output=True,
         text=True,
@@ -1081,8 +1080,8 @@ generated_fixtures:
     assert result.returncode == 0, result.stdout + result.stderr
     payload = yaml.safe_load(generated_config.read_text(encoding="utf-8"))
     assert payload["regression"]["output_dir"] == "../outputs/preview/v1.30.1"
-    assert payload["generated_fixtures"][0]["count"] == 20
-    assert payload["generated_fixtures"][0]["require_complete_coverage"] is False
+    assert payload["generated_fixtures"][0]["count"] == 80
+    assert payload["generated_fixtures"][0]["require_complete_coverage"] is True
 
 
 def test_run_regression_plan_selects_recommended_versions_for_metamodel(
@@ -1125,43 +1124,6 @@ def test_run_regression_plan_selects_recommended_versions_for_metamodel(
 
     assert [item.version for item in selected] == ["v1.30.0"]
     assert selected[0].reasons == ("first_for_metamodel",)
-    assert selected[0].profile == "smoke"
-
-
-def test_run_regression_plan_uses_full_profile_for_latest_or_changed_versions(
-    repo_root: Path,
-) -> None:
-    """Only high-value changed/latest candidates should run the full fixture set."""
-
-    module = _load_script_module(
-        repo_root / "scripts" / "ci" / "run_regression_plan.py",
-        "run_regression_plan_profile_test",
-    )
-
-    assert (
-        module.PlannedRegression(
-            version="v1.30.0",
-            metamodel_version="18.0",
-            reasons=("first_for_metamodel",),
-        ).profile
-        == "smoke"
-    )
-    assert (
-        module.PlannedRegression(
-            version="v1.30.1",
-            metamodel_version="18.0",
-            reasons=("latest_for_metamodel",),
-        ).profile
-        == "full"
-    )
-    assert (
-        module.PlannedRegression(
-            version="v1.30.1",
-            metamodel_version="18.0",
-            reasons=("structure_signature_changed",),
-        ).profile
-        == "full"
-    )
 
 
 def test_run_regression_plan_dry_run_writes_versioned_configs(
@@ -1187,6 +1149,7 @@ regression:
 generated_fixtures:
   - name_prefix: random-project
     count: 80
+    require_complete_coverage: true
 """.strip()
         + "\n",
         encoding="utf-8",
@@ -1234,8 +1197,6 @@ generated_fixtures:
             "dsw-science-europe",
             "--workspace-root",
             str(workspace_root),
-            "--smoke-generated-fixture-count",
-            "7",
         ],
         capture_output=True,
         text=True,
@@ -1244,19 +1205,20 @@ generated_fixtures:
 
     assert result.returncode == 0, result.stdout + result.stderr
     first_config = yaml.safe_load(
-        (config_dir / ".generated-regression.ci.18-0.v1.30.0.smoke.yml").read_text(encoding="utf-8")
+        (config_dir / ".generated-regression.ci.18-0.v1.30.0.yml").read_text(encoding="utf-8")
     )
     latest_config = yaml.safe_load(
-        (config_dir / ".generated-regression.ci.18-0.v1.30.1.full.yml").read_text(encoding="utf-8")
+        (config_dir / ".generated-regression.ci.18-0.v1.30.1.yml").read_text(encoding="utf-8")
     )
-    assert first_config["regression"]["output_dir"] == "../outputs/preview/v1.30.0-smoke"
-    assert first_config["generated_fixtures"][0]["count"] == 7
-    assert first_config["generated_fixtures"][0]["require_complete_coverage"] is False
+    assert first_config["regression"]["output_dir"] == "../outputs/preview/v1.30.0"
+    assert first_config["generated_fixtures"][0]["count"] == 80
+    assert first_config["generated_fixtures"][0]["require_complete_coverage"] is True
     assert latest_config["regression"]["output_dir"] == "../outputs/preview/v1.30.1"
     assert latest_config["generated_fixtures"][0]["count"] == 80
+    assert latest_config["generated_fixtures"][0]["require_complete_coverage"] is True
     assert "Dry run" in result.stdout
-    assert "Running smoke regression for v1.30.0" in result.stdout
-    assert "Running full regression for v1.30.1" in result.stdout
+    assert "Running regression for v1.30.0" in result.stdout
+    assert "Running regression for v1.30.1" in result.stdout
 
 
 def test_upstream_template_artifacts_lists_and_fetches_local_tags(

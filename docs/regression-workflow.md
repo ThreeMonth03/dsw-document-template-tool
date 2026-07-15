@@ -55,8 +55,8 @@ compiled questionnaire model and produce deterministic event payloads. Before
 creating projects, the planner generates a larger in-memory candidate pool and
 greedily selects the smallest useful subset within the configured case limit.
 Coverage includes every reachable option answer, list cardinality, and
-multi-choice shape. The checked-in full profile requires complete coverage;
-reduced smoke profiles write a report without enforcing completeness.
+multi-choice shape. The checked-in CI config requires complete coverage for
+every version selected by the compatibility plan.
 
 Each generated group writes `<name-prefix>-coverage.json` beside its regression
 report. It records selected case indexes, coverage totals by category, and any
@@ -66,7 +66,7 @@ become DSW projects and render comparisons.
 GitHub Actions runs
 [`summarize_regression_coverage.py`](../scripts/ci/summarize_regression_coverage.py)
 after regression even when the regression step fails. The run summary shows
-each version/profile, comparison result, rendered fixture count, selected
+each version, comparison result, rendered fixture count, selected
 generated cases, and covered/expected branch count. The summary is diagnostic;
 the regression command remains the pass/fail gate.
 
@@ -111,19 +111,14 @@ before spending CI time on DSW preview/PDF rendering.
 
 The regression plan recommends high-value candidates: the first and latest
 version for each metamodel runtime, plus any version whose expanded/tree
-structure signature changed within the same metamodel. The plan runner maps
-those candidates to fixture profiles:
+structure signature changed within the same metamodel. Every recommended
+candidate runs the same complete branch-coverage gate from the base config.
+Versions with unchanged structural signatures are omitted from DSW regression
+rather than tested with a weaker partial profile; the compatibility ledger
+still records and compares every built version.
 
-- `full`: latest versions, fallback runs, and versions with structure-signature
-  changes. This keeps the branch-coverage gate and case limit from the base
-  config.
-- `smoke`: boundary versions that are useful for compatibility coverage but do
-  not otherwise show structure drift. This keeps all fixed fixtures, caps
-  selected generated fixtures to `REGRESSION_SMOKE_GENERATED_FIXTURE_COUNT`
-  (default: `20`), and makes generated coverage report-only.
-
-This gives maintainers a reviewable path toward testing fewer redundant
-versions without blindly trusting tag numbers.
+This policy spends DSW render time only on structurally meaningful versions
+without weakening the evidence for versions that are selected.
 
 In GitHub Actions, `make generate-compat-ledger` also appends both reports to
 the step summary, so maintainers can review the drift and candidate plan before
