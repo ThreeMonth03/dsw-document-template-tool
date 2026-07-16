@@ -102,6 +102,14 @@ each version, comparison result, rendered fixture count, selected
 generated cases, and covered/expected branch count. The summary is diagnostic;
 the regression command remains the pass/fail gate.
 
+The final gate is
+[`verify_runtime_evidence.py`](../scripts/ci/verify_runtime_evidence.py). It
+combines the planned version list with the configured DSW/TDK runtime, pinned KM
+provenance, passing regression report, complete branch coverage, and strict
+scaffold-package PDF. A runtime is supported only when all of these proofs are
+present. The generated `evidence.json` and `evidence.md` make the result
+traceable without reconstructing it from several Actions log sections.
+
 ## Local Commands
 
 Run the same local sequence that CI uses for preview regression:
@@ -112,6 +120,8 @@ make generate-compat-ledger
 make start-ci-dsw
 make render-regression-ci-plan
 make summarize-regression-coverage
+make render-upstream-artifact-previews
+make verify-runtime-evidence
 make ci-dsw-logs
 make stop-ci-dsw
 ```
@@ -125,6 +135,13 @@ without overwriting preview artifacts from other versions. It fails if the plan
 does not recommend a candidate for the selected metamodel; it never substitutes
 an unrelated `latest` version. The regression command is therefore
 intentionally not standalone on a clean checkout.
+
+Versioned regression configs do not trust the KM path copied into the base YAML.
+The generator reads [`config/regression-evidence.yml`](../config/regression-evidence.yml),
+verifies the pinned bundle, selects the assignment for the active runtime, and
+rewrites every fixture project recipe to that exact bundle. Fixtures that refer
+to an already-created `project_uuid` are left unchanged because they do not
+import a KM.
 
 ## Compatibility Ledger
 
@@ -201,7 +218,7 @@ It has two jobs:
   compatibility, run format/lint/tests.
 - `render-regression`: run a metamodel-aware DSW matrix, build clean scaffold
   artifacts, run full regression and strict demo previews for every supported
-  runtime, and upload artifacts.
+  runtime, verify complete runtime evidence, and upload artifacts.
 
 The runtime matrix comes from:
 
@@ -222,6 +239,11 @@ A row in `config/dsw-compat.yml` means that both checks are required. Do not add
 per-runtime skip flags: a runtime that cannot pass the common contract is not a
 supported runtime yet.
 
+The exact TDK patch version and regression KM assignment are read from
+[`config/dsw-compat.yml`](../config/dsw-compat.yml) and
+[`config/regression-evidence.yml`](../config/regression-evidence.yml), not from
+this explanatory table.
+
 If a future upstream tag introduces a new `metamodelVersion`, CI should fail
 clearly during compatibility discovery. The failure summary includes an
 advisory runtime hint from the official DSW document-template metamodel notes.
@@ -240,10 +262,12 @@ Important output families:
   candidate plans for compact, expanded, expanded-regression, translation-tree,
   and scaffold package outputs.
 - `outputs/document-templates/...`: packaged scaffold templates.
-- `outputs/project-render/...`: demo PDFs or `skipped.json` / `failed.json`
-  preview status files.
+- `outputs/project-render/...`: strict demo PDFs or diagnostic `failed.json`
+  files. A supported runtime may not replace its PDF with a skipped result.
 - `outputs/preview/...`: raw and normalized HTML, diffs, fixture events, and
   regression reports, including generated branch-coverage reports.
+- `outputs/runtime-evidence/...`: one JSON/Markdown proof tying runtime, KM,
+  complete coverage, regression equality, and strict PDF preview together.
 
 On non-PR runs, CI also stages the clean scaffold package, clean upstream
 workspace bundle, preview bundle, release notes, and `SHA256SUMS` under

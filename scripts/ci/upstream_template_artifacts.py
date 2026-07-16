@@ -307,23 +307,13 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
             / "test-project.pdf"
         )
         if metamodel_version != args.preview_metamodel_version:
-            status_path = output_path.parent / "skipped.json"
-            write_preview_status(
-                args.python,
-                output=status_path,
-                status="skipped",
-                reason="unsupported_metamodel_version",
-                version_tag=version_tag,
-                template_metamodel_version=metamodel_version,
-                preview_metamodel_version=args.preview_metamodel_version,
-            )
             print(
-                f"INFO: Skipping scaffold demo for {version_tag}: metamodel "
-                f"{metamodel_version} is not supported by preview DSW metamodel "
-                f"{args.preview_metamodel_version}"
+                f"INFO: [{version_tag}] preview belongs to metamodel {metamodel_version}; "
+                f"current runtime handles {args.preview_metamodel_version}"
             )
             continue
 
+        clear_preview_outputs(output_path)
         print(f"INFO: Rendering scaffold demo for {version_tag} to {output_path}")
         render_status = run(
             tool_command(
@@ -358,6 +348,18 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
         )
         print(f"WARNING: Scaffold demo failed for {version_tag}; wrote {failure_path}")
         raise SystemExit(render_status)
+
+
+def clear_preview_outputs(output_path: Path) -> None:
+    """Remove stale success and failure markers before one preview attempt."""
+
+    for path in (
+        output_path,
+        Path(f"{output_path}.json"),
+        output_path.parent / "failed.json",
+        output_path.parent / "skipped.json",
+    ):
+        path.unlink(missing_ok=True)
 
 
 def resolve_single_ref(repo: Path, requested_ref: str) -> str:

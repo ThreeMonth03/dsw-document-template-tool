@@ -12,7 +12,7 @@ from typing import Any
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--status", required=True, choices=("skipped", "failed"))
+    parser.add_argument("--status", required=True, choices=("failed",))
     parser.add_argument("--reason", required=True)
     parser.add_argument("--template-version")
     parser.add_argument("--template-metamodel-version", required=True)

@@ -133,7 +133,8 @@ make discover-upstream-compat \
 ```
 
 If discovery finds an unsupported metamodel, the workflow opens a follow-up PR
-with a report and smoke-test checklist. It does not auto-merge runtime changes.
+with a report and full-validation checklist. It does not auto-merge runtime
+changes.
 The report is staged at
 [`docs/compatibility/dsw-compatibility-probe.md`](compatibility/dsw-compatibility-probe.md).
 Local dry-run:
@@ -181,6 +182,7 @@ template. Build upstream artifacts first when the regression config points at
 | `make render-regression-ci-plan` | Run the compatibility-ledger recommended version plan. |
 | `make render-regression` | Run the local configured regression path. |
 | `make summarize-regression-coverage` | Summarize existing versioned regression and generated branch-coverage reports. |
+| `make verify-runtime-evidence` | Fail unless every planned version has passing regression, complete branch coverage, a strict package-preview PDF, and a verified pinned KM. |
 
 Run the CI-style path locally:
 
@@ -189,6 +191,8 @@ make start-ci-dsw
 make build-upstream-artifacts UPSTREAM_TEMPLATE_ARTIFACT_REFS="v1.29.1+"
 make generate-compat-ledger
 make render-regression-ci-plan
+make render-upstream-artifact-previews
+make verify-runtime-evidence
 make stop-ci-dsw
 ```
 
@@ -212,6 +216,11 @@ make summarize-regression-coverage
 
 The command prints Markdown locally. In GitHub Actions it also appends the same
 table to `GITHUB_STEP_SUMMARY`.
+
+`make verify-runtime-evidence` is the final gate and is intentionally not
+standalone on a clean checkout. It consumes the regression plan and outputs from
+the preceding commands, then writes `evidence.json` and `evidence.md` below
+`outputs/runtime-evidence/<metamodel>/`.
 
 ## Render Preview
 

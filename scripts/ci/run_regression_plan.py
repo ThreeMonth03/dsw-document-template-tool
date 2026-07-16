@@ -16,6 +16,7 @@ REPO_ROOT = SCRIPT_DIR.parents[1]
 DEFAULT_RENDER_COMMAND = str(REPO_ROOT / ".venv" / "bin" / "dsw-template-render-regression")
 
 from generate_regression_config import (  # noqa: E402
+    select_regression_knowledge_model,
     select_regression_workspace,
     write_regression_config,
 )
@@ -34,8 +35,18 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-config", type=Path, required=True)
+    parser.add_argument(
+        "--compat-config",
+        type=Path,
+        default=REPO_ROOT / "config" / "dsw-compat.yml",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--generated-config-dir", type=Path, required=True)
+    parser.add_argument(
+        "--evidence-config",
+        type=Path,
+        default=REPO_ROOT / "config" / "regression-evidence.yml",
+    )
     parser.add_argument("--metamodel-version", required=True)
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--render-command", default=DEFAULT_RENDER_COMMAND)
@@ -51,8 +62,10 @@ def main() -> None:
     for planned in planned_regressions:
         run_planned_regression(
             base_config=args.base_config,
+            compat_config=args.compat_config,
             dry_run=args.dry_run,
             generated_config_dir=args.generated_config_dir,
+            evidence_config=args.evidence_config,
             metamodel_version=args.metamodel_version,
             planned=planned,
             render_command=args.render_command,
@@ -91,8 +104,10 @@ def select_planned_regressions(
 def run_planned_regression(
     *,
     base_config: Path,
+    compat_config: Path,
     dry_run: bool,
     generated_config_dir: Path,
+    evidence_config: Path,
     metamodel_version: str,
     planned: PlannedRegression,
     render_command: str,
@@ -110,12 +125,18 @@ def run_planned_regression(
     config_path = generated_config_dir / (
         f".generated-regression.ci.{_safe_path_part(metamodel_version)}.{workspace.version_tag}.yml"
     )
+    knowledge_model = select_regression_knowledge_model(
+        compat_config=compat_config,
+        evidence_config=evidence_config,
+        workspace=workspace,
+    )
     write_regression_config(
         base_config=base_config,
         output=config_path,
         output_dir_suffix=workspace.version_tag,
         source_template_id=source_template_id,
         workspace=workspace,
+        knowledge_model_path=knowledge_model.path,
     )
     reasons = ", ".join(planned.reasons) if planned.reasons else "planned"
     print(f"INFO: Running regression for {workspace.version_tag} ({reasons})", flush=True)

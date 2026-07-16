@@ -51,6 +51,7 @@ from .policy import (
 from .runtime import (
     DEFAULT_DSW_COMPAT_PATH,
     load_preview_runtimes,
+    load_preview_runtimes_text,
     preview_runtime_for_template,
     preview_runtime_for_version,
     preview_runtime_matrix,
@@ -90,6 +91,7 @@ __all__ = [
     "fetch_version_branches",
     "inspect_translation_repository",
     "load_preview_runtimes",
+    "load_preview_runtimes_text",
     "load_translation_repository_config",
     "load_version_records",
     "merge_version_policy_values",

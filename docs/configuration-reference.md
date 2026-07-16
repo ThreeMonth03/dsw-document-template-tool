@@ -12,6 +12,7 @@ All paths below are repository-relative references.
 | --- | --- | --- | --- |
 | [`config/dsw-compat.yml`](../config/dsw-compat.yml) | Tool repo | Declares the proven DSW server, document worker, and `dsw-tdk` runtime for each supported template metamodel range. Its schema is strict: duplicate keys, unknown fields, and unsupported `schema_version` values fail validation. This is the source of truth for runtime matrix generation. | `make sync-dsw-runtime-matrix`, `make check-dsw-runtime-matrix`, `make discover-upstream-compat` |
 | [`config/regression.ci.yml`](../config/regression.ci.yml) | Tool repo | Base CI regression template. Generated CI configs rewrite its baseline/candidate paths to the latest compatible built upstream workspace. | `make generate-regression-config`, `make render-regression-ci`, `make render-regression-ci-plan` |
+| [`config/regression-evidence.yml`](../config/regression-evidence.yml) | Tool repo | Pins immutable Knowledge Model provenance and assigns one fixture to every DSW runtime. Config generation verifies its checksum and package metadata before DSW starts; the final evidence gate combines it with regression, coverage, and PDF results. | `make generate-regression-config`, `make render-regression-ci-plan`, `make verify-runtime-evidence` |
 | [`config/regression.preview.yml`](../config/regression.preview.yml) | Tool repo | Local preview regression config for a manually controlled DSW instance. It expects API token auth. | `make render-regression CONFIG=config/regression.preview.yml` |
 | [`config/regression.document.yml`](../config/regression.document.yml) | Tool repo | Released-template document regression config. Use it when both baseline and candidate are already installed in DSW and referenced by released template id. | `make render-regression CONFIG=config/regression.document.yml` |
 | [`pyproject.toml`](../pyproject.toml) | Tool repo | Python package metadata, dependencies, development extras, and installed `dsw-template-*` console scripts. | `make install-dev` |
@@ -29,10 +30,30 @@ uses these coverage controls:
 | --- | --- |
 | `count` | Maximum number of selected cases that may become DSW projects and render comparisons. |
 | `selection_pool_size` | Number of deterministic candidates evaluated locally before selecting cases. It must be at least `count`. |
-| `require_complete_coverage` | Fail when the selected cases do not cover every reachable answer and supported collection shape. Smoke config generation sets this to `false`. |
+| `require_complete_coverage` | Fail when the selected cases do not cover every reachable answer and supported collection shape. CI keeps this enabled for every planned version. |
 
 Increase `selection_pool_size` before increasing `count`: searching more local
 candidates is much cheaper than rendering more DSW projects.
+
+`config/regression-evidence.yml` deliberately separates document-template and
+Knowledge Model metamodels. Each `runtime_knowledge_models` key must match a
+`metamodel_key` in `config/dsw-compat.yml`. A Knowledge Model entry records:
+
+- repository-relative bundle path
+- exact DSW package ID and version
+- Knowledge Model `metamodelVersion`
+- authoritative source URL
+- lowercase SHA-256 checksum
+
+Adding a runtime without an assignment, replacing a bundle without updating its
+checksum, or declaring metadata that differs from the bundle fails before any
+render work begins.
+
+The compatibility probe may update only the assignment lines between the
+`BEGIN/END GENERATED RUNTIME KNOWLEDGE MODEL ASSIGNMENTS` comments. For a new
+metamodel it copies the closest previous runtime's pinned fixture as a testable
+assumption. The `knowledge_models` catalog, provenance, and checksums remain
+maintainer-owned and are never invented by automation.
 
 ## Workflow and Stack Configs
 
@@ -50,6 +71,7 @@ candidates is much cheaper than rendering more DSW projects.
 | --- | --- | --- | --- |
 | `config/.generated-regression.ci.yml` | `make generate-regression-config` or `make render-regression-ci` | Active single-version CI regression config. | No |
 | `config/.generated-regression.ci.<metamodel>.<version>.yml` | `make render-regression-ci-plan` | Per-version regression config generated from the compatibility ledger plan. | No |
+| `outputs/runtime-evidence/<metamodel>/evidence.json` and `evidence.md` | `make verify-runtime-evidence` | Runtime, KM provenance, complete branch coverage, regression result, and strict PDF proof for every planned version. | No |
 
 Generated configs are ignored by git. If a generated config looks wrong, fix the
 source config or generator instead of committing the generated file.

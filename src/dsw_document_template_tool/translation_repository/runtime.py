@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..yaml_config import YamlConfigError, load_yaml_file
+from ..yaml_config import YamlConfigError, load_yaml_file, load_yaml_text
 from .errors import TranslationRepositoryError
 from .models import DswPreviewRuntime
 from .validation import reject_unknown_keys, required_str
@@ -23,8 +23,32 @@ def load_preview_runtimes(
         payload = load_yaml_file(path)
     except (OSError, YamlConfigError) as exc:
         raise TranslationRepositoryError(str(exc)) from exc
+    return _load_preview_runtime_payload(payload, source=str(path))
+
+
+def load_preview_runtimes_text(
+    text: str,
+    *,
+    source: str = "DSW compatibility config",
+) -> tuple[DswPreviewRuntime, ...]:
+    """Load DSW preview runtimes from in-memory YAML with the same strict schema."""
+
+    try:
+        payload = load_yaml_text(text, source=source)
+    except YamlConfigError as exc:
+        raise TranslationRepositoryError(str(exc)) from exc
+    return _load_preview_runtime_payload(payload, source=source)
+
+
+def _load_preview_runtime_payload(
+    payload: object,
+    *,
+    source: str,
+) -> tuple[DswPreviewRuntime, ...]:
+    """Validate one parsed DSW runtime configuration payload."""
+
     if not isinstance(payload, dict):
-        raise TranslationRepositoryError(f"DSW compatibility config {path} must contain a mapping")
+        raise TranslationRepositoryError(f"DSW compatibility config {source} must be a mapping")
     reject_unknown_keys(payload, {"runtimes", "schema_version"}, "DSW compatibility config")
     if payload.get("schema_version") != DSW_COMPAT_SCHEMA_VERSION:
         raise TranslationRepositoryError(
@@ -34,7 +58,7 @@ def load_preview_runtimes(
     runtime_payloads = payload.get("runtimes")
     if not isinstance(runtime_payloads, list) or not runtime_payloads:
         raise TranslationRepositoryError(
-            f"DSW compatibility config {path} must define non-empty runtimes"
+            f"DSW compatibility config {source} must define non-empty runtimes"
         )
     runtimes = tuple(_load_preview_runtime(item) for item in runtime_payloads)
     _validate_preview_runtimes(runtimes)

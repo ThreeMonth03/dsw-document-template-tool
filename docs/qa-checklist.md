@@ -75,7 +75,8 @@ For all known scaffold versions:
 - tool repo clean scaffold release exists
 - clean scaffold artifact includes compact, expanded, and translation trees
 - scaffold package exists
-- preview PDF exists or a clear `failed.json` / `skipped.json` explains why
+- preview PDF exists for every supported runtime; `failed.json` is diagnostic,
+  not an acceptable release result
 
 For the public translated-template repository, review translated packages and PDFs
 only for versions enabled by that repository's `version_policy`. A version can

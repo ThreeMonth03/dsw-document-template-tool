@@ -11,7 +11,7 @@ when you are changing behavior.
 | Expand an upstream compact template | `make transform` | `dsw-template-transform` | [`template_transform.py`](../src/dsw_document_template_tool/template_transform.py), [`_template_transform/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_template_transform) |
 | Export, audit, merge, and sync translation trees | `make export-translation-tree`, `make audit-translation-tree`, `make merge-translation-tree`, `make sync-translation-tree` | `dsw-template-tree` | [`translation_tree.py`](../src/dsw_document_template_tool/translation_tree.py), [`_translation_tree/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_translation_tree) |
 | Render one project preview or release package | `make render-project`, `make render-package` | `dsw-template-render-project` | [`cli/render_project.py`](../src/dsw_document_template_tool/cli/render_project.py), [`render_project.py`](../src/dsw_document_template_tool/render_project.py) |
-| Run and summarize render regression | `make render-regression`, `make render-regression-ci-plan`, `make summarize-regression-coverage` | `dsw-template-render-regression`, [`summarize_regression_coverage.py`](../scripts/ci/summarize_regression_coverage.py) | [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py), [`workflow.py`](../src/dsw_document_template_tool/workflow.py) |
+| Run and prove render regression | `make render-regression`, `make render-regression-ci-plan`, `make verify-runtime-evidence` | `dsw-template-render-regression`, [`verify_runtime_evidence.py`](../scripts/ci/verify_runtime_evidence.py) | [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py), [`workflow.py`](../src/dsw_document_template_tool/workflow.py), [`runtime_evidence.py`](../src/dsw_document_template_tool/runtime_evidence.py) |
 | Build clean upstream scaffold artifacts | `make discover-upstream-compat`, `make build-upstream-artifacts`, `make render-upstream-artifact-previews` | CI helpers under [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci) | [`dsw_compat.py`](../src/dsw_document_template_tool/dsw_compat.py), [`compat_ledger.py`](../src/dsw_document_template_tool/compat_ledger.py) |
 | Refresh public repository `sync/v*` branches | `make sync-translation-version-branches`, `make check-translation-migrations` | [`sync_translation_version_branches.py`](../scripts/ci/sync_translation_version_branches.py) | [`translation_repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/translation_repository) |
 | Review wording across public repository versions | `make report-translation-consistency` | [`report_translation_consistency.py`](../scripts/ci/report_translation_consistency.py) | [`translation_repository/consistency.py`](../src/dsw_document_template_tool/translation_repository/consistency.py) |
@@ -147,6 +147,12 @@ Key files:
 - [`fixture_coverage.py`](../src/dsw_document_template_tool/fixture_coverage.py)
   inventories reachable questionnaire branches and selects a compact fixture
   set before DSW rendering.
+- [`regression_evidence.py`](../src/dsw_document_template_tool/regression_evidence.py)
+  validates immutable KM provenance and runtime assignments from
+  [`config/regression-evidence.yml`](../config/regression-evidence.yml).
+- [`runtime_evidence.py`](../src/dsw_document_template_tool/runtime_evidence.py)
+  joins runtime, KM, coverage, comparison, and PDF outputs into the final CI
+  proof instead of leaving maintainers to infer success from separate logs.
 - [`html_diff.py`](../src/dsw_document_template_tool/html_diff.py) normalizes
   rendered HTML and reports behavior differences.
 - [`workflow.py`](../src/dsw_document_template_tool/workflow.py) contains DSW
@@ -169,9 +175,16 @@ Key files:
 - [`translation_repository/runtime.py`](../src/dsw_document_template_tool/translation_repository/runtime.py)
   strictly loads the proven runtime table in
   [`config/dsw-compat.yml`](../config/dsw-compat.yml).
+- [`regression_evidence.py`](../src/dsw_document_template_tool/regression_evidence.py)
+  maps each runtime key to a pinned KM fixture and rejects stale checksums or
+  metadata before DSW starts.
 - [`dsw_compat.py`](../src/dsw_document_template_tool/dsw_compat.py) reads the
   official DSW specification only to suggest candidates for unknown
-  metamodels. Candidates do not become trusted runtimes until smoke tests pass.
+  metamodels. Candidates do not become trusted runtimes until full regression,
+  strict preview, and runtime evidence pass.
+- [`compat_probe.py`](../src/dsw_document_template_tool/compat_probe.py) owns
+  the typed probe plan and stable rendering of runtime/evidence changes. It
+  keeps compatibility policy out of Git and GitHub orchestration code.
 - [`compat_ledger.py`](../src/dsw_document_template_tool/compat_ledger.py)
   writes compatibility fingerprints for clean scaffold artifacts.
 - [`discover_dsw_compat.py`](../scripts/ci/discover_dsw_compat.py) checks
@@ -180,7 +193,8 @@ Key files:
   regenerates GitHub Actions matrices from
   [`config/dsw-compat.yml`](../config/dsw-compat.yml).
 - [`create_dsw_compat_pr.py`](../scripts/ci/create_dsw_compat_pr.py) opens or
-  updates follow-up PRs when new upstream metamodels need runtime confirmation.
+  updates follow-up PRs when new upstream metamodels need runtime confirmation;
+  it delegates planning and config rendering to `compat_probe.py`.
 
 Change this layer when upstream versions, DSW runtime support, GitHub Actions
 matrices, or release asset staging behavior changes.

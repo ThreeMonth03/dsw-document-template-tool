@@ -1,0 +1,21 @@
+schema_version: 1
+
+# Immutable Knowledge Model fixtures used to prove render compatibility. Paths
+# are resolved relative to this file. Keep source metadata and checksums pinned
+# so a green regression can be traced to the exact bundle that CI imported.
+knowledge_models:
+  official-root-2-7-0:
+    path: ../fixtures/knowledge-models/root-2.7.0.km
+    package_id: dsw:root:2.7.0
+    version: "2.7.0"
+    metamodel_version: "19"
+    source_url: https://registry.ds-wizard.org/knowledge-models/dsw%3Aroot%3A2.7.0
+    sha256: aabca6f7de8ad41cf9989afd25d4827f3de134fb8f0d965fcc6c336cfeb3e965
+
+# Keys correspond to metamodel_key values in config/dsw-compat.yml. Multiple
+# document-template metamodels may intentionally use the same KM fixture.
+runtime_knowledge_models:
+  # BEGIN GENERATED RUNTIME KNOWLEDGE MODEL ASSIGNMENTS
+  "17-1": official-root-2-7-0
+  "18-0": official-root-2-7-0
+  # END GENERATED RUNTIME KNOWLEDGE MODEL ASSIGNMENTS

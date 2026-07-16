@@ -12,9 +12,19 @@ from pathlib import Path
 
 import yaml
 
+from dsw_document_template_tool.regression_evidence import (
+    KnowledgeModelEvidence,
+    load_regression_evidence_config,
+    validate_runtime_evidence,
+)
+from dsw_document_template_tool.translation_repository import (
+    load_preview_runtimes,
+    preview_runtime_for_template,
+)
 from dsw_document_template_tool.yaml_config import YamlConfigError, load_yaml_file
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from resolve_upstream_refs import parse_version_tag  # noqa: E402
@@ -36,6 +46,16 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-config", type=Path, required=True)
+    parser.add_argument(
+        "--compat-config",
+        type=Path,
+        default=REPO_ROOT / "config" / "dsw-compat.yml",
+    )
+    parser.add_argument(
+        "--evidence-config",
+        type=Path,
+        default=REPO_ROOT / "config" / "regression-evidence.yml",
+    )
     parser.add_argument("--metamodel-version", default="")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--output-dir-suffix", default="")
@@ -50,12 +70,18 @@ def main() -> None:
         version=args.version,
         metamodel_version=args.metamodel_version,
     )
+    knowledge_model = select_regression_knowledge_model(
+        compat_config=args.compat_config,
+        evidence_config=args.evidence_config,
+        workspace=workspace,
+    )
     write_regression_config(
         base_config=args.base_config,
         output=args.output,
         output_dir_suffix=args.output_dir_suffix,
         source_template_id=args.source_template_id,
         workspace=workspace,
+        knowledge_model_path=knowledge_model.path,
     )
     print(f"INFO: Generated regression config for {workspace.version_tag} at {args.output}")
 
@@ -132,6 +158,7 @@ def write_regression_config(
     output_dir_suffix: str = "",
     source_template_id: str,
     workspace: RegressionWorkspace,
+    knowledge_model_path: Path | None = None,
 ) -> None:
     """Write a config whose subjects point at the selected workspace."""
 
@@ -156,10 +183,52 @@ def write_regression_config(
         "value": _relative_posix_path(workspace.expanded_regression_dir, output.parent),
         "stage_id": f"ci:{stage_template_id}-expanded:{workspace.version}",
     }
+    if knowledge_model_path is not None:
+        set_regression_knowledge_model(
+            payload,
+            path=_relative_posix_path(knowledge_model_path, output.parent),
+        )
     if output_dir_suffix:
         append_regression_output_dir_suffix(payload, suffix=output_dir_suffix)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+
+def select_regression_knowledge_model(
+    *,
+    compat_config: Path,
+    evidence_config: Path,
+    workspace: RegressionWorkspace,
+) -> KnowledgeModelEvidence:
+    """Return verified KM evidence for a selected template workspace."""
+
+    runtimes = load_preview_runtimes(compat_config)
+    evidence = load_regression_evidence_config(evidence_config)
+    validate_runtime_evidence(evidence, runtimes)
+    runtime = preview_runtime_for_template(
+        workspace.version_tag,
+        workspace.metamodel_version,
+        runtimes=runtimes,
+    )
+    return evidence.knowledge_model_for_runtime(runtime)
+
+
+def set_regression_knowledge_model(payload: dict[str, object], *, path: str) -> None:
+    """Set one verified KM bundle on each fixture that creates a project."""
+
+    for section_name in ("fixtures", "generated_fixtures"):
+        fixtures = payload.get(section_name, [])
+        if not isinstance(fixtures, list):
+            raise SystemExit(f"Expected `{section_name}` list in base config")
+        for fixture in fixtures:
+            if not isinstance(fixture, dict):
+                raise SystemExit(f"Expected mappings in `{section_name}`")
+            project = fixture.get("project")
+            if project is None:
+                continue
+            if not isinstance(project, dict):
+                raise SystemExit(f"Expected `{section_name}.project` mapping in base config")
+            project["knowledge_model_package_id"] = path
 
 
 def append_regression_output_dir_suffix(payload: dict[str, object], *, suffix: str) -> None:

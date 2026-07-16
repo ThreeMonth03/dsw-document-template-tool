@@ -35,6 +35,9 @@ Registry package. Its SHA-256 is
 `aabca6f7de8ad41cf9989afd25d4827f3de134fb8f0d965fcc6c336cfeb3e965`.
 Keep the bundle checked in so regression remains deterministic and does not
 depend on Registry availability. Do not rebuild it from translation PO files.
+Its machine-readable provenance and runtime assignments are pinned in
+[`config/regression-evidence.yml`](../config/regression-evidence.yml); update
+that config intentionally whenever the immutable fixture changes.
 
 ## Current Fixtures
 

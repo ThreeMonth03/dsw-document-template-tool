@@ -13,6 +13,8 @@ from types import ModuleType, SimpleNamespace
 import pytest
 import yaml
 
+from dsw_document_template_tool import compat_probe
+
 
 def _tool_cli(repo_root: Path, command: str, *args: str) -> subprocess.CompletedProcess[str]:
     """Run one installed package console script from the repository virtualenv."""
@@ -394,44 +396,38 @@ def test_create_dsw_compat_pr_helper_dry_run(repo_root: Path, tmp_path: Path) ->
     rendered = output.read_text(encoding="utf-8")
     assert "DSW Metamodel Compatibility Probe" in rendered
     assert "v1.31.0" in rendered
-    assert "reuses metamodel `18.0` runtime" in rendered
+    assert "derived from metamodel `18.0`" in rendered
     assert "Maintainer Checklist" in rendered
 
 
-def test_create_dsw_compat_pr_defaults_to_metamodel_specific_branch(repo_root: Path) -> None:
+def test_create_dsw_compat_pr_defaults_to_metamodel_specific_branch() -> None:
     """The workflow path should use a stable branch name without passing --branch."""
 
-    module = _load_script_module(
-        repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py",
-        "create_dsw_compat_pr_defaults_test",
-    )
-    plan = module.ProbePlan(
+    plan = compat_probe.ProbePlan(
         runtimes=(),
+        runtime_knowledge_models=(),
         changes=(
-            module.ProbeChange(
+            compat_probe.ProbeChange(
                 metamodel_version="19.0",
                 min_version="v1.31.0",
                 previous_metamodel_version="18.0",
-                previous_dsw_version="4.30",
-                previous_tdk_version="4.30.2",
+                dsw_version="4.30",
+                tdk_version="4.30.2",
+                knowledge_model_fixture="official-root-2-7-0",
             ),
         ),
     )
 
-    assert module.default_branch_for_plan(plan) == "automation/dsw-compat-probe-19-0"
+    assert compat_probe.default_branch_for_plan(plan) == "automation/dsw-compat-probe-19-0"
     assert (
-        module.default_title_for_plan(plan)
+        compat_probe.default_title_for_plan(plan)
         == "Probe DSW document-template metamodel 19.0 compatibility"
     )
 
 
-def test_create_dsw_compat_pr_can_probe_multiple_new_metamodels(repo_root: Path) -> None:
+def test_create_dsw_compat_pr_can_probe_multiple_new_metamodels() -> None:
     """A long gap with multiple new metamodels should still generate probe rows."""
 
-    module = _load_script_module(
-        repo_root / "scripts" / "ci" / "create_dsw_compat_pr.py",
-        "create_dsw_compat_pr_test",
-    )
     report = (
         "## DSW Compatibility Discovery\n\n"
         "| Ref | Version | metamodelVersion | Runtime | Status |\n"
@@ -451,9 +447,27 @@ runtimes:
     max_version: null
     upstream_template_artifact_refs: "v1.30.0+"
 """
+    evidence = """
+schema_version: 1
+knowledge_models:
+  official-root-2-7-0:
+    path: ../fixtures/knowledge-models/root-2.7.0.km
+runtime_knowledge_models:
+  # BEGIN GENERATED RUNTIME KNOWLEDGE MODEL ASSIGNMENTS
+  "18-0": official-root-2-7-0
+  # END GENERATED RUNTIME KNOWLEDGE MODEL ASSIGNMENTS
+"""
 
-    plan = module.build_probe_plan(report=report, compat_text=compat)
-    rendered_config = module.render_compat_config(plan.runtimes)
+    plan = compat_probe.build_probe_plan(
+        report=report,
+        compat_text=compat,
+        evidence_text=evidence,
+    )
+    rendered_config = compat_probe.render_compat_config(plan.runtimes)
+    rendered_evidence = compat_probe.render_evidence_config(
+        evidence,
+        plan.runtime_knowledge_models,
+    )
 
     assert len(plan.changes) == 2
     assert 'metamodel_version: "19.0"' in rendered_config
@@ -461,6 +475,8 @@ runtimes:
     assert 'max_version: "v1.31.0"' in rendered_config
     assert 'metamodel_version: "20.0"' in rendered_config
     assert 'min_version: "v1.32.0"' in rendered_config
+    assert '"19-0": official-root-2-7-0' in rendered_evidence
+    assert '"20-0": official-root-2-7-0' in rendered_evidence
 
 
 def test_create_dsw_compat_pr_starts_new_branch_from_remote_base(
@@ -538,6 +554,11 @@ def test_create_dsw_compat_pr_starts_new_branch_from_remote_base(
     assert 'tdk_version: "4.30.2"' in updated_config
     assert 'max_version: "v1.30.1"' in updated_config
     assert 'upstream_template_artifact_refs: "v1.30.0 v1.30.1"' in updated_config
+    updated_evidence = _git_show_bare(
+        origin,
+        "automation/dsw-compat-probe-19-0:config/regression-evidence.yml",
+    )
+    assert '"19-0": official-root-2-7-0' in updated_evidence
 
 
 def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
@@ -556,7 +577,16 @@ def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
     compatibility_report = worktree / "docs" / "compatibility" / "dsw-compatibility-probe.md"
     compatibility_report.parent.mkdir(parents=True)
     compatibility_report.write_text("old compatibility report\n", encoding="utf-8")
+    compatibility_config = worktree / "config" / "dsw-compat.yml"
+    compatibility_config.write_text(
+        compatibility_config.read_text(encoding="utf-8").replace(
+            'dsw_version: "4.30"',
+            'dsw_version: "4.31"',
+        ),
+        encoding="utf-8",
+    )
     _git(worktree, "add", "docs/compatibility/dsw-compatibility-probe.md")
+    _git(worktree, "add", "config/dsw-compat.yml")
     _git(worktree, "commit", "-m", "docs: old compatibility report")
     _git(worktree, "push", "-u", "origin", "automation/dsw-compat-probe-19-0")
     _git(worktree, "checkout", "master")
@@ -596,6 +626,11 @@ def test_create_dsw_compat_pr_updates_branch_open_in_another_worktree(
     )
     assert "DSW Metamodel Compatibility Probe" in updated_report
     assert "old compatibility report" not in updated_report
+    updated_config = _git_show_bare(
+        origin,
+        "automation/dsw-compat-probe-19-0:config/dsw-compat.yml",
+    )
+    assert 'metamodel_version: "19.0"\n    dsw_version: "4.31"' in updated_config
 
 
 def test_create_dsw_compat_pr_reopens_pr_when_existing_branch_is_unchanged(
@@ -712,6 +747,7 @@ def test_create_dsw_compat_pr_help(repo_root: Path) -> None:
     assert "DSW compatibility probe" in result.stdout
     assert "--report" in result.stdout
     assert "--compat" in result.stdout
+    assert "--evidence-config" in result.stdout
     assert "--dry-run" in result.stdout
 
 
@@ -1044,6 +1080,9 @@ generated_fixtures:
   - name_prefix: random-project
     count: 80
     require_complete_coverage: true
+    project:
+      name: generated project
+      knowledge_model_package_id: old-root.km
 """.strip()
         + "\n",
         encoding="utf-8",
@@ -1079,6 +1118,8 @@ generated_fixtures:
     assert result.returncode == 0, result.stdout + result.stderr
     payload = yaml.safe_load(generated_config.read_text(encoding="utf-8"))
     assert payload["regression"]["output_dir"] == "../outputs/preview/v1.30.1"
+    generated_km = payload["generated_fixtures"][0]["project"]["knowledge_model_package_id"]
+    assert generated_km.endswith("fixtures/knowledge-models/root-2.7.0.km")
     assert payload["generated_fixtures"][0]["count"] == 80
     assert payload["generated_fixtures"][0]["require_complete_coverage"] is True
 
@@ -1344,6 +1385,10 @@ def test_upstream_artifact_previews_render_packaged_template(
     )
     package_path = template_dir.parent / f"{template_dir.name}.zip"
     package_path.write_bytes(b"template package")
+    preview_dir = tmp_path / "outputs/project-render/dsw-science-europe/v1.30.1/zh-Hant/scaffold"
+    preview_dir.mkdir(parents=True)
+    for name in ("failed.json", "skipped.json", "test-project.pdf", "test-project.pdf.json"):
+        (preview_dir / name).write_bytes(b"stale")
     commands: list[list[object]] = []
 
     def fake_run(command, *, check=True):
@@ -1372,6 +1417,10 @@ def test_upstream_artifact_previews_render_packaged_template(
     assert str(package_path.relative_to(tmp_path)) in commands[0]
     assert "--template-dir" not in commands[0]
     assert commands[0].count("--tdk-executable") == 1
+    assert not (preview_dir / "failed.json").exists()
+    assert not (preview_dir / "skipped.json").exists()
+    assert not (preview_dir / "test-project.pdf").exists()
+    assert not (preview_dir / "test-project.pdf.json").exists()
 
 
 def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path, tmp_path: Path) -> None:
@@ -1489,8 +1538,23 @@ runtimes:
 """.lstrip(),
         encoding="utf-8",
     )
+    (config_dir / "regression-evidence.yml").write_text(
+        """
+schema_version: 1
+knowledge_models:
+  official-root-2-7-0:
+    path: ../fixtures/knowledge-models/root-2.7.0.km
+runtime_knowledge_models:
+  # BEGIN GENERATED RUNTIME KNOWLEDGE MODEL ASSIGNMENTS
+  "17-1": official-root-2-7-0
+  "18-0": official-root-2-7-0
+  # END GENERATED RUNTIME KNOWLEDGE MODEL ASSIGNMENTS
+""".lstrip(),
+        encoding="utf-8",
+    )
     _git(worktree, "add", "README.md")
     _git(worktree, "add", "config/dsw-compat.yml")
+    _git(worktree, "add", "config/regression-evidence.yml")
     _git(worktree, "commit", "-m", "base")
     _git(worktree, "remote", "add", "origin", str(origin))
     _git(worktree, "push", "-u", "origin", "master")

@@ -66,6 +66,13 @@ DSW Compatibility
    :members:
    :show-inheritance:
 
+Compatibility Probe Planning
+----------------------------
+
+.. automodule:: dsw_document_template_tool.compat_probe
+   :members: DiscoveryRow, ProbeChange, ProbePlan, build_probe_plan, render_compat_config, render_evidence_config, render_probe_report
+   :show-inheritance:
+
 Compatibility Ledger
 --------------------
 

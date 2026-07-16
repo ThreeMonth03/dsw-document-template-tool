@@ -135,12 +135,14 @@ for artifact integration details.
 2. Check whether CI opened a compatibility probe PR, usually named
    `automation/dsw-compat-probe-*`.
 3. Review the probe PR. It copies the closest previous DSW/TDK runtime into a
-   new [`config/dsw-compat.yml`](../config/dsw-compat.yml) row and lets CI test
-   the assumption that the API, import, package, preview, and PDF paths still
-   behave the same way.
-4. If CI passes, inspect the clean scaffold artifacts and preview output before
-   merging. If CI fails, update the probe row with a newer DSW server image,
-   matching `dsw-tdk`, or code compatibility fix.
+   new [`config/dsw-compat.yml`](../config/dsw-compat.yml) row and reuses that
+   runtime's pinned KM fixture in
+   [`config/regression-evidence.yml`](../config/regression-evidence.yml). CI then
+   tests the API, import, package, complete branch coverage, preview, and PDF
+   paths.
+4. If CI passes, inspect the runtime evidence, clean scaffold artifacts, and
+   preview output before merging. If CI fails, update the DSW/TDK pair, KM
+   assignment, or compatibility code.
 5. Before merging the probe PR, make sure it also ran:
 
    ```shell

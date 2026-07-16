@@ -39,10 +39,12 @@ Actions:
 1. Read the CI summary.
 2. Open the generated compatibility probe PR if one exists.
 3. Confirm the PR copied the intended previous DSW/TDK runtime into
-   `config/dsw-compat.yml`.
-4. Let CI smoke-test the candidate. If it fails, check the official DSW
-   metamodel notes linked in the summary, then update the DSW server image,
-   matching TDK version, or compatibility code.
+   `config/dsw-compat.yml` and the intended pinned KM fixture assignment into
+   `config/regression-evidence.yml`.
+4. Let CI run full regression and strict preview evidence for the candidate. If
+   it fails, check the official DSW metamodel notes linked in the summary, then
+   update the DSW server image, matching TDK version, KM assignment, or
+   compatibility code.
 5. Run `make sync-dsw-runtime-matrix` after any manual config edit.
 
 Do not merge a probe only because the version number looks plausible. The probe

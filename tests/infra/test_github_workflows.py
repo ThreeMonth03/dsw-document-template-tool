@@ -78,12 +78,14 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     )
     assert '--base "$DEFAULT_BRANCH"' in workflow_text
     assert "scripts/ci/create_dsw_compat_pr.py" in workflow_text
+    assert "--evidence-config config/regression-evidence.yml" in workflow_text
     assert "Fail pull request on unsupported upstream metamodel" in workflow_text
     assert "make test-upstream-compat-tags" not in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
     assert "make generate-compat-ledger" in workflow_text
     assert "UPSTREAM_TEMPLATE_ARTIFACT_METAMODEL_VERSION" in workflow_text
     assert "make render-upstream-artifact-previews" in workflow_text
+    assert "make verify-runtime-evidence" in workflow_text
     render_job = workflow["jobs"]["render-regression"]
     matrix_include = render_job["strategy"]["matrix"]["include"]
     assert matrix_include == preview_runtime_matrix(repo_root / "config" / "dsw-compat.yml")
@@ -134,6 +136,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "Compatibility refs are advisory" not in workflow_text
     assert "clean-upstream-version-artifacts" in workflow_text
     assert "outputs/compat-ledger/" in workflow_text
+    assert "outputs/runtime-evidence/" in workflow_text
     assert "outputs/upstream-workspaces/" in workflow_text
     assert "outputs/document-templates/dsw-science-europe/**/scaffold/" in workflow_text
     assert "outputs/project-render/dsw-science-europe/**/scaffold/" in workflow_text

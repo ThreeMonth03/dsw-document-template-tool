@@ -41,6 +41,8 @@ PROJECT_UUID ?= $(DSW_PROJECT_UUID)
 PYTHON ?= $(VENV_PYTHON)
 PYTHON_LINT_PATHS ?= docs/conf.py scripts/ci/*.py src tests
 REBUILT_TEMPLATE_DIR ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/rebuilt/$(WORKSPACE_TEMPLATE_NAME)
+REGRESSION_EVIDENCE_CONFIG ?= config/regression-evidence.yml
+REGRESSION_EVIDENCE_OUTPUT_DIR ?= outputs/runtime-evidence/$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)
 REGRESSION_OUTPUT_DIR ?= outputs/preview
 REGRESSION_PLAN_PATH ?= $(COMPAT_LEDGER_DIR)/regression-plan.json
 REGRESSION_SUMMARY_LABEL ?= Render Regression Coverage
@@ -104,7 +106,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts explain-transform export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews report-translation-consistency start-ci-dsw stop-ci-dsw summarize-regression-coverage sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts explain-transform export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews report-translation-consistency start-ci-dsw stop-ci-dsw summarize-regression-coverage sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-runtime-evidence verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -169,6 +171,7 @@ help:
 	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
 	'  validate-translation-config Validate public-repo translation-config.yml' \
 	'  venv              Create $(VENV_DIR) when it does not exist' \
+	'  verify-runtime-evidence Require KM, full coverage, regression, and PDF proof' \
 	'  verify-template   Run dsw-tdk verify for TEMPLATE_DIR=/path/to/template' \
 	'  verify-workspace  Run dsw-tdk verify for generated compact and expanded workspaces'
 
@@ -247,6 +250,7 @@ create-dsw-compat-pr: venv
 	args=( \
 		--report "$(COMPAT_PROBE_REPORT)" \
 		--compat "$(DSW_COMPAT_CONFIG)" \
+		--evidence-config "$(REGRESSION_EVIDENCE_CONFIG)" \
 		--report-path "$(COMPAT_PROBE_REPORT_PATH)" \
 		--repository "$(TOOL_GITHUB_REPO)" \
 		--base "$(COMPAT_PROBE_BASE_BRANCH)" \
@@ -412,6 +416,8 @@ generate-compat-ledger: venv
 generate-regression-config: venv
 	$(PYTHON) scripts/ci/generate_regression_config.py \
 		--base-config "$(CI_CONFIG)" \
+		--compat-config "$(DSW_COMPAT_CONFIG)" \
+		--evidence-config "$(REGRESSION_EVIDENCE_CONFIG)" \
 		--output "$(GENERATED_CI_CONFIG)" \
 		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)" \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
@@ -419,6 +425,7 @@ generate-regression-config: venv
 		--version "$(UPSTREAM_TEMPLATE_REGRESSION_VERSION)"
 
 render-upstream-artifact-previews: venv
+	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
 	$(PYTHON) scripts/ci/upstream_template_artifacts.py render-previews \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
 		--translation-locale "$(TRANSLATION_LOCALE)" \
@@ -491,6 +498,8 @@ render-regression-ci: generate-regression-config
 render-regression-ci-plan: venv
 	$(PYTHON) scripts/ci/run_regression_plan.py \
 		--base-config "$(CI_CONFIG)" \
+		--compat-config "$(DSW_COMPAT_CONFIG)" \
+		--evidence-config "$(REGRESSION_EVIDENCE_CONFIG)" \
 		--generated-config-dir "$(GENERATED_CI_CONFIG_DIR)" \
 		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
 		--plan "$(REGRESSION_PLAN_PATH)" \
@@ -501,7 +510,9 @@ render-regression-ci-plan: venv
 render-regression-ci-plan-dry-run: venv
 	$(PYTHON) scripts/ci/run_regression_plan.py \
 		--base-config "$(CI_CONFIG)" \
+		--compat-config "$(DSW_COMPAT_CONFIG)" \
 		--dry-run \
+		--evidence-config "$(REGRESSION_EVIDENCE_CONFIG)" \
 		--generated-config-dir "$(GENERATED_CI_CONFIG_DIR)" \
 		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
 		--plan "$(REGRESSION_PLAN_PATH)" \
@@ -513,6 +524,18 @@ summarize-regression-coverage: venv
 	$(PYTHON) scripts/ci/summarize_regression_coverage.py \
 		--output-dir "$(REGRESSION_OUTPUT_DIR)" \
 		--title "$(REGRESSION_SUMMARY_LABEL)"
+
+verify-runtime-evidence: venv
+	$(PYTHON) scripts/ci/verify_runtime_evidence.py \
+		--compat-config "$(DSW_COMPAT_CONFIG)" \
+		--evidence-config "$(REGRESSION_EVIDENCE_CONFIG)" \
+		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
+		--output-dir "$(REGRESSION_EVIDENCE_OUTPUT_DIR)" \
+		--plan "$(REGRESSION_PLAN_PATH)" \
+		--preview-root "outputs/project-render" \
+		--regression-root "$(REGRESSION_OUTPUT_DIR)" \
+		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
+		--translation-locale "$(TRANSLATION_LOCALE)"
 
 sync-translation-version-branches: venv
 	@set -euo pipefail; \

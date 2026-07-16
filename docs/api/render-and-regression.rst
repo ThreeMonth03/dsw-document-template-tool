@@ -46,6 +46,17 @@ Fixture Generation
    :members: GeneratedQuestionnaireEvents, generate_questionnaire_events
    :show-inheritance:
 
+Runtime Evidence
+----------------
+
+.. automodule:: dsw_document_template_tool.regression_evidence
+   :members: KnowledgeModelEvidence, RegressionEvidenceConfig, load_regression_evidence_config, validate_runtime_evidence, verify_knowledge_model_evidence
+   :show-inheritance:
+
+.. automodule:: dsw_document_template_tool.runtime_evidence
+   :members: CoverageEvidence, VersionEvidence, RuntimeEvidence, collect_runtime_evidence, write_runtime_evidence, render_runtime_evidence
+   :show-inheritance:
+
 HTML Comparison
 ---------------
 

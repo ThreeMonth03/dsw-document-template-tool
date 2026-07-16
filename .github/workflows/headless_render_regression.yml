@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       upstream_template_test_refs:
-        description: "Space-separated upstream Science Europe refs for current-metamodel smoke testing."
+        description: "Space-separated upstream refs for fast offline transform/package checks."
         required: false
         default: "latest main v1.30.0+"
       upstream_template_artifact_refs:
@@ -68,6 +68,7 @@ jobs:
         run: |
           python scripts/ci/create_dsw_compat_pr.py \
             --report outputs/upstream-compat/discovery.md \
+            --evidence-config config/regression-evidence.yml \
             --repository "$GITHUB_REPOSITORY" \
             --base "$DEFAULT_BRANCH"
 
@@ -159,6 +160,9 @@ jobs:
           DSW_DOWNLOAD_HOST_ALIAS: host.docker.internal=localhost
         run: make render-upstream-artifact-previews
 
+      - name: Verify complete runtime evidence
+        run: make verify-runtime-evidence
+
       - name: Collect DSW logs
         if: always()
         run: make ci-dsw-logs
@@ -179,6 +183,7 @@ jobs:
           include-hidden-files: true
           path: |
             outputs/compat-ledger/
+            outputs/runtime-evidence/
             outputs/upstream-workspaces/
             outputs/document-templates/dsw-science-europe/**/scaffold/
             outputs/project-render/dsw-science-europe/**/scaffold/
