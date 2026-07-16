@@ -224,7 +224,8 @@ def build_upstream_artifacts(args: argparse.Namespace) -> None:
             / f"{args.translated_template_organization_id}-{args.scaffold_template_id}-{version}"
         )
         package_name = (
-            f"{args.translated_template_organization_id}-{args.scaffold_template_id}-{version}.zip"
+            f"{args.translated_template_organization_id}-"
+            f"{args.scaffold_template_id}-{version}.zip"
         )
         package_path = output_root / package_name
 
@@ -291,7 +292,7 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
     for template_dir in template_dirs:
         version, metamodel_version = template_version_and_metamodel(template_dir)
         version_tag = f"v{version}"
-        package_path = template_dir.with_suffix(".zip")
+        package_path = package_path_for_template_dir(template_dir)
         if not package_path.is_file():
             raise SystemExit(
                 f"Missing scaffold package for {version_tag}: {package_path}. "
@@ -390,6 +391,11 @@ def safe_ref_name(ref: str) -> str:
 def template_version_and_metamodel(template_dir: Path) -> tuple[str, str]:
     payload = json.loads((template_dir / "template.json").read_text(encoding="utf-8"))
     return str(payload["version"]), str(payload.get("metamodelVersion", ""))
+
+
+def package_path_for_template_dir(template_dir: Path) -> Path:
+    """Return the sibling package path without treating version dots as suffixes."""
+    return template_dir.parent / f"{template_dir.name}.zip"
 
 
 def write_upstream_metadata(

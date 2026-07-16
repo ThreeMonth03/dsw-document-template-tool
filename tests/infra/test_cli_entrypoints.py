@@ -1342,7 +1342,7 @@ def test_upstream_artifact_previews_render_packaged_template(
         json.dumps({"version": "1.30.1", "metamodelVersion": "18.0"}),
         encoding="utf-8",
     )
-    package_path = template_dir.with_suffix(".zip")
+    package_path = template_dir.parent / f"{template_dir.name}.zip"
     package_path.write_bytes(b"template package")
     commands: list[list[object]] = []
 
@@ -1371,6 +1371,7 @@ def test_upstream_artifact_previews_render_packaged_template(
     assert "--template-package" in commands[0]
     assert str(package_path.relative_to(tmp_path)) in commands[0]
     assert "--template-dir" not in commands[0]
+    assert commands[0].count("--tdk-executable") == 1
 
 
 def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path, tmp_path: Path) -> None:
