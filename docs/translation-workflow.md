@@ -158,6 +158,15 @@ shape, or HTML structure changed, the target unit keeps its current state and
 requires version-specific translation. Normal artifact refresh is separate and
 always preserves that branch's translator edits before cross-version sync runs.
 
+The operations workflow also produces a read-only cross-version consistency
+report. It groups identical visible source sentences from `active` and
+`maintenance` branches, then reports blank/nonblank translation gaps and
+different nonblank wording. `exact-source` findings share the executable source
+hash; `visible-source-only` findings may have different Jinja or HTML and are
+terminology hints only. Findings never weaken exact-source migration, change a
+translation, or fail CI by themselves. Malformed or missing configured trees
+still fail because the report could not be trusted.
+
 Each synchronization PR commits only matching `translation.md` files and, when
 its checkbox state changes, the generated `outline.md`. The merge report is kept
 in the PR body and Actions job summary rather than committed to a version branch.
@@ -173,6 +182,7 @@ The helper scripts live under `scripts/ci/`:
 - `create_translation_migration_prs.py`
 - `validate_translation_config.py`
 - `download_clean_scaffold_artifacts.py`
+- `report_translation_consistency.py`
 - `resolve_migration_source.py`
 
 See [Public Template Repository Integration](downstream-integration.md) for the

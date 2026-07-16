@@ -23,6 +23,9 @@ def test_check_translation_repository_docs_accepts_complete_docs(
 The operations branch owns configuration. Work happens on sync/v* branches.
 Release assets are the reviewed package and preview PDF delivery path.
 Public DSW import is manual.
+
+The translation-consistency-report is read-only and does not change branches.
+An exact-source finding is stronger than a visible-source-only wording hint.
 """,
         encoding="utf-8",
     )
@@ -142,6 +145,9 @@ def test_check_translation_repository_docs_reports_broken_relative_links(
 The operations branch owns configuration. Work happens on sync/v* branches.
 Release assets are the reviewed package and preview PDF delivery path.
 Public DSW import is manual. Read the [missing guide](docs/missing.md).
+
+The translation-consistency-report is read-only and does not change branches.
+An exact-source finding is stronger than a visible-source-only wording hint.
 """,
         encoding="utf-8",
     )

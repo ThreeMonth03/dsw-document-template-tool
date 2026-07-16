@@ -24,7 +24,9 @@ Healthy outcomes:
 - the workflow updated `translation-config.yml`;
 - the workflow refreshed policy-enabled `sync/v*` branches;
 - the workflow opened exact-source synchronization PRs for translation changes
-  shared by active versions.
+  shared by active versions;
+- the `translation-consistency-report` artifact records no unexplained gaps or
+  wording drift across active/maintenance versions.
 
 Operations waits for the version branch's `translation-sync` PR check and every
 reported check to pass before performing a head-SHA-guarded merge. This does not
@@ -37,6 +39,12 @@ updated `outline.md` when progress changes. Review the merge report in the PR
 body or Actions summary; reports are not committed to version branches. Merging
 one of these automation PRs refreshes that version's package, preview, and
 release assets without launching another reverse synchronization run.
+
+The consistency artifact is read-only. An `exact-source` finding usually means
+translation synchronization or review is still needed. A
+`visible-source-only` finding is only a terminology prompt because executable
+Jinja or HTML may differ between versions. Findings do not make CI fail, but a
+missing or malformed configured translation tree does.
 
 Check version-branch validation after translation PRs:
 

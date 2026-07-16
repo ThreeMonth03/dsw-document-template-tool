@@ -297,6 +297,18 @@ make check-translation-migrations \
 Set `TRANSLATION_MIGRATION_FAIL_ON_PENDING=true` only when CI should fail on
 pending cross-version synchronization changes.
 
+Review missing or inconsistent wording across active/maintenance version
+branches without changing them:
+
+```shell
+make report-translation-consistency \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
+  TRANSLATION_CONSISTENCY_FETCH=true
+```
+
+Use `TRANSLATION_CONSISTENCY_VERSIONS="v1.30.0 v1.30.1"` to inspect an explicit
+set. JSON and Markdown outputs default to `outputs/translation-consistency/`.
+
 ## Release Helpers
 
 Stage release assets locally:

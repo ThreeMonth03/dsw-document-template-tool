@@ -22,6 +22,16 @@ class TopicCheck:
 
 REQUIRED_TOPICS: tuple[TopicCheck, ...] = (
     TopicCheck(
+        name="cross-version consistency report",
+        patterns=(
+            r"translation-consistency-report",
+            r"exact-source",
+            r"visible-source-only",
+            r"read-only|does not (?:change|fail)",
+        ),
+        description="read-only cross-version wording report and source-match meanings",
+    ),
+    TopicCheck(
         name="branch model",
         patterns=(r"\boperations\b", r"sync/v\*", r"release assets"),
         description="operations branch, sync/v* branches, and release assets",

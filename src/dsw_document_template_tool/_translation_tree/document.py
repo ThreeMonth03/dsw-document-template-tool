@@ -77,18 +77,34 @@ def parse_translation_document(
 ) -> str:
     """Read the translation block from one translator-facing Markdown file."""
 
-    markdown_text = document_path.read_text(encoding="utf-8")
+    return parse_translation_markdown(
+        markdown_text=document_path.read_text(encoding="utf-8"),
+        location=str(document_path),
+        source_lang=source_lang,
+        target_lang=target_lang,
+    )
+
+
+def parse_translation_markdown(
+    *,
+    markdown_text: str,
+    location: str,
+    source_lang: str,
+    target_lang: str,
+) -> str:
+    """Read the translation block from in-memory translation Markdown."""
+
     sentence_match = SENTENCE_SECTION_PATTERN.search(markdown_text)
     translation_match = TRANSLATION_SECTION_PATTERN.search(markdown_text)
     if sentence_match is None or translation_match is None:
-        raise TranslationTreeError(f"Invalid translation document at {document_path}")
+        raise TranslationTreeError(f"Invalid translation document at {location}")
     if (
         sentence_match.group("source_lang") != source_lang
         or translation_match.group("target_lang") != target_lang
     ):
         raise TranslationTreeError(
             "Unexpected language headings in translation document at "
-            f"{document_path}: expected {source_lang}/{target_lang}"
+            f"{location}: expected {source_lang}/{target_lang}"
         )
     return translation_match.group("translation_text")
 
@@ -96,14 +112,28 @@ def parse_translation_document(
 def parse_sentence_text(*, document_path: Path, source_lang: str) -> str:
     """Read the plain source sentence from one translator-facing Markdown file."""
 
-    markdown_text = document_path.read_text(encoding="utf-8")
+    return parse_sentence_markdown(
+        markdown_text=document_path.read_text(encoding="utf-8"),
+        location=str(document_path),
+        source_lang=source_lang,
+    )
+
+
+def parse_sentence_markdown(
+    *,
+    markdown_text: str,
+    location: str,
+    source_lang: str,
+) -> str:
+    """Read the source sentence from in-memory translation Markdown."""
+
     sentence_match = SENTENCE_SECTION_PATTERN.search(markdown_text)
     if sentence_match is None:
-        raise TranslationTreeError(f"Invalid translation document at {document_path}")
+        raise TranslationTreeError(f"Invalid translation document at {location}")
     if sentence_match.group("source_lang") != source_lang:
         raise TranslationTreeError(
             "Unexpected source language heading in translation document at "
-            f"{document_path}: expected {source_lang}"
+            f"{location}: expected {source_lang}"
         )
     return sentence_match.group("sentence_text")
 

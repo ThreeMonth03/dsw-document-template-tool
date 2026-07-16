@@ -148,6 +148,20 @@ make check-translation-migrations \
   TRANSLATION_CLEAN_ARTIFACT_ROOT=/tmp/clean-scaffolds
 ```
 
+Generate the read-only wording consistency report from active/maintenance
+`sync/v*` branches:
+
+```shell
+make report-translation-consistency \
+  TRANSLATION_REPO="$PUBLIC_TEMPLATE_REPO_DIR" \
+  TRANSLATION_CONSISTENCY_FETCH=true
+```
+
+The complete JSON and Markdown reports are written under
+`outputs/translation-consistency/`. Differences are review signals, not an
+alternative migration path: only exact-source synchronization may write to a
+target branch.
+
 Check that public repository docs still cover the required operations topics:
 
 ```shell

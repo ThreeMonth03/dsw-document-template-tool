@@ -64,6 +64,10 @@ TRANSLATED_TEMPLATE_VERSION ?= $(SOURCE_TEMPLATE_VERSION)
 TRANSLATED_WORKSPACE_TEMPLATE_NAME ?= $(TRANSLATED_TEMPLATE_ORGANIZATION_ID)-$(TRANSLATED_TEMPLATE_ID)-$(TRANSLATED_TEMPLATE_VERSION)
 TRANSLATION_CLEAN_ARTIFACT_ROOT ?= $(CLEAN_SCAFFOLD_ARTIFACT_OUTPUT_DIR)
 TRANSLATION_CONFIG_PATH ?= $(TRANSLATION_REPO)/translation-config.yml
+TRANSLATION_CONSISTENCY_FETCH ?= false
+TRANSLATION_CONSISTENCY_JSON_REPORT ?= outputs/translation-consistency/report.json
+TRANSLATION_CONSISTENCY_MARKDOWN_REPORT ?= outputs/translation-consistency/report.md
+TRANSLATION_CONSISTENCY_VERSIONS ?=
 TRANSLATION_DOCS_REPO ?= $(TRANSLATION_REPO)
 TRANSLATION_LOCALE ?= zh-Hant
 TRANSLATION_MIGRATION_FAIL_ON_PENDING ?= false
@@ -100,7 +104,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts explain-transform export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews start-ci-dsw stop-ci-dsw summarize-regression-coverage sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts explain-transform export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews report-translation-consistency start-ci-dsw stop-ci-dsw summarize-regression-coverage sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -151,6 +155,7 @@ help:
 	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions' \
 	'  render-regression-ci-plan-dry-run Validate the compatibility regression plan without DSW' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
+	'  report-translation-consistency Compare wording across active public-repo versions' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
 	'  stop-ci-dsw       Stop the ephemeral local DSW stack and remove volumes' \
 	'  summarize-regression-coverage Summarize versioned render and branch coverage reports' \
@@ -219,6 +224,23 @@ check-translation-migrations: venv
 check-translation-repository-docs: venv
 	$(PYTHON) scripts/ci/check_translation_repository_docs.py \
 		--repo "$(TRANSLATION_DOCS_REPO)"
+
+report-translation-consistency: venv
+	@set -euo pipefail; \
+	args=(); \
+	if [ "$(TRANSLATION_CONSISTENCY_FETCH)" = "true" ]; then \
+		args+=(--fetch); \
+	fi; \
+	version_args=(); \
+	for version in $(TRANSLATION_CONSISTENCY_VERSIONS); do \
+		version_args+=(--version "$$version"); \
+	done; \
+	$(PYTHON) scripts/ci/report_translation_consistency.py \
+		--repo "$(TRANSLATION_REPO)" \
+		--json-report "$(TRANSLATION_CONSISTENCY_JSON_REPORT)" \
+		--markdown-report "$(TRANSLATION_CONSISTENCY_MARKDOWN_REPORT)" \
+		"$${args[@]}" \
+		"$${version_args[@]}"
 
 create-dsw-compat-pr: venv
 	@set -euo pipefail; \
