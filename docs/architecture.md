@@ -133,6 +133,11 @@ Key files:
   is the reusable service that imports fixtures and renders a PDF. Argument
   parsing and environment variables live in
   [`cli/render_project.py`](../src/dsw_document_template_tool/cli/render_project.py).
+- [`api.py`](../src/dsw_document_template_tool/api.py) normalizes DSW API
+  differences at the transport boundary. In particular, released templates use
+  ID-based references on DSW 4.26 and UUID-based references on current DSW;
+  render and regression services consume one shared reference model instead of
+  branching on DSW versions.
 - [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py)
   runs baseline/candidate render comparisons.
 - [`fixture_generator.py`](../src/dsw_document_template_tool/fixture_generator.py)
@@ -150,7 +155,8 @@ Key files:
 - [`tdk.py`](../src/dsw_document_template_tool/tdk.py) wraps `dsw-tdk` calls.
 
 Change this layer when previews, regression coverage, fixture handling, or DSW
-interaction behavior needs to change.
+interaction behavior needs to change. Keep API-generation differences in
+`api.py`; do not scatter version checks through workflows or CLI commands.
 
 ### Runtime and CI Helpers
 

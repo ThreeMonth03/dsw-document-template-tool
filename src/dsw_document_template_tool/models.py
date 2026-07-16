@@ -25,6 +25,14 @@ class TemplateCoordinates:
 
 
 @dataclass(frozen=True)
+class DocumentTemplateReference:
+    """Released template identifiers exposed by different DSW API generations."""
+
+    template_id: str | None = None
+    uuid: str | None = None
+
+
+@dataclass(frozen=True)
 class ApiConfig:
     """DSW API connection configuration."""
 
@@ -124,8 +132,7 @@ class ResolvedSubject:
     mode: str
     source_value: str
     display_id: str
-    template_id: str | None = None
-    template_uuid: str | None = None
+    template_reference: DocumentTemplateReference | None = None
     draft_uuid: str | None = None
     local_dir: Path | None = None
     staged_dir: Path | None = None

@@ -202,15 +202,15 @@ def _render_released_template_package(
     poll_seconds: float,
 ) -> tuple[bytes, dict[str, object]]:
     print(f"INFO: Importing released template package {package_path}")
-    imported_template = client.upload_document_template_bundle(package_path)
-    template_uuid = imported_template["uuid"]
-    print(f"INFO: Rendering project {project_uuid} with released template {template_uuid}")
+    template_ref = client.upload_document_template_bundle_reference(package_path)
+    template_label = template_ref.uuid or template_ref.template_id
+    print(f"INFO: Rendering project {project_uuid} with released template {template_label}")
     # Bulk fixture imports can give every event the same timestamp. Rendering the
     # current project avoids selecting an arbitrary, incomplete event snapshot.
     created_document = client.create_document(
         name=f"Render {package_path.stem}",
         project_uuid=project_uuid,
-        document_template_uuid=template_uuid,
+        document_template=template_ref,
         format_uuid=format_uuid,
         project_event_uuid=None,
     )
@@ -229,7 +229,8 @@ def _render_released_template_package(
         {
             "mode": "released_package",
             "template_package": str(package_path),
-            "document_template_uuid": template_uuid,
+            "document_template_id": template_ref.template_id,
+            "document_template_uuid": template_ref.uuid,
             "document_uuid": document_uuid,
             "project_event_uuid": None,
         },

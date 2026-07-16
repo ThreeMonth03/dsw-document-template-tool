@@ -16,6 +16,7 @@ from dsw_document_template_tool.api import (
     _read_document_template_id_from_bundle,
     _read_knowledge_model_package_id_from_bundle,
 )
+from dsw_document_template_tool.models import DocumentTemplateReference
 
 
 class FakeRequest:
@@ -155,6 +156,28 @@ class DocumentTemplateBundleUploadClient(DSWApiClient):
         )
 
 
+class LegacyDocumentTemplateBundleUploadClient(DocumentTemplateBundleUploadClient):
+    """Client returning the ID-based DSW 4.26 document-template shape."""
+
+    def _post_bundle(
+        self,
+        endpoint: str,
+        bundle_path: Path,
+        *,
+        content_type: str = "application/json",
+    ) -> FakeResponse:
+        self.bundle_uploads.append((endpoint, bundle_path, content_type))
+        return FakeResponse(
+            201,
+            {
+                "id": "dsw:science-europe-zh-hant:1.29.1",
+                "name": "Science Europe DMP Template (zh-Hant)",
+            },
+            method="POST",
+            url=f"{self.api_url}{endpoint}",
+        )
+
+
 class DuplicateDocumentTemplateUploadClient(DSWApiClient):
     """Client with an already-imported document template package."""
 
@@ -238,6 +261,30 @@ class ProjectCreateFallbackClient(DSWApiClient):
         return FakeResponse(
             404,
             {"message": "Not Found"},
+            method=method,
+            url=f"{self.api_url}{endpoint}",
+        )
+
+
+class DocumentCreateClient(DSWApiClient):
+    """Client that records released document creation payloads."""
+
+    def __init__(self) -> None:
+        super().__init__(api_url="http://localhost:3000/wizard-api")
+        self.requests: list[tuple[str, str, dict[str, Any] | None]] = []
+
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+    ) -> FakeResponse:
+        self.requests.append((method, endpoint, json))
+        return FakeResponse(
+            201,
+            {"uuid": "55555555-5555-4555-8555-555555555555"},
             method=method,
             url=f"{self.api_url}{endpoint}",
         )
@@ -412,10 +459,26 @@ def test_document_template_package_upload_uses_bundle_endpoint(tmp_path: Path) -
     bundle_path.write_bytes(b"zip")
     client = DocumentTemplateBundleUploadClient()
 
-    payload = client.upload_document_template_bundle(bundle_path)
+    reference = client.upload_document_template_bundle_reference(bundle_path)
 
-    assert payload["uuid"] == "33333333-3333-4333-8333-333333333333"
+    assert reference.uuid == "33333333-3333-4333-8333-333333333333"
     assert client.bundle_uploads == [("/document-templates/bundle", bundle_path, "application/zip")]
+
+
+def test_legacy_document_template_upload_uses_template_id(tmp_path: Path) -> None:
+    """DSW 4.26 package imports should preserve the returned template ID."""
+
+    bundle_path = tmp_path / "template.zip"
+    with ZipFile(bundle_path, "w") as archive:
+        archive.writestr(
+            "template/template.json",
+            '{"id": "dsw:science-europe-zh-hant:1.29.1"}\n',
+        )
+    client = LegacyDocumentTemplateBundleUploadClient()
+
+    reference = client.upload_document_template_bundle_reference(bundle_path)
+
+    assert reference == DocumentTemplateReference(template_id="dsw:science-europe-zh-hant:1.29.1")
 
 
 def test_read_document_template_id_from_package_zip(tmp_path: Path) -> None:
@@ -446,13 +509,53 @@ def test_duplicate_document_template_package_upload_reuses_existing_template(
         )
     client = DuplicateDocumentTemplateUploadClient()
 
-    payload = client.upload_document_template_bundle(bundle_path)
+    reference = client.upload_document_template_bundle_reference(bundle_path)
 
-    assert payload == {
-        "uuid": "44444444-4444-4444-8444-444444444444",
-        "id": "dsw:science-europe-zh-hant:1.30.1",
-        "reused": True,
-    }
+    assert reference == DocumentTemplateReference(
+        template_id="dsw:science-europe-zh-hant:1.30.1",
+        uuid="44444444-4444-4444-8444-444444444444",
+    )
+
+
+@pytest.mark.parametrize(
+    ("reference", "expected_field", "expected_value"),
+    [
+        (
+            DocumentTemplateReference(uuid="44444444-4444-4444-8444-444444444444"),
+            "documentTemplateUuid",
+            "44444444-4444-4444-8444-444444444444",
+        ),
+        (
+            DocumentTemplateReference(template_id="dsw:science-europe-zh-hant:1.29.1"),
+            "documentTemplateId",
+            "dsw:science-europe-zh-hant:1.29.1",
+        ),
+    ],
+)
+def test_document_create_uses_server_template_identifier(
+    reference: DocumentTemplateReference,
+    expected_field: str,
+    expected_value: str,
+) -> None:
+    """Document creation should follow the identifier exposed by the server."""
+
+    client = DocumentCreateClient()
+
+    client.create_document(
+        name="Preview",
+        project_uuid="11111111-1111-4111-8111-111111111111",
+        document_template=reference,
+        format_uuid="22222222-2222-4222-8222-222222222222",
+        project_event_uuid=None,
+    )
+
+    body = client.requests[0][2]
+    assert body is not None
+    assert body[expected_field] == expected_value
+    other_field = (
+        "documentTemplateId" if expected_field == "documentTemplateUuid" else "documentTemplateUuid"
+    )
+    assert other_field not in body
 
 
 def test_project_create_falls_back_to_package_id_field() -> None:

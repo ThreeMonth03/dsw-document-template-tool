@@ -14,6 +14,8 @@ from urllib.parse import urlsplit, urlunsplit
 
 import requests
 
+from .models import DocumentTemplateReference
+
 
 class DSWAPIError(RuntimeError):
     """Raised when the DSW API returns an unexpected response."""
@@ -128,11 +130,11 @@ class DSWApiClient:
         self._raise_for_status(response)
         return True
 
-    def resolve_document_template_uuid(self, template_id: str) -> str:
-        """Resolve released template coordinates into the API's UUID field."""
+    def resolve_document_template_reference(self, template_id: str) -> DocumentTemplateReference:
+        """Resolve released template coordinates across DSW API generations."""
 
         if _looks_like_uuid(template_id):
-            return template_id
+            return DocumentTemplateReference(uuid=template_id)
         if template_id.count(":") != 2:
             raise DSWAPIError(
                 "Released template references must be a UUID or `org:template:version`, "
@@ -151,15 +153,17 @@ class DSWApiClient:
         for item in items:
             if not isinstance(item, dict):
                 continue
-            if (
+            item_id = _document_template_id_from_item(item)
+            if item_id == template_id or (
                 item.get("organizationId") == organization_id
                 and item.get("templateId") == short_template_id
                 and item.get("version") == version
             ):
-                resolved_uuid = item.get("uuid")
-                if isinstance(resolved_uuid, str) and resolved_uuid:
-                    return resolved_uuid
-        raise DSWAPIError(f"Could not resolve released template UUID for {template_id!r}")
+                return _document_template_reference_from_item(
+                    item,
+                    expected_template_id=template_id,
+                )
+        raise DSWAPIError(f"Could not resolve released template for {template_id!r}")
 
     def resolve_knowledge_model_package_uuid(self, package_id: str) -> str:
         """Resolve released KM package coordinates into the API's UUID field."""
@@ -326,26 +330,29 @@ class DSWApiClient:
             )
         raise DSWAPIError(f"Could not upload KM bundle: {endpoint} response was not resolvable")
 
-    def upload_document_template_bundle(self, bundle_path: Path) -> dict[str, Any]:
-        """Upload one released document template package to the DSW API."""
+    def upload_document_template_bundle_reference(
+        self, bundle_path: Path
+    ) -> DocumentTemplateReference:
+        """Upload one released template and normalize its server identifier."""
 
         endpoint = "/document-templates/bundle"
         template_id = _read_document_template_id_from_bundle(bundle_path)
         response = self._post_bundle(endpoint, bundle_path, content_type="application/zip")
         if _is_document_template_uniqueness_error(response) and template_id is not None:
-            return {
-                "uuid": self.resolve_document_template_uuid(template_id),
-                "id": template_id,
-                "reused": True,
-            }
+            return self.resolve_document_template_reference(template_id)
         self._raise_for_status(response, expected_statuses={200, 201})
         payload = _safe_json(response)
         if not isinstance(payload, dict):
             raise DSWAPIError(f"Expected JSON object from {endpoint}")
-        template_uuid = payload.get("uuid")
-        if not isinstance(template_uuid, str) or not template_uuid:
-            raise DSWAPIError("Document template upload response did not include a UUID")
-        return payload
+        template_ref = _document_template_reference_from_item(
+            payload,
+            expected_template_id=template_id,
+        )
+        if template_ref.uuid is not None or template_ref.template_id is not None:
+            return template_ref
+        if template_id is not None:
+            return self.resolve_document_template_reference(template_id)
+        raise DSWAPIError("Document template upload response did not include an identifier")
 
     def put_draft_preview_settings(
         self,
@@ -403,7 +410,7 @@ class DSWApiClient:
         *,
         name: str,
         project_uuid: str,
-        document_template_uuid: str,
+        document_template: DocumentTemplateReference,
         format_uuid: str,
         project_event_uuid: str | None,
     ) -> dict[str, Any]:
@@ -412,9 +419,14 @@ class DSWApiClient:
         body = {
             "name": name,
             "projectUuid": project_uuid,
-            "documentTemplateUuid": document_template_uuid,
             "formatUuid": format_uuid,
         }
+        if document_template.uuid is not None:
+            body["documentTemplateUuid"] = document_template.uuid
+        elif document_template.template_id is not None:
+            body["documentTemplateId"] = document_template.template_id
+        else:
+            raise DSWAPIError("Released document template reference has no identifier")
         if project_event_uuid is not None:
             body["projectEventUuid"] = project_event_uuid
         return self._request_json("POST", "/documents", json=body, expected_status=201)
@@ -757,6 +769,40 @@ def _read_document_template_id_from_bundle(bundle_path: Path) -> str | None:
     ):
         return f"{organization_id}:{short_template_id}:{version}"
     return None
+
+
+def _document_template_id_from_item(item: dict[str, Any]) -> str | None:
+    template_id = item.get("id") or item.get("tId")
+    if isinstance(template_id, str) and template_id:
+        return template_id
+    organization_id = item.get("organizationId")
+    short_template_id = item.get("templateId")
+    version = item.get("version")
+    if all(
+        isinstance(value, str) and value for value in (organization_id, short_template_id, version)
+    ):
+        return f"{organization_id}:{short_template_id}:{version}"
+    return None
+
+
+def _document_template_reference_from_item(
+    item: dict[str, Any],
+    *,
+    expected_template_id: str | None = None,
+) -> DocumentTemplateReference:
+    template_id = _document_template_id_from_item(item)
+    if (
+        expected_template_id is not None
+        and template_id is not None
+        and template_id != expected_template_id
+    ):
+        return DocumentTemplateReference()
+    template_id = template_id or expected_template_id
+    uuid = item.get("uuid")
+    return DocumentTemplateReference(
+        template_id=template_id,
+        uuid=uuid if isinstance(uuid, str) and uuid else None,
+    )
 
 
 def _find_template_json_name(names: list[str]) -> str | None:

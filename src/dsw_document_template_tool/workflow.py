@@ -19,6 +19,7 @@ from .config import load_workflow_config
 from .fixture_coverage import plan_generated_fixture_cases
 from .fixture_generator import generate_questionnaire_events
 from .models import (
+    DocumentTemplateReference,
     FixtureConfig,
     FixtureProject,
     FixtureRegressionResult,
@@ -385,14 +386,13 @@ class DocumentTemplateWorkflowService:
         subject: SubjectConfig,
     ) -> ResolvedSubject:
         parse_template_coordinates(subject.value)
-        template_uuid = client.resolve_document_template_uuid(subject.value)
+        template_reference = client.resolve_document_template_reference(subject.value)
         return ResolvedSubject(
             label=label,
             mode="released",
             source_value=subject.value,
             display_id=subject.value,
-            template_id=subject.value,
-            template_uuid=template_uuid,
+            template_reference=template_reference,
         )
 
     def _prepare_fixture(
@@ -544,7 +544,7 @@ class DocumentTemplateWorkflowService:
                     client=render_client,
                     project_uuid=resolved_fixture.project_uuid,
                     project_event_uuid=resolved_fixture.project_event_uuid,
-                    template_uuid=baseline.template_uuid or "",
+                    template_reference=baseline.template_reference,
                     format_uuid=config.regression.format_uuid,
                     timeout_seconds=config.regression.timeout_seconds,
                     poll_seconds=config.regression.poll_seconds,
@@ -554,7 +554,7 @@ class DocumentTemplateWorkflowService:
                     client=render_client,
                     project_uuid=resolved_fixture.project_uuid,
                     project_event_uuid=resolved_fixture.project_event_uuid,
-                    template_uuid=candidate.template_uuid or "",
+                    template_reference=candidate.template_reference,
                     format_uuid=config.regression.format_uuid,
                     timeout_seconds=config.regression.timeout_seconds,
                     poll_seconds=config.regression.poll_seconds,
@@ -624,16 +624,18 @@ class DocumentTemplateWorkflowService:
         client: DSWApiClient,
         project_uuid: str,
         project_event_uuid: str | None,
-        template_uuid: str,
+        template_reference: DocumentTemplateReference | None,
         format_uuid: str,
         timeout_seconds: int,
         poll_seconds: float,
         name: str,
     ) -> str:
+        if template_reference is None:
+            raise DSWAPIError("Released regression subject has no template reference")
         created_document = client.create_document(
             name=name,
             project_uuid=project_uuid,
-            document_template_uuid=template_uuid,
+            document_template=template_reference,
             format_uuid=format_uuid,
             project_event_uuid=project_event_uuid,
         )

@@ -12,6 +12,22 @@ Regression Workflow Service
    :members: run
    :show-inheritance:
 
+DSW API Adapter
+---------------
+
+The adapter keeps server-generation differences out of workflow and rendering
+services. Released document templates may be identified by coordinates or by a
+UUID depending on the DSW runtime.
+
+.. automodule:: dsw_document_template_tool.api
+   :members: DSWApiClient, DSWAPIError, KnowledgeModelPackageReference
+   :show-inheritance:
+
+.. autoclass:: dsw_document_template_tool.models.DocumentTemplateReference
+   :members:
+   :no-index:
+   :show-inheritance:
+
 Render Project
 --------------
 

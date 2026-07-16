@@ -45,6 +45,11 @@ Document mode compares released templates through:
 POST /documents
 ```
 
+The API client normalizes released-template references before document
+creation: DSW 4.26 returns and accepts `documentTemplateId`, while current DSW
+uses `documentTemplateUuid`. This is an API representation difference, not a
+reason to skip package validation for an otherwise supported runtime.
+
 Draft preview mode is the default for baseline/candidate regression because it
 does not require publishing candidate template versions. Clean scaffold and
 translated-template delivery checks instead import the newly built package ZIP

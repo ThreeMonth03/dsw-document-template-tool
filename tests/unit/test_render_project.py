@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from dsw_document_template_tool.models import DocumentTemplateReference
 from dsw_document_template_tool.render_project import (
     _load_project_events,
     _render_released_template_package,
@@ -54,8 +55,13 @@ class FakeReleasedRenderClient:
     def __init__(self) -> None:
         self.created_documents: list[dict[str, Any]] = []
 
-    def upload_document_template_bundle(self, package_path: Path) -> dict[str, str]:
-        return {"uuid": "33333333-3333-4333-8333-333333333333"}
+    def upload_document_template_bundle_reference(
+        self, package_path: Path
+    ) -> DocumentTemplateReference:
+        return DocumentTemplateReference(
+            template_id="dsw:science-europe-zh-hant:1.30.1",
+            uuid="33333333-3333-4333-8333-333333333333",
+        )
 
     def create_document(self, **kwargs: Any) -> dict[str, str]:
         self.created_documents.append(kwargs)
@@ -166,7 +172,10 @@ def test_released_package_renders_current_project_state(tmp_path: Path) -> None:
         {
             "name": "Render template",
             "project_uuid": "11111111-1111-4111-8111-111111111111",
-            "document_template_uuid": "33333333-3333-4333-8333-333333333333",
+            "document_template": DocumentTemplateReference(
+                template_id="dsw:science-europe-zh-hant:1.30.1",
+                uuid="33333333-3333-4333-8333-333333333333",
+            ),
             "format_uuid": "22222222-2222-4222-8222-222222222222",
             "project_event_uuid": None,
         }
