@@ -130,7 +130,7 @@ def _coverage_cells(directory: Path) -> tuple[str, str, list[str]]:
                 raise ValueError("expected boolean `complete`")
             name = _table(path.name.removesuffix("-coverage.json"))
             cases.append(f"{name}: {selected}")
-            status = "complete" if complete else "partial"
+            status = "complete" if complete else "incomplete"
             branches.append(f"{name}: {covered}/{expected} ({status})")
         except (OSError, ValueError) as error:
             warnings.append(f"could not read `{path.name}`: {error}")

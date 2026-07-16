@@ -266,7 +266,7 @@ def render_markdown_report(
                 "### Unsupported Metamodels",
                 "",
                 "CI found upstream template refs that are not covered by "
-                "`config/dsw-compat.yml`. Add a runtime only after smoke-testing a "
+                "`config/dsw-compat.yml`. Add a runtime only after validating a "
                 "matching DSW server and dsw-tdk version.",
                 "",
                 f"Official metamodel source: {metamodel_source_url}",

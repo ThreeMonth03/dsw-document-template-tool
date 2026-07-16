@@ -53,7 +53,9 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
         workflow["on"]["workflow_dispatch"]["inputs"]["upstream_template_artifact_refs"]["default"]
         == "v1.29.1+"
     )
+    assert "Validate upstream template refs" in workflow_text
     assert "make test-upstream-tags" in workflow_text
+    assert "Smoke-test upstream template refs" not in workflow_text
     assert "UPSTREAM_TEMPLATE_TEST_METAMODEL_VERSION" in workflow_text
     assert "make discover-upstream-compat" in workflow_text
     assert "UPSTREAM_TEMPLATE_DISCOVERY_REFS" in workflow_text

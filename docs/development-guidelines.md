@@ -39,7 +39,7 @@ Use `make clean` when generated files make local review noisy.
   [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci).
 - Keep GitHub Actions YAML thin. YAML should describe the flow; Python helpers
   should perform parsing, branching, validation, and GitHub API logic.
-- Add a `--help` smoke test for every new helper in
+- Add a `--help` invocation test for every new helper in
   `tests/infra/test_cli_entrypoints.py`.
 - Add focused behavior tests under `tests/infra/` or `tests/unit/` when a helper
   makes decisions.

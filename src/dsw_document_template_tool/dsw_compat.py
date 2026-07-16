@@ -2,7 +2,7 @@
 
 This module intentionally only discovers *candidate* runtime information.
 Checked-in CI runtimes still live in ``config/dsw-compat.yml`` and should only
-be updated after an import/render smoke test.
+be updated after complete import and render validation.
 """
 
 from __future__ import annotations
@@ -99,7 +99,7 @@ def runtime_candidate_message(
     return (
         f"Official DSW docs say document-template metamodel "
         f"{support.metamodel_version} is supported since DSW "
-        f"{support.minimum_dsw_version}. Start by smoke-testing a "
+        f"{support.minimum_dsw_version}. Start by validating a "
         f"wizard-server/document-worker runtime at or above that version with "
         f"a matching dsw-tdk release, then add the proven runtime to "
         f"`config/dsw-compat.yml`."

@@ -167,7 +167,7 @@ help:
 	'  test              Run all pytest suites' \
 	'  test-infra        Run infrastructure/CLI pytest suites' \
 	'  test-unit         Run unit/regression helper pytest suites' \
-	'  test-upstream-tags Smoke-test transform/export/sync/package for upstream refs' \
+	'  test-upstream-tags Validate transform/export/sync/package for upstream refs' \
 	'  transform         Expand $(COMPACT_TEMPLATE_DIR) into $(EXPANDED_TEMPLATE_DIR)' \
 	'  validate-translation-config Validate public-repo translation-config.yml' \
 	'  venv              Create $(VENV_DIR) when it does not exist' \

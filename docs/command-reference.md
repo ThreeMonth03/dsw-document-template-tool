@@ -118,11 +118,14 @@ verify DSW runtime compatibility.
 | Command | Purpose |
 | --- | --- |
 | `make list-upstream-template-tags` | List available upstream template tags. |
-| `make test-upstream-tags` | Smoke test selected refs for the active metamodel. |
+| `make test-upstream-tags` | Validate transform/export/sync/package for selected refs in the active metamodel. |
 | `make discover-upstream-compat` | Detect upstream refs that need a configured DSW runtime. |
 | `make sync-dsw-runtime-matrix` | Regenerate the workflow runtime matrix from config. |
 | `make check-dsw-runtime-matrix` | Check that the workflow matrix matches config. |
 | `make create-dsw-compat-pr` | Stage or open the unsupported-metamodel follow-up PR. |
+
+`make test-upstream-tags` is an offline transform/package check. It does not
+replace `make render-regression-ci-plan` or `make verify-runtime-evidence`.
 
 Typical scheduled-discovery invocation:
 

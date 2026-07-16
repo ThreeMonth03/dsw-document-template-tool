@@ -35,13 +35,13 @@ def main() -> None:
     fetch.add_argument("--ref", required=True)
     fetch.add_argument("--cache", type=Path, required=True)
 
-    smoke = subparsers.add_parser(
+    validation = subparsers.add_parser(
         "test-tags",
-        help="Smoke-test upstream refs with transform/export/sync/package.",
+        help="Validate upstream refs with transform/export/sync/package.",
     )
-    add_common_build_args(smoke)
-    smoke.add_argument("--root", type=Path, required=True)
-    smoke.add_argument("--test-metamodel-version", default="")
+    add_common_build_args(validation)
+    validation.add_argument("--root", type=Path, required=True)
+    validation.add_argument("--test-metamodel-version", default="")
 
     build = subparsers.add_parser(
         "build-artifacts",
@@ -77,7 +77,7 @@ def main() -> None:
     elif args.command == "fetch":
         fetch_upstream_template(remote=args.remote, ref=args.ref, cache=args.cache)
     elif args.command == "test-tags":
-        smoke_test_upstream_tags(args)
+        validate_upstream_tags(args)
     elif args.command == "build-artifacts":
         build_upstream_artifacts(args)
     elif args.command == "render-previews":
@@ -137,9 +137,11 @@ def fetch_upstream_template(*, remote: str, ref: str, cache: Path) -> str:
     return resolved_ref
 
 
-def smoke_test_upstream_tags(args: argparse.Namespace) -> None:
+def validate_upstream_tags(args: argparse.Namespace) -> None:
+    """Validate transform, translation-tree, and package behavior for selected refs."""
+
     refs = resolve_refs(remote=args.remote, refs=args.refs)
-    print("INFO: Smoke-testing upstream refs: " + " ".join(refs))
+    print("INFO: Validating upstream refs: " + " ".join(refs))
     for ref in refs:
         case_root = args.root / safe_ref_name(ref)
         clean_allowed_root(case_root, allowed_prefixes=(".cache", "/tmp", "/var/tmp"))
@@ -155,7 +157,7 @@ def smoke_test_upstream_tags(args: argparse.Namespace) -> None:
         version_tag = f"v{version}"
         if args.test_metamodel_version and metamodel_version != args.test_metamodel_version:
             print(
-                f"INFO: [{ref}] skipping smoke test for version {version_tag} because "
+                f"INFO: [{ref}] skipping validation for version {version_tag} because "
                 f"metamodel {metamodel_version} is not handled by test metamodel "
                 f"{args.test_metamodel_version}"
             )
@@ -169,8 +171,8 @@ def smoke_test_upstream_tags(args: argparse.Namespace) -> None:
             source=expanded_dir,
             output=output_dir,
             organization_id=args.translated_template_organization_id,
-            template_id=f"{args.translated_template_id}-smoke",
-            template_name=f"{args.translated_template_name} Smoke Test",
+            template_id=f"{args.translated_template_id}-validation",
+            template_name=f"{args.translated_template_name} Validation",
             template_version=version,
         )
         audit_output(source=expanded_dir, output=output_dir)

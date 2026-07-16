@@ -50,4 +50,4 @@ def test_runtime_candidate_message_uses_official_minimum_dsw_version() -> None:
 
     assert "metamodel 19.0" in message
     assert "DSW 4.35.0" in message
-    assert "smoke-testing" in message
+    assert "validating" in message

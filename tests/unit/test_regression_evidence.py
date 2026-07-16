@@ -11,12 +11,12 @@ import pytest
 from dsw_document_template_tool.regression_evidence import (
     RegressionEvidenceError,
     load_regression_evidence_config,
-    validate_runtime_evidence,
+    validate_regression_evidence_config,
 )
 from dsw_document_template_tool.translation_repository import DswPreviewRuntime
 
 
-def test_load_and_validate_runtime_evidence(tmp_path: Path) -> None:
+def test_load_and_validate_regression_evidence_config(tmp_path: Path) -> None:
     """A runtime assignment should verify the pinned bundle and its metadata."""
 
     bundle = _write_bundle(tmp_path / "root.km")
@@ -24,7 +24,7 @@ def test_load_and_validate_runtime_evidence(tmp_path: Path) -> None:
     runtime = _runtime()
 
     config = load_regression_evidence_config(config_path)
-    validate_runtime_evidence(config, (runtime,))
+    validate_regression_evidence_config(config, (runtime,))
 
     evidence = config.knowledge_model_for_runtime(runtime)
     assert evidence.package_id == "dsw:root:2.7.0"
@@ -40,7 +40,7 @@ def test_runtime_evidence_rejects_checksum_drift(tmp_path: Path) -> None:
     bundle.write_text("{}\n", encoding="utf-8")
 
     with pytest.raises(RegressionEvidenceError, match="checksum mismatch"):
-        validate_runtime_evidence(
+        validate_regression_evidence_config(
             load_regression_evidence_config(config_path),
             (_runtime(),),
         )
@@ -62,7 +62,7 @@ def test_runtime_evidence_requires_every_runtime_assignment(tmp_path: Path) -> N
     )
 
     with pytest.raises(RegressionEvidenceError, match="Missing.*19-0"):
-        validate_runtime_evidence(
+        validate_regression_evidence_config(
             load_regression_evidence_config(config_path),
             (_runtime(), unknown_runtime),
         )

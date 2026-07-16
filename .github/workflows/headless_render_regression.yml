@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: make install-dev
 
-      - name: Smoke-test upstream template refs
+      - name: Validate upstream template refs
         run: |
           make test-upstream-tags \
             UPSTREAM_TEMPLATE_REPOSITORY="$UPSTREAM_TEMPLATE_REPOSITORY" \

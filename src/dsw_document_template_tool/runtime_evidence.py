@@ -10,7 +10,7 @@ from typing import Any
 from .regression_evidence import (
     KnowledgeModelEvidence,
     load_regression_evidence_config,
-    validate_runtime_evidence,
+    validate_regression_evidence_config,
 )
 from .translation_repository import DswPreviewRuntime, load_preview_runtimes
 
@@ -67,7 +67,7 @@ def collect_runtime_evidence(
 
     runtimes = load_preview_runtimes(compat_config)
     evidence_config_payload = load_regression_evidence_config(evidence_config)
-    validate_runtime_evidence(evidence_config_payload, runtimes)
+    validate_regression_evidence_config(evidence_config_payload, runtimes)
     runtime = _runtime_for_metamodel(runtimes, metamodel_version)
     knowledge_model = evidence_config_payload.knowledge_model_for_runtime(runtime)
     versions = tuple(

@@ -104,11 +104,11 @@ def load_regression_evidence_config(path: Path) -> RegressionEvidenceConfig:
     return config
 
 
-def validate_runtime_evidence(
+def validate_regression_evidence_config(
     config: RegressionEvidenceConfig,
     runtimes: tuple[DswPreviewRuntime, ...],
 ) -> None:
-    """Require exactly one valid Knowledge Model assignment per runtime."""
+    """Validate runtime assignments and every pinned Knowledge Model bundle."""
 
     runtime_keys = {runtime.metamodel_key for runtime in runtimes}
     assignment_keys = set(config.runtime_knowledge_models)

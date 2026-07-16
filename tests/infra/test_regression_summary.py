@@ -98,6 +98,43 @@ def test_summary_surfaces_unreadable_reports_without_failing(
     assert "could not read `regression_report.json`: invalid JSON at line 1" in result.stdout
 
 
+def test_summary_labels_incomplete_coverage_without_implying_a_profile(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Coverage diagnostics should not revive the retired partial-profile terminology."""
+
+    output_dir = tmp_path / "preview"
+    _write_regression_report(
+        output_dir / "v1.30.0",
+        version="1.30.0",
+        equal=(True,),
+    )
+    _write_coverage_report(
+        output_dir / "v1.30.0",
+        selected=20,
+        covered=1102,
+        expected=1136,
+        complete=False,
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "summarize_regression_coverage.py"),
+            "--output-dir",
+            str(output_dir),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "random-project: 1102/1136 (incomplete)" in result.stdout
+    assert "partial" not in result.stdout
+
+
 def test_summary_explains_when_regression_produced_no_report(
     repo_root: Path,
     tmp_path: Path,

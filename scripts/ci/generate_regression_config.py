@@ -15,7 +15,7 @@ import yaml
 from dsw_document_template_tool.regression_evidence import (
     KnowledgeModelEvidence,
     load_regression_evidence_config,
-    validate_runtime_evidence,
+    validate_regression_evidence_config,
 )
 from dsw_document_template_tool.translation_repository import (
     load_preview_runtimes,
@@ -204,7 +204,7 @@ def select_regression_knowledge_model(
 
     runtimes = load_preview_runtimes(compat_config)
     evidence = load_regression_evidence_config(evidence_config)
-    validate_runtime_evidence(evidence, runtimes)
+    validate_regression_evidence_config(evidence, runtimes)
     runtime = preview_runtime_for_template(
         workspace.version_tag,
         workspace.metamodel_version,

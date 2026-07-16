@@ -20,9 +20,9 @@ DSW stores Knowledge Models and document templates as different package types.
 Each type has its own `metamodelVersion`; equal-looking version numbers are not
 required and must not be compared with each other.
 
-- `config/dsw-compat.yml` maps the upstream **document-template** metamodel to a
-  proven DSW server and TDK runtime. The current template ranges use `17.1` and
-  `18.0`.
+- [`config/dsw-compat.yml`](../config/dsw-compat.yml) maps the upstream
+  **document-template** metamodel to a proven DSW server and TDK runtime. The
+  current template ranges use `17.1` and `18.0`.
 - The checked-in `dsw:root:2.7.0` and `dsw:root-zh-hant:2.7.0` Knowledge Model
   bundles both use KM metamodel `19`.
 
@@ -164,9 +164,10 @@ The regression plan recommends high-value candidates: the first and latest
 version for each metamodel runtime, plus any version whose expanded/tree
 structure signature changed within the same metamodel. Every recommended
 candidate runs the same complete branch-coverage gate from the base config.
-Versions with unchanged structural signatures are omitted from DSW regression
-rather than tested with a weaker partial profile; the compatibility ledger
-still records and compares every built version.
+Versions with unchanged structural signatures are omitted from DSW regression.
+Selected versions must pass the same complete branch-coverage gate; there is no
+weaker regression profile. The compatibility ledger still records and compares
+every built version.
 
 This policy spends DSW render time only on structurally meaningful versions
 without weakening the evidence for versions that are selected.
@@ -210,19 +211,19 @@ make render-regression-ci UPSTREAM_TEMPLATE_REGRESSION_VERSION=v1.30.0
 
 The GitHub Actions workflow is:
 
-- `.github/workflows/headless_render_regression.yml`
+- [`.github/workflows/headless_render_regression.yml`](../.github/workflows/headless_render_regression.yml)
 
 It has two jobs:
 
-- `offline-checks`: install dependencies, smoke-test upstream refs, discover DSW
-  compatibility, run format/lint/tests.
+- `offline-checks`: install dependencies, validate upstream transform/package
+  behavior, discover DSW compatibility, run format/lint/tests.
 - `render-regression`: run a metamodel-aware DSW matrix, build clean scaffold
   artifacts, run full regression and strict demo previews for every supported
   runtime, verify complete runtime evidence, and upload artifacts.
 
 The runtime matrix comes from:
 
-- `config/dsw-compat.yml`
+- [`config/dsw-compat.yml`](../config/dsw-compat.yml)
 
 The checked-in workflow contains a generated matrix block. After changing the
 compatibility table, run `make sync-dsw-runtime-matrix` instead of editing that
@@ -235,9 +236,9 @@ Current policy:
 | `v1.29.1` | DSW 4.26 | Required | Required |
 | `v1.30.0+` | DSW 4.30 | Required | Required |
 
-A row in `config/dsw-compat.yml` means that both checks are required. Do not add
-per-runtime skip flags: a runtime that cannot pass the common contract is not a
-supported runtime yet.
+A row in [`config/dsw-compat.yml`](../config/dsw-compat.yml) means that both
+checks are required. Do not add per-runtime skip flags: a runtime that cannot
+pass the common contract is not a supported runtime yet.
 
 The exact TDK patch version and regression KM assignment are read from
 [`config/dsw-compat.yml`](../config/dsw-compat.yml) and

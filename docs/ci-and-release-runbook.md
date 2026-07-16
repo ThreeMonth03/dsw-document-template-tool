@@ -7,14 +7,12 @@ clean scaffold release assets refresh.
 
 Workflow:
 
-```text
-.github/workflows/headless_render_regression.yml
-```
+- [`.github/workflows/headless_render_regression.yml`](../.github/workflows/headless_render_regression.yml)
 
 Main jobs:
 
-- `offline-checks`: install dependencies, smoke-test upstream refs, discover DSW
-  compatibility, run format/lint/tests.
+- `offline-checks`: install dependencies, validate upstream transform/package
+  behavior, discover DSW compatibility, run format/lint/tests.
 - `render-regression`: run the DSW runtime matrix, build clean scaffold
   artifacts, render previews, upload Actions artifacts, and refresh clean
   scaffold release assets.
@@ -23,15 +21,20 @@ Compatibility discovery is intentionally non-destructive on scheduled runs,
 manual `workflow_dispatch` runs, and `master` pushes. If a new upstream tag uses
 an unsupported `metamodelVersion`, the workflow opens or updates a compatibility
 probe PR. That PR records the discovery report, copies the closest previous
-DSW/TDK runtime into a candidate `config/dsw-compat.yml` row, and lets CI test
-the assumption. Matrix jobs continue refreshing artifacts for already-supported
+DSW/TDK runtime into a candidate
+[`config/dsw-compat.yml`](../config/dsw-compat.yml) row, and lets CI test the
+assumption. Matrix jobs continue refreshing artifacts for already-supported
 metamodels. Ordinary feature-branch pushes do not open automation PRs. Pull
 requests still fail on unsupported metamodels so maintainers notice the missing
 runtime.
 
-The upstream smoke test and clean scaffold build both filter refs by the
+The upstream validation and clean scaffold build both filter refs by the
 metamodel handled by the current runtime. This prevents a future unsupported tag
 from blocking refreshes for already-supported versions.
+
+The fast upstream validation does not start DSW and is not runtime evidence. A
+runtime is supported only after the `render-regression` job passes complete
+coverage, package preview, and the final evidence gate.
 
 Clean scaffold releases:
 
