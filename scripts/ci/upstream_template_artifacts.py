@@ -224,8 +224,7 @@ def build_upstream_artifacts(args: argparse.Namespace) -> None:
             / f"{args.translated_template_organization_id}-{args.scaffold_template_id}-{version}"
         )
         package_name = (
-            f"{args.translated_template_organization_id}-"
-            f"{args.scaffold_template_id}-{version}.zip"
+            f"{args.translated_template_organization_id}-{args.scaffold_template_id}-{version}.zip"
         )
         package_path = output_root / package_name
 
