@@ -284,25 +284,6 @@ class DSWApiClient:
 
         return self._request_json("GET", f"/projects/{project_uuid}/questionnaire")
 
-    def get_latest_project_event_uuid(self, project_uuid: str) -> str:
-        """Return the newest event UUID for one project."""
-
-        payload = self._request_json(
-            "GET",
-            f"/projects/{project_uuid}/events",
-            params={"size": 1, "sort": "createdAt,desc", "page": 0},
-        )
-        events = payload.get("_embedded", {}).get("projectEvents", [])
-        if not events:
-            raise DSWAPIError(f"No project events were found for project {project_uuid}")
-        latest = events[0]
-        if not isinstance(latest, dict):
-            raise DSWAPIError(f"Unexpected project event payload for project {project_uuid}")
-        event_uuid = latest.get("uuid")
-        if not isinstance(event_uuid, str) or not event_uuid:
-            raise DSWAPIError(f"Latest project event for {project_uuid} did not include a UUID")
-        return event_uuid
-
     def delete_project(self, project_uuid: str) -> None:
         """Delete a fixture project."""
 

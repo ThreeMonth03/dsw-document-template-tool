@@ -325,7 +325,7 @@ jobs:
           set +e
           "$TOOL_ROOT/.venv/bin/dsw-template-render-project" \
             --project-ref "$project_ref_path" \
-            --template-dir "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR" \
+            --template-package "$HOST_ROOT/$TRANSLATED_TEMPLATE_PACKAGE" \
             --format-uuid "$PROJECT_RENDER_FORMAT_UUID" \
             --output "$HOST_ROOT/$PROJECT_RENDER_OUTPUT" \
             --tdk-executable "$TOOL_ROOT/.venv/bin/dsw-tdk"

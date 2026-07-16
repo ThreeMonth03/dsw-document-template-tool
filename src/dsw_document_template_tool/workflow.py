@@ -423,17 +423,11 @@ class DocumentTemplateWorkflowService:
             events = self._load_events(fixture.events_file)
             print(f"INFO: Applying {len(events)} fixture events to {project_uuid}")
             client.put_project_content(project_uuid=project_uuid, events=events)
-            if fixture.project_event_uuid is None:
-                project_event_uuid = client.get_latest_project_event_uuid(project_uuid)
-            else:
-                project_event_uuid = fixture.project_event_uuid
-        else:
-            project_event_uuid = fixture.project_event_uuid
 
         return FixtureProject(
             name=fixture.name,
             project_uuid=project_uuid,
-            project_event_uuid=project_event_uuid,
+            project_event_uuid=fixture.project_event_uuid,
             created_by_tool=created and cleanup_projects,
         )
 
@@ -485,7 +479,6 @@ class DocumentTemplateWorkflowService:
                 f"INFO: Applying {len(generated.events)} generated fixture events to {project_uuid}"
             )
             client.put_project_content(project_uuid=project_uuid, events=generated.events)
-            project_event_uuid = client.get_latest_project_event_uuid(project_uuid)
         except Exception:
             if config.regression.cleanup_projects:
                 try:
@@ -498,7 +491,7 @@ class DocumentTemplateWorkflowService:
             FixtureProject(
                 name=fixture.name,
                 project_uuid=project_uuid,
-                project_event_uuid=project_event_uuid,
+                project_event_uuid=None,
                 created_by_tool=config.regression.cleanup_projects,
             ),
         )

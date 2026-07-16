@@ -89,7 +89,8 @@ Before using artifacts in the public repository:
 1. Download the clean scaffold release assets.
 2. Verify `SHA256SUMS`.
 3. Confirm the artifact version matches the upstream tag.
-4. Import the package zip with `make render-package` and render the demo project.
+4. Import the package zip with `make render-package` and render the demo project;
+   do not substitute a source-directory draft preview for this delivery check.
 5. Confirm the tree passes structure audits.
 6. Confirm the public repository documents translation QA and manual import.
 

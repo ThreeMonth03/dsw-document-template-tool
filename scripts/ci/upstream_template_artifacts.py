@@ -291,6 +291,12 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
     for template_dir in template_dirs:
         version, metamodel_version = template_version_and_metamodel(template_dir)
         version_tag = f"v{version}"
+        package_path = template_dir.with_suffix(".zip")
+        if not package_path.is_file():
+            raise SystemExit(
+                f"Missing scaffold package for {version_tag}: {package_path}. "
+                "Run make build-upstream-artifacts first."
+            )
         output_path = (
             Path("outputs")
             / "project-render"
@@ -325,8 +331,8 @@ def render_upstream_artifact_previews(args: argparse.Namespace) -> None:
                 RENDER_PROJECT_COMMAND,
                 "--project-ref",
                 args.project_ref,
-                "--template-dir",
-                template_dir,
+                "--template-package",
+                package_path,
                 "--format-uuid",
                 args.format_uuid,
                 "--output",

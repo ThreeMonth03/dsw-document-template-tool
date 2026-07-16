@@ -8,6 +8,7 @@ from typing import Any
 
 from dsw_document_template_tool.render_project import (
     _load_project_events,
+    _render_released_template_package,
     _resolve_or_create_project,
 )
 
@@ -45,6 +46,29 @@ class FakeDSWClient:
 
     def delete_project(self, project_uuid: str) -> None:
         self.deleted_projects.append(project_uuid)
+
+
+class FakeReleasedRenderClient:
+    """Record released-package rendering without a live DSW server."""
+
+    def __init__(self) -> None:
+        self.created_documents: list[dict[str, Any]] = []
+
+    def upload_document_template_bundle(self, package_path: Path) -> dict[str, str]:
+        return {"uuid": "33333333-3333-4333-8333-333333333333"}
+
+    def create_document(self, **kwargs: Any) -> dict[str, str]:
+        self.created_documents.append(kwargs)
+        return {"uuid": "44444444-4444-4444-8444-444444444444"}
+
+    def poll_document_ready(self, **kwargs: Any) -> None:
+        return None
+
+    def get_document_download_url(self, document_uuid: str) -> str:
+        return "https://example.test/render.pdf"
+
+    def download_url_bytes(self, url: str) -> bytes:
+        return b"rendered document"
 
 
 def test_project_ref_can_point_at_existing_project_uuid(tmp_path: Path) -> None:
@@ -119,3 +143,32 @@ def test_project_events_loader_accepts_wrapped_events_payload(tmp_path: Path) ->
     events_file.write_text(json.dumps({"events": events}), encoding="utf-8")
 
     assert _load_project_events(events_file) == events
+
+
+def test_released_package_renders_current_project_state(tmp_path: Path) -> None:
+    """Bulk-imported fixtures must not use an arbitrary event snapshot."""
+
+    package_path = tmp_path / "template.zip"
+    package_path.write_bytes(b"template package")
+    client = FakeReleasedRenderClient()
+
+    document, metadata = _render_released_template_package(
+        client=client,
+        package_path=package_path,
+        project_uuid="11111111-1111-4111-8111-111111111111",
+        format_uuid="22222222-2222-4222-8222-222222222222",
+        timeout_seconds=30,
+        poll_seconds=0.1,
+    )
+
+    assert document == b"rendered document"
+    assert client.created_documents == [
+        {
+            "name": "Render template",
+            "project_uuid": "11111111-1111-4111-8111-111111111111",
+            "document_template_uuid": "33333333-3333-4333-8333-333333333333",
+            "format_uuid": "22222222-2222-4222-8222-222222222222",
+            "project_event_uuid": None,
+        }
+    ]
+    assert metadata["project_event_uuid"] is None

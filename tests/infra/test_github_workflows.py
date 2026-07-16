@@ -459,6 +459,8 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert 'case "$PROJECT_REF" in' in workflow_text
     assert 'project_ref_path="$GITHUB_WORKSPACE/$PROJECT_REF"' in workflow_text
     assert '--project-ref "$project_ref_path"' in workflow_text
+    assert '--template-package "$HOST_ROOT/$TRANSLATED_TEMPLATE_PACKAGE"' in workflow_text
+    assert '--template-dir "$HOST_ROOT/$TRANSLATED_TEMPLATE_DIR"' not in workflow_text
     assert "scripts/ci/write_preview_status.py" in workflow_text
     assert "--reason render_failed" in workflow_text
     assert 'exit "$render_status"' in workflow_text

@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 import pytest
 import yaml
@@ -1319,6 +1319,58 @@ def test_upstream_template_artifacts_normalizes_remote_for_subcommands(
 
     capsys.readouterr()
     assert seen["remote"] == "https://github.com/ds-wizard/science-europe-template.git"
+
+
+def test_upstream_artifact_previews_render_packaged_template(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Scaffold previews should validate the packaged delivery artifact."""
+
+    module = _load_script_module(
+        repo_root / "scripts" / "ci" / "upstream_template_artifacts.py",
+        "upstream_template_preview_test",
+    )
+    template_dir = (
+        tmp_path
+        / "outputs/document-templates/dsw-science-europe/v1.30.1/zh-Hant/scaffold"
+        / "dsw-scaffold-1.30.1"
+    )
+    template_dir.mkdir(parents=True)
+    (template_dir / "template.json").write_text(
+        json.dumps({"version": "1.30.1", "metamodelVersion": "18.0"}),
+        encoding="utf-8",
+    )
+    package_path = template_dir.with_suffix(".zip")
+    package_path.write_bytes(b"template package")
+    commands: list[list[object]] = []
+
+    def fake_run(command, *, check=True):
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(module, "run", fake_run)
+
+    module.render_upstream_artifact_previews(
+        SimpleNamespace(
+            format_uuid="format-uuid",
+            preview_metamodel_version="18.0",
+            project_ref="project.json",
+            python=sys.executable,
+            scaffold_template_id="scaffold",
+            source_template_id="dsw-science-europe",
+            tdk_executable="dsw-tdk",
+            translated_template_organization_id="dsw",
+            translation_locale="zh-Hant",
+        )
+    )
+
+    assert len(commands) == 1
+    assert "--template-package" in commands[0]
+    assert str(package_path.relative_to(tmp_path)) in commands[0]
+    assert "--template-dir" not in commands[0]
 
 
 def test_resolve_upstream_refs_expands_artifact_ranges(repo_root: Path, tmp_path: Path) -> None:

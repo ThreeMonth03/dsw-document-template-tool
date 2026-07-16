@@ -45,8 +45,10 @@ Document mode compares released templates through:
 POST /documents
 ```
 
-Preview mode is the default for template refactoring and translation scaffold
-checks because it does not require publishing candidate template versions.
+Draft preview mode is the default for baseline/candidate regression because it
+does not require publishing candidate template versions. Clean scaffold and
+translated-template delivery checks instead import the newly built package ZIP
+before rendering, so CI validates the same artifact that users download.
 
 ## Fixture Strategy
 
@@ -55,6 +57,11 @@ Fixtures use the same logical shape as DSW projects:
 - a knowledge-model package reference
 - a stable list of project events
 - a render request using a document template
+
+An `events_file` fixture renders the project's complete current state after the
+bulk import. Set `project_event_uuid` only when intentionally testing an
+existing historical snapshot; CI never infers a snapshot by sorting imported
+events because DSW may assign the same timestamp to the whole batch.
 
 When a local `.km` bundle contains package history, the render client resolves
 the exact top-level package ID declared by the bundle. It must not fall back to
