@@ -8,6 +8,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 
 @dataclass(frozen=True)
@@ -69,6 +70,7 @@ FORBIDDEN_PATTERNS: tuple[tuple[str, str], ...] = (
         "retired document-template publish token requirement",
     ),
 )
+MARKDOWN_LINK_PATTERN = re.compile(r"(?<!!)\[[^]]+\]\((?P<target>[^)]+)\)")
 
 
 def main() -> None:
@@ -155,6 +157,8 @@ def check_repository(repo: Path) -> CheckReport:
         if re.search(pattern, docs_text, flags=re.I | re.S):
             failures.append(f"{label}: matched forbidden pattern `{pattern}`")
 
+    failures.extend(_missing_relative_link_failures(repo, markdown_files))
+
     return CheckReport(
         repo=repo,
         checked_files=markdown_files,
@@ -170,7 +174,32 @@ def _iter_markdown_files(repo: Path) -> tuple[Path, ...]:
     docs_dir = repo / "docs"
     if docs_dir.is_dir():
         candidates.extend(path for path in docs_dir.rglob("*.md") if "_build" not in path.parts)
+    glossary_dir = repo / "glossary"
+    if glossary_dir.is_dir():
+        candidates.extend(glossary_dir.rglob("*.md"))
     return tuple(candidates)
+
+
+def _missing_relative_link_failures(
+    repo: Path,
+    markdown_files: tuple[Path, ...],
+) -> tuple[str, ...]:
+    """Return failures for local Markdown links whose targets do not exist."""
+
+    failures: list[str] = []
+    for document in markdown_files:
+        markdown = document.read_text(encoding="utf-8")
+        for match in MARKDOWN_LINK_PATTERN.finditer(markdown):
+            target = match.group("target").strip().strip("<>")
+            parsed = urlsplit(target)
+            if parsed.scheme or parsed.netloc or not parsed.path:
+                continue
+            target_path = (document.parent / unquote(parsed.path)).resolve()
+            if not target_path.exists():
+                failures.append(
+                    f"broken relative link: {document.relative_to(repo)} links to `{target}`"
+                )
+    return tuple(failures)
 
 
 if __name__ == "__main__":

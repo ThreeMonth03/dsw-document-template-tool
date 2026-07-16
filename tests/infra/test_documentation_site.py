@@ -99,6 +99,7 @@ def test_translation_repository_templates_are_copy_ready(repo_root: Path) -> Non
         template_dir / "docs" / "branch-policy.md",
         template_dir / "docs" / "maintenance-runbook.md",
         template_dir / "docs" / "security-and-permissions.md",
+        template_dir / "docs" / "translation-style.md",
     )
     for path in expected_files:
         assert path.is_file(), path
@@ -115,6 +116,7 @@ def test_translation_repository_templates_are_copy_ready(repo_root: Path) -> Non
     security_policy = (template_dir / "docs" / "security-and-permissions.md").read_text(
         encoding="utf-8"
     )
+    translation_style = (template_dir / "docs" / "translation-style.md").read_text(encoding="utf-8")
 
     assert "examples/translation-repository/" in templates_doc
     assert "sync/v*" in branch_policy
@@ -123,3 +125,5 @@ def test_translation_repository_templates_are_copy_ready(repo_root: Path) -> Non
     assert "gh workflow run document_template_translation_sync.yml" in (maintenance_runbook)
     assert "reports are not committed to version branches" in maintenance_runbook
     assert "GITHUB_TOKEN" in security_policy
+    assert "version-controlled glossary" in translation_style
+    assert "placeholder" in translation_style

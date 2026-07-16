@@ -124,3 +124,55 @@ def test_check_translation_repository_docs_reports_missing_topics(
     assert result.returncode == 1
     assert "workflow synchronization token" in result.stderr
     assert "version policy snippets" in result.stderr
+
+
+def test_check_translation_repository_docs_reports_broken_relative_links(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Broken local documentation links should fail with their source path."""
+
+    translation_repo = tmp_path / "translation-repo"
+    docs_dir = translation_repo / "docs"
+    docs_dir.mkdir(parents=True)
+    (translation_repo / "README.md").write_text(
+        """
+# Translation Repo
+
+The operations branch owns configuration. Work happens on sync/v* branches.
+Release assets are the reviewed package and preview PDF delivery path.
+Public DSW import is manual. Read the [missing guide](docs/missing.md).
+""",
+        encoding="utf-8",
+    )
+    (docs_dir / "policy.md").write_text(
+        """
+Set TRANSLATION_AUTOMATION_TOKEN with workflow scope by running
+`gh secret set TRANSLATION_AUTOMATION_TOKEN`.
+
+States are `state: available`, `state: active`, `state: maintenance`,
+`state: published`, and `state: archived`. Policies include
+`publish_release: true` and `publish_release: false`.
+
+Policy precedence uses matching rules in file order and fields explicitly
+declared. Keep tooling.repository and tooling.ref as one-line values with
+duplicate-key validation.
+""",
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "check_translation_repository_docs.py"),
+            "--repo",
+            str(translation_repo),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "broken relative link" in result.stderr
+    assert "docs/missing.md" in result.stderr

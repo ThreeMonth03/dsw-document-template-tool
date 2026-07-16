@@ -7,6 +7,7 @@ Use these notes for repository operation:
 | Branch layout, publication boundary, and public visibility | [Branch Policy](branch-policy.md) |
 | Routine checks and manual workflow runs | [Maintenance Runbook](maintenance-runbook.md) |
 | Secrets and workflow permissions | [Security and Permissions](security-and-permissions.md) |
+| Translation terminology, glossary precedence, and style | [Translation Terminology and Style](translation-style.md) |
 
 Reusable tooling details live in the DSW document-template tool docs:
 

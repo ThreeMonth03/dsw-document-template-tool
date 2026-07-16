@@ -23,6 +23,7 @@ Recommended starting set:
 - [`examples/translation-repository/docs/branch-policy.md`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/examples/translation-repository/docs/branch-policy.md)
 - [`examples/translation-repository/docs/maintenance-runbook.md`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/examples/translation-repository/docs/maintenance-runbook.md)
 - [`examples/translation-repository/docs/security-and-permissions.md`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/examples/translation-repository/docs/security-and-permissions.md)
+- [`examples/translation-repository/docs/translation-style.md`](https://github.com/ThreeMonth03/dsw-document-template-tool/blob/master/examples/translation-repository/docs/translation-style.md)
 
 Copy workflow templates separately from
 [`examples/github-actions/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/examples/github-actions).
