@@ -460,6 +460,14 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     assert 'dsw-tdk" package' in workflow_text
     assert "make start-ci-dsw" in workflow_text
     assert ".venv/bin/dsw-template-render-project" in workflow_text
+    assert "Run translated package full regression" in workflow_text
+    assert "make render-translated-package-regression" in workflow_text
+    assert (
+        'TRANSLATED_REGRESSION_METAMODEL_VERSION="$UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION"'
+        in workflow_text
+    )
+    assert "Summarize translated package regression coverage" in workflow_text
+    assert 'REGRESSION_SUMMARY_LABEL="Translated Package Regression Coverage"' in workflow_text
     assert "-m dsw_document_template_tool.cli" not in workflow_text
     assert 'case "$PROJECT_REF" in' in workflow_text
     assert 'project_ref_path="$GITHUB_WORKSPACE/$PROJECT_REF"' in workflow_text
@@ -498,6 +506,10 @@ def test_external_translation_sync_example_workflow(repo_root: Path) -> None:
     )
     assert "document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}" in workflow_text
     assert "template-repo/outputs/project-render/" in workflow_text
+    assert "template-repo/outputs/translated-regression/" in workflow_text
+    assert "regression-report-v$TRANSLATED_TEMPLATE_VERSION.json" in workflow_text
+    assert "regression-coverage-v$TRANSLATED_TEMPLATE_VERSION.json" in workflow_text
+    assert "passed complete generated-fixture render coverage" in workflow_text
     assert "if-no-files-found: warn" in workflow_text
 
     project_ref = workflow["env"]["PROJECT_REF"]

@@ -68,7 +68,7 @@ The public translated-template repository owns:
 - translator-facing `translation.md` edits on `sync/v*` branches
 - the user-facing public README copied into generated DSW template packages
 - glossary and i10n review
-- translated package/PDF release assets
+- translated package/PDF release assets and full package-regression evidence
 - manual import or publication policy
 
 Keep those operational details in the public repository documentation. This
@@ -245,6 +245,13 @@ check and every other reported check pass. The operations job waits for those
 checks and then performs a head-SHA-guarded merge; it does not depend on
 repository-native auto-merge settings. Failed or timed-out checks leave the PR
 open without changing the target branch.
+
+The version-branch check imports the generated package ZIP twice for distinct
+purposes: one representative demo render produces the review PDF, while the
+translated-package regression renders the complete selected fixture set and
+requires complete branch coverage. Release assets include the regression report
+and coverage JSON so package validation remains traceable after Actions
+artifacts expire.
 
 The PR diff is deliberately narrow: matching `translation.md` files and an
 updated `outline.md` are allowed, while template structure, manifests, README

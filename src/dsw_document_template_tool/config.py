@@ -42,6 +42,7 @@ PROJECT_KEYS = frozenset(
 )
 REGRESSION_KEYS = frozenset(
     {
+        "assertion",
         "cleanup_projects",
         "format_uuid",
         "ignore_patterns",
@@ -51,6 +52,7 @@ REGRESSION_KEYS = frozenset(
         "timeout_seconds",
     }
 )
+REGRESSION_ASSERTIONS = frozenset({"equal", "render_success"})
 ROOT_KEYS = frozenset({"api", "fixtures", "generated_fixtures", "regression", "subjects", "tdk"})
 SUBJECT_KEYS = frozenset({"kind", "stage_id", "value", "verify"})
 SUBJECTS_KEYS = frozenset({"baseline", "candidate"})
@@ -149,7 +151,7 @@ def _resolve_path(base_dir: Path, raw_path: str | None) -> Path | None:
 
 
 def _resolve_subject_value(base_dir: Path, kind: str, value: str) -> str:
-    if kind != "local_dir":
+    if kind not in {"local_dir", "local_package"}:
         return value
     resolved = _resolve_path(base_dir, value)
     assert resolved is not None
@@ -239,37 +241,60 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
         ),
     )
 
+    regression_section = _require_dict(payload, "regression")
+    _reject_unknown_keys(regression_section, REGRESSION_KEYS, "regression")
+    regression_assertion = _optional_str(regression_section, "assertion") or "equal"
+    if regression_assertion not in REGRESSION_ASSERTIONS:
+        raise WorkflowConfigError(
+            "Expected `regression.assertion` to be one of: "
+            + ", ".join(sorted(REGRESSION_ASSERTIONS))
+        )
+
     subjects_section = _require_dict(payload, "subjects")
     _reject_unknown_keys(subjects_section, SUBJECTS_KEYS, "subjects")
-    baseline_section = _require_dict(subjects_section, "baseline")
     candidate_section = _require_dict(subjects_section, "candidate")
-    _reject_unknown_keys(baseline_section, SUBJECT_KEYS, "subjects.baseline")
     _reject_unknown_keys(candidate_section, SUBJECT_KEYS, "subjects.candidate")
 
-    baseline = SubjectConfig(
-        kind=_require_str(baseline_section, "kind"),
-        value=_resolve_subject_value(
-            base_dir,
-            _require_str(baseline_section, "kind"),
-            _require_str(baseline_section, "value"),
-        ),
-        verify=_optional_bool(baseline_section, "verify", True),
-        stage_id=_optional_str(baseline_section, "stage_id"),
-    )
+    baseline_section = subjects_section.get("baseline")
+    if regression_assertion == "equal":
+        if not isinstance(baseline_section, dict):
+            raise WorkflowConfigError(
+                "`subjects.baseline` is required when `regression.assertion` is `equal`"
+            )
+    elif baseline_section is not None:
+        raise WorkflowConfigError(
+            "`subjects.baseline` must be omitted when `regression.assertion` is `render_success`"
+        )
+
+    baseline = None
+    if isinstance(baseline_section, dict):
+        _reject_unknown_keys(baseline_section, SUBJECT_KEYS, "subjects.baseline")
+        baseline_kind = _require_str(baseline_section, "kind")
+        baseline = SubjectConfig(
+            kind=baseline_kind,
+            value=_resolve_subject_value(
+                base_dir,
+                baseline_kind,
+                _require_str(baseline_section, "value"),
+            ),
+            verify=_optional_bool(baseline_section, "verify", True),
+            stage_id=_optional_str(baseline_section, "stage_id"),
+        )
+
+    candidate_kind = _require_str(candidate_section, "kind")
     candidate = SubjectConfig(
-        kind=_require_str(candidate_section, "kind"),
+        kind=candidate_kind,
         value=_resolve_subject_value(
             base_dir,
-            _require_str(candidate_section, "kind"),
+            candidate_kind,
             _require_str(candidate_section, "value"),
         ),
         verify=_optional_bool(candidate_section, "verify", True),
         stage_id=_optional_str(candidate_section, "stage_id"),
     )
 
-    regression_section = _require_dict(payload, "regression")
-    _reject_unknown_keys(regression_section, REGRESSION_KEYS, "regression")
     regression = RegressionConfig(
+        assertion=regression_assertion,
         mode=_require_str(regression_section, "mode"),
         format_uuid=_require_str(regression_section, "format_uuid"),
         output_dir=_resolve_path(base_dir, _require_str(regression_section, "output_dir"))

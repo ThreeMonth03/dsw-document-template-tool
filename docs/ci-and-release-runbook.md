@@ -69,8 +69,12 @@ If a repository enables immutable releases, `--clobber` will fail. See
 ## Public Repository Integration
 
 The public translated-template repository consumes these clean scaffold releases
-and publishes its own translated package/PDF releases. That repository should
-document its branch layout, translation QA, and manual import policy.
+and publishes its own translated package/PDF releases. Its version workflow
+uses the demo PDF for human review and separately imports the actual translated
+package ZIP for complete generated-fixture render regression. The translated
+release therefore includes the regression report and coverage JSON alongside
+the package, PDF, and checksums. That repository should document its branch
+layout, translation QA, and manual import policy.
 
 This repo provides the helper contract in
 [Public Template Repository Integration](downstream-integration.md).

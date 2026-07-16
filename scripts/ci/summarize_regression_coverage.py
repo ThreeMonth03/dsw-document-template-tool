@@ -87,7 +87,7 @@ def _read_row(report_path: Path, output_dir: Path) -> SummaryRow:
     if isinstance(fixtures, list):
         fixture_count = str(len(fixtures))
         failed_count = sum(
-            isinstance(fixture, dict) and fixture.get("equal") is False for fixture in fixtures
+            isinstance(fixture, dict) and fixture.get("passed") is False for fixture in fixtures
         )
     else:
         fixtures = []
@@ -99,7 +99,8 @@ def _read_row(report_path: Path, output_dir: Path) -> SummaryRow:
     if passed is True:
         regression = "Passed"
     elif passed is False:
-        regression = f"Failed ({failed_count} different)"
+        fixture_label = "fixture" if failed_count == 1 else "fixtures"
+        regression = f"Failed ({failed_count} {fixture_label})"
     else:
         regression = "Unknown"
         warnings.append("regression report has no boolean `passed` value")

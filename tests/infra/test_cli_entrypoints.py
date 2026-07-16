@@ -936,6 +936,26 @@ def test_generate_regression_config_help(repo_root: Path) -> None:
     assert "--version" in result.stdout
 
 
+def test_generate_translated_regression_config_help(repo_root: Path) -> None:
+    """The translated package config generator should expose its required inputs."""
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "generate_translated_regression_config.py"),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "translated template package" in result.stdout
+    assert "--metamodel-version" in result.stdout
+    assert "--package" in result.stdout
+
+
 def test_generate_compat_ledger_help(repo_root: Path) -> None:
     """The compatibility ledger generator should expose a working help screen."""
 
@@ -1122,6 +1142,58 @@ generated_fixtures:
     assert generated_km.endswith("fixtures/knowledge-models/root-2.7.0.km")
     assert payload["generated_fixtures"][0]["count"] == 80
     assert payload["generated_fixtures"][0]["require_complete_coverage"] is True
+
+
+def test_generate_translated_regression_config_uses_full_fixture_plan(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    """Translated release validation should reuse the complete CI fixture strategy."""
+
+    package_path = tmp_path / "dsw-science-europe-zh-hant-1.30.1.zip"
+    package_path.write_bytes(b"package")
+    output_path = tmp_path / "config" / ".generated-translated.yml"
+    regression_output = tmp_path / "outputs" / "translated-regression"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "ci" / "generate_translated_regression_config.py"),
+            "--base-config",
+            str(repo_root / "config" / "regression.ci.yml"),
+            "--compat-config",
+            str(repo_root / "config" / "dsw-compat.yml"),
+            "--evidence-config",
+            str(repo_root / "config" / "regression-evidence.yml"),
+            "--metamodel-version",
+            "18.0",
+            "--output",
+            str(output_path),
+            "--output-dir",
+            str(regression_output),
+            "--package",
+            str(package_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = yaml.safe_load(output_path.read_text(encoding="utf-8"))
+    assert payload["subjects"] == {
+        "candidate": {
+            "kind": "local_package",
+            "value": "../dsw-science-europe-zh-hant-1.30.1.zip",
+        }
+    }
+    assert payload["regression"]["assertion"] == "render_success"
+    assert payload["regression"]["mode"] == "document"
+    assert payload["regression"]["output_dir"] == "../outputs/translated-regression"
+    assert payload["generated_fixtures"][0]["count"] == 80
+    assert payload["generated_fixtures"][0]["require_complete_coverage"] is True
+    configured_km = payload["generated_fixtures"][0]["project"]["knowledge_model_package_id"]
+    assert configured_km.endswith("fixtures/knowledge-models/root-2.7.0.km")
 
 
 def test_run_regression_plan_selects_recommended_versions_for_metamodel(

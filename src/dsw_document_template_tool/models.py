@@ -101,6 +101,7 @@ class FixtureConfig:
 class RegressionConfig:
     """Regression execution settings."""
 
+    assertion: str
     mode: str
     format_uuid: str
     output_dir: Path
@@ -117,7 +118,7 @@ class WorkflowConfig:
     config_path: Path
     api: ApiConfig
     tdk: TdkConfig
-    baseline: SubjectConfig
+    baseline: SubjectConfig | None
     candidate: SubjectConfig
     regression: RegressionConfig
     fixtures: list[FixtureConfig]
@@ -160,12 +161,12 @@ class RenderArtifact:
 
 @dataclass(frozen=True)
 class FixtureRegressionResult:
-    """Result for one fixture comparison."""
+    """Result for one fixture assertion."""
 
     fixture_name: str
     project_uuid: str
-    equal: bool
-    baseline: RenderArtifact
+    passed: bool
+    baseline: RenderArtifact | None
     candidate: RenderArtifact
     diff_path: Path | None
 
@@ -174,6 +175,7 @@ class FixtureRegressionResult:
 class RegressionReport:
     """Final workflow report written to disk and printed by the CLI."""
 
+    assertion: str
     mode: str
     output_dir: Path
     passed: bool

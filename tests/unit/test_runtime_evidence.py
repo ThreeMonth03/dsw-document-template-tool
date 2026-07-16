@@ -124,7 +124,7 @@ def _write_version_outputs(tmp_path: Path, *, include_pdf: bool) -> None:
     regression_dir = tmp_path / "preview/v1.30.1"
     regression_dir.mkdir(parents=True)
     (regression_dir / "regression_report.json").write_text(
-        json.dumps({"passed": True, "fixtures": [{"equal": True}]}) + "\n",
+        json.dumps({"passed": True, "fixtures": [{"passed": True}]}) + "\n",
         encoding="utf-8",
     )
     (regression_dir / "random-project-coverage.json").write_text(

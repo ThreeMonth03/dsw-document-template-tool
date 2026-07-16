@@ -64,6 +64,7 @@ def serialize_regression_report(report: RegressionReport) -> dict[str, Any]:
     """Convert a regression report into its stable JSON representation."""
 
     return {
+        "assertion": report.assertion,
         "mode": report.mode,
         "output_dir": str(report.output_dir),
         "passed": report.passed,
@@ -71,8 +72,10 @@ def serialize_regression_report(report: RegressionReport) -> dict[str, Any]:
             {
                 "fixture_name": result.fixture_name,
                 "project_uuid": result.project_uuid,
-                "equal": result.equal,
-                "baseline": _serialize_render_artifact(result.baseline),
+                "passed": result.passed,
+                "baseline": (
+                    None if result.baseline is None else _serialize_render_artifact(result.baseline)
+                ),
                 "candidate": _serialize_render_artifact(result.candidate),
                 "diff_path": None if result.diff_path is None else str(result.diff_path),
             }

@@ -3,16 +3,18 @@
 This document explains the headless render regression layer used to prove that a
 template transform still behaves like the original template.
 
-## Goal
+## Goals
 
-Regression answers one question:
+The regression service supports two explicit assertions:
 
-> Does the refactored or generated template render the same document as the
-> original template for the same project answers?
+- `equal`: does a transformed template render the same normalized HTML as its
+  upstream baseline for the same project answers?
+- `render_success`: can one actual release package render every selected
+  fixture without comparing translated wording to another language?
 
 The workflow does not use the DSW web client. It talks directly to the DSW API,
-uploads draft templates, creates fixture projects, renders documents, and
-compares normalized HTML.
+uploads draft templates or released package ZIPs, creates fixture projects, and
+renders documents. Equality regression additionally compares normalized HTML.
 
 ## Two Independent Metamodels
 
@@ -31,7 +33,17 @@ document-template metamodel, provided each configured DSW runtime can import
 both package types. CI proves that contract by importing the KM and rendering
 the template; this repository does not derive historical KMs from PO files.
 
-## Supported Modes
+## Assertions and Render Modes
+
+`regression.assertion` defaults to `equal`. Equality requires both
+`subjects.baseline` and `subjects.candidate`. Use it for compact-versus-expanded
+behavior checks.
+
+`render_success` requires exactly one `subjects.candidate` and rejects a
+baseline. The candidate can use `kind: local_package`, which imports the exact
+ZIP supplied to DSW. Use it for translated release packages: comparing Chinese
+output with English output would be semantically wrong, while comparing a
+package with itself would create a meaningless green result.
 
 Preview mode compares local draft templates through:
 
@@ -50,10 +62,10 @@ creation: DSW 4.26 returns and accepts `documentTemplateId`, while current DSW
 uses `documentTemplateUuid`. This is an API representation difference, not a
 reason to skip package validation for an otherwise supported runtime.
 
-Draft preview mode is the default for baseline/candidate regression because it
-does not require publishing candidate template versions. Clean scaffold and
-translated-template delivery checks instead import the newly built package ZIP
-before rendering, so CI validates the same artifact that users download.
+Draft preview mode is the default for equality regression because it does not
+require publishing candidate template versions. Clean scaffold delivery checks
+and translated-package `render_success` checks instead import the newly built
+package ZIP, so CI validates the same artifact that users download.
 
 ## Fixture Strategy
 
@@ -197,6 +209,24 @@ Run regression against a custom config:
 make render-regression CONFIG=config/regression.preview.yml
 ```
 
+Validate one translated release package with the same complete fixture strategy
+as CI:
+
+```shell
+make start-ci-dsw
+make render-translated-package-regression \
+  TRANSLATED_TEMPLATE_PACKAGE=/tmp/dsw-science-europe-zh-hant-1.30.1.zip \
+  TRANSLATED_REGRESSION_METAMODEL_VERSION=18.0 \
+  SOURCE_TEMPLATE_VERSION=1.30.1
+make stop-ci-dsw
+```
+
+This command generates an ignored config from
+[`config/regression.ci.yml`](../config/regression.ci.yml), selects the pinned KM
+for the requested metamodel, imports the package, and requires complete
+generated-fixture branch coverage. It is a package execution gate, not a
+wording comparison.
+
 The same rule applies to custom configs: if their `subjects` point at
 `outputs/upstream-workspaces/...`, build those artifacts before rendering.
 
@@ -240,6 +270,12 @@ A row in [`config/dsw-compat.yml`](../config/dsw-compat.yml) means that both
 checks are required. Do not add per-runtime skip flags: a runtime that cannot
 pass the common contract is not a supported runtime yet.
 
+Public translated-template version branches use the generated workflow in
+[`examples/github-actions/document_template_translation_sync.yml`](../examples/github-actions/document_template_translation_sync.yml).
+That workflow runs the demo PDF and the complete translated-package
+`render_success` regression in the same ephemeral DSW stack before release
+assets are refreshed.
+
 The exact TDK patch version and regression KM assignment are read from
 [`config/dsw-compat.yml`](../config/dsw-compat.yml) and
 [`config/regression-evidence.yml`](../config/regression-evidence.yml), not from
@@ -267,6 +303,8 @@ Important output families:
   files. A supported runtime may not replace its PDF with a skipped result.
 - `outputs/preview/...`: raw and normalized HTML, diffs, fixture events, and
   regression reports, including generated branch-coverage reports.
+- `outputs/translated-regression/...`: translated release-package render
+  artifacts and complete branch-coverage reports.
 - `outputs/runtime-evidence/...`: one JSON/Markdown proof tying runtime, KM,
   complete coverage, regression equality, and strict PDF preview together.
 

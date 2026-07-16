@@ -11,7 +11,7 @@ when you are changing behavior.
 | Expand an upstream compact template | `make transform` | `dsw-template-transform` | [`template_transform.py`](../src/dsw_document_template_tool/template_transform.py), [`_template_transform/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_template_transform) |
 | Export, audit, merge, and sync translation trees | `make export-translation-tree`, `make audit-translation-tree`, `make merge-translation-tree`, `make sync-translation-tree` | `dsw-template-tree` | [`translation_tree.py`](../src/dsw_document_template_tool/translation_tree.py), [`_translation_tree/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_translation_tree) |
 | Render one project preview or release package | `make render-project`, `make render-package` | `dsw-template-render-project` | [`cli/render_project.py`](../src/dsw_document_template_tool/cli/render_project.py), [`render_project.py`](../src/dsw_document_template_tool/render_project.py) |
-| Run and prove render regression | `make render-regression`, `make render-regression-ci-plan`, `make verify-runtime-evidence` | `dsw-template-render-regression`, [`verify_runtime_evidence.py`](../scripts/ci/verify_runtime_evidence.py) | [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py), [`workflow.py`](../src/dsw_document_template_tool/workflow.py), [`runtime_evidence.py`](../src/dsw_document_template_tool/runtime_evidence.py) |
+| Run and prove render regression | `make render-regression`, `make render-regression-ci-plan`, `make render-translated-package-regression`, `make verify-runtime-evidence` | `dsw-template-render-regression`, [`verify_runtime_evidence.py`](../scripts/ci/verify_runtime_evidence.py) | [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py), [`workflow.py`](../src/dsw_document_template_tool/workflow.py), [`regression_config.py`](../src/dsw_document_template_tool/regression_config.py), [`runtime_evidence.py`](../src/dsw_document_template_tool/runtime_evidence.py) |
 | Build clean upstream scaffold artifacts | `make discover-upstream-compat`, `make build-upstream-artifacts`, `make render-upstream-artifact-previews` | CI helpers under [`scripts/ci/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/scripts/ci) | [`dsw_compat.py`](../src/dsw_document_template_tool/dsw_compat.py), [`compat_ledger.py`](../src/dsw_document_template_tool/compat_ledger.py) |
 | Refresh public repository `sync/v*` branches | `make sync-translation-version-branches`, `make check-translation-migrations` | [`sync_translation_version_branches.py`](../scripts/ci/sync_translation_version_branches.py) | [`translation_repository/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/translation_repository) |
 | Review wording across public repository versions | `make report-translation-consistency` | [`report_translation_consistency.py`](../scripts/ci/report_translation_consistency.py) | [`translation_repository/consistency.py`](../src/dsw_document_template_tool/translation_repository/consistency.py) |
@@ -140,7 +140,10 @@ Key files:
   render and regression services consume one shared reference model instead of
   branching on DSW versions.
 - [`cli/render_regression.py`](../src/dsw_document_template_tool/cli/render_regression.py)
-  runs baseline/candidate render comparisons.
+  runs equality comparisons or single-package render assertions.
+- [`regression_config.py`](../src/dsw_document_template_tool/regression_config.py)
+  generates version-aware equality configs and translated-package render
+  configs while selecting pinned KM evidence.
 - [`fixture_generator.py`](../src/dsw_document_template_tool/fixture_generator.py)
   creates deterministic generated project fixtures from compiled DSW
   questionnaire models.
@@ -156,8 +159,9 @@ Key files:
 - [`html_diff.py`](../src/dsw_document_template_tool/html_diff.py) normalizes
   rendered HTML and reports behavior differences.
 - [`workflow.py`](../src/dsw_document_template_tool/workflow.py) contains DSW
-  lifecycle and regression orchestration. Deterministic artifacts and isolated
-  parallel renders live under
+  lifecycle and regression orchestration. It keeps compact/expanded equality
+  checks distinct from translated-package render-success checks. Deterministic
+  artifacts and isolated parallel renders live under
   [`_regression/`](https://github.com/ThreeMonth03/dsw-document-template-tool/tree/master/src/dsw_document_template_tool/_regression).
 - [`tdk.py`](../src/dsw_document_template_tool/tdk.py) wraps `dsw-tdk` calls.
 

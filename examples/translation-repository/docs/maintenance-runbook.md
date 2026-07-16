@@ -27,6 +27,9 @@ Healthy outcomes:
   shared by active versions;
 - the `translation-consistency-report` artifact records no unexplained gaps or
   wording drift across active/maintenance versions.
+- version-branch CI imported the generated package ZIP and completed the
+  generated-fixture render regression; the demo PDF alone is not the full
+  package gate.
 
 Operations waits for the version branch's `translation-sync` PR check and every
 reported check to pass before performing a head-SHA-guarded merge. This does not
@@ -85,8 +88,12 @@ the checked-out tool.
 Before importing a translated template:
 
 1. Confirm the version branch workflow passed.
-2. Download the translated package, preview PDF, and `SHA256SUMS`.
-3. Review glossary/i10n terminology and representative PDF pages.
-4. Import the reviewed release package into the target DSW environment.
+2. Confirm the translated-package regression summary reports complete branch
+   coverage.
+3. Download the translated package, preview PDF, and `SHA256SUMS`.
+4. Keep the versioned regression report and coverage JSON with the review
+   record.
+5. Review glossary/i10n terminology and representative PDF pages.
+6. Import the reviewed release package into the target DSW environment.
 
 Do not treat tool-repo clean scaffold releases as translated outputs.

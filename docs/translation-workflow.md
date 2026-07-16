@@ -132,6 +132,12 @@ make sync-translation-tree
 make audit-translated-template
 ```
 
+Public version workflows add two runtime checks after packaging. The demo PDF
+uses the maintained sample project for human wording and layout review. The
+translated-package regression imports the actual package ZIP and renders the
+complete selected fixture set with `render_success`; this is the executable
+release gate and must have complete generated-fixture branch coverage.
+
 ## Cross-Version Translation Sync
 
 The public translated-template repository commonly uses one `sync/v*` branch

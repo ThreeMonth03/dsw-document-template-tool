@@ -11,15 +11,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from dsw_document_template_tool.regression_config import (
+    select_regression_knowledge_model,
+    select_regression_workspace,
+    write_workspace_regression_config,
+)
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 DEFAULT_RENDER_COMMAND = str(REPO_ROOT / ".venv" / "bin" / "dsw-template-render-regression")
-
-from generate_regression_config import (  # noqa: E402
-    select_regression_knowledge_model,
-    select_regression_workspace,
-    write_regression_config,
-)
 
 
 @dataclass(frozen=True)
@@ -130,7 +130,7 @@ def run_planned_regression(
         evidence_config=evidence_config,
         workspace=workspace,
     )
-    write_regression_config(
+    write_workspace_regression_config(
         base_config=base_config,
         output=config_path,
         output_dir_suffix=workspace.version_tag,

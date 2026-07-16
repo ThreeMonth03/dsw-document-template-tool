@@ -27,16 +27,22 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    """Run the configured regression workflow and exit non-zero on mismatches."""
+    """Run the configured regression workflow and exit non-zero on failure."""
 
     args = build_argument_parser().parse_args()
     service = DocumentTemplateWorkflowService()
     report = service.run(args.config)
     print(f"INFO: Wrote regression report to {report.report_path}")
     if report.passed:
-        print("SUCCESS: All fixtures matched")
+        if report.assertion == "render_success":
+            print("SUCCESS: All fixtures rendered successfully")
+        else:
+            print("SUCCESS: All fixtures matched")
         return
-    print("FAILURE: One or more fixtures diverged")
+    if report.assertion == "render_success":
+        print("FAILURE: One or more fixtures failed to render")
+    else:
+        print("FAILURE: One or more fixtures diverged")
     sys.exit(1)
 
 

@@ -57,6 +57,9 @@ TEMPLATE_DIR ?=
 TOOL_GITHUB_REPO ?= $(if $(GITHUB_REPOSITORY),$(GITHUB_REPOSITORY),$(shell gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null))
 TRANSLATED_EXPANDED_TEMPLATE_DIR ?= $(TRANSLATED_OUTPUT_ROOT)/$(TRANSLATED_WORKSPACE_TEMPLATE_NAME)
 TRANSLATED_OUTPUT_ROOT ?= outputs/document-templates/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
+TRANSLATED_REGRESSION_CONFIG ?= config/.generated-regression.translated.yml
+TRANSLATED_REGRESSION_METAMODEL_VERSION ?= $(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)
+TRANSLATED_REGRESSION_OUTPUT_DIR ?= outputs/translated-regression/$(SOURCE_TEMPLATE_ID)/$(SOURCE_TEMPLATE_VERSION_TAG)/$(TRANSLATION_LOCALE)
 TRANSLATED_TEMPLATE_DESCRIPTION ?= Science Europe DMP Template 的繁體中文化版本
 TRANSLATED_TEMPLATE_ID ?= science-europe-zh-hant
 TRANSLATED_TEMPLATE_NAME ?= Science Europe DMP Template (zh-Hant)
@@ -106,7 +109,7 @@ XLIFF_FILE ?= xliff/$(SOURCE_TEMPLATE_ID).$(TRANSLATION_LOCALE).xlf
 VENV_PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 
-.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts explain-transform export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-upstream-artifact-previews report-translation-consistency start-ci-dsw stop-ci-dsw summarize-regression-coverage sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-runtime-evidence verify-template verify-workspace
+.PHONY: audit-translated-template audit-translation-tree build-upstream-artifacts check check-dsw-runtime-matrix check-translation-migrations check-translation-repository-docs ci-dsw-logs clean compact-template compile create-dsw-compat-pr discover-upstream-compat docs docs-clean download-clean-scaffold-artifacts explain-transform export-fresh-translation-tree export-translation-tree export-xliff fetch-upstream-template format format-check generate-compat-ledger generate-regression-config generate-translated-regression-config help import-xliff install-dev install-hooks lint list-upstream-template-tags merge-translation-tree package-template publish-clean-scaffold-releases render-package render-project render-regression render-regression-ci render-regression-ci-plan render-regression-ci-plan-dry-run render-translated-package-regression render-upstream-artifact-previews report-translation-consistency start-ci-dsw stop-ci-dsw summarize-regression-coverage sync-dsw-runtime-matrix sync-translation-tree sync-translation-version-branches test test-infra test-unit test-upstream-tags transform validate-translation-config venv verify-runtime-evidence verify-template verify-workspace
 
 venv: $(VENV_PYTHON)
 
@@ -141,6 +144,7 @@ help:
 	'  format-check      Check formatting without modifying files' \
 	'  generate-compat-ledger Generate offline expanded/tree compatibility fingerprints' \
 	'  generate-regression-config Generate CI regression config for the latest built upstream workspace' \
+	'  generate-translated-regression-config Generate full regression config for $(TRANSLATED_TEMPLATE_PACKAGE)' \
 	'  help              Show this alphabetized target summary' \
 	'  import-xliff Import $(XLIFF_FILE) back into $(TRANSLATION_TREE_DIR)' \
 	'  install-dev       Install local package and development dependencies' \
@@ -156,6 +160,7 @@ help:
 	'  render-regression-ci Generate latest-version CI config and run local DSW regression' \
 	'  render-regression-ci-plan Run DSW regression for compatibility-plan recommended versions' \
 	'  render-regression-ci-plan-dry-run Validate the compatibility regression plan without DSW' \
+	'  render-translated-package-regression Fully render $(TRANSLATED_TEMPLATE_PACKAGE) with generated fixtures' \
 	'  render-upstream-artifact-previews Render demo PDFs for built scaffold packages' \
 	'  report-translation-consistency Compare wording across active public-repo versions' \
 	'  start-ci-dsw      Start an ephemeral local DSW stack for CI render regression' \
@@ -424,6 +429,20 @@ generate-regression-config: venv
 		--metamodel-version "$(UPSTREAM_TEMPLATE_PREVIEW_METAMODEL_VERSION)" \
 		--version "$(UPSTREAM_TEMPLATE_REGRESSION_VERSION)"
 
+generate-translated-regression-config: venv
+	@test -n "$(TRANSLATED_TEMPLATE_PACKAGE)" || { \
+		echo "TRANSLATED_TEMPLATE_PACKAGE is required" >&2; \
+		exit 2; \
+	}
+	$(PYTHON) scripts/ci/generate_translated_regression_config.py \
+		--base-config "$(CI_CONFIG)" \
+		--compat-config "$(DSW_COMPAT_CONFIG)" \
+		--evidence-config "$(REGRESSION_EVIDENCE_CONFIG)" \
+		--metamodel-version "$(TRANSLATED_REGRESSION_METAMODEL_VERSION)" \
+		--output "$(TRANSLATED_REGRESSION_CONFIG)" \
+		--output-dir "$(TRANSLATED_REGRESSION_OUTPUT_DIR)" \
+		--package "$(TRANSLATED_TEMPLATE_PACKAGE)"
+
 render-upstream-artifact-previews: venv
 	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
 	$(PYTHON) scripts/ci/upstream_template_artifacts.py render-previews \
@@ -519,6 +538,13 @@ render-regression-ci-plan-dry-run: venv
 		--render-command "$(DSW_TEMPLATE_RENDER_REGRESSION)" \
 		--source-template-id "$(SOURCE_TEMPLATE_ID)" \
 		--workspace-root "$(UPSTREAM_TEMPLATE_ARTIFACT_WORKSPACE_ROOT)"
+
+render-translated-package-regression: generate-translated-regression-config
+	DSW_API_URL=$${DSW_API_URL:-http://localhost:$${DSW_CI_API_PORT:-3000}/wizard-api} \
+	DSW_EMAIL=$${DSW_EMAIL:-albert.einstein@example.com} \
+	DSW_PASSWORD=$${DSW_PASSWORD:-password} \
+	DSW_DOWNLOAD_HOST_ALIAS=$${DSW_DOWNLOAD_HOST_ALIAS:-host.docker.internal=localhost} \
+	$(DSW_TEMPLATE_RENDER_REGRESSION) --config "$(TRANSLATED_REGRESSION_CONFIG)"
 
 summarize-regression-coverage: venv
 	$(PYTHON) scripts/ci/summarize_regression_coverage.py \

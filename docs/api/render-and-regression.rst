@@ -49,6 +49,10 @@ Fixture Generation
 Runtime Evidence
 ----------------
 
+.. automodule:: dsw_document_template_tool.regression_config
+   :members: RegressionWorkspace, discover_regression_workspaces, select_regression_knowledge_model, select_regression_knowledge_model_for_metamodel, select_regression_workspace, write_package_render_config, write_workspace_regression_config
+   :show-inheritance:
+
 .. automodule:: dsw_document_template_tool.regression_evidence
    :members: KnowledgeModelEvidence, RegressionEvidenceConfig, load_regression_evidence_config, validate_regression_evidence_config, verify_knowledge_model_evidence
    :show-inheritance:

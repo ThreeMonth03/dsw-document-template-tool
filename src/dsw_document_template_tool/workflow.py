@@ -58,13 +58,15 @@ class DocumentTemplateWorkflowService:
             user = client.get_current_user()
             print(f"INFO: Authenticated as {user.get('name') or user.get('email')}")
 
-            baseline = self._resolve_subject(
-                client=client,
-                config=config,
-                label="baseline",
-                subject=config.baseline,
-                staged_dirs=staged_dirs,
-            )
+            baseline = None
+            if config.baseline is not None:
+                baseline = self._resolve_subject(
+                    client=client,
+                    config=config,
+                    label="baseline",
+                    subject=config.baseline,
+                    staged_dirs=staged_dirs,
+                )
             candidate = self._resolve_subject(
                 client=client,
                 config=config,
@@ -93,9 +95,10 @@ class DocumentTemplateWorkflowService:
                 )
             )
 
-            passed = all(result.equal for result in fixture_results)
+            passed = all(result.passed for result in fixture_results)
             report_path = config.regression.output_dir / "regression_report.json"
             report = RegressionReport(
+                assertion=config.regression.assertion,
                 mode=config.regression.mode,
                 output_dir=config.regression.output_dir,
                 passed=passed,
@@ -122,7 +125,7 @@ class DocumentTemplateWorkflowService:
         *,
         client: DSWApiClient,
         config: WorkflowConfig,
-        baseline: ResolvedSubject,
+        baseline: ResolvedSubject | None,
         candidate: ResolvedSubject,
         created_projects: list[FixtureProject],
     ) -> list[FixtureRegressionResult]:
@@ -136,7 +139,7 @@ class DocumentTemplateWorkflowService:
             if resolved_fixture.created_by_tool:
                 created_projects.append(resolved_fixture)
             fixture_results.append(
-                self._compare_fixture(
+                self._run_fixture_assertion(
                     client=client,
                     config=config,
                     fixture=fixture,
@@ -152,7 +155,7 @@ class DocumentTemplateWorkflowService:
         *,
         client: DSWApiClient,
         config: WorkflowConfig,
-        baseline: ResolvedSubject,
+        baseline: ResolvedSubject | None,
         candidate: ResolvedSubject,
         created_projects: list[FixtureProject],
     ) -> list[FixtureRegressionResult]:
@@ -201,7 +204,7 @@ class DocumentTemplateWorkflowService:
                 if resolved_fixture.created_by_tool:
                     created_projects.append(resolved_fixture)
                 fixture_results.append(
-                    self._compare_fixture(
+                    self._run_fixture_assertion(
                         client=client,
                         config=config,
                         fixture=fixture,
@@ -292,6 +295,13 @@ class DocumentTemplateWorkflowService:
                 staged_dirs=staged_dirs,
             )
 
+        if subject.kind == "local_package":
+            return self._resolve_local_package_subject(
+                client=client,
+                label=label,
+                subject=subject,
+            )
+
         if subject.kind == "draft_id":
             return self._resolve_draft_subject(client=client, label=label, subject=subject)
 
@@ -299,6 +309,27 @@ class DocumentTemplateWorkflowService:
             return self._resolve_released_subject(client=client, label=label, subject=subject)
 
         raise TemplateToolError(f"Unsupported subject kind {subject.kind!r}")
+
+    def _resolve_local_package_subject(
+        self,
+        *,
+        client: DSWApiClient,
+        label: str,
+        subject: SubjectConfig,
+    ) -> ResolvedSubject:
+        package_path = Path(subject.value).resolve()
+        if not package_path.is_file():
+            raise TemplateToolError(f"Missing local template package {package_path}")
+        print(f"INFO: Uploading released template package {package_path}")
+        template_reference = client.upload_document_template_bundle_reference(package_path)
+        display_id = template_reference.template_id or template_reference.uuid or package_path.name
+        return ResolvedSubject(
+            label=label,
+            mode="released",
+            source_value=subject.value,
+            display_id=display_id,
+            template_reference=template_reference,
+        )
 
     def _resolve_local_subject(
         self,
@@ -496,73 +527,62 @@ class DocumentTemplateWorkflowService:
             ),
         )
 
-    def _compare_fixture(
+    def _run_fixture_assertion(
         self,
         *,
         client: DSWApiClient,
         config: WorkflowConfig,
         fixture: FixtureConfig,
         resolved_fixture: FixtureProject,
-        baseline: ResolvedSubject,
+        baseline: ResolvedSubject | None,
         candidate: ResolvedSubject,
     ) -> FixtureRegressionResult:
         fixture_output_dir = config.regression.output_dir / fixture.name
         fixture_output_dir.mkdir(parents=True, exist_ok=True)
 
-        if config.regression.mode == "preview":
-            if baseline.mode != "draft" or candidate.mode != "draft":
-                raise TemplateToolError(
-                    "Preview mode requires both subjects to resolve to draft templates"
-                )
-            baseline_html, candidate_html = render_subjects_in_parallel(
+        if config.regression.assertion == "render_success":
+            candidate_html = self._render_subject_html(
                 client=client,
-                baseline_render=lambda render_client: self._render_preview_html(
-                    client=render_client,
-                    draft_uuid=baseline.draft_uuid or "",
-                    project_uuid=resolved_fixture.project_uuid,
-                    format_uuid=config.regression.format_uuid,
-                    timeout_seconds=config.regression.timeout_seconds,
-                    poll_seconds=config.regression.poll_seconds,
-                ),
-                candidate_render=lambda render_client: self._render_preview_html(
-                    client=render_client,
-                    draft_uuid=candidate.draft_uuid or "",
-                    project_uuid=resolved_fixture.project_uuid,
-                    format_uuid=config.regression.format_uuid,
-                    timeout_seconds=config.regression.timeout_seconds,
-                    poll_seconds=config.regression.poll_seconds,
-                ),
+                config=config,
+                fixture=fixture,
+                resolved_fixture=resolved_fixture,
+                subject=candidate,
             )
-        elif config.regression.mode == "document":
-            if baseline.mode != "released" or candidate.mode != "released":
-                raise TemplateToolError(
-                    "Document mode requires both subjects to be released template IDs"
-                )
-            baseline_html, candidate_html = render_subjects_in_parallel(
-                client=client,
-                baseline_render=lambda render_client: self._render_document_html(
-                    client=render_client,
-                    project_uuid=resolved_fixture.project_uuid,
-                    project_event_uuid=resolved_fixture.project_event_uuid,
-                    template_reference=baseline.template_reference,
-                    format_uuid=config.regression.format_uuid,
-                    timeout_seconds=config.regression.timeout_seconds,
-                    poll_seconds=config.regression.poll_seconds,
-                    name=f"{fixture.name}-{baseline.label}",
-                ),
-                candidate_render=lambda render_client: self._render_document_html(
-                    client=render_client,
-                    project_uuid=resolved_fixture.project_uuid,
-                    project_event_uuid=resolved_fixture.project_event_uuid,
-                    template_reference=candidate.template_reference,
-                    format_uuid=config.regression.format_uuid,
-                    timeout_seconds=config.regression.timeout_seconds,
-                    poll_seconds=config.regression.poll_seconds,
-                    name=f"{fixture.name}-{candidate.label}",
-                ),
+            candidate_artifact = write_render_artifact(
+                fixture_output_dir=fixture_output_dir,
+                subject=candidate,
+                raw_html=candidate_html,
+                ignore_patterns=config.regression.ignore_patterns,
             )
-        else:
-            raise TemplateToolError(f"Unsupported regression mode {config.regression.mode!r}")
+            print(f"SUCCESS: Fixture {fixture.name} rendered successfully")
+            return FixtureRegressionResult(
+                fixture_name=fixture.name,
+                project_uuid=resolved_fixture.project_uuid,
+                passed=True,
+                baseline=None,
+                candidate=candidate_artifact,
+                diff_path=None,
+            )
+
+        if baseline is None:
+            raise TemplateToolError("Equality regression requires a baseline subject")
+        baseline_html, candidate_html = render_subjects_in_parallel(
+            client=client,
+            baseline_render=lambda render_client: self._render_subject_html(
+                client=render_client,
+                config=config,
+                fixture=fixture,
+                resolved_fixture=resolved_fixture,
+                subject=baseline,
+            ),
+            candidate_render=lambda render_client: self._render_subject_html(
+                client=render_client,
+                config=config,
+                fixture=fixture,
+                resolved_fixture=resolved_fixture,
+                subject=candidate,
+            ),
+        )
 
         baseline_artifact = write_render_artifact(
             fixture_output_dir=fixture_output_dir,
@@ -590,11 +610,50 @@ class DocumentTemplateWorkflowService:
         return FixtureRegressionResult(
             fixture_name=fixture.name,
             project_uuid=resolved_fixture.project_uuid,
-            equal=equal,
+            passed=equal,
             baseline=baseline_artifact,
             candidate=candidate_artifact,
             diff_path=diff_path,
         )
+
+    def _render_subject_html(
+        self,
+        *,
+        client: DSWApiClient,
+        config: WorkflowConfig,
+        fixture: FixtureConfig,
+        resolved_fixture: FixtureProject,
+        subject: ResolvedSubject,
+    ) -> str:
+        if config.regression.mode == "preview":
+            if subject.mode != "draft":
+                raise TemplateToolError(
+                    "Preview mode requires subjects to resolve to draft templates"
+                )
+            return self._render_preview_html(
+                client=client,
+                draft_uuid=subject.draft_uuid or "",
+                project_uuid=resolved_fixture.project_uuid,
+                format_uuid=config.regression.format_uuid,
+                timeout_seconds=config.regression.timeout_seconds,
+                poll_seconds=config.regression.poll_seconds,
+            )
+        if config.regression.mode == "document":
+            if subject.mode != "released":
+                raise TemplateToolError(
+                    "Document mode requires subjects to resolve to released templates"
+                )
+            return self._render_document_html(
+                client=client,
+                project_uuid=resolved_fixture.project_uuid,
+                project_event_uuid=resolved_fixture.project_event_uuid,
+                template_reference=subject.template_reference,
+                format_uuid=config.regression.format_uuid,
+                timeout_seconds=config.regression.timeout_seconds,
+                poll_seconds=config.regression.poll_seconds,
+                name=f"{fixture.name}-{subject.label}",
+            )
+        raise TemplateToolError(f"Unsupported regression mode {config.regression.mode!r}")
 
     def _render_preview_html(
         self,

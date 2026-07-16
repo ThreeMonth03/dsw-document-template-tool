@@ -257,6 +257,123 @@ fixtures:
     assert config.fixtures[0].events_file == events_path.resolve()
 
 
+def test_load_render_success_config_accepts_one_local_package(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """A translated package regression should not require a fake baseline."""
+
+    monkeypatch.setenv("DSW_API_URL", "http://localhost:3000/wizard-api")
+    monkeypatch.setenv("DSW_API_KEY", "secret-token")
+
+    package_path = tmp_path / "translated-template.zip"
+    package_path.write_bytes(b"package")
+    events_path = tmp_path / "events.json"
+    events_path.write_text("[]\n", encoding="utf-8")
+    config_path = tmp_path / "workflow.yml"
+    config_path.write_text(
+        """
+api:
+  url: ${DSW_API_URL}
+  token: ${DSW_API_KEY}
+subjects:
+  candidate:
+    kind: local_package
+    value: translated-template.zip
+regression:
+  assertion: render_success
+  mode: document
+  format_uuid: html-format-uuid
+  output_dir: outputs
+fixtures:
+  - name: translated-package
+    project:
+      name: translated package
+      knowledge_model_package_id: myorg:km:1.0.0
+    events_file: events.json
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    config = load_workflow_config(config_path)
+
+    assert config.baseline is None
+    assert config.candidate.kind == "local_package"
+    assert config.candidate.value == str(package_path.resolve())
+    assert config.regression.assertion == "render_success"
+
+
+def test_load_render_success_config_rejects_baseline(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Single-package validation must not disguise self-comparison as regression."""
+
+    monkeypatch.setenv("DSW_API_URL", "http://localhost:3000/wizard-api")
+    monkeypatch.setenv("DSW_API_KEY", "secret-token")
+    config_path = tmp_path / "workflow.yml"
+    config_path.write_text(
+        """
+api:
+  url: ${DSW_API_URL}
+  token: ${DSW_API_KEY}
+subjects:
+  baseline:
+    kind: released_id
+    value: myorg:template:1.0.0
+  candidate:
+    kind: released_id
+    value: myorg:template:1.0.0
+regression:
+  assertion: render_success
+  mode: document
+  format_uuid: html-format-uuid
+  output_dir: outputs
+fixtures:
+  - name: translated-package
+    project_uuid: 11111111-1111-4111-8111-111111111111
+    project_event_uuid: 22222222-2222-4222-8222-222222222222
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(WorkflowConfigError, match="baseline.*must be omitted"):
+        load_workflow_config(config_path)
+
+
+def test_load_equal_config_requires_baseline(tmp_path: Path, monkeypatch) -> None:
+    """The default equality assertion should fail fast without a comparison subject."""
+
+    monkeypatch.setenv("DSW_API_URL", "http://localhost:3000/wizard-api")
+    monkeypatch.setenv("DSW_API_KEY", "secret-token")
+    config_path = tmp_path / "workflow.yml"
+    config_path.write_text(
+        """
+api:
+  url: ${DSW_API_URL}
+  token: ${DSW_API_KEY}
+subjects:
+  candidate:
+    kind: draft_id
+    value: myorg:candidate:1.0.0
+regression:
+  mode: preview
+  format_uuid: html-format-uuid
+  output_dir: outputs
+fixtures:
+  - name: sample
+    project_uuid: 11111111-1111-4111-8111-111111111111
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(WorkflowConfigError, match="baseline.*required"):
+        load_workflow_config(config_path)
+
+
 def test_load_document_config_requires_snapshot_source(tmp_path: Path, monkeypatch) -> None:
     """Document mode should reject fixtures that cannot resolve a stable snapshot."""
 

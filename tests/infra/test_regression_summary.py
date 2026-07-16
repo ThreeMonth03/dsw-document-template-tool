@@ -19,7 +19,7 @@ def test_summary_reports_versioned_results_and_branch_coverage(
     _write_regression_report(
         output_dir / "v1.30.0",
         version="1.30.0",
-        equal=(True, False),
+        passed=(True, False),
     )
     _write_coverage_report(
         output_dir / "v1.30.0",
@@ -31,7 +31,7 @@ def test_summary_reports_versioned_results_and_branch_coverage(
     _write_regression_report(
         output_dir / "v1.30.1",
         version="1.30.1",
-        equal=(True, True, True),
+        passed=(True, True, True),
     )
     _write_coverage_report(
         output_dir / "v1.30.1",
@@ -62,7 +62,7 @@ def test_summary_reports_versioned_results_and_branch_coverage(
     assert result.returncode == 0, result.stdout + result.stderr
     assert result.stdout == summary_path.read_text(encoding="utf-8")
     assert "## Metamodel 18.0 Render Regression" in result.stdout
-    assert "| v1.30.0 | Failed (1 different) | 2 |" in result.stdout
+    assert "| v1.30.0 | Failed (1 fixture) | 2 |" in result.stdout
     assert "random-project: 35" in result.stdout
     assert "random-project: 1136/1136 (complete)" in result.stdout
     assert "| v1.30.1 | Passed | 3 |" in result.stdout
@@ -108,7 +108,7 @@ def test_summary_labels_incomplete_coverage_without_implying_a_profile(
     _write_regression_report(
         output_dir / "v1.30.0",
         version="1.30.0",
-        equal=(True,),
+        passed=(True,),
     )
     _write_coverage_report(
         output_dir / "v1.30.0",
@@ -162,21 +162,21 @@ def _write_regression_report(
     output_dir: Path,
     *,
     version: str,
-    equal: tuple[bool, ...],
+    passed: tuple[bool, ...],
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     fixtures = [
         {
             "fixture_name": f"fixture-{index}",
-            "equal": fixture_equal,
+            "passed": fixture_passed,
             "candidate": {
                 "template_reference": f"ci:science-europe-expanded:{version}",
             },
         }
-        for index, fixture_equal in enumerate(equal)
+        for index, fixture_passed in enumerate(passed)
     ]
     payload = {
-        "passed": all(equal),
+        "passed": all(passed),
         "fixtures": fixtures,
     }
     (output_dir / "regression_report.json").write_text(

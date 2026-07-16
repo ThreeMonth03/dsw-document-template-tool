@@ -184,6 +184,7 @@ template. Build upstream artifacts first when the regression config points at
 | `make render-regression-ci` | Run the single-version CI regression path. |
 | `make render-regression-ci-plan` | Run the compatibility-ledger recommended version plan. |
 | `make render-regression` | Run the local configured regression path. |
+| `make render-translated-package-regression` | Import one translated package ZIP and render the complete selected fixture set without cross-language output comparison. |
 | `make summarize-regression-coverage` | Summarize existing versioned regression and generated branch-coverage reports. |
 | `make verify-runtime-evidence` | Fail unless every planned version has passing regression, complete branch coverage, a strict package-preview PDF, and a verified pinned KM. |
 
@@ -210,6 +211,21 @@ Validate a regression plan without a DSW server:
 ```shell
 make render-regression-ci-plan-dry-run
 ```
+
+Validate the actual translated ZIP that will be distributed:
+
+```shell
+make start-ci-dsw
+make render-translated-package-regression \
+  TRANSLATED_TEMPLATE_PACKAGE=/tmp/dsw-science-europe-zh-hant-1.30.1.zip \
+  TRANSLATED_REGRESSION_METAMODEL_VERSION=18.0 \
+  SOURCE_TEMPLATE_VERSION=1.30.1
+make stop-ci-dsw
+```
+
+The target selects the pinned Knowledge Model for the requested document
+template metamodel and reuses the full generated-fixture plan from
+`config/regression.ci.yml`.
 
 Summarize reports already written below `outputs/preview/`:
 

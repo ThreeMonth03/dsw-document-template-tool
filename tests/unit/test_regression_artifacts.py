@@ -69,6 +69,7 @@ def test_report_serialization_has_stable_external_shape(tmp_path: Path) -> None:
         ignore_patterns=[],
     )
     report = RegressionReport(
+        assertion="equal",
         mode="preview",
         output_dir=tmp_path,
         passed=True,
@@ -76,7 +77,7 @@ def test_report_serialization_has_stable_external_shape(tmp_path: Path) -> None:
             FixtureRegressionResult(
                 fixture_name="empty",
                 project_uuid="project-uuid",
-                equal=True,
+                passed=True,
                 baseline=baseline,
                 candidate=candidate,
                 diff_path=None,
@@ -88,5 +89,39 @@ def test_report_serialization_has_stable_external_shape(tmp_path: Path) -> None:
     payload = serialize_regression_report(report)
 
     assert payload["passed"] is True
+    assert payload["assertion"] == "equal"
     assert payload["fixtures"][0]["candidate"]["template_reference"] == "candidate-id"
     assert payload["fixtures"][0]["diff_path"] is None
+
+
+def test_render_success_report_serializes_without_baseline(tmp_path: Path) -> None:
+    """Single-package validation reports should make the absent baseline explicit."""
+
+    candidate = write_render_artifact(
+        fixture_output_dir=tmp_path,
+        subject=_subject("candidate", "candidate-id"),
+        raw_html="<p>rendered</p>",
+        ignore_patterns=[],
+    )
+    report = RegressionReport(
+        assertion="render_success",
+        mode="document",
+        output_dir=tmp_path,
+        passed=True,
+        fixture_results=[
+            FixtureRegressionResult(
+                fixture_name="translated-package",
+                project_uuid="project-uuid",
+                passed=True,
+                baseline=None,
+                candidate=candidate,
+                diff_path=None,
+            )
+        ],
+        report_path=tmp_path / "regression_report.json",
+    )
+
+    payload = serialize_regression_report(report)
+
+    assert payload["assertion"] == "render_success"
+    assert payload["fixtures"][0]["baseline"] is None

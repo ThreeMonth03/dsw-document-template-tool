@@ -135,6 +135,8 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
         in workflow_text
     )
     assert "--public-readme" in workflow_text
+    assert "make render-translated-package-regression" in workflow_text
+    assert "template-repo/outputs/translated-regression/" in workflow_text
     version_readme = _git_show(translation_repo, "sync/v1.30.2:README.md")
     assert "The repository `master` branch is not" not in version_readme
     assert "Keep translation edits on this version" in version_readme

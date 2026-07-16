@@ -28,6 +28,9 @@ Confirm:
 - package generation succeeds
 - full regression has `complete: true` in each
   `outputs/preview/**/random-project-coverage.json`
+- translated release-package regression has `assertion: render_success`,
+  `passed: true`, and complete generated coverage under
+  `outputs/translated-regression/`
 - the Actions run summary lists every planned version and does not report an
   unreadable or missing regression report
 
@@ -53,6 +56,10 @@ Expected assets:
 
 Download and verify the checksum before using a clean scaffold artifact for
 public repository refresh or cross-version synchronization.
+
+Translated-template releases are owned by the public repository. In addition to
+the package, PDF, checksums, and notes, they should include the translated
+package regression report and generated-fixture coverage JSON.
 
 ## PDF Review
 
@@ -92,8 +99,10 @@ Before using artifacts in the public repository:
 3. Confirm the artifact version matches the upstream tag.
 4. Import the package zip with `make render-package` and render the demo project;
    do not substitute a source-directory draft preview for this delivery check.
-5. Confirm the tree passes structure audits.
-6. Confirm the public repository documents translation QA and manual import.
+5. Run `make render-translated-package-regression` against the same package and
+   confirm complete fixture coverage.
+6. Confirm the tree passes structure audits.
+7. Confirm the public repository documents translation QA and manual import.
 
 Do not use local `outputs/` unless you intentionally built and reviewed
 that exact local output.

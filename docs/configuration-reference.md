@@ -11,7 +11,7 @@ All paths below are repository-relative references.
 | File | Owner | Purpose | Main Commands |
 | --- | --- | --- | --- |
 | [`config/dsw-compat.yml`](../config/dsw-compat.yml) | Tool repo | Declares the proven DSW server, document worker, and `dsw-tdk` runtime for each supported template metamodel range. Its schema is strict: duplicate keys, unknown fields, and unsupported `schema_version` values fail validation. This is the source of truth for runtime matrix generation. | `make sync-dsw-runtime-matrix`, `make check-dsw-runtime-matrix`, `make discover-upstream-compat` |
-| [`config/regression.ci.yml`](../config/regression.ci.yml) | Tool repo | Base CI regression template. Generated CI configs rewrite its baseline/candidate paths to the latest compatible built upstream workspace. | `make generate-regression-config`, `make render-regression-ci`, `make render-regression-ci-plan` |
+| [`config/regression.ci.yml`](../config/regression.ci.yml) | Tool repo | Base complete-fixture regression template. Upstream config generation writes an equality comparison; translated-package config generation writes a single-package render assertion. | `make generate-regression-config`, `make render-regression-ci-plan`, `make render-translated-package-regression` |
 | [`config/regression-evidence.yml`](../config/regression-evidence.yml) | Tool repo | Pins immutable Knowledge Model provenance and assigns one fixture to every DSW runtime. Config generation verifies its checksum and package metadata before DSW starts; the final evidence gate combines it with regression, coverage, and PDF results. | `make generate-regression-config`, `make render-regression-ci-plan`, `make verify-runtime-evidence` |
 | [`config/regression.preview.yml`](../config/regression.preview.yml) | Tool repo | Local preview regression config for a manually controlled DSW instance. It expects API token auth. | `make render-regression CONFIG=config/regression.preview.yml` |
 | [`config/regression.document.yml`](../config/regression.document.yml) | Tool repo | Released-template document regression config. Use it when both baseline and candidate are already installed in DSW and referenced by released template id. | `make render-regression CONFIG=config/regression.document.yml` |
@@ -22,6 +22,11 @@ The three regression configs use the strict loader in
 [`yaml_config.py`](../src/dsw_document_template_tool/yaml_config.py). Duplicate
 or unknown fields fail before a DSW request runs, so a misspelled option cannot
 silently fall back to its default.
+
+`regression.assertion` is either `equal` or `render_success`. Equality requires
+baseline and candidate subjects. Render success rejects a baseline and is used
+with a `local_package` candidate so translated-package CI validates the actual
+ZIP without a meaningless cross-language or self-comparison.
 
 `generated_fixtures` in [`config/regression.ci.yml`](../config/regression.ci.yml)
 uses these coverage controls:
@@ -71,6 +76,7 @@ maintainer-owned and are never invented by automation.
 | --- | --- | --- | --- |
 | `config/.generated-regression.ci.yml` | `make generate-regression-config` or `make render-regression-ci` | Active single-version CI regression config. | No |
 | `config/.generated-regression.ci.<metamodel>.<version>.yml` | `make render-regression-ci-plan` | Per-version regression config generated from the compatibility ledger plan. | No |
+| `config/.generated-regression.translated.yml` | `make render-translated-package-regression` | Single-package full render config using the pinned KM for the package metamodel. | No |
 | `outputs/runtime-evidence/<metamodel>/evidence.json` and `evidence.md` | `make verify-runtime-evidence` | Runtime, KM provenance, complete branch coverage, regression result, and strict PDF proof for every planned version. | No |
 
 Generated configs are ignored by git. If a generated config looks wrong, fix the
