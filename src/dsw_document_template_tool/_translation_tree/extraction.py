@@ -22,6 +22,9 @@ from .._template_transform.jinja_literals import (
 from .._template_transform.jinja_literals import (
     is_translatable_jinja_literal as _is_translatable_jinja_literal,
 )
+from .._template_transform.jinja_literals import (
+    parse_jinja_string_list_initializer as _parse_jinja_string_list_initializer,
+)
 from .._template_transform.markers import (
     GENERATED_BLOCK_PATTERN,
     generated_block_body,
@@ -146,6 +149,10 @@ def _extract_unit_regions(wrapper_body: str) -> list[AnnotationRegion]:
     if not wrapper_body.strip():
         return []
 
+    initializer_regions = _wrapped_string_list_initializer_regions(wrapper_body)
+    if initializer_regions:
+        return initializer_regions
+
     tokens = _lex_source_tokens(wrapper_body)
     outer_bounds = find_single_outer_element_inner_bounds(tokens=tokens)
     if outer_bounds is not None:
@@ -177,6 +184,36 @@ def _extract_unit_regions(wrapper_body: str) -> list[AnnotationRegion]:
         )
 
     return [AnnotationRegion(start=0, end=len(wrapper_body))]
+
+
+def _wrapped_string_list_initializer_regions(
+    source_text: str,
+) -> list[AnnotationRegion]:
+    """Return literal spans when transform marked one rendered list initializer."""
+
+    tokens = [token for token in _lex_source_tokens(source_text) if token.text.strip()]
+    if len(tokens) != 1 or tokens[0].kind != "jinja_block":
+        return []
+    token = tokens[0]
+    initializer = _parse_jinja_string_list_initializer(token.text[2:-2])
+    if initializer is None:
+        return []
+
+    regions: list[AnnotationRegion] = []
+    for match in JINJA_STRING_LITERAL_PATTERN.finditer(token.text):
+        try:
+            value = ast.literal_eval(match.group("literal"))
+        except (SyntaxError, ValueError):
+            continue
+        if not isinstance(value, str) or not _is_translatable_jinja_literal(value):
+            continue
+        regions.append(
+            AnnotationRegion(
+                start=token.start + match.start("literal") + 1,
+                end=token.start + match.end("literal") - 1,
+            )
+        )
+    return regions
 
 
 def _merge_inline_expression_split_regions(

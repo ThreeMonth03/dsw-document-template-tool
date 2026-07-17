@@ -386,6 +386,32 @@ def test_expand_rewrites_appended_sentence_literals_reversibly(tmp_path: Path) -
     assert _render_template(expanded_text, context) == _render_template(source_text, context)
 
 
+def test_expand_marks_only_rendered_string_list_initializers(tmp_path: Path) -> None:
+    """Static list seeds should be editable only when the list feeds rendered output."""
+
+    compact_dir = tmp_path / "compact"
+    (compact_dir / "src").mkdir(parents=True)
+    _write_minimal_template_json(compact_dir)
+    source_text = """
+{%- set hidden = ['Internal machine sentence.'] -%}
+{%- set sentences = ['Visible opening sentence.'] -%}
+{%- do sentences.append('Visible closing sentence.') -%}
+<p>{{ sentences|join(' ') }}</p>
+""".lstrip()
+    (compact_dir / "src" / "index.html.j2").write_text(source_text, encoding="utf-8")
+
+    expanded_dir = tmp_path / "expanded"
+    rebuilt_dir = tmp_path / "rebuilt"
+    expand_template_dir(source_dir=compact_dir, output_dir=expanded_dir)
+    compact_template_dir(source_dir=expanded_dir, output_dir=rebuilt_dir)
+
+    expanded_text = (expanded_dir / "src" / "index.html.j2").read_text(encoding="utf-8")
+    assert "__tr_block_0000:start #}{%- set sentences" in expanded_text
+    assert "__tr_block_0000:start #}{%- set hidden" not in expanded_text
+    assert snapshot_tree(rebuilt_dir) == snapshot_tree(compact_dir)
+    assert _render_template(expanded_text, {}) == _render_template(source_text, {})
+
+
 def test_expand_rewrites_simple_common_prefix_branches_reversibly(
     tmp_path: Path,
 ) -> None:

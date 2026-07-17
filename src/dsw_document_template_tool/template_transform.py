@@ -24,6 +24,12 @@ from ._template_transform.inline_conditionals import (
 from ._template_transform.inline_conditionals import (
     rewrite_inline_conditional_expressions as _rewrite_inline_conditional_expressions,
 )
+from ._template_transform.jinja_literals import (
+    rendered_joined_collection_names as _rendered_collections,
+)
+from ._template_transform.jinja_literals import (
+    translatable_rendered_list_initializer_literals as _rendered_list_literals,
+)
 from ._template_transform.localization import (
     LocalizationPatchError,
 )
@@ -297,12 +303,47 @@ def _collect_annotation_regions(
     *, tokens: list[SourceToken], source_text: str
 ) -> list[AnnotationRegion]:
     element_regions = _collect_element_regions(tokens=tokens, source_text=source_text)
-    inline_regions = _collect_inline_text_regions(
+    initializer_regions = _collect_rendered_list_initializer_regions(
         tokens=tokens,
         source_text=source_text,
         covered_regions=element_regions,
     )
-    return sorted(element_regions + inline_regions, key=lambda item: item.start)
+    inline_regions = _collect_inline_text_regions(
+        tokens=tokens,
+        source_text=source_text,
+        covered_regions=element_regions + initializer_regions,
+    )
+    return sorted(
+        element_regions + initializer_regions + inline_regions,
+        key=lambda item: item.start,
+    )
+
+
+def _collect_rendered_list_initializer_regions(
+    *,
+    tokens: list[SourceToken],
+    source_text: str,
+    covered_regions: list[AnnotationRegion],
+) -> list[AnnotationRegion]:
+    """Find static list seeds whose collection is later rendered with ``join``."""
+
+    rendered_names = _rendered_collections(source_text)
+    if not rendered_names:
+        return []
+
+    regions: list[AnnotationRegion] = []
+    for token in tokens:
+        if token.kind != "jinja_block" or _is_inside_covered_region(
+            token=token,
+            covered_regions=covered_regions,
+        ):
+            continue
+        if _rendered_list_literals(
+            token_text=token.text,
+            rendered_collection_names=rendered_names,
+        ):
+            regions.append(AnnotationRegion(start=token.start, end=token.end))
+    return regions
 
 
 def _collect_element_regions(

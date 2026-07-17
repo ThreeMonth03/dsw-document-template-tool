@@ -78,6 +78,16 @@ Bad units:
 - expose branch separators such as `/` as something translators must preserve
 - require translators to understand Jinja scope to translate safely
 
+Static strings inside Jinja are editable only when the parser can show that
+they feed rendered output. For example, a string-list initializer is exported
+when the same collection is later rendered through `|join`; an otherwise
+identical internal list remains machine code. Keep this data-flow check in
+[`jinja_literals.py`](../src/dsw_document_template_tool/_template_transform/jinja_literals.py)
+and its marker placement in
+[`template_transform.py`](../src/dsw_document_template_tool/template_transform.py).
+Do not replace it with variable-name, template-version, or source-sentence
+special cases.
+
 ## Changing Parsing Logic
 
 1. Add or update transform/export tests.

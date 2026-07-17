@@ -14,6 +14,12 @@ from .._template_transform.jinja_literals import (
 from .._template_transform.jinja_literals import (
     is_subscript_literal as _is_subscript_literal,
 )
+from .._template_transform.jinja_literals import (
+    rendered_joined_collection_names as _rendered_collections,
+)
+from .._template_transform.jinja_literals import (
+    translatable_rendered_list_initializer_literals as _rendered_list_literals,
+)
 from .._template_transform.scanner import (
     JINJA_STRING_LITERAL_PATTERN,
 )
@@ -373,10 +379,21 @@ def _all_jinja_literal_counts(source_text: str) -> Counter[str]:
 
 def _protected_jinja_literal_counts(source_text: str) -> Counter[str]:
     counts: Counter[str] = Counter()
+    rendered_names = _rendered_collections(source_text)
     for token in _iter_executable_jinja_tokens(source_text):
+        editable_initializer_literals = Counter(
+            _rendered_list_literals(
+                token_text=token,
+                rendered_collection_names=rendered_names,
+            )
+        )
         for match in JINJA_STRING_LITERAL_PATTERN.finditer(token):
             literal_value = _literal_match_value(match)
             if literal_value is None:
+                continue
+            normalized_value = literal_value.strip()
+            if editable_initializer_literals[normalized_value]:
+                editable_initializer_literals[normalized_value] -= 1
                 continue
             if _is_protected_jinja_literal(token=token, match=match, value=literal_value):
                 counts[literal_value] += 1
