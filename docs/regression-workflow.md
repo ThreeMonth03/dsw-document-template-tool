@@ -68,10 +68,12 @@ and translated-package `render_success` checks instead import the newly built
 package ZIP, so CI validates the same artifact that users download.
 
 Before importing a local package, the tool stages it under a template ID that
-includes a short SHA-256 digest of the ZIP. Re-running an unchanged package may
-safely reuse the same staged template, while changed bytes always receive a new
-DSW coordinate. This prevents a long-running local stack from silently
-rendering an older package with the same published version number.
+includes a short SHA-256 digest of its canonical contents. The digest ignores
+TDK-generated timestamps, file UUIDs, and list ordering, but includes every
+render-relevant source and asset. Equivalent rebuilds safely reuse the same
+staged template, while real content changes receive a new DSW coordinate. This
+prevents a long-running local stack from silently rendering an older package
+with the same published version number.
 
 ## Fixture Strategy
 

@@ -9,8 +9,13 @@ import subprocess
 import tempfile
 import zipfile
 from pathlib import Path
+from typing import Protocol
 
 from .models import TemplateCoordinates
+
+
+class _Digest(Protocol):
+    def update(self, data: bytes, /) -> None: ...
 
 
 class TemplateToolError(RuntimeError):
@@ -47,7 +52,7 @@ def stage_local_template_package(
 
     source_package = source_package.resolve()
     original_coordinates = read_local_template_package_coordinates(source_package)
-    package_digest = hashlib.sha256(source_package.read_bytes()).hexdigest()[:12]
+    package_digest = _canonical_template_package_digest(source_package)[:12]
     stage_coordinates = TemplateCoordinates(
         organization_id=original_coordinates.organization_id,
         template_id=f"{original_coordinates.template_id}-local-{package_digest}",
@@ -240,6 +245,57 @@ def _template_json_member(archive: zipfile.ZipFile) -> str:
             f"Expected exactly one template.json in package, found {len(matches)}"
         )
     return matches[0]
+
+
+def _canonical_template_package_digest(package_path: Path) -> str:
+    """Hash render-relevant package content while ignoring TDK build metadata."""
+
+    digest = hashlib.sha256()
+    with zipfile.ZipFile(package_path) as archive:
+        template_member = _template_json_member(archive)
+        for member_name in sorted(name for name in archive.namelist() if not name.endswith("/")):
+            content = archive.read(member_name)
+            if member_name == template_member:
+                payload = json.loads(content.decode("utf-8"))
+                content = _canonical_template_payload_bytes(payload)
+            _update_digest(digest, member_name.encode("utf-8"))
+            _update_digest(digest, content)
+    return digest.hexdigest()
+
+
+def _canonical_template_payload_bytes(payload: object) -> bytes:
+    if not isinstance(payload, dict):
+        raise TemplateToolError("Expected template.json to contain a JSON object")
+    canonical = dict(payload)
+    canonical.pop("createdAt", None)
+    canonical.pop("updatedAt", None)
+    for key in ("assets", "files"):
+        items = canonical.get(key)
+        if not isinstance(items, list):
+            continue
+        normalized_items: list[object] = []
+        for item in items:
+            if isinstance(item, dict):
+                normalized_item = dict(item)
+                normalized_item.pop("uuid", None)
+                normalized_items.append(normalized_item)
+            else:
+                normalized_items.append(item)
+        canonical[key] = sorted(
+            normalized_items,
+            key=lambda item: json.dumps(item, ensure_ascii=False, sort_keys=True),
+        )
+    return json.dumps(
+        canonical,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+def _update_digest(digest: _Digest, content: bytes) -> None:
+    digest.update(len(content).to_bytes(8, byteorder="big"))
+    digest.update(content)
 
 
 def _run_subprocess(args: list[str]) -> None:
