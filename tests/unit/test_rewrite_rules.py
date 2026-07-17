@@ -127,7 +127,7 @@ def test_science_europe_rewrite_groups_keep_expected_rule_sets() -> None:
         "science-europe.unbalanced.structure",
         "science-europe.unbalanced.localization",
     ]
-    assert sum(len(group.replacements) for group in balanced_groups) == 26
+    assert sum(len(group.replacements) for group in balanced_groups) == 27
     assert sum(len(group.replacements) for group in unbalanced_groups) == 16
     assert all(group.rationale for group in (*balanced_groups, *unbalanced_groups))
 

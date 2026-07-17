@@ -184,6 +184,12 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
                 <p>This dataset will be collected by an external party.</p>
               {%- endif -%}
 """
+    measured_external_ownership_markdown_original = measured_external_ownership_original.replace(
+        "|dot", "|markdown"
+    )
+    measured_external_ownership_markdown_replacement = (
+        measured_external_ownership_replacement.replace("|dot", "|markdown")
+    )
 
     nref_personal_legal_basis_original = """
           <p>
@@ -1233,6 +1239,10 @@ def _build_balanced_source_fragment_groups() -> tuple[ReversibleReplacementGroup
         (
             measured_external_ownership_original,
             measured_external_ownership_replacement,
+        ),
+        (
+            measured_external_ownership_markdown_original,
+            measured_external_ownership_markdown_replacement,
         ),
         (
             nref_personal_legal_basis_original,

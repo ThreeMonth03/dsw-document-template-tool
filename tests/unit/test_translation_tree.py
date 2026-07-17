@@ -1773,10 +1773,12 @@ def test_export_translation_tree_keeps_legal_basis_prefix_with_other_branch(
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
 
+@pytest.mark.parametrize("value_filter", ["dot", "markdown"])
 def test_export_translation_tree_keeps_external_ownership_arrangement_complete(
     tmp_path: Path,
+    value_filter: str,
 ) -> None:
-    """The Science Europe external-ownership fallback should become translatable."""
+    """External-ownership branches stay translatable across filter variants."""
 
     compact_dir = _write_compact_template_raw(
         tmp_path,
@@ -1791,11 +1793,11 @@ def test_export_translation_tree_keeps_external_ownership_arrangement_complete(
                   {%- set mdExternalOwnershipOtherPath = [mdExternalOwnershipPath, uuids.mdExternalOwnershipOtherAUuid, uuids.mdExternalOwnershipOtherQUuid]|reply_path -%}
                   {%- set mdExternalOwnershipOther = repliesMap[mdExternalOwnershipOtherPath]|reply_str_value -%}
                   {%- if mdExternalOwnershipOther -%}
-                    For the ownership of the data we have made the following arrangements: {{ mdExternalOwnershipOther|dot }}
+                    For the ownership of the data we have made the following arrangements: {{ mdExternalOwnershipOther|FILTER }}
                   {%- endif -%}
                 {%- endif -%}
               </p>
-""",
+""".replace("FILTER", value_filter),
     )
 
     expanded_dir = tmp_path / "expanded"
