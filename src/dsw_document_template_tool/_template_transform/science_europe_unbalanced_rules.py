@@ -189,6 +189,27 @@ def _build_unbalanced_html_fragment_groups(
         {%- endif -%}
 """
 
+    def use_markdown_filters(fragment: str) -> str:
+        return (
+            fragment.replace("|dot", "|markdown")
+            .replace(
+                "notOpenBusinessReasonsOther if",
+                "notOpenBusinessReasonsOther|markdown if",
+            )
+            .replace(
+                "notOpenOtherReasonsOther if",
+                "notOpenOtherReasonsOther|markdown if",
+            )
+        )
+
+    copyright_open_reason_replacements = (
+        (copyright_open_reasons_original, copyright_open_reasons_replacement),
+        (
+            use_markdown_filters(copyright_open_reasons_original),
+            use_markdown_filters(copyright_open_reasons_replacement),
+        ),
+    )
+
     measured_reuse_other_field_original = """
                 <p>Researchers working in other fields will be interested in re-using this data
 \x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
@@ -429,7 +450,7 @@ def _build_unbalanced_html_fragment_groups(
 
     structural_replacements = (
         (personal_data_legal_basis_original, personal_data_legal_basis_replacement),
-        (copyright_open_reasons_original, copyright_open_reasons_replacement),
+        *copyright_open_reason_replacements,
         (measured_reuse_other_field_original, measured_reuse_other_field_replacement),
         (additional_expertise_train_original, additional_expertise_train_replacement),
         (reference_data_version_original, reference_data_version_replacement),

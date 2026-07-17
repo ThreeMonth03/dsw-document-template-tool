@@ -1758,14 +1758,14 @@ def test_export_translation_tree_keeps_external_ownership_arrangement_complete(
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
 
-def test_export_translation_tree_keeps_open_reason_prefix_with_single_reasons(
+@pytest.mark.parametrize("value_filter", ["dot", "markdown"])
+def test_export_translation_tree_keeps_open_reason_branches_complete(
     tmp_path: Path,
+    value_filter: str,
 ) -> None:
-    """The Science Europe not-open reason branches should be complete sentences."""
+    """Not-open reason branches stay complete across upstream filter variants."""
 
-    compact_dir = _write_compact_template_raw(
-        tmp_path,
-        """
+    source = """
       {%- if nReasons > 0 -%}
         <p>
         The data cannot become completely open because 
@@ -1775,11 +1775,11 @@ def test_export_translation_tree_keeps_open_reason_prefix_with_single_reasons(
           {%- elif businessReasonsPatents %}
             of patent-related business reasons.
           {%- elif businessReasonsOther %}
-            of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|dot if notOpenBusinessReasonsOther else "." }}
+            of non-patent business reasons{{  ": " ~ notOpenBusinessReasonsOther|VALUE_FILTER if notOpenBusinessReasonsOther else "." }}
           {%- elif otherReasonsPapers %}
             we want to publish a paper first.
           {%- elif otherReasonsOther %}
-            we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|dot if notOpenOtherReasonsOther else "." }}
+            we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|VALUE_FILTER if notOpenOtherReasonsOther else "." }}
           {%- endif -%}
         {%- else %}
           of:
@@ -1790,16 +1790,22 @@ def test_export_translation_tree_keeps_open_reason_prefix_with_single_reasons(
             {%- if businessReasonsPatents %}
               <li>patent-related business reasons</li>
             {%- elif businessReasonsOther %}
-              <li>non-patent business reasons{{ ": " ~ notOpenBusinessReasonsOther if notOpenBusinessReasonsOther else "" }}</li>
+              <li>non-patent business reasons{{ ": " ~ notOpenBusinessReasonsOther|LIST_FILTER if notOpenBusinessReasonsOther else "" }}</li>
             {%- endif -%}
             {%- if otherReasonsPapers %}
               <li>we want to publish a paper first</li>
             {%- elif otherReasonsOther -%}
-              <li>we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther if notOpenOtherReasonsOther else "" }}</li>
+              <li>we have other than paper-publishing reasons{{ ": " ~ notOpenOtherReasonsOther|LIST_FILTER if notOpenOtherReasonsOther else "" }}</li>
             {%- endif -%}
           </ul>
         {%- endif -%}
-""",
+""".replace("VALUE_FILTER", value_filter).replace(
+        "|LIST_FILTER",
+        "" if value_filter == "dot" else "|markdown",
+    )
+    compact_dir = _write_compact_template_raw(
+        tmp_path,
+        source,
     )
 
     expanded_dir = tmp_path / "expanded"
@@ -1819,6 +1825,7 @@ def test_export_translation_tree_keeps_open_reason_prefix_with_single_reasons(
         in sentence
         for sentence in sentences
     )
+    assert "The data cannot become completely open because of:" in sentences
     assert audit_translation_tree(tree_dir=tree_dir, source_dir=expanded_dir) == []
 
 
