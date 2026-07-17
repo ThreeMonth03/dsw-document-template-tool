@@ -154,6 +154,11 @@ def write_package_render_config(
     if not package_path.is_file():
         raise ValueError(f"Translated template package does not exist: {package_path}")
     payload = _load_base_config(base_config)
+    _rebase_retained_paths(
+        payload,
+        source_dir=base_config.resolve().parent,
+        output_dir=output.resolve().parent,
+    )
     payload["subjects"] = {
         "candidate": {
             "kind": "local_package",
@@ -169,6 +174,40 @@ def write_package_render_config(
         path=_relative_posix_path(knowledge_model_path, output.parent),
     )
     _write_config(payload, output)
+
+
+def _rebase_retained_paths(
+    payload: dict[str, object], *, source_dir: Path, output_dir: Path
+) -> None:
+    """Keep inherited base-config paths valid when generated config moves."""
+
+    tdk = payload.get("tdk")
+    if isinstance(tdk, dict):
+        executable = tdk.get("executable")
+        if isinstance(executable, str) and _is_path_reference(executable):
+            tdk["executable"] = _rebase_path(executable, source_dir, output_dir)
+
+    fixtures = payload.get("fixtures", [])
+    if not isinstance(fixtures, list):
+        raise ValueError("Expected `fixtures` list in base config")
+    for fixture in fixtures:
+        if not isinstance(fixture, dict):
+            raise ValueError("Expected mappings in `fixtures`")
+        events_file = fixture.get("events_file")
+        if isinstance(events_file, str):
+            fixture["events_file"] = _rebase_path(events_file, source_dir, output_dir)
+
+
+def _is_path_reference(value: str) -> bool:
+    """Distinguish executable paths from command names resolved through PATH."""
+
+    return Path(value).is_absolute() or "/" in value or "\\" in value
+
+
+def _rebase_path(value: str, source_dir: Path, output_dir: Path) -> str:
+    path = Path(value)
+    resolved = path if path.is_absolute() else source_dir / path
+    return _relative_posix_path(resolved.resolve(), output_dir)
 
 
 def select_regression_knowledge_model(

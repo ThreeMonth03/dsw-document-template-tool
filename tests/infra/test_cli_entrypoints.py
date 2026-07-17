@@ -1194,6 +1194,10 @@ def test_generate_translated_regression_config_uses_full_fixture_plan(
     assert payload["generated_fixtures"][0]["require_complete_coverage"] is True
     configured_km = payload["generated_fixtures"][0]["project"]["knowledge_model_package_id"]
     assert configured_km.endswith("fixtures/knowledge-models/root-2.7.0.km")
+    assert (output_path.parent / payload["tdk"]["executable"]).resolve().is_file()
+    for fixture in payload["fixtures"]:
+        events_file = (output_path.parent / fixture["events_file"]).resolve()
+        assert events_file.is_file()
 
 
 def test_run_regression_plan_selects_recommended_versions_for_metamodel(
