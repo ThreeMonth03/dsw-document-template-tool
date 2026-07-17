@@ -1102,6 +1102,11 @@ def test_export_translation_tree_translates_rendered_list_initializer(
     assert "Visible opening sentence." in sentences
     assert "Visible closing sentence." in sentences
     assert "Internal machine sentence." not in sentences
+    assert any(
+        path.parent.parent.name.startswith("0001-visible-opening-sentence-")
+        for path in tree_dir.rglob("translation.md")
+        if "Visible opening sentence." in path.read_text(encoding="utf-8")
+    )
 
     document_path = next(
         path

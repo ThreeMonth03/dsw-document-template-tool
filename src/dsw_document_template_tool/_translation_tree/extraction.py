@@ -102,10 +102,17 @@ def extract_units(*, relative_path: str, source_text: str) -> list[TranslationUn
     for wrapper_index, match in enumerate(GENERATED_BLOCK_PATTERN.finditer(source_text), start=1):
         wrapper_name = generated_block_name(match)
         wrapper_body = generated_block_body(match)
-        wrapper_key = build_wrapper_key(relative_path=relative_path, source_text=wrapper_body)
+        initializer_regions = _wrapped_string_list_initializer_regions(wrapper_body)
+        wrapper_label_source = " ".join(
+            wrapper_body[region.start : region.end] for region in initializer_regions
+        )
+        wrapper_key = build_wrapper_key(
+            relative_path=relative_path,
+            source_text=wrapper_label_source or wrapper_body,
+        )
         wrapper_folder_name = build_folder_name(index=wrapper_index, slug=wrapper_key)
         wrapper_source_hash = hash_text(wrapper_body)
-        unit_regions = _extract_unit_regions(wrapper_body)
+        unit_regions = initializer_regions or _extract_unit_regions(wrapper_body)
 
         unit_index = 0
         for region in unit_regions:
@@ -148,10 +155,6 @@ def extract_units(*, relative_path: str, source_text: str) -> list[TranslationUn
 def _extract_unit_regions(wrapper_body: str) -> list[AnnotationRegion]:
     if not wrapper_body.strip():
         return []
-
-    initializer_regions = _wrapped_string_list_initializer_regions(wrapper_body)
-    if initializer_regions:
-        return initializer_regions
 
     tokens = _lex_source_tokens(wrapper_body)
     outer_bounds = find_single_outer_element_inner_bounds(tokens=tokens)
