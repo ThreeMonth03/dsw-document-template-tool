@@ -114,6 +114,7 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         '{{ ", " if not loop.last else "." }}\n'
         '{{ values|join(", ") }}\n'
         '{{ metadataSentences|join(" ") }}\n'
+        "{{ sentences|join(' ') }}\n"
         "{% if not loop.last %}, {% endif %}\n"
         '資料溯源紀錄{{ ": " ~ value|markdown if value else "." }}\n'
         "這是標準化格式。 這是適合長期保存的格式。\n"
@@ -143,6 +144,7 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         '{{ "、" if not loop.last else "。" }}\n'
         '{{ values|join("、") }}\n'
         '{{ metadataSentences|join("") }}\n'
+        '{{ sentences|join("") }}\n'
         "{% if not loop.last %}、{% endif %}\n"
         '資料溯源紀錄{{ "：" ~ value|markdown if value else "。" }}\n'
         "這是標準化格式。這是適合長期保存的格式。第一句。第二句。"
@@ -156,6 +158,14 @@ def test_polish_zh_hant_template_text_normalizes_punctuation_outside_units() -> 
         "ORCID： 0000-0002-1825-0097\n"
         "此資源分配用於確保資料可被找到、確保資料可被取用與支援資料管理。"
     )
+
+
+def test_polish_zh_hant_template_text_removes_jinja_string_trailing_gap() -> None:
+    """English assembly spaces after full-width punctuation must not render."""
+
+    source = "{%- do sentences.append('其他法律依據： ') -%}"
+
+    assert polish_zh_hant_template_text(source) == ("{%- do sentences.append('其他法律依據：') -%}")
 
 
 def test_polish_zh_hant_template_text_replaces_dot_filters_inside_chinese_sentences() -> None:

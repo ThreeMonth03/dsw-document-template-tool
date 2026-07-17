@@ -157,6 +157,11 @@ checklist.
 - Some upstream templates use `|dot`. In zh-Hant output, leftover `|dot` can
   create duplicate punctuation after Chinese sentences. The sync output polish
   step removes unsafe leftover `|dot` behavior.
+- Upstream sentence lists may use `join(" ")` for English prose. The zh-Hant
+  output polish joins variables named `*sentences` without that half-width gap;
+  it also removes English trailing spaces after full-width punctuation inside
+  those Jinja strings. Translators should keep normal full-width punctuation in
+  each sentence.
 - CJK font behavior differs from the English template. Avoid layout changes
   unless PDF QA shows a structural problem.
 - Do not force Markdown list styling changes unless the rendered PDF clearly

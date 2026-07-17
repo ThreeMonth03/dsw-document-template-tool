@@ -16,10 +16,16 @@ _FAIRSHARING_MACRO_LINE_PATTERN = re.compile(
 )
 _LOOP_COMMA_PERIOD_PATTERN = re.compile(r'\{\{\s*", "\s+if\s+not\s+loop\.last\s+else\s+"\."\s*\}\}')
 _JOIN_COMMA_PATTERN = re.compile(r'\|\s*join\(", "\)')
-_METADATA_SENTENCES_JOIN_SPACE_PATTERN = re.compile(r'metadataSentences\|\s*join\(" "\)')
+_SENTENCE_LIST_JOIN_SPACE_PATTERN = re.compile(
+    r"""(?P<name>\b(?:[A-Za-z_][A-Za-z0-9_]*)?sentences)\|\s*join\((?P<quote>["']) (?P=quote)\)""",
+    re.IGNORECASE,
+)
 _INLINE_COLON_PREFIX_PATTERN = re.compile(r'\{\{\s*": "\s*~')
 _INLINE_PERIOD_FALLBACK_PATTERN = re.compile(r'\s+else\s+"\."\s*\}\}')
 _INLINE_TAG_BEFORE_FULLWIDTH_PAREN_PATTERN = re.compile(r"(</(?:em|span|strong)>)\s+（")
+_JINJA_STRING_TRAILING_FULLWIDTH_GAP_PATTERN = re.compile(
+    rf"(?<=[{_FULLWIDTH_PUNCTUATION_BEFORE_CJK}])[ \t]+(?=['\"])",
+)
 _DOT_FILTER_PLACEHOLDERS_WITH_TRANSLATED_PUNCTUATION = (
     "swPIDReply",
     "publishedDataHowLongFixed",
@@ -220,7 +226,7 @@ def _normalize_template_punctuation(text: str) -> str:
     text = _FAIRSHARING_MACRO_LINE_PATTERN.sub(r"\1：\2。", text)
     text = _LOOP_COMMA_PERIOD_PATTERN.sub('{{ "、" if not loop.last else "。" }}', text)
     text = _JOIN_COMMA_PATTERN.sub('|join("、")', text)
-    text = _METADATA_SENTENCES_JOIN_SPACE_PATTERN.sub('metadataSentences|join("")', text)
+    text = _SENTENCE_LIST_JOIN_SPACE_PATTERN.sub(r'\g<name>|join("")', text)
     text = _INLINE_COLON_PREFIX_PATTERN.sub('{{ "：" ~', text)
     text = _INLINE_PERIOD_FALLBACK_PATTERN.sub(' else "。" }}', text)
     text = text.replace(
@@ -229,6 +235,7 @@ def _normalize_template_punctuation(text: str) -> str:
     )
     text = re.sub(r"(\{%-\s*else\s*-%})\.", r"\1。", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\s*:\s*", "：", text)
+    text = _JINJA_STRING_TRAILING_FULLWIDTH_GAP_PATTERN.sub("", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\s+（", "（", text)
     text = _INLINE_TAG_BEFORE_FULLWIDTH_PAREN_PATTERN.sub(r"\1（", text)
     text = re.sub(rf"(?<=[{_CJK_OR_JINJA_END_CLASS}])\.", "。", text)
