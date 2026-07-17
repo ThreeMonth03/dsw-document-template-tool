@@ -13,7 +13,9 @@ from dsw_document_template_tool.tdk import (
     TemplateToolError,
     put_template_dir,
     read_local_template_coordinates,
+    read_local_template_package_coordinates,
     stage_local_template_dir,
+    stage_local_template_package,
     verify_template_dir,
 )
 
@@ -56,7 +58,7 @@ def render_project(
         raise TemplateToolError(f"Template package does not exist: {template_package}")
 
     client = DSWApiClient(api_url=api_url, verify_ssl=verify_ssl)
-    staged_dir: Path | None = None
+    staged_path: Path | None = None
     resolved_project: ResolvedProject | None = None
     try:
         if api_key:
@@ -75,16 +77,28 @@ def render_project(
         )
 
         if template_package is not None:
+            source_coordinates = read_local_template_package_coordinates(template_package)
+            staged_package, staged_coordinates = stage_local_template_package(
+                source_package=template_package,
+            )
+            staged_path = staged_package
             document, render_info = _render_released_template_package(
                 client=client,
-                package_path=template_package,
+                package_path=staged_package,
                 project_uuid=resolved_project.project_uuid,
                 format_uuid=format_uuid,
                 timeout_seconds=timeout_seconds,
                 poll_seconds=poll_seconds,
             )
+            render_info.update(
+                {
+                    "template_package": str(template_package),
+                    "source_template_id": source_coordinates.full_id,
+                    "staged_template_id": staged_coordinates.full_id,
+                }
+            )
         else:
-            document, render_info, staged_dir = _render_draft_template_dir(
+            document, render_info, staged_path = _render_draft_template_dir(
                 client=client,
                 template_dir=template_dir,
                 project_uuid=resolved_project.project_uuid,
@@ -124,8 +138,8 @@ def render_project(
                     f"{resolved_project.project_uuid}: {exc}"
                 )
         client.close()
-        if staged_dir is not None:
-            shutil.rmtree(staged_dir.parent, ignore_errors=True)
+        if staged_path is not None:
+            shutil.rmtree(staged_path.parent, ignore_errors=True)
 
 
 def _render_draft_template_dir(

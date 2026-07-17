@@ -67,6 +67,12 @@ require publishing candidate template versions. Clean scaffold delivery checks
 and translated-package `render_success` checks instead import the newly built
 package ZIP, so CI validates the same artifact that users download.
 
+Before importing a local package, the tool stages it under a template ID that
+includes a short SHA-256 digest of the ZIP. Re-running an unchanged package may
+safely reuse the same staged template, while changed bytes always receive a new
+DSW coordinate. This prevents a long-running local stack from silently
+rendering an older package with the same published version number.
+
 ## Fixture Strategy
 
 Fixtures use the same logical shape as DSW projects:

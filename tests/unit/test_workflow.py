@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from types import SimpleNamespace
+from zipfile import ZipFile
 
 from dsw_document_template_tool._regression import parallel as regression_parallel
 from dsw_document_template_tool.models import (
@@ -16,6 +17,7 @@ from dsw_document_template_tool.models import (
     ResolvedSubject,
     SubjectConfig,
 )
+from dsw_document_template_tool.tdk import read_local_template_package_coordinates
 from dsw_document_template_tool.workflow import DocumentTemplateWorkflowService
 
 
@@ -57,7 +59,8 @@ class _FakePackageClient:
         package_path: Path,
     ) -> DocumentTemplateReference:
         self.uploaded.append(package_path)
-        return DocumentTemplateReference(template_id="dsw:translated:1.0.0")
+        coordinates = read_local_template_package_coordinates(package_path)
+        return DocumentTemplateReference(template_id=coordinates.full_id)
 
 
 def test_render_subjects_in_parallel_uses_isolated_clients(monkeypatch) -> None:
@@ -122,24 +125,45 @@ def test_events_fixture_renders_current_project_without_snapshot(tmp_path: Path)
 
 
 def test_local_package_subject_uploads_the_actual_release_asset(tmp_path: Path) -> None:
-    """Package regression should import the zip that users download."""
+    """Package regression should stage the asset under content-addressed coordinates."""
 
     package_path = tmp_path / "translated-template.zip"
-    package_path.write_bytes(b"package")
+    with ZipFile(package_path, "w") as archive:
+        archive.writestr(
+            "template/template.json",
+            json.dumps(
+                {
+                    "id": "dsw:translated:1.0.0",
+                    "organizationId": "dsw",
+                    "templateId": "translated",
+                    "version": "1.0.0",
+                    "name": "Translated template",
+                }
+            ),
+        )
     client = _FakePackageClient()
+    staged_paths: list[Path] = []
 
     resolved = DocumentTemplateWorkflowService()._resolve_local_package_subject(
         client=client,
         label="candidate",
         subject=SubjectConfig(kind="local_package", value=str(package_path)),
+        staged_paths=staged_paths,
     )
 
-    assert client.uploaded == [package_path.resolve()]
-    assert resolved.mode == "released"
-    assert resolved.display_id == "dsw:translated:1.0.0"
-    assert resolved.template_reference == DocumentTemplateReference(
-        template_id="dsw:translated:1.0.0"
+    assert len(client.uploaded) == 1
+    assert client.uploaded[0] == staged_paths[0]
+    assert client.uploaded[0] != package_path.resolve()
+    assert read_local_template_package_coordinates(client.uploaded[0]).template_id.startswith(
+        "translated-local-"
     )
+    assert resolved.mode == "released"
+    staged_coordinates = read_local_template_package_coordinates(client.uploaded[0])
+    assert resolved.display_id == staged_coordinates.full_id
+    assert resolved.template_reference == DocumentTemplateReference(
+        template_id=staged_coordinates.full_id
+    )
+    DocumentTemplateWorkflowService()._cleanup_staged_paths(staged_paths)
 
 
 def test_render_success_assertion_renders_only_the_candidate(

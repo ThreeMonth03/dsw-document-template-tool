@@ -825,7 +825,10 @@ def _is_document_template_uniqueness_error(response: requests.Response) -> bool:
     if not isinstance(payload, dict):
         return False
     error = payload.get("error")
-    return isinstance(error, dict) and error.get("code") == "error.validation.tml_id_uniqueness"
+    return isinstance(error, dict) and error.get("code") in {
+        "error.database.unique_constraint_violation",
+        "error.validation.tml_id_uniqueness",
+    }
 
 
 def _package_reference_from_item(item: dict[str, Any]) -> KnowledgeModelPackageReference:

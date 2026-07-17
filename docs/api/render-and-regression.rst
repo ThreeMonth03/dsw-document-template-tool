@@ -82,7 +82,7 @@ TDK Helpers
 -----------
 
 .. automodule:: dsw_document_template_tool.tdk
-   :members: TemplateToolError, read_local_template_coordinates, stage_local_template_dir, verify_template_dir, put_template_dir, parse_template_coordinates
+   :members: TemplateToolError, read_local_template_coordinates, read_local_template_package_coordinates, stage_local_template_dir, stage_local_template_package, verify_template_dir, put_template_dir, parse_template_coordinates
    :show-inheritance:
 
 CLI Entry Points

@@ -34,6 +34,7 @@ from .tdk import (
     parse_template_coordinates,
     put_template_dir,
     stage_local_template_dir,
+    stage_local_template_package,
     verify_template_dir,
 )
 
@@ -52,7 +53,7 @@ class DocumentTemplateWorkflowService:
             verify_ssl=config.api.verify_ssl,
         )
         created_projects: list[FixtureProject] = []
-        staged_dirs: list[Path] = []
+        staged_paths: list[Path] = []
         try:
             self._authenticate(client, config)
             user = client.get_current_user()
@@ -65,14 +66,14 @@ class DocumentTemplateWorkflowService:
                     config=config,
                     label="baseline",
                     subject=config.baseline,
-                    staged_dirs=staged_dirs,
+                    staged_paths=staged_paths,
                 )
             candidate = self._resolve_subject(
                 client=client,
                 config=config,
                 label="candidate",
                 subject=config.candidate,
-                staged_dirs=staged_dirs,
+                staged_paths=staged_paths,
             )
 
             fixture_results: list[FixtureRegressionResult] = []
@@ -118,7 +119,7 @@ class DocumentTemplateWorkflowService:
                 created_projects=created_projects,
             )
             client.close()
-            self._cleanup_staged_dirs(staged_dirs)
+            self._cleanup_staged_paths(staged_paths)
 
     def _run_configured_fixtures(
         self,
@@ -258,14 +259,14 @@ class DocumentTemplateWorkflowService:
                 print(f"WARNING: Failed to clean up project {fixture_project.project_uuid}: {exc}")
 
     @staticmethod
-    def _cleanup_staged_dirs(staged_dirs: list[Path]) -> None:
-        for staged_dir in staged_dirs:
+    def _cleanup_staged_paths(staged_paths: list[Path]) -> None:
+        for staged_path in staged_paths:
             try:
-                shutil.rmtree(staged_dir.parent)
+                shutil.rmtree(staged_path.parent)
             except FileNotFoundError:
                 continue
             except OSError as exc:
-                print(f"WARNING: Failed to clean up staged template {staged_dir.parent}: {exc}")
+                print(f"WARNING: Failed to clean up staged template {staged_path.parent}: {exc}")
 
     def _authenticate(self, client: DSWApiClient, config: WorkflowConfig) -> None:
         if config.api.token is not None:
@@ -282,7 +283,7 @@ class DocumentTemplateWorkflowService:
         config: WorkflowConfig,
         label: str,
         subject: SubjectConfig,
-        staged_dirs: list[Path],
+        staged_paths: list[Path],
     ) -> ResolvedSubject:
         print(f"INFO: Resolving {label} subject ({subject.kind})")
 
@@ -292,7 +293,7 @@ class DocumentTemplateWorkflowService:
                 config=config,
                 label=label,
                 subject=subject,
-                staged_dirs=staged_dirs,
+                staged_paths=staged_paths,
             )
 
         if subject.kind == "local_package":
@@ -300,6 +301,7 @@ class DocumentTemplateWorkflowService:
                 client=client,
                 label=label,
                 subject=subject,
+                staged_paths=staged_paths,
             )
 
         if subject.kind == "draft_id":
@@ -316,12 +318,20 @@ class DocumentTemplateWorkflowService:
         client: DSWApiClient,
         label: str,
         subject: SubjectConfig,
+        staged_paths: list[Path],
     ) -> ResolvedSubject:
         package_path = Path(subject.value).resolve()
         if not package_path.is_file():
             raise TemplateToolError(f"Missing local template package {package_path}")
-        print(f"INFO: Uploading released template package {package_path}")
-        template_reference = client.upload_document_template_bundle_reference(package_path)
+        staged_package, staged_coordinates = stage_local_template_package(
+            source_package=package_path,
+        )
+        staged_paths.append(staged_package)
+        print(
+            "INFO: Uploading content-addressed template package "
+            f"{staged_coordinates.full_id} from {package_path}"
+        )
+        template_reference = client.upload_document_template_bundle_reference(staged_package)
         display_id = template_reference.template_id or template_reference.uuid or package_path.name
         return ResolvedSubject(
             label=label,
@@ -338,7 +348,7 @@ class DocumentTemplateWorkflowService:
         config: WorkflowConfig,
         label: str,
         subject: SubjectConfig,
-        staged_dirs: list[Path],
+        staged_paths: list[Path],
     ) -> ResolvedSubject:
         local_dir = Path(subject.value).resolve()
         staged_dir, staged_coordinates = stage_local_template_dir(
@@ -346,7 +356,7 @@ class DocumentTemplateWorkflowService:
             subject_label=label,
             stage_id=subject.stage_id,
         )
-        staged_dirs.append(staged_dir)
+        staged_paths.append(staged_dir)
         if subject.verify:
             print(f"INFO: Verifying staged template {staged_coordinates.full_id}")
             verify_template_dir(

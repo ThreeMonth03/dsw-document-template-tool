@@ -181,9 +181,10 @@ class LegacyDocumentTemplateBundleUploadClient(DocumentTemplateBundleUploadClien
 class DuplicateDocumentTemplateUploadClient(DSWApiClient):
     """Client with an already-imported document template package."""
 
-    def __init__(self) -> None:
+    def __init__(self, error_code: str = "error.validation.tml_id_uniqueness") -> None:
         super().__init__(api_url="http://localhost:3000/wizard-api")
         self.bundle_uploads: list[tuple[str, Path, str]] = []
+        self.error_code = error_code
 
     def _post_bundle(
         self,
@@ -197,7 +198,7 @@ class DuplicateDocumentTemplateUploadClient(DSWApiClient):
             400,
             {
                 "error": {
-                    "code": "error.validation.tml_id_uniqueness",
+                    "code": self.error_code,
                     "params": ["dsw:science-europe-zh-hant:1.30.1"],
                 },
                 "status": 400,
@@ -496,8 +497,16 @@ def test_read_document_template_id_from_package_zip(tmp_path: Path) -> None:
     )
 
 
+@pytest.mark.parametrize(
+    "error_code",
+    [
+        "error.database.unique_constraint_violation",
+        "error.validation.tml_id_uniqueness",
+    ],
+)
 def test_duplicate_document_template_package_upload_reuses_existing_template(
     tmp_path: Path,
+    error_code: str,
 ) -> None:
     """Repeated local release checks should render with the existing template."""
 
@@ -507,7 +516,7 @@ def test_duplicate_document_template_package_upload_reuses_existing_template(
             "template/template.json",
             '{"id": "dsw:science-europe-zh-hant:1.30.1"}\n',
         )
-    client = DuplicateDocumentTemplateUploadClient()
+    client = DuplicateDocumentTemplateUploadClient(error_code)
 
     reference = client.upload_document_template_bundle_reference(bundle_path)
 
