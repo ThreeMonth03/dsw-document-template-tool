@@ -30,6 +30,18 @@ def build_argument_parser() -> argparse.ArgumentParser:
     expand_parser.add_argument("--source", required=True, help=COMPACT_TEMPLATE_HELP)
     expand_parser.add_argument("--output", required=True, help=EXPANDED_WORKSPACE_HELP)
     expand_parser.add_argument(
+        "--profile",
+        choices=("auto", "generic", "science-europe"),
+        default="auto",
+        help="Explicitly opt a custom template into a rewrite family without changing its ID.",
+    )
+    expand_parser.add_argument(
+        "--exclude-profile-path",
+        action="append",
+        default=[],
+        help="Exact relative .j2 path using only generic expansion (repeatable).",
+    )
+    expand_parser.add_argument(
         "--no-local-patches",
         action="store_true",
         help=(
@@ -65,6 +77,8 @@ def main() -> None:
             source_dir=args.source,
             output_dir=args.output,
             apply_local_patches=not args.no_local_patches,
+            profile=args.profile,
+            exclude_profile_paths=tuple(args.exclude_profile_path),
         )
         print(f"SUCCESS: Expanded template written to {output_dir}")
         return

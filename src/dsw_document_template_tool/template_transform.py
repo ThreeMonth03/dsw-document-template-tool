@@ -103,6 +103,8 @@ def expand_template_dir(
     source_dir: Path,
     output_dir: Path,
     apply_local_patches: bool = True,
+    profile: str = "auto",
+    exclude_profile_paths: tuple[str, ...] = (),
 ) -> Path:
     """Expand one compact DSW template directory into a translation workspace."""
 
@@ -110,7 +112,20 @@ def expand_template_dir(
     output_dir = Path(output_dir).resolve()
     _validate_template_dir(source_dir)
     identity = read_template_identity(source_dir)
-    profile_id = SCIENCE_EUROPE_PROFILE_ID if is_science_europe_template(identity) else "generic"
+    if profile not in {"auto", "generic", SCIENCE_EUROPE_PROFILE_ID}:
+        raise TemplateTransformError(f"Unknown transform profile: {profile}")
+    profile_id = profile
+    if profile == "auto":
+        profile_id = (
+            SCIENCE_EUROPE_PROFILE_ID if is_science_europe_template(identity) else "generic"
+        )
+    for relative_path in exclude_profile_paths:
+        if relative_path not in {
+            p.relative_to(source_dir).as_posix() for p in source_dir.rglob("*.j2")
+        }:
+            raise TemplateTransformError(
+                f"Excluded profile path is not a template: {relative_path}"
+            )
     trace = TransformTrace(profile_id=profile_id)
     _reset_dir(output_dir)
     shutil.copytree(source_dir, output_dir, dirs_exist_ok=True)
@@ -124,6 +139,9 @@ def expand_template_dir(
                 identity=identity,
                 relative_path=relative_path.as_posix(),
                 apply_local_patches=apply_local_patches,
+                profile_id="generic"
+                if relative_path.as_posix() in exclude_profile_paths
+                else profile_id,
             ),
             trace=trace,
         )
@@ -135,7 +153,7 @@ def expand_template_dir(
     _rewrite_workspace_readme(source_dir=source_dir, output_dir=output_dir)
     post_expand_patch_state: dict[str, object] = {}
     post_expand_patches: list[str] = []
-    if apply_local_patches and is_science_europe_template(identity):
+    if apply_local_patches and profile_id == SCIENCE_EUROPE_PROFILE_ID:
         post_expand_patch_state = _build_post_expand_patch_state(output_dir=output_dir)
         try:
             post_expand_patches = _apply_post_expand_patches(output_dir=output_dir)
@@ -152,6 +170,7 @@ def expand_template_dir(
         "post_expand_patch_state": post_expand_patch_state,
         "template_id": identity.full_id,
         "rewrite_trace": trace.to_manifest(),
+        "excluded_profile_paths": list(exclude_profile_paths),
     }
     manifest_path = output_dir / MANIFEST_PATH
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -263,7 +282,7 @@ def _expand_template_text(
     trace: TransformTrace,
 ) -> str:
     source_text = _rewrite_append_sentence_literals(source_text)
-    if is_science_europe_template(context.identity):
+    if _uses_science_europe_profile(context):
         source_text = rewrite_science_europe_source(
             source_text,
             context=context,
@@ -272,7 +291,7 @@ def _expand_template_text(
         )
     source_text = _rewrite_inline_conditional_expressions(source_text)
     source_text = _rewrite_common_prefix_branch_sentences(source_text)
-    if is_science_europe_template(context.identity):
+    if _uses_science_europe_profile(context):
         source_text = rewrite_science_europe_source(
             source_text,
             context=context,
@@ -297,6 +316,12 @@ def _expand_template_text(
 
 def _wrap_translatable_block(block_name: str, source_text: str) -> str:
     return f"{{# {block_name}:start #}}{source_text}{{# {block_name}:end #}}"
+
+
+def _uses_science_europe_profile(context: TransformContext) -> bool:
+    if context.profile_id is not None:
+        return context.profile_id == SCIENCE_EUROPE_PROFILE_ID
+    return is_science_europe_template(context.identity)
 
 
 def _collect_annotation_regions(

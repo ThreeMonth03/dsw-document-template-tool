@@ -31,6 +31,7 @@ class TransformContext:
     identity: TemplateIdentity
     relative_path: str
     apply_local_patches: bool
+    profile_id: str | None = None
 
 
 @dataclass(frozen=True)

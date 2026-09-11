@@ -37,6 +37,26 @@ Do not fix broken sentence boundaries by hand-editing generated
 
 ## Adding an Upstream Rewrite
 
+Custom forks can opt in explicitly without changing their package identity:
+
+```sh
+dsw-template-transform expand --source custom-template --output expanded \
+  --profile science-europe
+```
+
+The default `auto` keeps the existing identity-based behavior. `generic` disables
+family-specific rewrites and localization. For a fork that has rewritten a
+particular file into complete sentences, repeat `--exclude-profile-path` with
+exact relative `.j2` paths to retain generic extraction in those files. Family
+localization still applies to the package, and exclusions are recorded in the
+transform manifest. A missing path is an error so renamed files cannot silently
+resume old rewrite behavior. The Python API exposes `profile` and
+`exclude_profile_paths` on `expand_template_dir`.
+
+Opt-in is a compatibility declaration: review the named rule trace, audit the
+translation tree, and render the resulting package before accepting a custom
+fork. It does not certify equivalent content or enable automatic upstream merges.
+
 Use a profile rule only when generic Jinja/HTML parsing cannot preserve a
 complete translation unit.
 
