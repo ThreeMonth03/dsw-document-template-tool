@@ -7,6 +7,7 @@ import json
 import shutil
 import subprocess
 import tempfile
+import uuid
 import zipfile
 from pathlib import Path
 from typing import Protocol
@@ -57,7 +58,11 @@ def stage_local_template_package(
 
     source_package = source_package.resolve()
     original_coordinates = read_local_template_package_coordinates(source_package)
-    package_digest = _canonical_template_package_digest(source_package)[:12]
+    # Namespace the staging scheme itself: older staged packages could share
+    # database-wide file UUIDs and have silently lost files during import.
+    package_digest = hashlib.sha256(
+        f"staging-v2:{_canonical_template_package_digest(source_package)}".encode()
+    ).hexdigest()[:12]
     stage_coordinates = TemplateCoordinates(
         organization_id=original_coordinates.organization_id,
         template_id=f"{original_coordinates.template_id}-local-{package_digest}",
@@ -244,6 +249,23 @@ def _patched_template_payload(
     patched["organizationId"] = stage_coordinates.organization_id
     patched["templateId"] = stage_coordinates.template_id
     patched["version"] = stage_coordinates.version
+    for kind in ("files", "assets"):
+        items = patched.get(kind)
+        if isinstance(items, list):
+            patched[kind] = [
+                {
+                    **item,
+                    "uuid": str(
+                        uuid.uuid5(
+                            uuid.NAMESPACE_URL,
+                            f"dsw-stage-v2:{stage_coordinates.full_id}:{kind}:{item['fileName']}",
+                        )
+                    ),
+                }
+                if isinstance(item, dict) and isinstance(item.get("fileName"), str)
+                else item
+                for item in items
+            ]
     original_name = str(patched.get("name", original_coordinates.template_id))
     if subject_label and subject_label.lower() not in original_name.lower():
         patched["name"] = f"{original_name} [{subject_label}]"

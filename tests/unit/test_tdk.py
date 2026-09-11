@@ -155,3 +155,28 @@ def test_stage_local_template_package_rejects_duplicate_members(tmp_path: Path) 
         match=r"duplicate ZIP members: template/assets/font\.ttf",
     ):
         stage_local_template_package(source_package=package_path)
+
+
+def test_staged_package_file_ids_are_isolated_even_with_stable_source_ids(tmp_path: Path) -> None:
+    """DSW file UUIDs must not collide with the source or another staged version."""
+    package = tmp_path / "template.zip"
+    staged = []
+    try:
+        results = []
+        for asset in (b"font", b"different font", b"font"):
+            _write_template_package(package, asset=asset, build_id="stable")
+            with ZipFile(package) as archive:
+                source = json.loads(archive.read("template/template.json"))
+            output, _ = stage_local_template_package(source_package=package)
+            staged.append(output)
+            with ZipFile(output) as archive:
+                target = json.loads(archive.read("template/template.json"))
+            ids = {item["uuid"] for kind in ("files", "assets") for item in target[kind]}
+            source_ids = {item["uuid"] for kind in ("files", "assets") for item in source[kind]}
+            assert ids.isdisjoint(source_ids)
+            results.append(ids)
+        assert results[0].isdisjoint(results[1])
+        assert results[0] == results[2]
+    finally:
+        for output in staged:
+            shutil.rmtree(output.parent, ignore_errors=True)
