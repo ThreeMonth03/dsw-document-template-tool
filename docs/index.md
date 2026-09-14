@@ -68,6 +68,7 @@ command-reference
 parser-and-translation-tree
 version-upgrade-runbook
 ci-and-release-runbook
+ci-minio-images
 compatibility/dsw-compatibility-probe
 downstream-integration
 translation-repository-templates
