@@ -14,7 +14,7 @@ services:
       retries: 30
 
   minio:
-    image: minio/minio:${MINIO_VERSION:-RELEASE.2025-05-24T17-08-30Z}
+    image: quay.io/minio/minio:${MINIO_VERSION:-RELEASE.2025-05-24T17-08-30Z@sha256:a616cd8f37758b0296db62cc9e6af05a074e844cc7b5c0a0e62176d73828d440}
     command: server /data --console-address ":9001"
     ports:
       - ${DSW_CI_MINIO_PORT:-9000}:9000
@@ -24,7 +24,7 @@ services:
       MINIO_VOLUMES: /data
 
   minio-init:
-    image: minio/mc:${MINIO_MC_VERSION:-latest}
+    image: quay.io/minio/mc:${MINIO_MC_VERSION:-RELEASE.2025-05-21T01-59-54Z@sha256:09f93f534cde415d192bb6084dd0e0ddd1715fb602f8a922ad121fd2bf0f8b44}
     depends_on:
       - minio
     environment:
