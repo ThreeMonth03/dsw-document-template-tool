@@ -1,21 +1,18 @@
-# CI MinIO image repair (2026-09-14)
+# CI Object Storage
 
-The scheduled run 34782675635 failed before DSW startup: Docker Hub denied
-pulls of `minio/minio` and `minio/mc`. This is independent of template rendering.
+The isolated DSW test stack builds MinIO and its client from official GitHub
+release assets. Their versions and SHA-256 checksums are pinned in
+`.github/dsw/storage/Dockerfile`, together with the Debian base-image digest.
+Compose builds the Linux/amd64 images locally; no MinIO registry credentials or
+pre-existing local images are required.
 
-Use the official Quay repositories documented by the
-[MinIO container guide](https://github.com/minio/minio/blob/master/docs/docker/README.md)
-and [MinIO Client build script](https://github.com/minio/mc/blob/master/docker-buildx.sh).
-The server stays at RELEASE.2025-05-24T17-08-30Z. The client is pinned to
-RELEASE.2025-05-21T01-59-54Z instead of `latest`. Both default image references
-include the multi-platform manifest digest verified with `docker buildx imagetools inspect`.
+Run `make start-ci-dsw` to build storage and start the test stack. Run
+`make stop-ci-dsw` to remove the disposable stack and its data. Do not use these
+test images or test credentials for production storage.
 
-`MINIO_VERSION` and `MINIO_MC_VERSION` remain explicit diagnostic overrides for
-tags (or tag@digest) under the Quay repositories. Updating them requires a new
-storage/bootstrap and DSW 4.26/4.30 render regression run. This does not establish
-production security suitability for these older images or alter production storage.
-
-The fix branch's push runs offline checks and both DSW runtime jobs, but does
-not execute scaffold release publishing. The master schedule will only adopt
-the fix after a separately approved merge; dispatching the master workflow has
-release/PR side effects and is not a read-only verification step.
+To update storage, change the release URLs and checksums in the Dockerfile and
+the corresponding local image tags in `.github/dsw/docker-compose.yml`. Verify
+the checksums against the official [MinIO releases](https://github.com/minio/minio/releases)
+and [client releases](https://github.com/minio/mc/releases), then run the complete
+DSW runtime matrix. Storage startup, bucket creation, document generation and
+download must all pass before merging.
