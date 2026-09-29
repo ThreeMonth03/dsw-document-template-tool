@@ -177,6 +177,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: regression-artifacts-metamodel-${{ matrix.metamodel_key }}
+          retention-days: ${{ github.event_name == 'pull_request' && 14 || 7 }}
           include-hidden-files: true
           path: outputs/
 
@@ -185,6 +186,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}
+          retention-days: ${{ github.event_name == 'pull_request' && 14 || 7 }}
           include-hidden-files: true
           path: |
             outputs/compat-ledger/
