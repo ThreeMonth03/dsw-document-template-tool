@@ -19,6 +19,30 @@ def load_workflow_yaml(path: Path) -> dict[str, object]:
     return yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
 
 
+def test_merged_pr_cleanup_uses_reviewed_shared_code(repo_root: Path) -> None:
+    """Cleanup gets metadata permissions but never executes a PR checkout."""
+
+    workflow = load_workflow_yaml(repo_root / ".github/workflows/artifact_cleanup.yml")
+    assert workflow["permissions"] == {
+        "contents": "read",
+        "actions": "write",
+        "pull-requests": "read",
+    }
+    assert workflow["on"]["pull_request"]["types"] == ["closed"]
+    assert workflow["on"]["workflow_run"]["workflows"] == ["headless-render-regression"]
+    assert workflow["on"]["workflow_dispatch"]["inputs"]["apply"]["default"] == "false"
+    job = workflow["jobs"]["cleanup"]
+    ref = job["with"]["tooling_ref"]
+    assert len(ref) == 40 and all(char in "0123456789abcdef" for char in ref)
+    assert job["uses"].endswith("cleanup_pr_artifacts.yml@" + ref)
+    assert "github.event.pull_request.merged == true" in job["if"]
+    assert "head.repo.full_name == github.repository" in job["if"]
+    assert set(job["with"]["artifact_patterns"].split()) == {
+        "regression-artifacts-metamodel-*",
+        "clean-upstream-version-artifacts-metamodel-*",
+    }
+
+
 def test_artifact_uploads_have_bounded_retention(repo_root: Path) -> None:
     """Every tool and generated version workflow must expire temporary artifacts."""
 
