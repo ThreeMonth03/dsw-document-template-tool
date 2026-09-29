@@ -75,6 +75,9 @@ Keep those operational details in the public repository documentation. This
 repo documents the artifact contract and helper commands.
 The tool repo does not require automation to write to the public repository's
 `master` branch unless that repository chooses to run operations from `master`.
+Set the repository default branch to its configured `branches.control_branch`.
+Scheduled operations run only from the default branch; setting the branch name
+in `translation-config.yml` does not change the GitHub repository setting.
 
 ## Integrated Public Repository Layout
 
@@ -303,6 +306,10 @@ to avoid requiring elevated token scopes. Apply important workflow fixes in the
 public repository by running `make sync-translation-version-branches` with
 `TRANSLATION_SYNC_WORKFLOWS=true`, or by making an explicit workflow-only
 maintenance commit there.
+
+Actions artifacts expire after 7 days, or 14 days for pull-request runs. Download
+review evidence before it expires. GitHub Release assets are unaffected by this
+policy. Set the operations workflow's consistency-report retention to 7 days too.
 
 The template is intended for version-specific `sync/v*` branches. It is
 triggered by pull requests, pushes, and manual dispatch on those branches. Daily
