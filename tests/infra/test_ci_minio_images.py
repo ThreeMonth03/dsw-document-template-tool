@@ -29,18 +29,10 @@ def test_ci_minio_builds_pinned_official_release_assets(repo_root: Path) -> None
         re.MULTILINE,
     )
     assert (
-        len(
-            re.findall(
-                r"^ADD .*--checksum=sha256:[0-9a-f]{64}\s", dockerfile, re.MULTILINE
-            )
-        )
-        == 2
+        len(re.findall(r"^ADD .*--checksum=sha256:[0-9a-f]{64}\s", dockerfile, re.MULTILINE)) == 2
     )
     for project in ("minio", "mc"):
-        assert (
-            f"https://github.com/minio/{project}/releases/download/RELEASE."
-            in dockerfile
-        )
+        assert f"https://github.com/minio/{project}/releases/download/RELEASE." in dockerfile
 
 
 def test_ci_storage_remains_ephemeral_and_server_version_is_unchanged(
@@ -49,9 +41,6 @@ def test_ci_storage_remains_ephemeral_and_server_version_is_unchanged(
     """This repair must not migrate production data or silently upgrade MinIO."""
 
     compose = yaml.safe_load((repo_root / ".github/dsw/docker-compose.yml").read_text())
-    assert (
-        compose["services"]["minio"]["image"]
-        == "dsw-ci-minio:RELEASE.2025-05-24T17-08-30Z"
-    )
+    assert compose["services"]["minio"]["image"] == "dsw-ci-minio:RELEASE.2025-05-24T17-08-30Z"
     assert "volumes" not in compose["services"]["minio"]
     assert "volumes" not in compose
