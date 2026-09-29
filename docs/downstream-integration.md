@@ -307,9 +307,16 @@ public repository by running `make sync-translation-version-branches` with
 `TRANSLATION_SYNC_WORKFLOWS=true`, or by making an explicit workflow-only
 maintenance commit there.
 
-Actions artifacts expire after 7 days, or 14 days for pull-request runs. Download
-review evidence before it expires. GitHub Release assets are unaffected by this
-policy. Set the operations workflow's consistency-report retention to 7 days too.
+Actions artifacts expire after 7 days, or 14 days for pull-request runs. The
+cleanup workflow removes allowlisted artifacts earlier once their PRs have merged
+and the runs have completed. Download review evidence before merging or before it
+expires. GitHub Release assets and non-PR runs are unaffected by PR cleanup.
+Set the operations workflow's consistency-report retention to 7 days too.
+
+Use **Clean merged PR artifacts** with `apply` disabled to preview eligible files.
+Cleanup runs after merges, completed validation runs, and twice daily. It checks
+PR ownership through GitHub metadata and skips unknown or unmerged work. Results
+are recorded in job logs and summaries, without uploading another artifact.
 
 The template is intended for version-specific `sync/v*` branches. It is
 triggered by pull requests, pushes, and manual dispatch on those branches. Daily
