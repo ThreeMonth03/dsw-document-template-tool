@@ -50,6 +50,7 @@ from dsw_document_template_tool.yaml_config import (  # noqa: E402
 VERSION_BRANCH_WORKFLOW_TEMPLATE = (
     REPO_ROOT / "examples" / "github-actions" / "document_template_translation_sync.yml"
 )
+ARTIFACT_CLEANUP_TEMPLATE = REPO_ROOT / "examples" / "github-actions" / "artifact_cleanup.yml"
 DSW_COMPAT_PATH = REPO_ROOT / "config" / "dsw-compat.yml"
 GITHUB_DIR = Path(".github")
 VERSION_BRANCH_WORKFLOW_PATH = GITHUB_DIR / "workflows" / "document_template_translation_sync.yml"
@@ -798,7 +799,7 @@ def write_version_branch_workflow(
     config: TranslationRepositoryConfig,
     version: str,
 ) -> None:
-    """Render the version-specific translation sync workflow."""
+    """Render translation CI and the merge-only artifact cleanup hook."""
 
     paths = version_paths(config, version)
     branch = version_branch(config, version)
@@ -854,6 +855,10 @@ def write_version_branch_workflow(
     workflow_path = checkout / VERSION_BRANCH_WORKFLOW_PATH
     workflow_path.parent.mkdir(parents=True, exist_ok=True)
     workflow_path.write_text(workflow, encoding="utf-8")
+    cleanup = ARTIFACT_CLEANUP_TEMPLATE.read_text(encoding="utf-8").replace(
+        "__VERSION_BRANCH__", _yaml_scalar(branch)
+    )
+    workflow_path.with_name("artifact_cleanup.yml").write_text(cleanup, encoding="utf-8")
 
 
 def _yaml_scalar(value: str) -> str:

@@ -75,9 +75,10 @@ Keep those operational details in the public repository documentation. This
 repo documents the artifact contract and helper commands.
 The tool repo does not require automation to write to the public repository's
 `master` branch unless that repository chooses to run operations from `master`.
-Set the repository default branch to its configured `branches.control_branch`.
-Scheduled operations run only from the default branch; setting the branch name
-in `translation-config.yml` does not change the GitHub repository setting.
+The configured `branches.control_branch` does not have to be the repository's
+default branch. Dispatch operations explicitly to that branch and keep merge
+cleanup hooks on each PR target branch. This works with `main` as the default
+branch and `operations` as the control branch without scheduled workflows.
 
 ## Integrated Public Repository Layout
 
@@ -313,13 +314,17 @@ and the runs have completed. Download review evidence before merging or before i
 expires. GitHub Release assets and non-PR runs are unaffected by PR cleanup.
 Set the operations workflow's consistency-report retention to 7 days too.
 
-Use **Clean merged PR artifacts** with `apply` disabled to preview eligible files.
-Cleanup runs after merges, completed validation runs, and twice daily. It checks
-PR ownership through GitHub metadata and skips unknown or unmerged work. Results
-are recorded in job logs and summaries, without uploading another artifact.
+**Clean merged PR artifacts** runs only when a same-repository PR merges. It
+checks PR ownership through GitHub metadata and skips unknown, running, or
+unmerged work. Each merge removes up to 100 eligible artifacts, including older
+merged PRs. Later merges continue a backlog. Artifacts skipped because CI is
+still running or the PR is from a fork wait for a later eligible merge or their
+retention expiry. Results stay in job logs and summaries.
 
 The template is intended for version-specific `sync/v*` branches. It is
-triggered by pull requests, pushes, and manual dispatch on those branches. Daily
-scheduled maintenance belongs in the public repository operations workflow on the
-default branch; do not rely on `schedule` triggers in generated version-branch
-workflows.
+triggered by pull requests, pushes, and manual dispatch on those branches. The
+generated `artifact_cleanup.yml` is a separate merge-only hook, so closing a PR
+does not restart translation builds. Synchronize both workflow files to existing
+version branches; updating the tooling template alone does not install the hook.
+Do not rely on default-branch-only events such as `schedule` or `workflow_run`
+for a repository whose operations branch is not its default branch.

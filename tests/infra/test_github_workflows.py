@@ -29,18 +29,40 @@ def test_merged_pr_cleanup_uses_reviewed_shared_code(repo_root: Path) -> None:
         "pull-requests": "read",
     }
     assert workflow["on"]["pull_request"]["types"] == ["closed"]
-    assert workflow["on"]["workflow_run"]["workflows"] == ["headless-render-regression"]
-    assert workflow["on"]["workflow_dispatch"]["inputs"]["apply"]["default"] == "false"
+    assert set(workflow["on"]) == {"pull_request"}
     job = workflow["jobs"]["cleanup"]
     ref = job["with"]["tooling_ref"]
     assert len(ref) == 40 and all(char in "0123456789abcdef" for char in ref)
     assert job["uses"].endswith("cleanup_pr_artifacts.yml@" + ref)
     assert "github.event.pull_request.merged == true" in job["if"]
     assert "head.repo.full_name == github.repository" in job["if"]
+    assert job["with"]["apply"] == "true"
     assert set(job["with"]["artifact_patterns"].split()) == {
         "regression-artifacts-metamodel-*",
         "clean-upstream-version-artifacts-metamodel-*",
     }
+
+
+def test_version_cleanup_does_not_require_default_branch(repo_root: Path) -> None:
+    """Each translation target receives its own metadata-only merge hook."""
+
+    workflow = load_workflow_yaml(repo_root / "examples/github-actions/artifact_cleanup.yml")
+    assert workflow["on"] == {
+        "pull_request": {"types": ["closed"], "branches": ["__VERSION_BRANCH__"]}
+    }
+    assert workflow["permissions"] == {
+        "contents": "read",
+        "actions": "write",
+        "pull-requests": "read",
+    }
+    job = workflow["jobs"]["cleanup"]
+    assert job["if"] == (
+        "github.event.pull_request.merged == true && "
+        "github.event.pull_request.head.repo.full_name == github.repository"
+    )
+    assert job["uses"].endswith("cleanup_pr_artifacts.yml@" + job["with"]["tooling_ref"])
+    assert job["with"]["apply"] == "true"
+    assert "steps" not in job and "secrets" not in job
 
 
 def test_artifact_uploads_have_bounded_retention(repo_root: Path) -> None:

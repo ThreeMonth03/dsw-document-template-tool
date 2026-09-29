@@ -3,7 +3,7 @@ name: Clean merged PR artifacts
 on:
   pull_request:
     types: [closed]
-    branches: [master]
+    branches: [__VERSION_BRANCH__]
 
 permissions:
   contents: read
@@ -20,5 +20,5 @@ jobs:
       tooling_ref: 6a6fe5c807d5d5f3f2484ce505e7b961b2f64526
       apply: true
       artifact_patterns: |
-        regression-artifacts-metamodel-*
-        clean-upstream-version-artifacts-metamodel-*
+        document-template-package-*
+        document-template-preview-*

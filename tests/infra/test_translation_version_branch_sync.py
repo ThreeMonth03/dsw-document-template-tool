@@ -267,6 +267,11 @@ def test_sync_translation_versions_creates_new_branch_from_clean_artifact(
 
     assert not _git_path_exists(translation_repo, "sync/v1.30.2:translation-config.yml")
     assert not _git_path_exists(translation_repo, "sync/v1.30.2:docs/ops.md")
+    cleanup = yaml.load(
+        _git_show(translation_repo, "sync/v1.30.2:.github/workflows/artifact_cleanup.yml"),
+        Loader=yaml.BaseLoader,
+    )
+    assert cleanup["on"] == {"pull_request": {"types": ["closed"], "branches": ["sync/v1.30.2"]}}
     assert "sync/v1.30.2" in _git_show(
         translation_repo,
         "sync/v1.30.2:.github/workflows/document_template_translation_sync.yml",
