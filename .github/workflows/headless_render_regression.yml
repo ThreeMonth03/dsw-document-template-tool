@@ -173,20 +173,22 @@ jobs:
         run: make ci-dsw-logs
 
       - name: Upload regression artifacts
-        if: always()
+        if: failure() || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
           name: regression-artifacts-metamodel-${{ matrix.metamodel_key }}
-          retention-days: ${{ github.event_name == 'pull_request' && 14 || 7 }}
+          retention-days: ${{ job.status == 'failure' && 3 || 7 }}
           include-hidden-files: true
-          path: outputs/
+          path: |
+            outputs/preview/
+            outputs/ci-dsw/
 
       - name: Upload clean upstream version artifacts
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}
-          retention-days: ${{ github.event_name == 'pull_request' && 14 || 7 }}
+          retention-days: 7
           include-hidden-files: true
           path: |
             outputs/compat-ledger/

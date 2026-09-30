@@ -301,13 +301,12 @@ jobs:
             --force
 
       - name: Upload translated template package
+        if: github.event_name == 'pull_request' || env.PUBLISH_RELEASE_ASSETS != 'true'
         uses: actions/upload-artifact@v7
         with:
           name: document-template-package-${{ env.TRANSLATED_TEMPLATE_VERSION }}
-          retention-days: ${{ github.event_name == 'pull_request' && 14 || 7 }}
-          path: |
-            template-repo/${{ env.TRANSLATED_TEMPLATE_DIR }}
-            template-repo/${{ env.TRANSLATED_TEMPLATE_PACKAGE }}
+          retention-days: 7
+          path: template-repo/${{ env.TRANSLATED_TEMPLATE_PACKAGE }}
 
       # This boots an ephemeral DSW and copies PROJECT_REF into it. By default,
       # the sample project fixture lives in the tooling repo so translation
@@ -429,11 +428,11 @@ jobs:
           done
 
       - name: Upload sample project preview
-        if: ${{ always() && env.PROJECT_REF != '' }}
+        if: ${{ always() && env.PROJECT_REF != '' && (failure() || github.event_name == 'pull_request' || env.PUBLISH_RELEASE_ASSETS != 'true') }}
         uses: actions/upload-artifact@v7
         with:
           name: document-template-preview-${{ env.TRANSLATED_TEMPLATE_VERSION }}
-          retention-days: ${{ github.event_name == 'pull_request' && 14 || 7 }}
+          retention-days: ${{ job.status == 'failure' && 3 || 7 }}
           path: |
             ${{ runner.temp }}/document-template-preview/
             tooling-repo/outputs/ci-dsw/
