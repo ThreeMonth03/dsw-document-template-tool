@@ -177,6 +177,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: regression-artifacts-metamodel-${{ matrix.metamodel_key }}
+          overwrite: true
           retention-days: ${{ job.status == 'failure' && 3 || 7 }}
           include-hidden-files: true
           path: |
@@ -188,6 +189,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: clean-upstream-version-artifacts-metamodel-${{ matrix.metamodel_key }}
+          overwrite: true
           retention-days: 7
           include-hidden-files: true
           path: |
