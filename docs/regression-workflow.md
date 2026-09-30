@@ -296,8 +296,15 @@ Add a new runtime only after verifying the matching DSW server and TDK versions.
 
 ## Outputs
 
-Regression artifacts are generated under `outputs/` and uploaded by CI. They are
-not committed to the repository's default branch.
+Regression outputs are generated under `outputs/`, not committed to the default
+branch. CI publishes coverage in the job summary. PRs and manual runs also upload
+the `preview/` results and DSW logs for seven days; failed runs retain these
+diagnostics for three days. Successful routine runs do not upload regression
+attachments.
+
+The separate `clean-upstream-version-artifacts-*` bundles remain available for
+seven days as downstream build inputs. Their workspace, package, preview, ledger,
+and runtime-evidence paths are not duplicated in the regression attachment.
 
 Important output families:
 

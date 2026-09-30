@@ -75,11 +75,49 @@ def test_artifact_uploads_have_bounded_retention(repo_root: Path) -> None:
             for job in workflow.get("jobs", {}).values():
                 for step in job.get("steps", []):
                     if step.get("uses", "").startswith("actions/upload-artifact@"):
-                        assert step["with"].get("retention-days") == (
-                            "${{ github.event_name == 'pull_request' && 14 || 7 }}"
-                        ), (path, step.get("name"))
+                        assert step["with"].get("retention-days") in {
+                            "7",
+                            "${{ job.status == 'failure' && 3 || 7 }}",
+                        }, (path, step.get("name"))
                         uploads.append(step)
     assert uploads
+
+
+def test_artifact_bundles_do_not_duplicate_build_inputs(repo_root: Path) -> None:
+    workflow = load_workflow_yaml(repo_root / ".github/workflows/headless_render_regression.yml")
+    uploads = {
+        step["name"]: step
+        for job in workflow["jobs"].values()
+        for step in job.get("steps", [])
+        if step.get("uses", "").startswith("actions/upload-artifact@")
+    }
+    review = uploads["Upload regression artifacts"]
+    assert review["if"] == (
+        "failure() || github.event_name == 'pull_request' "
+        "|| github.event_name == 'workflow_dispatch'"
+    )
+    assert set(review["with"]["path"].split()) == {"outputs/preview/", "outputs/ci-dsw/"}
+    clean = uploads["Upload clean upstream version artifacts"]
+    assert clean["if"] == "always()"
+    assert "outputs/upstream-workspaces/" in clean["with"]["path"]
+    assert set(review["with"]["path"].split()).isdisjoint(clean["with"]["path"].split())
+
+
+def test_translation_package_upload_only_contains_importable_archive(repo_root: Path) -> None:
+    workflow = load_workflow_yaml(
+        repo_root / "examples/github-actions/document_template_translation_sync.yml"
+    )
+    uploads = [
+        step
+        for job in workflow["jobs"].values()
+        for step in job.get("steps", [])
+        if step.get("name") == "Upload translated template package"
+    ]
+    assert len(uploads) == 1
+    assert uploads[0]["with"]["path"] == "template-repo/${{ env.TRANSLATED_TEMPLATE_PACKAGE }}"
+    assert uploads[0]["if"] == (
+        "github.event_name == 'pull_request' || env.PUBLISH_RELEASE_ASSETS != 'true'"
+    )
 
 
 def test_docs_site_uses_furo_theme(repo_root: Path) -> None:
