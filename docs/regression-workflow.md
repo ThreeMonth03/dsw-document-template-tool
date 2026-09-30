@@ -305,6 +305,8 @@ attachments.
 The separate `clean-upstream-version-artifacts-*` bundles remain available for
 seven days as downstream build inputs. Their workspace, package, preview, ledger,
 and runtime-evidence paths are not duplicated in the regression attachment.
+Rerunning a job replaces its same-named artifact in that workflow run, so
+downstream downloads resolve to the latest attempt rather than duplicate copies.
 
 Important output families:
 

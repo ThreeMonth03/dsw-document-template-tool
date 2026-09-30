@@ -101,6 +101,8 @@ def test_artifact_bundles_do_not_duplicate_build_inputs(repo_root: Path) -> None
     assert clean["if"] == "always()"
     assert "outputs/upstream-workspaces/" in clean["with"]["path"]
     assert set(review["with"]["path"].split()).isdisjoint(clean["with"]["path"].split())
+    for upload in (review, clean):
+        assert upload["with"]["overwrite"] == "true"
 
 
 def test_translation_package_upload_only_contains_importable_archive(repo_root: Path) -> None:
