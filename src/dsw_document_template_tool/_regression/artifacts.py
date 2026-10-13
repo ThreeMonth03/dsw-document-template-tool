@@ -66,6 +66,7 @@ def serialize_regression_report(report: RegressionReport) -> dict[str, Any]:
     return {
         "assertion": report.assertion,
         "mode": report.mode,
+        **({"language": report.language} if report.language is not None else {}),
         "output_dir": str(report.output_dir),
         "passed": report.passed,
         "fixtures": [

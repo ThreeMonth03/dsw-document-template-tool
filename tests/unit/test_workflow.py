@@ -7,7 +7,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from zipfile import ZipFile
 
+import pytest
+import yaml
+
 from dsw_document_template_tool._regression import parallel as regression_parallel
+from dsw_document_template_tool.api import DSWApiClient, DSWAPIError
 from dsw_document_template_tool.models import (
     DocumentTemplateReference,
     FixtureConfig,
@@ -19,6 +23,98 @@ from dsw_document_template_tool.models import (
 )
 from dsw_document_template_tool.tdk import read_local_template_package_coordinates
 from dsw_document_template_tool.workflow import DocumentTemplateWorkflowService
+
+
+@pytest.mark.parametrize("language", [None, "en", "zh-Hant"])
+@pytest.mark.parametrize("locale_rejected", [False, True])
+def test_document_workflow_forwards_language_without_fallback(
+    tmp_path: Path, monkeypatch, language: str | None, locale_rejected: bool
+) -> None:
+    """Exercise YAML -> service -> actual API payload, including a rejected locale."""
+
+    config_path = tmp_path / "workflow.yml"
+    regression = {
+        "assertion": "render_success",
+        "mode": "document",
+        "format_uuid": "html-format-uuid",
+        "output_dir": "outputs",
+    }
+    if language is not None:
+        regression["language"] = language
+    config_path.write_text(
+        yaml.safe_dump(
+            {
+                "api": {
+                    "url": "http://localhost/wizard-api",
+                    "token": "synthetic-test-token",
+                },
+                "subjects": {"candidate": {"kind": "released_id", "value": "example:dmp:1.0.0"}},
+                "regression": regression,
+                "fixtures": [
+                    {
+                        "name": "sample",
+                        "project_uuid": "project-uuid",
+                        "project_event_uuid": "snapshot-uuid",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    requests = []
+
+    def request_json(self, method, endpoint, **kwargs):
+        requests.append((method, endpoint, kwargs))
+        if method == "POST" and endpoint == "/documents":
+            if locale_rejected:
+                raise DSWAPIError("Requested locale is not installed")
+            return {"uuid": "document-uuid"}
+        if endpoint == "/projects/project-uuid/documents":
+            return {
+                "_embedded": {
+                    "documents": [{"uuid": "document-uuid", "state": "DoneDocumentState"}]
+                }
+            }
+        if endpoint == "/documents/document-uuid/download":
+            return {"url": "http://localhost/document.html"}
+        raise AssertionError(f"Unexpected request: {method} {endpoint}")
+
+    monkeypatch.setattr(DSWApiClient, "_request_json", request_json)
+    monkeypatch.setattr(DSWApiClient, "get_current_user", lambda self: {"name": "Test user"})
+    monkeypatch.setattr(
+        DSWApiClient,
+        "resolve_document_template_reference",
+        lambda self, value: DocumentTemplateReference(uuid="template-uuid"),
+    )
+    monkeypatch.setattr(DSWApiClient, "download_url_text", lambda self, url: "<p>rendered</p>")
+    service = DocumentTemplateWorkflowService()
+    if locale_rejected:
+        with pytest.raises(DSWAPIError, match="not installed"):
+            service.run(config_path)
+        assert not (tmp_path / "outputs/regression_report.json").exists()
+    else:
+        report = service.run(config_path)
+        assert report.passed
+        payload = json.loads(report.report_path.read_text(encoding="utf-8"))
+        if language is None:
+            assert "language" not in payload
+        else:
+            assert payload["language"] == language
+    create_requests = [
+        kwargs
+        for method, endpoint, kwargs in requests
+        if method == "POST" and endpoint == "/documents"
+    ]
+    expected_body = {
+        "name": "sample-candidate",
+        "projectUuid": "project-uuid",
+        "documentTemplateUuid": "template-uuid",
+        "formatUuid": "html-format-uuid",
+        "projectEventUuid": "snapshot-uuid",
+    }
+    if language is not None:
+        expected_body["language"] = language
+    assert create_requests == [{"json": expected_body, "expected_status": 201}]
 
 
 class _FakeRenderClient:
@@ -98,7 +194,9 @@ def test_render_subjects_in_parallel_uses_isolated_clients(monkeypatch) -> None:
     assert all(client.closed for client in created_clients)
 
 
-def test_events_fixture_renders_current_project_without_snapshot(tmp_path: Path) -> None:
+def test_events_fixture_renders_current_project_without_snapshot(
+    tmp_path: Path,
+) -> None:
     """Bulk event imports should use the complete current project state."""
 
     events_path = tmp_path / "fixture.events.json"

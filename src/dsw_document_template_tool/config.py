@@ -38,7 +38,13 @@ GENERATED_FIXTURE_KEYS = frozenset(
     }
 )
 PROJECT_KEYS = frozenset(
-    {"knowledge_model_package_id", "name", "question_tag_uuids", "sharing", "visibility"}
+    {
+        "knowledge_model_package_id",
+        "name",
+        "question_tag_uuids",
+        "sharing",
+        "visibility",
+    }
 )
 REGRESSION_KEYS = frozenset(
     {
@@ -46,6 +52,7 @@ REGRESSION_KEYS = frozenset(
         "cleanup_projects",
         "format_uuid",
         "ignore_patterns",
+        "language",
         "mode",
         "output_dir",
         "poll_seconds",
@@ -305,7 +312,22 @@ def load_workflow_config(config_path: str | Path) -> WorkflowConfig:
         poll_seconds=_optional_float(regression_section, "poll_seconds", DEFAULT_POLL_SECONDS),
         cleanup_projects=_optional_bool(regression_section, "cleanup_projects", False),
         ignore_patterns=_optional_str_list(regression_section, "ignore_patterns"),
+        language=_optional_str(regression_section, "language"),
     )
+
+    if regression.language is not None:
+        if any(character.isspace() for character in regression.language):
+            raise WorkflowConfigError(
+                "`regression.language` must be a locale code without whitespace"
+            )
+        if regression.mode != "document":
+            raise WorkflowConfigError("`regression.language` requires document mode, not preview")
+        subjects = [subject for subject in (baseline, candidate) if subject is not None]
+        if any(subject.kind != "released_id" for subject in subjects):
+            raise WorkflowConfigError(
+                "`regression.language` requires released_id subjects with the locale already "
+                "installed; staged local templates do not inherit separately attached PO files"
+            )
 
     fixtures_payload = payload.get("fixtures")
     if not isinstance(fixtures_payload, list) or not fixtures_payload:

@@ -75,6 +75,52 @@ staged template, while real content changes receive a new DSW coordinate. This
 prevents a long-running local stack from silently rendering an older package
 with the same published version number.
 
+### Official PO Language Selection
+
+For the official DSW 4.35+ PO workflow, first install the released template and
+attach its reviewed PO through DSW. Then use the existing regression command
+with a config such as:
+
+```yaml
+api:
+  url: ${DSW_API_URL}
+  token: ${DSW_API_KEY}
+subjects:
+  candidate:
+    kind: released_id
+    value: your-org:your-template:1.0.0
+regression:
+  assertion: render_success
+  mode: document
+  language: zh-Hant
+  format_uuid: your-html-format-uuid
+  output_dir: outputs/po-zh-Hant
+fixtures:
+  - name: review
+    project_uuid: your-project-uuid
+    project_event_uuid: your-project-event-uuid
+```
+
+Run `dsw-template-render-regression --config path/to/config.yml`. The tool sends
+the exact language code in a fresh `POST /documents` request and records the
+requested language in the report. Missing/invalid locale errors propagate;
+there is no automatic retry in English. Do not use explicit language selection
+on pre-4.35 servers: omission is the backward-compatible path, not a guarantee
+that an older server honors the new field.
+
+Use a separate run/output directory for `en`. Equality comparisons require both
+released subjects to support the requested language. A passing `render_success`
+means generation succeeded, **not** that the translation, answer retention, or
+visual layout has been approved. This workflow downloads HTML; PDF and Word
+still require the existing native rendering and visual checks.
+
+PO attachments do not travel with a staged ZIP or automatically transfer to a
+new released template version. For that reason, configured language selection
+rejects `local_dir`, `local_package`, and draft-preview subjects. The standalone
+`dsw-template-render-project` command still stages a local directory/package;
+it is not yet an official-PO rendering command. This addition neither uploads
+PO files nor changes the existing translation-tree pipeline.
+
 ## Fixture Strategy
 
 Fixtures use the same logical shape as DSW projects:

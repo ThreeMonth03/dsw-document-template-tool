@@ -28,6 +28,16 @@ baseline and candidate subjects. Render success rejects a baseline and is used
 with a `local_package` candidate so translated-package CI validates the actual
 ZIP without a meaningless cross-language or self-comparison.
 
+`regression.language` is optional. On DSW 4.35+, set it to the exact installed
+document-template locale code (for example `zh-Hant`), or the template's base
+language (for example `en`). It selects the **document** language, independently
+of the UI, project, and Knowledge Model languages. When omitted or null, the
+tool omits `language` from the API request and preserves the previous behavior
+for older servers. Explicit language selection requires `mode: document` and
+`kind: released_id` for every subject; unsupported preview or staging paths
+fail during config loading, before authentication or uploads. See
+[the PO regression example](regression-workflow.md#official-po-language-selection).
+
 `generated_fixtures` in [`config/regression.ci.yml`](../config/regression.ci.yml)
 uses these coverage controls:
 

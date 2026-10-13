@@ -413,8 +413,17 @@ class DSWApiClient:
         document_template: DocumentTemplateReference,
         format_uuid: str,
         project_event_uuid: str | None,
+        language: str | None = None,
     ) -> dict[str, Any]:
-        """Queue one final document generation job."""
+        """Queue a document, optionally selecting an installed locale on DSW 4.35+."""
+        if language is not None and (
+            not isinstance(language, str)
+            or not language.strip()
+            or any(character.isspace() for character in language)
+        ):
+            raise DSWAPIError(
+                "Document language must be a non-empty locale code without whitespace"
+            )
 
         body = {
             "name": name,
@@ -429,6 +438,8 @@ class DSWApiClient:
             raise DSWAPIError("Released document template reference has no identifier")
         if project_event_uuid is not None:
             body["projectEventUuid"] = project_event_uuid
+        if language is not None:
+            body["language"] = language
         return self._request_json("POST", "/documents", json=body, expected_status=201)
 
     def list_project_documents(self, project_uuid: str) -> list[dict[str, Any]]:
@@ -749,7 +760,13 @@ def _read_document_template_id_from_bundle(bundle_path: Path) -> str | None:
             if template_json_name is None:
                 return None
             payload = json.loads(archive.read(template_json_name).decode("utf-8"))
-    except (OSError, KeyError, json.JSONDecodeError, UnicodeDecodeError, zipfile.BadZipFile):
+    except (
+        OSError,
+        KeyError,
+        json.JSONDecodeError,
+        UnicodeDecodeError,
+        zipfile.BadZipFile,
+    ):
         return None
     if not isinstance(payload, dict):
         return None
@@ -831,7 +848,9 @@ def _is_document_template_uniqueness_error(response: requests.Response) -> bool:
     }
 
 
-def _package_reference_from_item(item: dict[str, Any]) -> KnowledgeModelPackageReference:
+def _package_reference_from_item(
+    item: dict[str, Any],
+) -> KnowledgeModelPackageReference:
     uuid = item.get("uuid")
     package_id = item.get("id") or item.get("pId")
     if not isinstance(package_id, str) or not package_id:

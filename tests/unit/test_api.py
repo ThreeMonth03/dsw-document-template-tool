@@ -442,7 +442,9 @@ def test_bundle_upload_accepts_list_payload(tmp_path: Path) -> None:
     assert package_ref.uuid is None
 
 
-def test_bundle_upload_rejects_history_without_requested_package(tmp_path: Path) -> None:
+def test_bundle_upload_rejects_history_without_requested_package(
+    tmp_path: Path,
+) -> None:
     """A partial history import must not silently select an older KM package."""
 
     bundle_path = tmp_path / "root-zh-hant-2.7.0.km"
@@ -541,12 +543,16 @@ def test_duplicate_document_template_package_upload_reuses_existing_template(
         ),
     ],
 )
+@pytest.mark.parametrize("language", [None, "en", "zh-Hant"])
+@pytest.mark.parametrize("project_event_uuid", [None, "snapshot-uuid"])
 def test_document_create_uses_server_template_identifier(
     reference: DocumentTemplateReference,
     expected_field: str,
     expected_value: str,
+    language: str | None,
+    project_event_uuid: str | None,
 ) -> None:
-    """Document creation should follow the identifier exposed by the server."""
+    """Locale selection must preserve identifiers, snapshots, and the old default body."""
 
     client = DocumentCreateClient()
 
@@ -555,16 +561,40 @@ def test_document_create_uses_server_template_identifier(
         project_uuid="11111111-1111-4111-8111-111111111111",
         document_template=reference,
         format_uuid="22222222-2222-4222-8222-222222222222",
-        project_event_uuid=None,
+        project_event_uuid=project_event_uuid,
+        language=language,
     )
 
-    body = client.requests[0][2]
-    assert body is not None
-    assert body[expected_field] == expected_value
-    other_field = (
-        "documentTemplateId" if expected_field == "documentTemplateUuid" else "documentTemplateUuid"
-    )
-    assert other_field not in body
+    expected_body = {
+        "name": "Preview",
+        "projectUuid": "11111111-1111-4111-8111-111111111111",
+        "formatUuid": "22222222-2222-4222-8222-222222222222",
+        expected_field: expected_value,
+    }
+    if project_event_uuid is not None:
+        expected_body["projectEventUuid"] = project_event_uuid
+    if language is not None:
+        expected_body["language"] = language
+    assert client.requests == [("POST", "/documents", expected_body)]
+
+
+@pytest.mark.parametrize(
+    "language", ["", " ", " zh-Hant", "zh-Hant ", "zh Hant", "zh\tHant", 1, False]
+)
+def test_document_create_rejects_invalid_language_before_request(language) -> None:
+    """Invalid locale arguments should not accidentally request the base language."""
+
+    client = DocumentCreateClient()
+    with pytest.raises(DSWAPIError, match="Document language"):
+        client.create_document(
+            name="Preview",
+            project_uuid="project-uuid",
+            document_template=DocumentTemplateReference(uuid="template-uuid"),
+            format_uuid="format-uuid",
+            project_event_uuid=None,
+            language=language,
+        )
+    assert client.requests == []
 
 
 def test_project_create_falls_back_to_package_id_field() -> None:

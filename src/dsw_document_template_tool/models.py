@@ -109,6 +109,7 @@ class RegressionConfig:
     poll_seconds: float
     cleanup_projects: bool = False
     ignore_patterns: list[str] = field(default_factory=list)
+    language: str | None = None
 
 
 @dataclass(frozen=True)
@@ -181,3 +182,4 @@ class RegressionReport:
     passed: bool
     fixture_results: list[FixtureRegressionResult]
     report_path: Path
+    language: str | None = None

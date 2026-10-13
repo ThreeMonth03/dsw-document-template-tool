@@ -9,6 +9,91 @@ import pytest
 from dsw_document_template_tool.config import WorkflowConfigError, load_workflow_config
 
 
+def _document_language_config(tmp_path: Path, *, mode="document", kind="released_id") -> Path:
+    config_path = tmp_path / "language.yml"
+    config_path.write_text(
+        f"""api:
+  url: http://localhost/wizard-api
+  token: synthetic-test-token
+subjects:
+  candidate:
+    kind: {kind}
+    value: example:template:1.0.0
+regression:
+  assertion: render_success
+  mode: {mode}
+  format_uuid: html-format-uuid
+  output_dir: outputs
+  language: zh-Hant
+fixtures:
+  - name: sample
+    project_uuid: project-uuid
+    project_event_uuid: snapshot-uuid
+""",
+        encoding="utf-8",
+    )
+    return config_path
+
+
+@pytest.mark.parametrize("language", [None, "en", "zh-Hant"])
+def test_document_language_config_is_optional(tmp_path: Path, language: str | None) -> None:
+    """Locale selection is explicit and never inferred from the project or KM."""
+
+    path = _document_language_config(tmp_path)
+    text = path.read_text(encoding="utf-8")
+    replacement = "" if language is None else f"  language: {language}\n"
+    path.write_text(text.replace("  language: zh-Hant\n", replacement), encoding="utf-8")
+    assert load_workflow_config(path).regression.language == language
+
+
+@pytest.mark.parametrize(
+    ("mode", "kind", "message"),
+    [
+        ("preview", "draft_id", "requires document mode"),
+        ("document", "local_dir", "requires released_id subjects"),
+        ("document", "local_package", "requires released_id subjects"),
+    ],
+)
+def test_document_language_rejects_untranslated_paths(
+    tmp_path: Path, mode: str, kind: str, message: str
+) -> None:
+    """Unsupported language paths fail during config loading, before authentication."""
+
+    path = _document_language_config(tmp_path, mode=mode, kind=kind)
+    with pytest.raises(WorkflowConfigError, match=message):
+        load_workflow_config(path)
+
+
+def test_document_language_checks_baseline_too(tmp_path: Path) -> None:
+    """Equality must not mix a released PO candidate with a staged untranslated baseline."""
+
+    path = _document_language_config(tmp_path)
+    text = (
+        path.read_text(encoding="utf-8")
+        .replace(
+            "subjects:\n",
+            "subjects:\n  baseline:\n    kind: local_package\n    value: baseline.zip\n",
+        )
+        .replace("assertion: render_success", "assertion: equal")
+    )
+    path.write_text(text, encoding="utf-8")
+    with pytest.raises(WorkflowConfigError, match="requires released_id subjects"):
+        load_workflow_config(path)
+
+
+@pytest.mark.parametrize("value", ['""', '" "', '"zh Hant"', "123", "false", "[en]"])
+def test_document_language_config_rejects_invalid_values(tmp_path: Path, value: str) -> None:
+    """A malformed configured language must not silently become the base language."""
+
+    path = _document_language_config(tmp_path)
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("language: zh-Hant", f"language: {value}"),
+        encoding="utf-8",
+    )
+    with pytest.raises(WorkflowConfigError, match="language"):
+        load_workflow_config(path)
+
+
 def test_load_workflow_config_rejects_duplicate_keys(tmp_path: Path) -> None:
     """Ambiguous workflow settings should fail before any DSW request runs."""
 

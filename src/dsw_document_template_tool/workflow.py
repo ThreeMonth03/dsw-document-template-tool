@@ -105,6 +105,7 @@ class DocumentTemplateWorkflowService:
                 passed=passed,
                 fixture_results=fixture_results,
                 report_path=report_path,
+                language=config.regression.language,
             )
             report_path.write_text(
                 json.dumps(serialize_regression_report(report), indent=2, ensure_ascii=False)
@@ -662,6 +663,7 @@ class DocumentTemplateWorkflowService:
                 timeout_seconds=config.regression.timeout_seconds,
                 poll_seconds=config.regression.poll_seconds,
                 name=f"{fixture.name}-{subject.label}",
+                language=config.regression.language,
             )
         raise TemplateToolError(f"Unsupported regression mode {config.regression.mode!r}")
 
@@ -698,6 +700,7 @@ class DocumentTemplateWorkflowService:
         timeout_seconds: int,
         poll_seconds: float,
         name: str,
+        language: str | None = None,
     ) -> str:
         if template_reference is None:
             raise DSWAPIError("Released regression subject has no template reference")
@@ -707,6 +710,7 @@ class DocumentTemplateWorkflowService:
             document_template=template_reference,
             format_uuid=format_uuid,
             project_event_uuid=project_event_uuid,
+            language=language,
         )
         document_uuid = str(created_document["uuid"])
         client.poll_document_ready(
