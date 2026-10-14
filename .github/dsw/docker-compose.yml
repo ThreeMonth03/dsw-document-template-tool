@@ -14,7 +14,12 @@ services:
       retries: 30
 
   minio:
-    image: minio/minio:${MINIO_VERSION:-RELEASE.2025-05-24T17-08-30Z}
+    image: dsw-ci-minio:RELEASE.2025-05-24T17-08-30Z
+    platform: linux/amd64
+    pull_policy: build
+    build:
+      context: ./storage
+      target: minio
     command: server /data --console-address ":9001"
     ports:
       - ${DSW_CI_MINIO_PORT:-9000}:9000
@@ -24,7 +29,12 @@ services:
       MINIO_VOLUMES: /data
 
   minio-init:
-    image: minio/mc:${MINIO_MC_VERSION:-latest}
+    image: dsw-ci-mc:RELEASE.2025-05-21T01-59-54Z
+    platform: linux/amd64
+    pull_policy: build
+    build:
+      context: ./storage
+      target: mc
     depends_on:
       - minio
     environment:
