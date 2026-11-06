@@ -54,6 +54,22 @@ Existing release assets are not deleted by this failure. The new upstream tag is
 blocked until a runtime is proven, while already-supported metamodel ranges can
 continue refreshing.
 
+Discovery keeps reporting unsupported upstream versions without blocking ordinary
+pull requests from testing the already-configured runtimes. Scheduled/default-branch
+runs may open a separate probe PR; this does not add support to the tested checkout.
+The probe helper runs in a temporary Git worktree so its branch changes and
+candidate configuration cannot contaminate the following lint, tests or render jobs.
+
+## CI Helper Cannot Import the Tool
+
+If a CI helper fails with `ModuleNotFoundError: dsw_document_template_tool`,
+check which Python interpreter runs it. `make install-dev` installs the package
+and dependencies into `.venv`; invoking an unqualified `python scripts/ci/...`
+does not activate that environment. Use `.venv/bin/python` (or the matching Make
+target) for helpers that run after installation. The workflow regression tests
+check this interpreter contract and that probe publication leaves the tested
+checkout unchanged.
+
 ## Translation Audit Fails
 
 Symptoms:

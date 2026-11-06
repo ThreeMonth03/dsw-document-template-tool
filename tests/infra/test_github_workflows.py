@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import json
+import os
+import shlex
 import stat
 import subprocess
 import sys
 import tomllib
 from pathlib import Path
 
+import pytest
 import yaml
 
 from dsw_document_template_tool.translation_repository import preview_runtime_matrix
@@ -184,7 +188,7 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert '--base "$DEFAULT_BRANCH"' in workflow_text
     assert "scripts/ci/create_dsw_compat_pr.py" in workflow_text
     assert "--evidence-config config/regression-evidence.yml" in workflow_text
-    assert "Fail pull request on unsupported upstream metamodel" in workflow_text
+    assert "Fail pull request on unsupported upstream metamodel" not in workflow_text
     assert "make test-upstream-compat-tags" not in workflow_text
     assert "make build-upstream-artifacts" in workflow_text
     assert "make generate-compat-ledger" in workflow_text
@@ -271,6 +275,187 @@ def test_headless_render_regression_workflow(repo_root: Path) -> None:
     assert "outputs/upstream-workspaces/" in workflow_text
     assert "outputs/document-templates/dsw-science-europe/**/scaffold/" in workflow_text
     assert "outputs/project-render/dsw-science-europe/**/scaffold/" in workflow_text
+
+
+def test_regression_python_helpers_use_installed_project_environment(repo_root: Path) -> None:
+    """All direct helpers need the dependencies installed by make install-dev."""
+
+    workflow = load_workflow_yaml(repo_root / ".github/workflows/headless_render_regression.yml")
+    expected_helpers = {
+        "Open DSW compatibility probe PR": "scripts/ci/create_dsw_compat_pr.py",
+        "Stage clean scaffold release assets": "scripts/ci/publish_clean_scaffold_releases.py",
+        "Publish clean scaffold release assets": "scripts/ci/publish_clean_scaffold_releases.py",
+    }
+    helpers = {
+        step["name"]: step
+        for job in workflow["jobs"].values()
+        for step in job.get("steps", [])
+        if step.get("name") in expected_helpers
+    }
+    assert set(helpers) == set(expected_helpers)
+    for name, script in expected_helpers.items():
+        command_lines = [line for line in helpers[name]["run"].splitlines() if script in line]
+        assert len(command_lines) == 1, name
+        arguments = shlex.split(command_lines[0].rstrip().removesuffix("\\"))
+        assert arguments[0] in {
+            ".venv/bin/python",
+            "$GITHUB_WORKSPACE/.venv/bin/python",
+            "${GITHUB_WORKSPACE}/.venv/bin/python",
+        }, (name, arguments)
+        assert arguments[1].endswith(script), (name, arguments)
+
+
+def test_upstream_discovery_does_not_block_supported_pull_request_runtimes(repo_root: Path) -> None:
+    """New upstream metamodels are reported without rejecting unrelated PRs."""
+
+    workflow = load_workflow_yaml(repo_root / ".github/workflows/headless_render_regression.yml")
+    steps = workflow["jobs"]["offline-checks"]["steps"]
+    discovery = next(step for step in steps if step.get("id") == "discover_compat")
+    assert discovery["continue-on-error"] == "true"
+    assert "make discover-upstream-compat" in discovery["run"]
+    assert (
+        'UPSTREAM_TEMPLATE_DISCOVERY_REPORT="outputs/upstream-compat/discovery.md"'
+        in discovery["run"]
+    )
+    assert not any(
+        "steps.discover_compat.outcome == 'failure'" in step.get("if", "")
+        and "github.event_name == 'pull_request'" in step.get("if", "")
+        and "exit 1" in step.get("run", "")
+        for step in steps
+    )
+    render = workflow["jobs"]["render-regression"]
+    assert render["needs"] == "offline-checks"
+    assert render["strategy"]["matrix"]["include"] == preview_runtime_matrix(
+        repo_root / "config/dsw-compat.yml"
+    )
+
+
+@pytest.mark.parametrize("helper_status", [0, 7], ids=["success", "helper-error"])
+def test_probe_publishing_cannot_change_the_checkout_under_test(
+    repo_root: Path,
+    tmp_path: Path,
+    helper_status: int,
+) -> None:
+    """Execute the workflow shell with a helper that deliberately mutates Git."""
+
+    workflow = load_workflow_yaml(repo_root / ".github/workflows/headless_render_regression.yml")
+    probe_step = next(
+        step
+        for step in workflow["jobs"]["offline-checks"]["steps"]
+        if step["name"] == "Open DSW compatibility probe PR"
+    )
+    workspace = tmp_path / "checkout"
+    workspace.mkdir()
+    runner_temp = tmp_path / "runner-temp"
+    runner_temp.mkdir()
+    helper = workspace / "scripts/ci/create_dsw_compat_pr.py"
+    helper.parent.mkdir(parents=True)
+    helper.write_text(
+        """import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--report', type=Path, required=True)
+parser.add_argument('--evidence-config', type=Path, required=True)
+parser.add_argument('--repository', required=True)
+parser.add_argument('--base', required=True)
+args = parser.parse_args()
+capture = {
+    'cwd': str(Path.cwd()),
+    'interpreter': sys.executable,
+    'helper': __file__,
+    'report': args.report.read_text(encoding='utf-8'),
+    'compat_before': Path('config/dsw-compat.yml').read_text(encoding='utf-8'),
+    'evidence_before': args.evidence_config.read_text(encoding='utf-8'),
+}
+subprocess.run(['git', 'checkout', '--detach', os.environ['PROBE_TEST_TARGET']], check=True)
+Path('config/dsw-compat.yml').write_text('probe compatibility\\n', encoding='utf-8')
+args.evidence_config.write_text('probe evidence\\n', encoding='utf-8')
+subprocess.run(['git', 'add', 'config/dsw-compat.yml', str(args.evidence_config)], check=True)
+capture['head_after'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+Path(os.environ['PROBE_TEST_CAPTURE']).write_text(json.dumps(capture), encoding='utf-8')
+sys.exit(int(os.environ['PROBE_TEST_STATUS']))
+""",
+        encoding="utf-8",
+    )
+    (workspace / ".gitignore").write_text(".venv/\noutputs/\n", encoding="utf-8")
+    config = workspace / "config/dsw-compat.yml"
+    config.parent.mkdir()
+    evidence = workspace / "config/regression-evidence.yml"
+    config.write_text("old compatibility\n", encoding="utf-8")
+    evidence.write_text("old evidence\n", encoding="utf-8")
+
+    def git(*arguments: str) -> str:
+        result = subprocess.run(
+            ["git", "-C", str(workspace), "-c", "core.hooksPath=/dev/null", *arguments],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+
+    git("init", "--quiet")
+    git("config", "user.name", "Workflow regression")
+    git("config", "user.email", "workflow@example.invalid")
+    git("config", "commit.gpgsign", "false")
+    git("add", ".")
+    git("commit", "--quiet", "-m", "Initial checkout")
+    initial_sha = git("rev-parse", "HEAD")
+    config.write_text("reviewed compatibility\n", encoding="utf-8")
+    evidence.write_text("reviewed evidence\n", encoding="utf-8")
+    git("add", "config")
+    git("commit", "--quiet", "-m", "Checkout that must be tested")
+    tested_sha = git("rev-parse", "HEAD")
+    interpreter = workspace / ".venv/bin/python"
+    interpreter.parent.mkdir(parents=True)
+    interpreter.symlink_to(sys.executable)
+    discovery = workspace / "outputs/upstream-compat/discovery.md"
+    discovery.parent.mkdir(parents=True)
+    discovery.write_text("Unsupported new upstream metamodel.\n", encoding="utf-8")
+    capture_path = tmp_path / "probe-capture.json"
+    result = subprocess.run(
+        ["bash", "-e", "-o", "pipefail", "-c", probe_step["run"]],
+        cwd=workspace,
+        env={
+            **os.environ,
+            "GITHUB_WORKSPACE": str(workspace),
+            "GITHUB_SHA": tested_sha,
+            "GITHUB_REPOSITORY": "example/tool",
+            "DEFAULT_BRANCH": "master",
+            "RUNNER_TEMP": str(runner_temp),
+            "PROBE_TEST_TARGET": initial_sha,
+            "PROBE_TEST_CAPTURE": str(capture_path),
+            "PROBE_TEST_STATUS": str(helper_status),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == helper_status, result.stdout + result.stderr
+    capture = json.loads(capture_path.read_text(encoding="utf-8"))
+    scratch = Path(capture["cwd"])
+    assert scratch != workspace
+    assert scratch.parent == runner_temp
+    assert capture["interpreter"] == str(interpreter)
+    assert capture["helper"] == str(helper)
+    assert capture["report"] == discovery.read_text(encoding="utf-8")
+    assert capture["compat_before"] == "reviewed compatibility\n"
+    assert capture["evidence_before"] == "reviewed evidence\n"
+    assert capture["head_after"] == initial_sha
+    assert git("rev-parse", "HEAD") == tested_sha
+    assert git("status", "--porcelain") == ""
+    assert config.read_text(encoding="utf-8") == "reviewed compatibility\n"
+    assert evidence.read_text(encoding="utf-8") == "reviewed evidence\n"
+    assert not scratch.exists()
+    assert [
+        line
+        for line in git("worktree", "list", "--porcelain").splitlines()
+        if line.startswith("worktree ")
+    ] == [f"worktree {workspace}"]
 
 
 def test_docs_pages_workflow(repo_root: Path) -> None:

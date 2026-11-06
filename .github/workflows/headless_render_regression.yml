@@ -66,17 +66,25 @@ jobs:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'master' }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          python scripts/ci/create_dsw_compat_pr.py \
-            --report outputs/upstream-compat/discovery.md \
-            --evidence-config config/regression-evidence.yml \
-            --repository "$GITHUB_REPOSITORY" \
-            --base "$DEFAULT_BRANCH"
+          # The helper switches HEAD and writes probe-only runtime configuration.
+          # Keep those changes outside the checkout used by the following checks.
+          probe_checkout="$(mktemp -d "$RUNNER_TEMP/dsw-compat-probe.XXXXXX")"
+          git worktree add --detach "$probe_checkout" "$GITHUB_SHA"
+          trap 'git worktree remove --force "$probe_checkout"' EXIT
+          mkdir -p "$probe_checkout/outputs/upstream-compat"
+          cp outputs/upstream-compat/discovery.md "$probe_checkout/outputs/upstream-compat/discovery.md"
+          (
+            cd "$probe_checkout"
+            "$GITHUB_WORKSPACE/.venv/bin/python" "$GITHUB_WORKSPACE/scripts/ci/create_dsw_compat_pr.py" \
+              --report outputs/upstream-compat/discovery.md \
+              --evidence-config config/regression-evidence.yml \
+              --repository "$GITHUB_REPOSITORY" \
+              --base "$DEFAULT_BRANCH"
+          )
 
-      - name: Fail pull request on unsupported upstream metamodel
-        if: steps.discover_compat.outcome == 'failure' && github.event_name == 'pull_request'
-        run: |
-          echo "::error title=Unsupported upstream metamodel::See the DSW compatibility discovery summary."
-          exit 1
+      # Discovery reports new unsupported upstream versions in the summary and
+      # opens a separate probe PR. Unrelated PRs still test the proven runtimes;
+      # build, metamodel and runtime-evidence checks below remain mandatory.
 
       - name: Check formatting
         run: make format-check
@@ -202,7 +210,7 @@ jobs:
       - name: Stage clean scaffold release assets
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master'
         run: |
-          python scripts/ci/publish_clean_scaffold_releases.py \
+          .venv/bin/python scripts/ci/publish_clean_scaffold_releases.py \
             --repository "$GITHUB_REPOSITORY" \
             --run-id "$GITHUB_RUN_ID" \
             --commit-sha "$GITHUB_SHA" \
@@ -213,7 +221,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python scripts/ci/publish_clean_scaffold_releases.py \
+          .venv/bin/python scripts/ci/publish_clean_scaffold_releases.py \
             --repository "$GITHUB_REPOSITORY" \
             --run-id "$GITHUB_RUN_ID" \
             --commit-sha "$GITHUB_SHA" \
