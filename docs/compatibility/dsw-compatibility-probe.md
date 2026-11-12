@@ -25,6 +25,7 @@ Compatibility table: `config/dsw-compat.yml`
 | `v2.0.0` | `v2.0.0` | `19.0` | - | unsupported: Template v2.0.0 uses metamodelVersion '19.0', but configured runtime '18-0' expects '18.0' |
 | `v3.0.0` | `v3.0.0` | `19.0` | - | unsupported: Template v3.0.0 uses metamodelVersion '19.0', but configured runtime '18-0' expects '18.0' |
 | `v3.0.1` | `v3.0.1` | `19.0` | - | unsupported: Template v3.0.1 uses metamodelVersion '19.0', but configured runtime '18-0' expects '18.0' |
+| `v3.0.2` | `v3.0.2` | `19.0` | - | unsupported: Template v3.0.2 uses metamodelVersion '19.0', but configured runtime '18-0' expects '18.0' |
 
 ### Unsupported Metamodels
 
@@ -41,6 +42,8 @@ Official metamodel source: https://guide.ds-wizard.org/en/latest/more/developmen
 - `v3.0.0` (`v3.0.0`) uses `metamodelVersion=19.0`: Template v3.0.0 uses metamodelVersion '19.0', but configured runtime '18-0' expects '18.0'
   - Official DSW docs say document-template metamodel 19.0 is supported since DSW 5.0.0. Start by validating a wizard-server/document-worker runtime at or above that version with a matching dsw-tdk release, then add the proven runtime to `config/dsw-compat.yml`.
 - `v3.0.1` (`v3.0.1`) uses `metamodelVersion=19.0`: Template v3.0.1 uses metamodelVersion '19.0', but configured runtime '18-0' expects '18.0'
+  - Official DSW docs say document-template metamodel 19.0 is supported since DSW 5.0.0. Start by validating a wizard-server/document-worker runtime at or above that version with a matching dsw-tdk release, then add the proven runtime to `config/dsw-compat.yml`.
+- `v3.0.2` (`v3.0.2`) uses `metamodelVersion=19.0`: Template v3.0.2 uses metamodelVersion '19.0', but configured runtime '18-0' expects '18.0'
   - Official DSW docs say document-template metamodel 19.0 is supported since DSW 5.0.0. Start by validating a wizard-server/document-worker runtime at or above that version with a matching dsw-tdk release, then add the proven runtime to `config/dsw-compat.yml`.
 
 ## Maintainer Checklist
